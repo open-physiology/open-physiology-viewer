@@ -310,7 +310,7 @@ export const addBorderNode = (border, nodeID) => {
  * @returns {*|void}
  */
 export const findResourceByID = (eArray, ref, namespace = undefined) => {
-    return ref::isObject() ? ref : (eArray || []).find(x => ref && x.id === getRefID(ref) && (!namespace || !x.namespace || x.namespace === namespace));
+    return ref::isObject() ? ref : (eArray || []).find(x => ref && x?.id === getRefID(ref) && (!namespace || !x.namespace || x.namespace === namespace));
 }
 
 /**
@@ -516,10 +516,10 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
                 resource.levelTargets = [];
                 (resource.levels||[]).forEach((level, i) => {
                     if (level && level.target){
-                        resource.levelTargets.push(i+":"+getID(level.target))
+                        resource.levelTargets.push(i + ":" + getID(level.target))
                     }
                 })
-                resource.levelTargets = resource.levelTargets.join(",");
+                resource.levelTargets = resource.levelTargets.join(", ");
                 delete resource.levels;
             }
             if (resource.border){
@@ -527,7 +527,7 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
                 if (resource.border.borders){
                     for (let i = 0; i < 4; i++){
                         if (resource.border.borders[i] && resource.border.borders[i].hostedNodes) {
-                            resource[borderNames[i]] = resource.border.borders[i].hostedNodes.join(",");
+                            resource[borderNames[i]] = resource.border.borders[i].hostedNodes.join(", ");
                         }
                     }
                 }
@@ -535,7 +535,7 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
             }
             resource::keys().forEach(prop => {
                 if (resource[prop]::isArray()) {
-                    resource[prop] = resource[prop].map(value => objToStr(value)).join(",");
+                    resource[prop] = resource[prop].map(value => objToStr(value)).join(", ");
                 } else {
                     if (resource[prop]::isObject()) {
                         //Replace resource objects with IDs, stringify simple objects (i.e., "layout")

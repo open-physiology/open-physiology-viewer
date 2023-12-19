@@ -55,7 +55,7 @@ const COLORS = {
                       Variance
                   </mat-panel-title>
               </mat-expansion-panel-header>
-              <mat-form-field *ngIf="!cladeDisabled">
+              <mat-form-field *ngIf="clades?.length > 0">
                   <mat-select 
                           [placeholder]="Clade"
                           [matTooltip]="Clade"
@@ -99,7 +99,7 @@ const COLORS = {
                 <searchBar
                   [selected]="_selectedName"
                   [searchOptions]="searchOptions"
-                  (selectedItemChange)="selectBySearch($event)"
+                  (selectedItemChange)="this.onSelectBySearch.emit($event)"
                 >
                 </searchBar>
               </div>
@@ -157,22 +157,16 @@ const COLORS = {
               </button>
             </div>
             <div class="wrap" *ngFor="let group of filteredGroups">
-              <mat-slide-toggle
-                class="toggle-group"
-                [checked]="!group.hidden"
-                [disabled]="neuroViewEnabled"
-                (change)="toggleGroup($event, group)"
-                >{{ group.namespace ? group.namespace + ":" : ""
-                }}{{ group.name || group.id }}</mat-slide-toggle
-              >
+                <mat-slide-toggle [checked]="!group.hidden"
+                (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
             </div>
             <!--Tree structure-->
             <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                          <ng-template #treeNodeTemplate let-node let-index="index">
-                            <span>{{node.data.name}}</span>
-                            <mat-slide-toggle></mat-slide-toggle>
-                          </ng-template>
-                          </tree-root> -->
+              <ng-template #treeNodeTemplate let-node let-index="index">
+                <span>{{node.data.name}}</span>
+                <mat-slide-toggle></mat-slide-toggle>
+              </ng-template>
+              </tree-root> -->
             <!--Tree structure-->
           </div>
         </mat-expansion-panel>
@@ -1199,16 +1193,18 @@ export class SettingsPanel {
             this._showHelpers = new Set([]);
         }
     }
+    
     @Input('modelId') set modelId(modelId) {
         if (this._modelId !== modelId) {
             this._modelId = modelId;
         }
     }
 
+
     @Input('selected') set selected(entity) {
         if (this.selected !== entity) {
             this._selected = entity;
-            this._selectedName = entity ? entity.name || "" : "";
+            this.selectedLabel = (entity?.name || '?') + ' (' + entity?.id + ')';
         }
     }
 
@@ -1349,6 +1345,20 @@ export class SettingsPanel {
     let allVisible = this.groups.filter(
       (group) => group.hidden || group.undefined
     );
+    ngOnInit() {
+        this.filteredGroups = this.groups;
+        this.filteredDynamicGroups = this.dynamicGroups;
+        this.filteredScaffolds = this.scaffolds;
+    }
+
+    ngOnChanges() {
+        this.search(this.searchTerm, 'filteredGroups', 'groups');
+        this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
+        this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
+        this.filteredGroups = this.filteredGroups || this.groups;
+        this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
+        this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
+    }
 
     for (let group of this.groups) {
       if (group.hidden || allVisible.length == 0) {

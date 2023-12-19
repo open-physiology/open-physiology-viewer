@@ -1,0 +1,144 @@
+{
+  "links": [
+    {
+      "id": "prostate/13_lnk_0",
+      "name": "Neural segment for ILX:0793823",
+      "conveyingLyph": "wbkg:lt-axon-bag",
+      "source": "prostate/13_n3",
+      "target": "prostate/13_n4"
+    },
+    {
+      "id": "prostate/13_lnk_1",
+      "name": "Neural segment for UBERON:0018675",
+      "conveyingLyph": "wbkg:lt-axon-tube",
+      "source": "prostate/13_n2",
+      "target": "prostate/13_n3"
+    },
+    {
+      "id": "prostate/13_lnk_2",
+      "name": "Neural segment for ILX:0793878",
+      "conveyingLyph": "wbkg:lt-soma-of-neuron",
+      "source": "prostate/13_n5",
+      "target": "prostate/13_n2"
+    },
+    {
+      "id": "prostate/13_lnk_3",
+      "name": "Neural segment for ILX:0793877",
+      "conveyingLyph": "wbkg:lt-soma-of-neuron",
+      "source": "prostate/13_n1",
+      "target": "prostate/13_n2"
+    }
+  ],
+  "lyphs": [],
+  "chains": [
+    {
+      "id": "prostate/13_1",
+      "name": "intermediolateral cell column of L6-S1 spinal cord_1",
+      "housingLyphs": [
+        "wbkg:lyph-L6-spinal-segment",
+        "wbkg:lyph-PNS-nerve-lumbar-pelvic",
+        "wbkg:lyph-PNS-pelvic-ganglion-major"
+      ],
+      "levels": [
+        "prostate/13_lnk_3",
+        "prostate/13_lnk_1",
+        "prostate/13_lnk_0"
+      ]
+    },
+    {
+      "id": "prostate/13_2",
+      "name": "intermediolateral cell column of L6-S1 spinal cord_2",
+      "housingLyphs": [
+        "wbkg:lyph-S1-spinal-segment",
+        "wbkg:lyph-PNS-nerve-lumbar-pelvic"
+      ],
+      "levels": [
+        "prostate/13_lnk_2",
+        "prostate/13_lnk_1"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "g_neuron_prostate/13",
+      "name": "Group prostate/13",
+      "links": [
+        "nlp:prostate/13_lnk_0",
+        "nlp:prostate/13_lnk_2",
+        "nlp:prostate/13_lnk_3",
+        "nlp:prostate/13_lnk_1"
+      ],
+      "nodes": [
+        "nlp:prostate/13_n1",
+        "nlp:prostate/13_n3",
+        "nlp:prostate/13_n5",
+        "nlp:prostate/13_n4",
+        "nlp:prostate/13_n2"
+      ]
+    }
+  ],
+  "localConventions": [
+    {
+      "prefix": "UBERON",
+      "namespace": "http://purl.obolibrary.org/obo/UBERON_"
+    },
+    {
+      "prefix": "CHEBI",
+      "namespace": "http://purl.obolibrary.org/obo/CHEBI_"
+    },
+    {
+      "prefix": "FMA",
+      "namespace": "http://purl.org/sig/ont/fma/fma"
+    },
+    {
+      "prefix": "GO",
+      "namespace": "http://purl.obolibrary.org/obo/GO_"
+    },
+    {
+      "prefix": "ILX",
+      "namespace": "http://uri.interlex.org/base/ilx_"
+    },
+    {
+      "prefix": "NLX",
+      "namespace": "http://uri.neuinfo.org/nif/nifstd/nlx_"
+    },
+    {
+      "prefix": "SAO",
+      "namespace": "http://uri.neuinfo.org/nif/nifstd/sao"
+    },
+    {
+      "prefix": "PMID",
+      "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
+    },
+    {
+      "prefix": "EMAPA",
+      "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
+    },
+    {
+      "prefix": "CL",
+      "namespace": "http://purl.obolibrary.org/obo/CL_"
+    },
+    {
+      "prefix": "NCBITaxon",
+      "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
+    },
+    {
+      "prefix": "wbkg",
+      "namespace": "https://apinatomy.org/uris/models/wbrcm/ids/"
+    },
+    {
+      "prefix": "too",
+      "namespace": "https://apinatomy.org/uris/models/too-map/ids/"
+    }
+  ],
+  "id": "sparc-nlp",
+  "name": "Generated neurons",
+  "author": "Natallia Kokash",
+  "namespace": "nlp",
+  "description": "Generated neuron chains from sparc-nlp.ttl",
+  "imports": [
+    "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/wbrcm/source/wbrcm.json"
+  ],
+  "version": "e7ad45ba4832bce70547b4834acc89ae2de7c22d",
+  "schemaVersion": "e0dba87327205156ed4e89dc42b1ab036d6a4465"
+}

@@ -1,28 +1,48 @@
 # Overview
  
-The ApiNATOMY lyph viewer shows 3d schematics of physiology models.
-The lyph viewer is a graphical component that consists of
+The ApiNATOMY lyph viewer is a web application that shows 3d schematics of physiology models. 
+It consists of the following components:
 
-* a canvas that features a dynamic graph rendered using a 3D force-directed layout algorithm;
-* a control panel that allows users to change parameters of the viewer and select parts of the model to display.
+<img class="screen-shot no-border" src="asset/overview-annotated.png" alt="ApiNATOMY viewer screenshot">
 
-<img class="screen-shot no-border" src="asset/main.png">
-
-The use of the ApiNATOMY lyph viewer component is illustrated via the test application that allows the user to load an ApiNATOMY data model from the local file system. In addition to the aforementioned component, the demo application includes:
+* **Viewer** canvas that features a dynamic graph rendered using a 3D force-directed layout algorithm.
+* **Control panel** that allows users to change parameters of the viewer and select parts of the model to display.
+* **Relationship graph** helper component that shows selected relationships among key model resources. This viewer 
+  operates on the generated model and hence can be used to inspect derived (auto-generated) resources.  
+* **Model editing tools** 
+  * **Code editor** is a component that shows code of the currently opened ApiNATOMY JSON specification. It is the 
+    most flexible editing tool but requires technical understanding of the ApiNATOMY schema and model specification conventions.         
+  * **Layout editor** allows users to associate physiology model resources with scaffold resources 
+  to specify their position within larger body regions. 
+  * **Material editor** is a GUI for defining chemical compounds and basic tissue elements used throughout  
+    physiology models.
+  * **Lyph editor** is a GUI for defining key structural resources in ApiNATOMY, *lyphs*, which are layered 
+    compartments composed of materials or other lyphs and represent biological organs or systems.  
+* **Toolbars**
+  * **Main toolbar** allows users to create, load, compose and export data models from the local file system,
+    online repository or a given URL. 
+  * **Model toolbar** provides controls for the current graphical scene. It allows users to disable camera, reset it to the 
+    initial position, toggle antialising effect in WebGL images, show/hide the control panel and adjust label font. 
+    Moreover, there are controls in this menu to import external models reused in the current one, and export the generated model 
+    and resource map for further use or integration with resources like SciGraph. 
+  * **Snapshot toolbar** allows users to save and instantly restore selected scenes. A scene consists of a number of
+    visible groups in the current model, camera position and enabled combination of settings parameters.  
+In addition to the aforementioned components, the web application includes header and footer with relevant project information.
  
-* a header and a footer with relevant project information;
-* a toolbar that allows the user to import, edit, preview and export the data model, as well as to switch the application view modes;
-* an integrated JSON editor to overview, analyze and modify the chosen data model;
-* a dedicated form-based resource editor for assisted editing of model resources;
-* an svg-based viewer that helps users to overview the structural relationships among model resources, including derived (auto-generated) resources.
+<img class="screen-shot no-border" src="asset/overview-zoomed.png" alt="ApiNATOMY viewer scene">
+
 
 ## Model input
 
-The lyph viewer accepts as input a JSON-based object that defines ApiNATOMY resources, see [model](./model.html) section for more detail. The model can be edited using external tools or with the help of a build-in JSON editor and custom resource editor within the demo app.
+The lyph viewer accepts as input a JSON-based object that defines ApiNATOMY resources, see [model](./model.html) section for more 
+detail. The model can be edited using external tools or with the help of a build-in JSON editor and resource editors within 
+the app.
 
-The image below shows an integrated ACE-based JSON editor. The editor uses the ApiNATOMY JSON Schema for interactive validation - the lines that violate the schema model are marked with error or warning signs.
+The image below shows an integrated ACE-based JSON editor. The editor uses the ApiNATOMY JSON Schema for interactive validation - 
+the lines that violate the schema model are marked with error or warning signs.
 
-<img class="screen-shot no-border" src="asset/overview.png">
+<img class="screen-shot no-border" src="asset/overview-code.png">
+
 
 Alternatively, the input model can be edited with the help of the form-based editor as shown in the image below. The fields in the form are also based on the ApiNATOMY JSON schema and are preconfigured to assist the modeller with the choice of correct options, i.e., multi-selection fields that expect references to lyphs, show all suitable lyphs in the model.
 

@@ -15,7 +15,7 @@ import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
 import {Coalescence}  from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
-import {isString, keys, assign} from "lodash-bound";
+import {isString, keys, assign, isObject} from "lodash-bound";
 import schema from "./graphScheme";
 import {logger} from "./logger";
 import * as XLSX from 'xlsx';
@@ -27,7 +27,7 @@ import {
     assignEntityByID,
     $SchemaType,
     getGenID,
-    getGenName
+    getGenName, $Prefix
 } from "./utils";
 
 const hash = require('object-hash');
@@ -173,6 +173,19 @@ export function generateFromJSON(inputModel) {
     if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
+        //Move levels to links
+        let count = 1;
+        (inputModel.chains||[]).forEach(chain => {
+            chain.id = chain.id || getGenID($Prefix.chain, $Prefix.default, count++);
+            (chain.levels||[]).forEach((level, i) => {
+                if (level::isObject()){
+                    level.id = level.id || getGenID($Prefix.link, $Prefix.default, chain.id, i);
+                    inputModel.links = inputModel.links || [];
+                    inputModel.links.push(level);
+                    chain.levels[i] = level.id;
+                }
+            });
+        });
         return Graph.fromJSON(inputModel, modelClasses);
     }
 }

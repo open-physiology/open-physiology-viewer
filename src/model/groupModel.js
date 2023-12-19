@@ -119,7 +119,7 @@ export class Group extends Resource {
     includeRelated(){
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
-        [$Field.nodes, $Field.links, $Field.lyphs].forEach(prop => {
+        [$Field.lyphs, $Field.nodes, $Field.links].forEach(prop => {
             this[prop].forEach(res => res.includeRelated && res.includeRelated(this));
             this[prop].hidden = this.hidden;
         });
@@ -223,6 +223,9 @@ export class Group extends Resource {
 
         const replaceRefToTemplate = (ref, parent, ext = null) => {
             let refID = getID(ref);
+            if (refID === parent.id){
+                logger.error($LogMsg.LYPH_TEMPLATE_LOOP, refID);
+            }
             let template = refToResource(refID, parentGroup, $Field.lyphs);
             if (template && template?.isTemplate) {
                 changedLyphs++;
@@ -230,9 +233,12 @@ export class Group extends Resource {
                 let subtype = genResource({
                     [$Field.id]        : subtypeID,
                     [$Field.name]      : template?.name,
-                    [$Field.supertype] : refID,
+                    [$Field.supertype] : refID,er
                     [$Field.skipLabel] : true
                 }, "groupModel.replaceRefToTemplate (Lyph)");
+                if (refID !== parent.id){
+                   subtype.supertype = refID;
+                }
                 //NK: mergeGenResource assigns namespace and fullID
                 mergeGenResource(undefined, parentGroup, subtype, $Field.lyphs);
                 replaceAbstractRefs(subtype, $Field.layers);
@@ -302,6 +308,16 @@ export class Group extends Resource {
                     (resource::keys() || []).forEach(key => { // Do not replace valid references to templates
                         if (refsToLyphs.includes(key)) {
                             replaceAbstractRefs(resource, key);
+                        } else {
+                            //keys do not point to lyphs, but to nested objects that may contain lyphs
+
+                            //generic code checking all nested objects would slow down the generator, so we only consider
+                            //chain.levels as the most common case of the use of nested object definitions
+                            (resource.levels||[]).forEach(level => {
+                                if (level.conveyingLyph) {
+                                    replaceAbstractRefs(level, $Field.conveyingLyph);
+                                }
+                            });
                         }
                     });
                 });

@@ -7,7 +7,6 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
-import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatCardModule} from '@angular/material/card';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
@@ -202,7 +201,7 @@ export class ResourceEditor {
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, ResourceInfoModule, FieldTableEditorModule,
         MatListModule, MatDividerModule, MatFormFieldModule, MatInputModule, MatDialogModule, MatTooltipModule,
-        MatCardModule, FieldEditorModule, UtilsModule, MatIconModule, MatCheckboxModule,
+        MatCardModule, FieldEditorModule, UtilsModule, MatIconModule,
         HttpClientModule, MatTabsModule],
     declarations: [ResourceEditor, ExternalSelectDialog],
     entryComponents: [ExternalSelectDialog],

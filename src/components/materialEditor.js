@@ -3,22 +3,52 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
-import {cloneDeep, omit, values, sortBy} from 'lodash-bound';
-import {clearMaterialRefs, clearMany, isPath, replaceMaterialRefs} from './gui/utils.js'
-import FileSaver from 'file-saver';
-import {ResourceDeclarationModule, COLORS} from "./gui/resourceDeclarationEditor";
+import {cloneDeep, values, sortBy} from 'lodash-bound';
+import {
+    clearMaterialRefs,
+    clearMany,
+    isPath,
+    replaceMaterialRefs,
+    prepareMaterialSearchOptions,
+    COLORS
+} from './gui/utils.js'
+import {DiffDialog} from "./gui/diffDialog";
+import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
 import {$Field, $SchemaClass} from "../model";
-import {SearchBarModule} from "./gui/searchBar";
+import {SearchAddBarModule} from "./gui/searchAddBar";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
+import {HostListener} from "@angular/core";
+import {MatDialog} from "@angular/material/dialog";
+import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
 
+/**
+ * Css class names to represent ApiNATOMY resource classes
+ * @type {{LYPH: string, UNDEFINED: string, TEMPLATE: string, MATERIAL: string}}
+ */
+const CLASS = {
+    LYPH: $SchemaClass.Lyph,
+    MATERIAL: $SchemaClass.Material,
+    TEMPLATE: "Template",
+    UNDEFINED: "Undefined"
+}
+
+const EDGE_CLASS = {
+    MATERIAL: 'has-material',
+    NEW: 'has-new'
+}
 
 /**
  * @class
- *
+ * @property id
+ * @property parents
+ * @property children
+ * @property label
+ * @property type
+ * @property resource
  */
-export class Node {
+export class MaterialNode {
     constructor(id, parents, children, label, type, resource) {
         this.id = id;
         this.parents = parents;
@@ -48,23 +78,20 @@ export class Edge {
 @Component({
     selector: 'materialEditor',
     template: `
-        <section #materialEditorD3 id="materialEditorD3" class="w3-row">
-            <section [class.w3-threequarter]="showPanel">
-                <section class="w3-padding-right" style="position:relative;">
-                    <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
+        <section class="w3-row">
+            <section [class.w3-threequarter]="showPanel">                                
+                <section class="w3-padding-right w3-white" style="position:relative;">
+                    <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:20px">
                         <button class="w3-bar-item w3-hover-light-grey"
                                 (click)="createMaterial()" title="New material">
                             <i class="fa fa-file-pen"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="preview()" title="Preview">
+                               [disabled]="currentStep === 0" 
+                                (click)="showDiff()" title="Compare code">
                             <i class="fa fa-magnifying-glass"> </i>
                         </button>
                         <mat-divider></mat-divider>
-<!--                        <button [disabled]="!isHistory" class="w3-bar-item"-->
-<!--                                (click)="showHistory()" title="Show history">-->
-<!--                            <i class="fa fa-timeline"> </i>-->
-<!--                        </button>-->
                         <button [disabled]="!canUndo" class="w3-bar-item"
                                 (click)="undo()" [title]="undoTitle">
                             <i class="fa fa-rotate-left"> </i>
@@ -83,36 +110,40 @@ export class Edge {
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
                                 title="Apply changes">
-                            <i class="fa fa-check"> </i>
+                            <div style="display: flex">    
+                                <i class="fa fa-check"> </i>
+                                <span *ngIf="currentStep > 0" style="color: red">*</span>
+                            </div>
                         </button>
                     </section>
                 </section>
-                <svg #svgDagD3>
-                    <rect width="100%" height="100%"/>
-                    <g/>
-                </svg>
+                <section #materialEditorD3 id="materialEditorD3">
+                    <svg #svgDagD3>
+                        <rect width="100%" height="100%"/>
+                        <g/>
+                    </svg>                    
+                </section>                
             </section>
-            <section *ngIf="showPanel" class="w3-quarter">
-                <div class="settings-wrap">
-                    <div class="default-box pb-0">
-                        <div class="default-searchBar default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <searchBar [searchOptions]="_searchOptions"
-                                           (selectedItemChange)="selectBySearch($event)">
-                                </searchBar>
-                            </div>
-                        </div>
-                    </div>
-                    <button *ngIf="matToLink" (click)="linkMaterial(matToLink)" class="w3-right w3-hover-light-grey add-button">
-                        <i class="fa fa-add">
-                        </i>
-                    </button> 
-                </div>
+            <section *ngIf="showPanel" class="w3-quarter w3-white">
+                <searchAddBar 
+                        [searchOptions]="searchOptions"
+                        [selected]="matToLink"
+                        (selectedItemChange)="selectBySearch($event)"
+                        (addSelectedItem)="linkMaterial($event)"
+                >
+                </searchAddBar>                          
                 <resourceDeclaration
                         [resource]="selectedMaterial"
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
+                    <resourceListView 
+                      title="Lyphs"
+                      [showMenu]=false
+                      [listData]="lyphList"
+                      (onNodeClick)="selectLyph($event)"
+                    >
+                    </resourceListView>   
+                
             </section>
         </section>
         <section #tooltip class="tooltip"></section>
@@ -127,20 +158,20 @@ export class Edge {
         <mat-menu #rightMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-type="type" let-hasParents="hasParents"
                          let-hasChildren="hasChildren">
-                <div *ngIf="type === 'type-lyph' || type === 'type-material'">
+                <div *ngIf="[CLASS.LYPH, CLASS.TEMPLATE, CLASS.MATERIAL].includes(type)">
                     <button mat-menu-item (click)="deleteMaterial(item)">Delete</button>
                     <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item)">Delete definition</button>
                     <button *ngIf="hasParents" mat-menu-item (click)="removeParents(item)">Disconnect from parents</button>
                     <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children</button>
                 </div>
-                <button *ngIf="type === 'type-lyph' && !hasChildren && !hasParents" 
+                <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents" 
                         mat-menu-item (click)="excludeLyph(item)">Exclude from view</button>
-                <div *ngIf="type === 'type-undefined'">
+                <div *ngIf="type === CLASS.UNDEFINED">
                     <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
-                    <button mat-menu-item (click)="defineAsLyph(item)">Define as lyph</button>
+                    <button mat-menu-item (click)="defineAsLyphTemplate(item)">Define as lyph template</button>
                 </div>
-                <button *ngIf="type === 'has-material'" mat-menu-item (click)="removeRelation(item)">Delete relation</button>
-                <button *ngIf="type === 'type-new'" mat-menu-item (click)="addMaterial(item)">Add material</button>
+                <button *ngIf="type === EDGE_CLASS.MATERIAL" mat-menu-item (click)="removeRelation(item)">Delete relation</button>
+                <button *ngIf="type === EDGE_CLASS.NEW" mat-menu-item (click)="addMaterial(item)">Add material</button>
 
             </ng-template>
         </mat-menu>
@@ -148,18 +179,9 @@ export class Edge {
     styles: [`
         .vertical-toolbar {
             width: 48px;
-        }
-        
-        .add-button {
-          width: 30px;
-          border: ${COLORS.inputBorderColor} 1px solid;
-          background: transparent;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-          padding: 0.525rem 0.625rem;
-          cursor: pointer;
-          margin-right: 1rem;
+        }       
+        .vertical-toolbar button{
+            height: 48px;
         }
         
         #materialEditorD3 {
@@ -168,10 +190,12 @@ export class Edge {
             overflow-x: scroll;
         }
 
-        svg {
+        #svgDagD3 {
             display: block;
             width: 100%;
-            height: 200%;
+            top: 0;
+            left: 0;
+            min-height: 100%;
         }
 
         .tooltip {
@@ -182,17 +206,31 @@ export class Edge {
             border: 1px solid #666;
             pointer-events: none;
         }
+        
+        ::ng-deep .mat-menu-content {
+          padding-top: 0px !important;
+          padding-bottom: 0px !important;
+        }
+        
+        .mat-menu-item{
+          line-height:32px;
+          height:32px;
+        }
 
-        :host /deep/ g.type-undefined > rect {
+        :host /deep/ g.${CLASS.UNDEFINED} > rect {
             fill: lightgrey;
         }
 
-        :host /deep/ g.type-material > rect {
-            fill: #CCFFCC;
+        :host /deep/ g.${CLASS.MATERIAL} > rect {
+            fill: ${COLORS.material};
         }
 
-        :host /deep/ g.type-lyph > rect {
-            fill: #ffe4b2;
+        :host /deep/ g.${CLASS.LYPH} > rect {
+            fill: ${COLORS.lyph};
+        }
+
+        :host /deep/ g.${CLASS.TEMPLATE} > rect {
+            fill: ${COLORS.template};
         }
 
         :host /deep/ text {
@@ -243,157 +281,7 @@ export class Edge {
 
         :host /deep/ path.link.hidden {
             stroke-width: 0;
-        }
-
-        :host ::ng-deep .settings-wrap {
-            padding-bottom: 0.8rem;
-            margin-top: 0;
-            position: relative;
-        }
-
-       .default-box .default-box-header {
-          padding: 1.067rem;
-          display: flex;
-          align-items: center;
-        }
-
-        .default-box .default-box-header .search-bar {
-          flex-grow: 1;
-        }
-        
-        .pb-0 {
-          padding-bottom: 0 !important;
-        }
-        
-        .default-box .default-box-header .search-bar {
-          flex-grow: 1;
-        }
-        
-        .mat-form-field {
-          width: 100%;
-        }
-
-        .search-bar .mat-form-field {
-          display: block;
-          width: 100%;
-        }
-
-        .search-bar .mat-form-field-underline {
-          display: none;
-        }
-
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-infix {
-          padding: 0;
-          width: 100%;
-          margin: 0;
-          border: none;
-        }
-
-        .search-bar input.mat-input-element {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
-
-        .search-bar .search-input {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          display: block;
-          width: 100%;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
-
-        .search-bar {
-          position: relative;
-        }
-
-        .search-bar img {
-          position: absolute;
-          left: 0.534rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: ${COLORS.inputTextColor};
-          font-size: 0.934rem;
-        }
-
-        .search-bar img.input-clear {
-          right: 0.534rem;
-          cursor: pointer;
-          left: auto;
-        }
-
-        .search-bar .search-input:focus {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
-
-        .search-bar .search-input::placeholder {
-          color: ${COLORS.inputPlacholderColor};
-        }
-        
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-underline {
-          display: none;
-        }
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-        :host >>> .default-searchBar .mat-form-field-should-float .mat-form-field-label {
-          display: none !important;
-        }
-        :host >>> .default-searchBar .search-bar img {
-          z-index: 10;
-        }
-        :host >>> .default-searchBar .mat-form-field-label {
-          padding-left: 1.625rem;
-          top: 1.5em;
-          color: ${COLORS.inputPlacholderColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-        :host >>> .default-searchBar .mat-form-field-infix {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0.5rem 2rem 0 2rem;
-        }
-        :host >>> .default-searchBar .mat-focused .mat-form-field-infix {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
-        
-        :host >>> .default-searchBar .search-bar img {
-          z-index: 10;
-        }
-
+        } 
     `]
 })
 /**
@@ -401,20 +289,20 @@ export class Edge {
  * @property entitiesByID
  */
 export class DagViewerD3Component {
+    CLASS = CLASS;
+    EDGE_CLASS = EDGE_CLASS;
+
     _originalModel;
     _model;
-    _searchOptions;
     _selectedNode;
 
-    /**
-     * @property nodeEdges
-     */
     graphD3;
     entitiesByID;
     nodes = [];
     edges = [];
     menuTopLeftPosition = {x: '0', y: '0'}
 
+    searchOptions;
     steps = [];
     currentStep = 0;
     selected_node;
@@ -433,10 +321,12 @@ export class DagViewerD3Component {
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
     @Output() onChangesSave = new EventEmitter();
+    @Output() onSwitchEditor = new EventEmitter();
 
     @Input('model') set model(newModel) {
         this._originalModel = newModel;
         this._model = newModel::cloneDeep();
+        this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
         this.currentStep = 0;
         this.saveStep('Initial model');
@@ -444,15 +334,21 @@ export class DagViewerD3Component {
         this.draw();
     }
 
-    constructor(snackBar: MatSnackBar) {
+    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
+        this.dialog = dialog;
         this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-yellow'];
+        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
+        this.getScreenSize();
+    }
+
+    @HostListener('window:resize', ['$event'])
+    getScreenSize(event?) {
+          this.screenHeight = window.innerHeight;
+          this.screenWidth = window.innerWidth;
     }
 
     updateSearchOptions() {
-        this._searchOptions = (this._model.materials || []).map(e => e.name + ' (' + e.id + ')');
-        this._searchOptions = this._searchOptions.concat((this._model.lyphs || []).map(e => e.name + ' (' + e.id + ')'));
-        this._searchOptions.sort();
+        this.searchOptions = prepareMaterialSearchOptions(this._model);
     }
 
     ngAfterViewInit() {
@@ -527,7 +423,7 @@ export class DagViewerD3Component {
             let x = this.graphD3.node(e.source.id);
             let y = this.graphD3.node(e.target.id);
             if (x && y) {
-                this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis});
+                this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis, class: e.source.id + " " + e.target.id});
             } else {
                 throw new Error("Graph cannot have an edge between non-existing nodes: " + e.source.id + " --- " + e.target.id);
             }
@@ -535,7 +431,7 @@ export class DagViewerD3Component {
         this.render = new dagreD3.render(this.graphD3);
         this.render(this.inner, this.graphD3);
 
-        this.svg.attr("height", this.graphD3.graph().height + 40);
+        this.resizeCanvas();
 
         let nodes = this.inner.selectAll("g.node");
         this.appendNodeEvents(nodes);
@@ -653,7 +549,6 @@ export class DagViewerD3Component {
 
     appendEdgeEvents(edges) {
         edges
-            .on('click', d => this.onEdgeClick(d))
             .on('contextmenu', d => this.onEdgeRightClick(d));
     }
 
@@ -686,7 +581,7 @@ export class DagViewerD3Component {
                 (m.materials || []).forEach(childID => {
                     if (!this.entitiesByID[childID]) {
                         this.entitiesByID[childID] = {
-                            "id": childID,
+                            [$Field.id]: childID,
                             "_generated": true,
                             "_inMaterials": [],
                         };
@@ -699,24 +594,24 @@ export class DagViewerD3Component {
 
         //Create nodes for visualization
         (this._model.materials || []).forEach(m => {
-            this.nodes.push(new Node(
+            this.nodes.push(new MaterialNode(
                 m.id,
                 (m._inMaterials || []).map(parent => parent.id),
                 (m.materials || []).map(child => child.id ? child.id : child),
                 m.name || m.id,
-                "type-material",
+                CLASS.MATERIAL,
                 m
             ));
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
         });
         (this._model.lyphs || []).forEach(m => {
             if ((m._inMaterials || []).length > 0 || (m.materials || []).length > 0 || m._included) {
-                this.nodes.push(new Node(
+                this.nodes.push(new MaterialNode(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
                     (m.materials || []).map(child => child.id ? child.id : child),
                     m.name || m.id,
-                    "type-lyph",
+                    m.isTemplate? CLASS.TEMPLATE: CLASS.LYPH,
                     m
                 ));
                 m._included = true;
@@ -725,12 +620,12 @@ export class DagViewerD3Component {
         });
         (created || []).forEach(m => {
             if (m.id) {
-                this.nodes.push(new Node(
+                this.nodes.push(new MaterialNode(
                     m.id,
                     (m._inMaterials || []).map(parent => parent.id),
                     (m.materials || []).map(child => child.id ? child.id : child),
                     m.name || m.id,
-                    "type-undefined",
+                    CLASS.UNDEFINED,
                     m
                 ));
             }
@@ -743,7 +638,7 @@ export class DagViewerD3Component {
                 this.edges.push(edge);
             });
         });
-       this.nodes::sortBy(["id"]);
+       this.nodes::sortBy([$Field.id]);
     }
 
     /**
@@ -755,7 +650,7 @@ export class DagViewerD3Component {
         if (this.selectedNode) {
             let node = this.graphD3.node(this.selectedNode);
             if (node) {
-                if (prop === "id") {
+                if (prop === $Field.id) {
                     replaceMaterialRefs(this._model, this.selectedNode, value);
                     this.selectedNode = value;
                     node.id = value;
@@ -763,7 +658,7 @@ export class DagViewerD3Component {
                     this.draw();
                     this.saveStep("ID update " + value);
                 }
-                if (prop === "name") {
+                if (prop === $Field.name) {
                     this.graphD3.setNode(this.selectedNode, {
                         label: this.selectedMaterial.name || this.selectedMaterial.id,
                     });
@@ -771,11 +666,10 @@ export class DagViewerD3Component {
                     this.saveStep("Name update " + value);
                 }
             }
+        } else {
+            let message = `Cannot update the property: material is not selected!`;
+            this._snackBar.open(message, "OK", this._snackBarConfig);
         }
-    }
-
-    onEdgeClick(d) {
-        // console.log("Clicked on: ", d);
     }
 
     onEdgeRightClick({v, w}) {
@@ -801,15 +695,32 @@ export class DagViewerD3Component {
                 let previous = this.graphD3.node(this._selectedNode);
                 if (previous) {
                     d3.select(previous.elem).select("g rect").attr("stroke-width", null);
+                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke-width", null);
                 }
             }
-            let material = this.entitiesByID[nodeID];
             this._selectedNode = nodeID;
             let node = this.graphD3.node(nodeID);
             if (node) {
                 let elem = d3.select(node.elem);
                 elem.select("g rect").attr("stroke-width", "5");
+                let edges = d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke-width", "5");
             }
+            this.prepareLyphList();
+        }
+    }
+
+    prepareLyphList(){
+        this.lyphList = [];
+        (this._model.lyphs||[]).forEach(lyph => {
+            if ((lyph.layers||[]).find(e => e === this._selectedNode)){
+                this.lyphList.push(ListNode.createInstance(lyph));
+            }
+        });
+    }
+
+    selectLyph(node){
+        if (node.class === $SchemaClass.Lyph || node.class === "Template") {
+            this.onSwitchEditor.emit({editor: "lyph", node: node.id});
         }
     }
 
@@ -824,9 +735,9 @@ export class DagViewerD3Component {
     onRightClick(nodeID) {
         d3.event.preventDefault();
         let node = this.entitiesByID[nodeID];
-        let type = 'type-undefined';
+        let type = CLASS.UNDEFINED;
         if (!node._generated) {
-            type = node._class === $SchemaClass.Material ? "type-material" : "type-lyph";
+            type = node._class === $SchemaClass.Material ? CLASS.MATERIAL : node.isTemplate? CLASS.TEMPLATE: CLASS.LYPH;
         }
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
@@ -844,7 +755,7 @@ export class DagViewerD3Component {
 
     onEmptyRightClick() {
         d3.event.preventDefault();
-        let type = "type-new";
+        let type = EDGE_CLASS.NEW;
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
         this.matMenuTrigger.menuData = {item: [d3.event.clientX, d3.event.clientY - 48], type: type}
@@ -858,7 +769,7 @@ export class DagViewerD3Component {
             material1.materials = material1.materials || [];
             if (!material1.materials.find(m => m === w)) {
                 material1.materials.push(w);
-                this.graphD3.setEdge(v, w, {curve: d3.curveBasis});
+                this.graphD3.setEdge(v, w, {curve: d3.curveBasis, class: v + " " + w});
                 this.inner.call(this.render, this.graphD3);
                 let path = this.graphD3.edge({v: v, w: w});
                 material2._inMaterials = material2._inMaterials || [];
@@ -911,6 +822,7 @@ export class DagViewerD3Component {
             [$Field.name]: "New material " + newMatCounter,
             "_class": $SchemaClass.Material
         }
+        this._model.materials = this._model.materials || [];
         this._model.materials.push(newMat);
         this.entitiesByID[newMat.id] = newMat;
         return newMat;
@@ -920,10 +832,10 @@ export class DagViewerD3Component {
         let newMat = this.defineNewMaterial();
         this.graphD3.setNode(newMat.id, {
             label: newMat.name,
-            class: 'type-material'
+            class: CLASS.MATERIAL
         });
         this.inner.call(this.render, this.graphD3);
-        this.nodes.push(new Node(newMat.id, [], [], newMat.name, "type-material", newMat));
+        this.nodes.push(new MaterialNode(newMat.id, [], [], newMat.name, CLASS.MATERIAL, newMat));
         let node = this.graphD3.node(newMat.id);
         if (node) {
             let elem = d3.select(node.elem);
@@ -931,6 +843,7 @@ export class DagViewerD3Component {
         }
         this.updateSearchOptions();
         this.selectedNode = newMat.id;
+        this.saveStep("Create material " + newMat.id);
         return newMat.id;
     }
 
@@ -943,7 +856,13 @@ export class DagViewerD3Component {
             let transform = d3.zoomTransform(selection.node());
             let zoomPos = transform.invert(pos);
             elem.attr('transform', 'translate(' + zoomPos[0] + ',' + zoomPos[1] + ')');
+            this.resizeCanvas();
         }
+    }
+
+    resizeCanvas(){
+        this.svg.attr("width", Math.max(this.screenWidth, this.graphD3.graph().width + 40));
+        this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
     }
 
     addDefinition(prop, nodeID) {
@@ -953,6 +872,7 @@ export class DagViewerD3Component {
         delete resource._generated;
         this._model[prop] = this._model[prop] || [];
         this._model[prop].push(resource);
+        return resource;
     }
 
     deleteDefinition(nodeID) {
@@ -963,20 +883,24 @@ export class DagViewerD3Component {
             delete this.entitiesByID[nodeID]._class;
             let node = this.graphD3.node(nodeID);
             if (node) {
-                node.class = 'type-undefined';
-                let val = d3.select(node.elem).attr("class").replace('type-material', node.class).replace('type-lyph', node.class);
+                node.class = CLASS.UNDEFINED;
+                let val = d3.select(node.elem).attr("class")
+                    .replace(CLASS.MATERIAL, CLASS.UNDEFINED)
+                    .replace(CLASS.LYPH, CLASS.UNDEFINED)
+                    .replace(CLASS.TEMPLATE, CLASS.UNDEFINED);
                 d3.select(node.elem).attr("class", val);
             }
             this.saveStep("Delete definition " + nodeID);
         }
     }
 
-    defineAsLyph(nodeID) {
-        this.addDefinition($Field.lyphs, nodeID);
+    defineAsLyphTemplate(nodeID) {
+        let lyph = this.addDefinition($Field.lyphs, nodeID);
+        lyph.isTemplate = true;
         let node = this.graphD3.node(nodeID);
         if (node) {
-            node.class = 'type-lyph';
-            let val = d3.select(node.elem).attr("class").replace('type-undefined', node.class);
+            node.class = CLASS.TEMPLATE;
+            let val = d3.select(node.elem).attr("class").replace(CLASS.UNDEFINED, CLASS.TEMPLATE);
             d3.select(node.elem).attr("class", val);
         }
         this.saveStep("Define as lyph " + nodeID);
@@ -986,8 +910,8 @@ export class DagViewerD3Component {
         this.addDefinition($Field.materials, nodeID);
         let node = this.graphD3.node(nodeID);
         if (node) {
-            node.class = 'type-material';
-            let val = d3.select(node.elem).attr("class").replace('type-undefined', node.class);
+            node.class = CLASS.MATERIAL;
+            let val = d3.select(node.elem).attr("class").replace(CLASS.UNDEFINED, CLASS.MATERIAL);
             d3.select(node.elem).attr("class", val);
         }
         this.saveStep("Define as material " + nodeID);
@@ -1060,12 +984,30 @@ export class DagViewerD3Component {
         }
     }
 
-    preview() {
-        let result = JSON.stringify(this._model, null, 4);
-        const blob = new Blob([result], {type: 'text/plain'});
-        FileSaver.saveAs(blob, this._model.id + '-material-editor.json');
+showDiff(){
+         const dialogRef = this.dialog.open(DiffDialog, {
+            width : '90%',
+            data  : {'oldContent': this._modelText, 'newContent': this.currentText}
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res !== undefined){
+            }
+        });
     }
 
+    get currentText(){
+        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
+            const added = ['_class', '_generated', '_inMaterials', '_included'];
+            let currentModel = this._model::cloneDeep();
+            return JSON.stringify(currentModel,
+                function(key, val) {
+                    if (!added.includes(key)){
+                        return val;
+                    }},
+                4);
+        }
+        return this._modelText;
+    }
     /**
      * Save operation in history
      * @param action
@@ -1077,7 +1019,7 @@ export class DagViewerD3Component {
         if (this.currentStep !== this.steps.length - 1){
             this.steps.length = this.currentStep + 1;
         }
-        let snapshot = this._model::omit('_inMaterials')::cloneDeep();
+        let snapshot = this._model::cloneDeep();
         this.steps.push({action: action, snapshot: snapshot});
         this.currentStep = this.steps.length - 1;
     }
@@ -1106,7 +1048,7 @@ export class DagViewerD3Component {
         }
     }
 
-    _cleanHelpers(){
+    clearHelpers(){
         this.entitiesByID::values().forEach(obj => {
             //Clean up all helper mods
             delete obj._inMaterials;
@@ -1117,7 +1059,7 @@ export class DagViewerD3Component {
     }
 
     saveChanges() {
-        this._cleanHelpers();
+        this.clearHelpers();
         this.onChangesSave.emit(this._model);
     }
 
@@ -1147,9 +1089,9 @@ export class DagViewerD3Component {
             if (!node && mat._class === $SchemaClass.Lyph){
                 this.graphD3.setNode(matID, {
                     label: mat.name,
-                    class: 'type-lyph'
+                    class: mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH
                 });
-                this.nodes.push(new Node(matID, [], [], mat.name, "type-lyph", mat));
+                this.nodes.push(new MaterialNode(matID, [], [], mat.name, mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH, mat));
                 this.inner.call(this.render, this.graphD3);
                 node = this.graphD3.node(matID);
                 let elem = d3.select(node.elem);
@@ -1157,7 +1099,7 @@ export class DagViewerD3Component {
                 if (mat._class === $SchemaClass.Lyph) {
                     mat._included = true;
                 }
-                this.saveStep('Included lyph ' + matID);
+                this.saveStep('Include lyph ' + matID);
             }
             if (this.selectedNode){
                 this._addRelation({v: this.selectedNode, w: matID});
@@ -1179,7 +1121,8 @@ export class DagViewerD3Component {
 }
 
 @NgModule({
-    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchBarModule, MatButtonModule, MatDividerModule],
+    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
+        MatDividerModule, ResourceListViewModule],
     declarations: [DagViewerD3Component],
     exports: [DagViewerD3Component]
 })
