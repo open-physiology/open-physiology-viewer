@@ -37,6 +37,7 @@ export class Edge extends VisualResource{
     static EDGE_GEOMETRY = EDGE_GEOMETRY;
 
     get isVisible(){
+        //Ellipse wires have no source and target!
         return super.isVisible && (!this.source || this.source.isVisible) && (!this.target || this.target.isVisible);
     }
 }

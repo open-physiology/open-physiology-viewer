@@ -35,6 +35,7 @@
              "./manual/model.md",
              "./manual/scaffold.md",
              "./manual/examples.md",
+             "./manual/editors.md",
              "./manual/errors.md"
            ]
          }

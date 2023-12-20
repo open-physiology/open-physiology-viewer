@@ -219,6 +219,7 @@ export class Graph extends Group{
                     }
                 }
             ));
+
             inputModel.groups = inputModel.groups || [];
 
             //Collect resources necessary for template expansion from all groups
@@ -304,14 +305,10 @@ export class Graph extends Group{
 
             //Collect inherited externals
             (res.lyphs || []).forEach(lyph => {
-                if (lyph.supertype) {
-                    if (!lyph.collectInheritedExternals) {
-                        logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
-                    } else {
-                        lyph.collectInheritedExternals($Field.external, $Field.inheritedExternal);
-                        lyph.collectInheritedExternals($Field.ontologyTerms, $Field.inheritedOntologyTerms);
-                        lyph.collectInheritedExternals($Field.references, $Field.inheritedReferences);
-                    }
+                if (!lyph.collectInheritedExternals) {
+                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
+                } else {
+                    lyph.collectInheritedExternals();
                 }
             });
 
@@ -504,7 +501,7 @@ export class Graph extends Group{
             const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(inputModel[key]||[]);
     		XLSX.utils.book_append_sheet(wb, ws, key);
         })
-        XLSX.writeFile(wb, inputModel.id + "-converted.xlsx");
+        XLSX.writeFile(wb, (json.id||"model") + "-converted.xlsx");
         return wb;
     }
 

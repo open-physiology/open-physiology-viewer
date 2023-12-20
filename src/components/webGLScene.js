@@ -26,6 +26,7 @@ import {GRAPH_LOADED, DONE_UPDATING,SNAPSHOT_STATE_CHANGED,
 
 import { buildNeurulatedTriplets, applyOrthogonalLayout, autoLayoutSegments, handleNeurulatedGroup,
     autoLayoutNeuron, toggleNeuroView, toggleNeurulatedGroup, findHousingLyphsGroups, toggleScaffoldsNeuroview } from '../view/render/neuroView'
+import {prepareSearchOptions} from "./gui/utils";
 
 const WindowResize = require('three-window-resize');
 
@@ -229,10 +230,10 @@ export class WebGLSceneComponent {
     _highlighted = null;
     _selected    = null;
 
-    _searchOptions;
     _helperKeys = [];
     _viewPortSize = { width: 0, height: 0 };
 
+    searchOptions;
     graph;
     helpers   = {};
     highlightColor = 0xff0000;
@@ -252,7 +253,7 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
+            this.searchOptions = prepareSearchOptions(this._graphData);
 
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
@@ -846,14 +847,17 @@ export class WebGLSceneComponent {
         }
     }
 
-    selectByName(name) {
-        let options = (this.graphData.resources||[]).filter(e => e.name === name);
-        if (options.length > 0){
-            //prefer visible lyphs over templates
-            let res = options.find(e => !e.isTemplate);
-            this.selected = res? res: options[0];
+    selectByName(nodeLabel) {
+         if (!nodeLabel){
+            return;
         }
-        else {
+        let nodeID = nodeLabel.substring(
+                nodeLabel.indexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+        );
+        if (this._graphData && (nodeID !== this.selected?.id)) {
+            this.selected = (this._graphData.resources||[]).find(e => e.id === nodeID);
+        } else {
             this.selected = undefined;
         }
     }

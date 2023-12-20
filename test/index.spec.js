@@ -123,9 +123,9 @@ describe("Nested resource definitions are processed", () => {
         expect(n1).to.have.property("layout").that.has.property("x");
         expect(n2).to.have.property("layout").that.has.property("x");
         expect(n1).to.have.property("sourceOf").that.is.an("array");
-        expect(n1.sourceOf[0]).has.property("id").that.equals("t1_lnk_1");
+        expect(n1.sourceOf[0]).has.property("id").that.equals("lnk_default_t1_0");
         expect(n2).to.have.property("targetOf").that.is.an("array");
-        expect(n2.targetOf[0]).has.property("id").that.equals("t1_lnk_5");
+        expect(n2.targetOf[0]).has.property("id").that.equals("lnk_default_t1_4");
 
         expect(graphData.groups).to.be.an("array").that.has.length(1);
         let group = graphData.groups.find(g => g.id === "group_t1");

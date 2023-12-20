@@ -1,6 +1,6 @@
 import { NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { cloneDeep, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
+import { cloneDeep, clone, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
 
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -52,10 +52,11 @@ import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
-import {removeDisconnectedObjects} from '../../src/view/render/autoLayout'
+import {removeDisconnectedObjects} from '../view/render/autoLayout'
 import {MaterialEditorModule} from "../components/materialEditor";
 import {GRAPH_LOADED} from '../../src/view/utils';
 import {LyphEditorModule} from "../components/lyphEditor";
+import {ChainEditorModule} from "../components/chainEditor";
 
 enableProdMode();
 
@@ -138,7 +139,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 </modelRepoPanel>
             </section>
 
-            <mat-tab-group animationDuration="0ms">
+            <mat-tab-group animationDuration="0ms" #tabGroup>
                 <!--Viewer-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer </ng-template>
@@ -217,21 +218,37 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 
                 <!--Material editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Material editor </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor </ng-template>
                     <materialEditor 
                             [model]="_model"
-                            (onChangesSave)="applyEditorChanges($event)"> 
+                            (onChangesSave)="applyEditorChanges($event)"
+                            (onSwitchEditor)="switchEditor($event)"
+                    > 
                     </materialEditor> 
                 </mat-tab>
 
                 <!--Lyph editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Lyph editor </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor </ng-template>
                     <lyphEditor 
                             [model]="_model"
-                            (onChangesSave)="applyEditorChanges($event)"> 
+                            [selectedNode] = "selectedLyphID"
+                            (onChangesSave) = "applyEditorChanges($event)"
+                            (onSwitchEditor) = "switchEditor($event)"
+                    > 
                     </lyphEditor> 
                 </mat-tab>
+
+                <!--Chain editor-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
+                    <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor </ng-template>
+                    <chainEditor 
+                            [model]="_model"
+                            [selectedNode] = "selectedChainID"
+                            (onChangesSave)="applyEditorChanges($event)"> 
+                    </chainEditor> 
+                </mat-tab>
+
             </mat-tab-group>
         </section>
 
@@ -307,6 +324,7 @@ export class TestApp {
 
     @ViewChild('webGLScene') _webGLScene: ElementRef;
     @ViewChild('jsonEditor') _container: ElementRef;
+    @ViewChild('tabGroup') _tabGroup: ElementRef;
 
     constructor(http: HttpClient, dialog: MatDialog){
         this._http = http;
@@ -420,6 +438,7 @@ export class TestApp {
                     let groups = result.filter(m => isGraph(m));
                     let snapshots = result.filter(m => isSnapshot(m));
                     logger.clear();
+                    this._model = this._model::clone();
                     processImports(this._model, result);
                     if (groups.length > 0 || scaffolds.length > 0) {
                         this.model = this._model;
@@ -653,7 +672,7 @@ export class TestApp {
         if (activeState.camera) {
             console.log("Camera position ", this._snapshot.camera.position)
             this._webGLScene.camera.rotation.fromArray(this._snapshot.camera.rotation);
-            this._webGLScene.resetCamera();
+            //this._webGLScene.resetCamera(this._snapshot.active.camera.position);
             this._webGLScene.controls?.update();
         }
         this._config = {};
@@ -678,7 +697,7 @@ export class TestApp {
                 }
             })
         }
-        if (activeState.visibleGroups){
+        if (activeState.visibleGroups && activeState.visibleGroups.length > 0){
             this._webGLScene.showVisibleGroups(activeState.visibleGroups, true);
         }
         this._webGLScene.updateGraph();
@@ -766,6 +785,17 @@ export class TestApp {
             FileSaver.saveAs(blob, this._snapshot.id + '.json');
         }
     }
+
+    switchEditor({editor, node}){
+        if (editor === 'lyph' || editor === 'chain'){
+            if (editor === 'lyph'){
+                this.selectedLyphID = node;
+            } else {
+                this.selectedChainID = node;
+            }
+            this._tabGroup.selectedIndex += 1 ;
+        }
+    }
 }
 
 /**
@@ -776,7 +806,7 @@ export class TestApp {
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule],
+        LyphEditorModule, ChainEditorModule],
 	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog, ResourceEditorDialog],

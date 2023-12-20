@@ -484,7 +484,6 @@
     {
       "id": "116",
       "name": "Extracellular fluid",
-      "isTemplate": true,
       "external": [
         "ILX:0492026"
       ]

@@ -11,6 +11,7 @@ import {MatSliderModule} from "@angular/material/slider";
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {SearchBarModule} from "./gui/searchBar";
 import {$Field, $SchemaClass} from "../model";
+import {prepareSearchOptions} from "./gui/utils";
 
 
 @Component({
@@ -83,9 +84,9 @@ import {$Field, $SchemaClass} from "../model";
                     </fieldset>
 
                     <!--Search bar-->
-                    <fieldset class="w3-card w3-round w3-margin-small-small">
+                    <fieldset class="w3-card w3-round w3-margin-small">
                         <legend>Search</legend>
-                        <searchBar [selected]="_selectedName" [searchOptions]="_searchOptions"
+                        <searchBar [selected]="_selectedName" [searchOptions]="searchOptions"
                                    (selectedItemChange)="selectBySearch($event)">
                         </searchBar>
                     </fieldset>
@@ -158,11 +159,11 @@ export class RelGraph {
     _highlighted = null;
     _selected    = null;
 
-    _searchOptions;
     _selectedName = "";
     _showPanel = true;
     _isActive = false;
 
+    searchOptions;
     data = { nodes: [], links: [] };
 
     nodeTypes = {
@@ -206,7 +207,8 @@ export class RelGraph {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
 
-            this._searchOptions = (this._graphData.resources||[]).filter(e => e.name).map(e => e.name);
+            //Search for lyphs and materials
+            this.searchOptions = prepareSearchOptions(this._graphData);
             this.data = {nodes: [], links: []};
 
             let resources = this._graphData::pick([$Field.materials, $Field.lyphs, $Field.coalescences, $Field.links])::values()::flatten();
@@ -228,9 +230,13 @@ export class RelGraph {
                 let targets = (node.targetOf||[]).map(lnk => getNode(lnk));
                 sources.forEach(source => {
                     targets.forEach(target => {
-                        this.data.links.push({
-                            "source": source.id, "target": target.id, "type" : source.conveyingType? source.conveyingType.toLowerCase(): "advective"
-                        });
+                        if (source && target) {
+                            this.data.links.push({
+                                "source": source.id,
+                                "target": target.id,
+                                "type": source.conveyingType ? source.conveyingType.toLowerCase() : "advective"
+                            });
+                        }
                     })
                 })
             });
@@ -622,21 +628,29 @@ export class RelGraph {
 
     set selected(entity){
         this._selected     = entity;
-        this._selectedName = entity? entity.name || "": "";
-    }
-
-    get highlighted(){
-        return this._highlighted;
+        this._selectedName = (entity?.name || '?') + ' (' + entity?.id + ')';
     }
 
     get selected(){
         return this._selected;
     }
 
-    selectBySearch(name) {
-        if (this._graphData && (name !== this._selectedName)) {
-            this._selectedName = name;
-            this.selected = (this._graphData.resources||[]).find(e => e.name === name);
+    get highlighted(){
+        return this._highlighted;
+    }
+
+    selectBySearch(nodeLabel) {
+        if (!nodeLabel){
+            return;
+        }
+        let nodeID = nodeLabel.substring(
+                nodeLabel.indexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+        );
+        if (this._graphData && (nodeID !== this.selected?.id)) {
+            this.selected = (this._graphData.resources||[]).find(e => e.id === nodeID);
+        } else {
+            this.selected = undefined;
         }
     }
 }

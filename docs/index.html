@@ -94,6 +94,25 @@
 <div data-ice="manual">
     <ul class="manual-toc">
       
+    <li data-ice="manualNav" class="indent-h1" data-link="manual/editors.html"><a href="manual/editors.html#material-editor" data-ice="link">Material Editor</a></li>
+<li data-ice="manualNav" class="indent-h1" data-link="manual/editors.html"><a href="manual/editors.html#lyph-editor" data-ice="link">Lyph editor</a></li>
+<li data-ice="manualNav" class="indent-h2" data-link="manual/editors.html"><a href="manual/editors.html#operations" data-ice="link">Operations</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#create-new-lyph" data-ice="link">Create new lyph</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#delete-lyph" data-ice="link">Delete lyph</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#delete-lyph-definition" data-ice="link">Delete lyph definition</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#add-subtype" data-ice="link">Add subtype</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#remove-subtypes" data-ice="link">Remove subtypes</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#remove-supertype" data-ice="link">Remove supertype</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#define-as-material-or-define-as-lyph" data-ice="link">Define as material or Define as lyph</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#add-layer" data-ice="link">Add layer</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#delete-layer--or-remove-layerin-" data-ice="link">Delete layer (or remove layerIn)</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#remove-layers" data-ice="link">Remove layers</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#move-layer-up-down" data-ice="link">Move layer up/down</a></li>
+</ul>
+  </div>
+<div data-ice="manual">
+    <ul class="manual-toc">
+      
     <li data-ice="manualNav" class="indent-h1" data-link="manual/errors.html"><a href="manual/errors.html" data-ice="link">Validation messages</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/errors.html"><a href="manual/errors.html#errors" data-ice="link">Errors</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/errors.html"><a href="manual/errors.html#warnings" data-ice="link">Warnings</a></li>
@@ -123,17 +142,37 @@
     
   <div class="manual-card-wrap" data-ice="cards">
       <div class="manual-card">
-        <div data-ice="card"><h1>Overview</h1><p>The ApiNATOMY lyph viewer shows 3d schematics of physiology models.
-The lyph viewer is a graphical component that consists of</p><ul>
-<li>a canvas that features a dynamic graph rendered using a 3D force-directed layout algorithm;</li>
-<li>a control panel that allows users to change parameters of the viewer and select parts of the model to display.</li>
-</ul><p><img class="screen-shot no-border" src="./manual/asset/main.png"></p><p>The use of the ApiNATOMY lyph viewer component is illustrated via the test application that allows the user to load an ApiNATOMY data model from the local file system. In addition to the aforementioned component, the demo application includes:</p><ul>
-<li>a header and a footer with relevant project information;</li>
-<li>a toolbar that allows the user to import, edit, preview and export the data model, as well as to switch the application view modes;</li>
-<li>an integrated JSON editor to overview, analyze and modify the chosen data model;</li>
-<li>a dedicated form-based resource editor for assisted editing of model resources;</li>
-<li>an svg-based viewer that helps users to overview the structural relationships among model resources, including derived (auto-generated) resources.</li>
-</ul><h2>Model input</h2><p>The lyph viewer accepts as input a JSON-based object that defines ApiNATOMY resources, see <a href="./manual/./model.html">model</a> section for more detail. The model can be edited using external tools or with the help of a build-in JSON editor and custom resource editor within the demo app.</p><p>The image below shows an integrated ACE-based JSON editor. The editor uses the ApiNATOMY JSON Schema for interactive validation - the lines that violate the schema model are marked with error or warning signs.</p><p><img class="screen-shot no-border" src="./manual/asset/overview.png"></p><p>Alternatively, the input model can be edited with the help of the form-based editor as shown in the image below. The fields in the form are also based on the ApiNATOMY JSON schema and are preconfigured to assist the modeller with the choice of correct options, i.e., multi-selection fields that expect references to lyphs, show all suitable lyphs in the model.</p><p><img class="screen-shot no-border" src="./manual/asset/resourceEditor.png"></p><p>Users that prefer working with a table-style data, can define an ApiNATOMY model using Excel spreadsheets.
+        <div data-ice="card"><h1>Overview</h1><p>The ApiNATOMY lyph viewer is a web application that shows 3d schematics of physiology models. 
+It consists of the following components:</p><p><img class="screen-shot no-border" src="./manual/asset/overview-annotated.png"></p><ul>
+<li><strong>Viewer</strong> canvas that features a dynamic graph rendered using a 3D force-directed layout algorithm.</li>
+<li><strong>Control panel</strong> that allows users to change parameters of the viewer and select parts of the model to display.</li>
+<li><strong>Relationship graph</strong> helper component that shows selected relationships among key model resources. This viewer 
+operates on the generated model and hence can be used to inspect derived (auto-generated) resources.  </li>
+<li><strong>Model editing tools</strong> <ul>
+<li><strong>Code editor</strong> is a component that shows code of the currently opened ApiNATOMY JSON specification. It is the 
+most flexible editing tool but requires technical understanding of the ApiNATOMY schema and model specification conventions.         </li>
+<li><strong>Layout editor</strong> allows users to associate physiology model resources with scaffold resources 
+to specify their position within larger body regions. </li>
+<li><strong>Material editor</strong> is a GUI for defining chemical compounds and basic tissue elements used throughout<br>physiology models.</li>
+<li><strong>Lyph editor</strong> is a GUI for defining key structural resources in ApiNATOMY, <em>lyphs</em>, which are layered 
+compartments composed of materials or other lyphs and represent biological organs or systems.  </li>
+</ul>
+</li>
+<li><strong>Toolbars</strong><ul>
+<li><strong>Main toolbar</strong> allows users to create, load, compose and export data models from the local file system,
+online repository or a given URL. </li>
+<li><strong>Model toolbar</strong> provides controls for the current graphical scene. It allows users to disable camera, reset it to the 
+initial position, toggle antialising effect in WebGL images, show/hide the control panel and adjust label font. 
+Moreover, there are controls in this menu to import external models reused in the current one, and export the generated model 
+and resource map for further use or integration with resources like SciGraph. </li>
+<li><strong>Snapshot toolbar</strong> allows users to save and instantly restore selected scenes. A scene consists of a number of
+visible groups in the current model, camera position and enabled combination of settings parameters.<br>In addition to the aforementioned components, the web application includes header and footer with relevant project information.</li>
+</ul>
+</li>
+</ul><p><img class="screen-shot no-border" src="./manual/asset/overview-zoomed.png"></p><h2>Model input</h2><p>The lyph viewer accepts as input a JSON-based object that defines ApiNATOMY resources, see <a href="./manual/./model.html">model</a> section for more 
+detail. The model can be edited using external tools or with the help of a build-in JSON editor and resource editors within 
+the app.</p><p>The image below shows an integrated ACE-based JSON editor. The editor uses the ApiNATOMY JSON Schema for interactive validation - 
+the lines that violate the schema model are marked with error or warning signs.</p><p><img class="screen-shot no-border" src="./manual/asset/overview-code.png"></p><p>Alternatively, the input model can be edited with the help of the form-based editor as shown in the image below. The fields in the form are also based on the ApiNATOMY JSON schema and are preconfigured to assist the modeller with the choice of correct options, i.e., multi-selection fields that expect references to lyphs, show all suitable lyphs in the model.</p><p><img class="screen-shot no-border" src="./manual/asset/resourceEditor.png"></p><p>Users that prefer working with a table-style data, can define an ApiNATOMY model using Excel spreadsheets.
 The lyph viewer app can open .xlsx files and convert their content to a corresponding JSON-based model.
 The recognized Excel format should specify ApiNATOMY resources in separate pages named after the Graph&apos;s fields, namely, <code>lyphs</code>, <code>materials</code>, <code>links</code>, <code>nodes</code>, <code>coalescences</code>, and <code>groups</code>. Each of the pages can contain columns named as the corresponding resource class properties, i.e., <code>id</code>, <code>name</code>, <code>external</code>, <code>conveyingLyph</code>, etc. for the class <code>Lyph</code> in the page <code>lyphs</code>. In the Excel lyph specification, one can assign content to a lyph border using columns <code>inner</code>, <code>radial1</code>, <code>outer</code>, and <code>radial2</code>; the content of these columns is then mapped to the property <code>border.borders</code> in the JSON specification which defines an array of 4 lyph borders.</p><p>A modified model must be saved using the dedicated button on the left hand menu panel. After that it is processed as described in the <a href="#Model assembly">Model assembly</a> section below and an in-memory expanded model with auto-generated resources is created. This model is then visualized in the main canvas. One can also serialize this model using the menu items from the right-hand panel - the model can be either stored in a file as it is, or one can opt to serialize it in a form of a dictionary where the top object lists all resources with their unique identifiers as keys.</p><p>Sample ApiNATOMY models, including test models used in this documentation, can be found in the project&apos;s <a href="https://github.com/open-physiology/open-physiology-viewer/tree/master/test/data">repository at GitHub</a>.</p><h2>Model assembly</h2><p>The users define key resources, their relationships, and layout constraints in the ApiNATOMY JSON format.
 Naturally, these models may be incomplete or incorrect (i.e., contain typos,
@@ -931,6 +970,56 @@ This is the case when there is no common lyph template that applies to all tree 
 </code></pre><h2>Bolser-Lewis map</h2><p>Please note that this example shows a rough work-in-progress model that demonstrates the use of modeling concepts rather than preserves the physiological accuracy!</p><p>The example is based on a mock-up for the Bolser-Lewis model</p><p><img src="./manual/asset/bolserLewis.png" width="75%" caption="Bolser-Lewis model mock-up"></p><p>The model author defined the necessary resources in the Excel format. The image below shows the snapshot of the Excel template we developed as alternative to the text-based JSON format. The model from the Excel template can be exported as an .xlsx file and opened from the ApiNATOMY model viewer. The integrated converter translates the model to the JSON-based input format.</p><p><img src="./manual/asset/bolserLewis-excelLyphs.png" width="75%" caption="Bolser-Lewis model Excel page: lyphs"></p><p>The model shows the neuron tree passing through a chain of body compartments. As a requirement, the author wanted to generate the chain given an ordered list of conveying lyphs:</p><p><img src="./manual/asset/bolserLewis-excelChain.png" width="75%" caption="Bolser-Lewis model Excel page: chains"></p><p>The chain template shown in the image above produces a chain of connected links that convey the lyphs from the chain&apos;s <code>conveyingLyphs</code> property:</p><p><img src="./manual/asset/chain.png" width="75%" caption="A group generated from the chain template"></p><p>The neuron tree needs to be generated to match the number of housing lyphs:</p><p><img src="./manual/asset/bolserLewis-excelTree.png" width="75%" caption="Bolser-Lewis model Excel page: trees"></p><p>The specification above does not set <code>numLevels</code> or <code>levels</code> fields; instead the size of the <code>housingLyphs</code> array here is used to determine the number of generated tree levels; each tree level is then &quot;embedded&quot; to the corresponding housing lyph. This implies that the tree level link ends are hosted by the housing lyph or, in case of layered lyphs, its outermost layer
 (<code>hostedBy</code> relationship is set).</p><p><img src="./manual/asset/chain-housedTree.png" width="75%" caption="An omega tree housed by a set of lyphs which are part of the chain group"></p><p>Moreover, an embedding coalescence is defined between the pairs of the housing lyphs and the conveying lyphs of the tree levels they house.</p><p><img src="./manual/asset/chain-housedTreeCoalescence.png" width="75%" caption="Embedded lyphs coalesce with their housing lyphs"></p><p>One can observe that the generated omega tree has collapsible &quot;spacer&quot; links. These links should disappear in the views that do not require the same node to appear in two different locations (i.e., on borders of adjacent lyphs which are displayed with a gap). The lyph viewer determines whether spacer link ends are constrained based on the visibility of the related resources.</p><p><img src="./manual/asset/chain-tree.png" width="75%" caption="A group generated from the tree template"></p></div>
         <a data-ice="link" href="manual/examples.html"></a>
+      </div>
+    </div>
+<div class="manual-card-wrap" data-ice="cards">
+      <div class="manual-card">
+        <div data-ice="card"><h1>Lyph editor</h1><p>The &quot;Lyph editor&quot; tab provides a GUI for defining lyphs and lyph-to-lyph relationships in 
+ApiNATOMY input models. The editor consists of 3 hierarchical trees, and a property editing panel.</p><p>The first tree view shows the list of declared lyphs arranged into hierarchy by the 
+<code>sypertype</code>/<code>subtypes</code> relationships. By clicking on the lyph identifier in this component, one selects 
+a lyph to inspect and modify. The second view shows the layers of the selected lyph defined by 
+<code>layers</code>/<code>layerIn</code> relationships. The third view shows internal lyphs of the selected lyph 
+defined by <code>internalLyphs</code>/<code>internalIn</code> relationships. </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor.png"></p><h2>Operations</h2><p>CRUD (Create, Read, Update, and Delete) operations can be performed on selected lyphs using mouse right-click 
+menus. These operations are context-dependent - they are applied to a selected lyph in an active tree.
+The active tree is highlighted by a grey border around the tree name. Each applied operation is registered and can be reverted or repeated using <code>Undo</code> and <code>Redo</code> buttons on the right toolbar.
+Some operations, namely, creation of new lyphs
+and transition from one editing state to another (undo/redo) are performed via a vertical toolbar in the right 
+part of the viewer. </p><h3>Create new lyph</h3><p>To create a new lyph, press top button <code>New lyph</code> on the right toolbar. A new lyph with identifier
+<code>_newLyph#</code> and name <code>New lyph #</code> where <code>#</code> is a numerical order of the created lyph is added to the <code>lyphs</code> array 
+of the current ApiNATOMY model. A corresponding node is created and added to the top of the lyph tree.  </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-newLyph.png"></p><h3>Delete lyph</h3><p>To delete a lyph from the model, select a lyph in the main tree and click <code>Delete</code> in the context menu. </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-contextMenu.png"></p><p>This operation not only removes the definition, but also clears all the references to the deleted lyph. For example,
+the image below shows 2 code changes induced by the deletion of the lyph <code>lt-PNS-ganglion</code>: not only its 
+declaration is removed, but also the <code>supertype</code> reference of the lyph <code>lt-ganglion-visceral-mural</code> 
+is cleared. Instead, if one wants to just detach subtype from the supertype, operation <a href="#remove-supertype">Remove parent</a> 
+should be applied</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-deleteLyph.png"></p><p>Note that the same menu button in <code>Layers</code> and <code>Internal lyphs</code> trees will not delete the chosen lyph definition,
+it only detaches the lyph from the <code>layers</code> and <code>internalLyphs</code> arrays of the selected lyph (root of these trees), respectively.</p><h3>Delete lyph definition</h3><p>Unlike the previous operation, <code>Delete definition</code> only removes the chosen lyph declaration. This may produce 
+a model with undefined references which will trigger a warning in the ApiNATOMY model (the tool will generate 
+an artificial lyph to proceed with the visualization).  </p><h3>Add subtype</h3><p>To add a subtype to a selected lyph that will inherit the lyph&apos;s properties and layers, right-click and select <code>Add</code> in the 
+context menu. By default, a new lyph is created (as described in the operation <a href="#create-new-lyph">Create new lyph</a>) 
+and included to the subtypes of the selected lyph. However, if one wants to include an existing lyph, 
+choose this lyph in the search box on the top of the Settings panel. The image below illustrates 
+this case: first, we select <code>lyph-superior-cervical-ganglion</code> in the search box, then click <code>Add</code> on the lyph <code>lt-white-ramus</code> 
+in the lyph tree, defining the <code>supertype/subtypes</code> relationship between them:     </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-addSubtype.png"></p><p>Note that if a material is selected in the search box, a warning <em>&quot;Cannot add a non-lyph resource as subtype&quot;</em> will be issued.</p><h3>Remove subtypes</h3><p>To clear all subtypes from a lyph, select <code>Remove children</code> in the main tree. This operation removes references from the
+lyph&apos;s property <code>subtypes</code>, the corresponding lyphs will appear at the top level of the main tree. The menu option is not 
+available for lyphs with no subtypes.</p><h3>Remove supertype</h3><p>Lyphs with a supertype are located in a tree brunch under their supertype. To remove the supertype from a lyph, 
+press a right mouse button on it and select <code>Remove parent</code>. The lyph will disappear from the subtree and appear 
+at the top level of the main list. The menu option is not available for lyphs without a supertype.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-removeSupertype.png"></p><h3>Define as material or Define as lyph</h3><p>It may happen that a lyph refers to a resource in its <code>subtypes</code>, <code>layers</code> or <code>internalLyphs</code> arrays, but the referred
+resource is not declared in the model. To be able to display such a reference graphically in the trees, we generate a<br>tree node that represents the reference but does not correspond to an actual resource declaration in the model, such node
+can be recognized by its grey color. Two options will be given in the context menu for such nodes: <code>Define as lyph</code> and 
+<code>Define as material</code>, which generate a new lyph or material declaration with the given <code>id</code>, respectively. After that the color
+of the corresponding tree node should change to the light orange for a lyph or light green for a material. </p><h3>Add layer</h3><p>To add a layer to a lyph specification, select the lyph in the <code>Layers</code> tree and press <code>Add</code> in the right mouse button
+context menu. The operation works similarly to the <a href="#add-subtype">Add subtype</a> operation: if a lyph is selected via the search box,
+it is included to the <code>layers</code> array, otherwise a new lyph is created and included to the layers. Note that one may add 
+materials as layers. It is also allowed to add the same material or lyph template several times to define more than one layer 
+composed of a certain tissue. However, if a user tries to include a lyph from the <code>supertype/subtype</code> hierarchy as a layer,
+the editor will display an error message <em>&quot;Cannot add a layer to this lyph: hierarchy or dependency conflict!&quot;</em>.</p><p>If a selected lyph has a supertype with layers, i.e., it will inherit layers from its supertype, we show these layers 
+in the Layer tree with a locker icon. It is not possible to add a layer to such a lyph, the same error as above will be triggered.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-addLayerFail.png"></p><h3>Delete layer (or remove layerIn)</h3><p>To delete a layer from a selected lyph, right-click on the layer you want to delete and select <code>Delete</code> or <code>Remove parent</code>.
+Both operations are equivalent: the first is seen from the point of view of editing the layer tree root while the second 
+removes the parent <code>layerIn</code> property from the layer itself.</p><p>If a selected lyph has a supertype with layers, i.e., it will inherit layers from its supertype, we show these layers 
+in the Layer tree with a locker icon. Such layers cannot be deleted or rearranged, to modify them one must edit the layers
+of the supertype.</p><h3>Remove layers</h3><p>To remove all layers of a selected lyph, right-click on the lyph with layers in the layer tree and press <code>Remove children</code>.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-removeLayers.png"></p><p>This operation will not be available for lyphs without layers.</p><h3>Move layer up/down</h3><p>The order of layers in a lyph is important. The first layer defines the innermost tissue of the corresponding physiological
+structure while the last layer defines the outermost tissue. To change positions of layers, right-click on a layer and
+choose <code>Move up</code> or <code>Move down</code>.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-layersReorder.png"></p></div>
+        <a data-ice="link" href="manual/editors.html#lyph-editor"></a>
       </div>
     </div>
 <div class="manual-card-wrap" data-ice="cards">
