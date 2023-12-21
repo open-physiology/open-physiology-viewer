@@ -15,7 +15,7 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
 import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "./gui/utils";
-import {LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
+import {ICON, LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
 
 @Component({
     selector: 'chainEditor',
@@ -246,6 +246,9 @@ export class ChainEditorComponent {
         (this.selectedChain?.lyphs||[]).forEach((lyphID, idx) => {
             let lyph = this.entitiesByID[lyphID];
             let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
+            if (lyph.layers) {
+                node.icons.push(ICON.LAYERS);
+            }
             res.push(node);
         });
         this.chainLyphs = res;

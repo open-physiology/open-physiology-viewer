@@ -19,7 +19,6 @@ import {COLORS} from "./utils";
                 <g/>
             </svg>  
         </section>
-        <section #tooltip class="tooltip"></section>
     `,
     styles: [`      
         #materialGraphViewer {
@@ -35,15 +34,12 @@ import {COLORS} from "./utils";
             left: 0;
             min-height: 100%;
         }
-
-        .tooltip {
-            position: absolute;
-            padding: 2px;
-            background-color: #f5f5f5;
-            font: 12px sans-serif;
-            border: 1px solid #666;
-            pointer-events: none;
-        }       
+        
+        :host /deep/ text {
+            font-weight: 300;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+            font-size: 14px;
+        }
     `]
 })
 /**
@@ -53,7 +49,6 @@ export class DagViewerD3Component {
     _rootNode;
 
     @ViewChild('svgTree') svgRef: ElementRef;
-    @ViewChild('tooltip') tooltipRef: ElementRef;
 
     @Input('rootNode') set node(value) {
         this._rootNode = value;
@@ -72,7 +67,6 @@ export class DagViewerD3Component {
             .attr("fill", "white");
             // .on('click', d => this.onEmptyClick())
             // .on('contextmenu', d => this.onEmptyRightClick(d));
-        this.tooltip = d3.select(this.tooltipRef.nativeElement).style("opacity", 0);
         this.width = this.svgRef.nativeElement.clientWidth;
         this.height = this.svgRef.nativeElement.clientHeight;
         this.draw();
@@ -105,7 +99,13 @@ export class DagViewerD3Component {
         const marginBottom = 10;
         const marginLeft = 40;
 
-        const root = d3.hierarchy(this._rootNode);
+        let root;
+        try {
+            root = d3.hierarchy(this._rootNode);
+        } catch(e) {
+            console.error(e, this._rootNode);
+            throw Error("Failed to construct a material tree for the root ", this._rootNode.id);
+        }
         const dx = 40;
         const dy = (width - marginRight - marginLeft) / (1 + root.height);
 
@@ -163,7 +163,7 @@ export class DagViewerD3Component {
 
             nodeEnter.append("circle")
                 .attr("r", 5)
-                .attr("fill", d => d._children ? "#555" : "#999")
+                .attr("fill", d => d.data.category === 'parent'? d._children ? "#bb3F3F": "#e89894": d._children ? "#555" : "#999")
                 .attr("stroke-width", 10);
 
             nodeEnter.append("text")
@@ -174,12 +174,17 @@ export class DagViewerD3Component {
                 .clone(true).lower()
                 .call(getTextBox);
 
+            //Rect padding around text
+            const pX = 6;
+            const pY = 4;
+
             nodeEnter.insert("rect","text")
-                .attr("x", d => {return d.bbox.x})
-                .attr("y", d => {return d.bbox.y})
-                .attr("width", d => {return d.bbox.width})
-                .attr("height", d => {return d.bbox.height})
-                .style("fill", d => COLORS[d.data.type?.toLowerCase()] || '#cccccc');
+                .attr("x", d => {return d.bbox.x - pX})
+                .attr("y", d => {return d.bbox.y - pY})
+                .attr("width", d => {return d.bbox.width + 2*pX})
+                .attr("height", d => {return d.bbox.height + 2*pY})
+                .style("fill", d => COLORS[d.data.type?.toLowerCase()] || '#cccccc')
+                .style("stroke", "#999");
 
             function getTextBox(selection) {
                 selection.each(function(d) { d.bbox = this.getBBox(); })
@@ -204,7 +209,8 @@ export class DagViewerD3Component {
                 .attr("d", d => {
                     const o = {x: source.x0, y: source.y0};
                     return diagonal({source: o, target: o});
-                });
+                })
+               .attr("stroke", d => d.target.data.category === 'parent'? "#bb3F3F": "#999");
 
             link.merge(linkEnter).transition(transition)
                 .attr("d", diagonal);
@@ -230,11 +236,7 @@ export class DagViewerD3Component {
         });
 
         update(null, root);
-
         this.resizeCanvas();
-
-        // let nodes = this.inner.selectAll("g");
-        // this.appendNodeEvents(nodes);
     }
 
     @HostListener('window:resize', ['$event'])
@@ -242,15 +244,6 @@ export class DagViewerD3Component {
           this.screenHeight = window.innerHeight;
           this.screenWidth = window.innerWidth;
     }
-
-    // appendNodeEvents(nodes) {
-    //     nodes.on('mouseover', d => {
-    //         this.tooltip.style("opacity", .9);
-    //         this.tooltip.html(`<div>${d}<\div>`)
-    //             .style("left", (d3.event.pageX) + "px")
-    //             .style("top", (d3.event.pageY - 48) + "px");
-    //     })
-    // }
 
     resizeCanvas(){
         this.svg.attr("width", Math.max(this.screenWidth, 1000));

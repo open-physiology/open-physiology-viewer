@@ -3,7 +3,7 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
-import {cloneDeep, values, sortBy} from 'lodash-bound';
+import {cloneDeep, values, sortBy, isObject, clone} from 'lodash-bound';
 import {
     clearMaterialRefs,
     clearMany,
@@ -47,6 +47,7 @@ const EDGE_CLASS = {
  * @property label
  * @property type
  * @property resource
+ * @property category
  */
 export class MaterialNode {
     constructor(id, parents, children, label, type, resource) {
@@ -60,6 +61,7 @@ export class MaterialNode {
 
     /**
      * @param material - ApiNATOMY material resource object
+     * @param clsName - resource type
      * @returns {MaterialNode}
      */
     static createInstance(material, clsName= CLASS.MATERIAL){
@@ -593,7 +595,6 @@ export class DagViewerD3Component {
         this.entitiesByID = {};
         this.nodes = [];
         this.edges = [];
-        this.nodesByID = {};
 
         let created = [];
 
@@ -630,14 +631,12 @@ export class DagViewerD3Component {
         (this._model.materials || []).forEach(m => {
             let node = MaterialNode.createInstance(m);
             this.nodes.push(node);
-            this.nodesByID[m.id] = node; 
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
         });
         (this._model.lyphs || []).forEach(m => {
             if ((m._inMaterials || []).length > 0 || (m.materials || []).length > 0 || m._included) {
                 let node = MaterialNode.createInstance(m, CLASS.LYPH);
                 this.nodes.push(node);
-                this.nodesByID[m.id] = node;
                 m._included = true;
             }
             this.entitiesByID[m.id]._class = $SchemaClass.Lyph;
@@ -646,7 +645,6 @@ export class DagViewerD3Component {
             if (m.id) {
                 let node = MaterialNode.createInstance(m, CLASS.UNDEFINED);
                 this.nodes.push(node);
-                this.nodesByID[m.id] = node;
             }
         });
 
@@ -701,13 +699,42 @@ export class DagViewerD3Component {
     }
 
     onDblClick(nodeID){
-        const buildTree = root => {
-            if (root && root.children){
-                root.children = root.children.map(childID => buildTree(this.nodesByID[childID]));
+        const buildTree = (rootMat, includeChildren = true, includeParents = true) => {
+            let root = MaterialNode.createInstance(rootMat, rootMat._class);
+            let notFound = [];
+            if (includeChildren && rootMat.materials) {
+                root.children = rootMat.materials.map(child => {
+                    let mat = child::isObject() ? child : this.entitiesByID[child];
+                    if (mat) {
+                        return buildTree(mat, true, false);
+                    } else {
+                        notFound.push(child);
+                    }
+                });
+            } else {
+                delete root.children;
+            }
+            if (includeParents && rootMat._inMaterials){
+                let parents = rootMat._inMaterials.map(parent => {
+                    let mat = parent::isObject() ? parent : this.entitiesByID[parent];
+                    if (mat) {
+                        return buildTree(mat, false, true);
+                    } else {
+                        notFound.push(parent);
+                    }
+                });
+                (parents||[]).forEach(p => {
+                    p.category = 'parent';
+                });
+                root.children = (root.children||[]).concat(parents);
+            }
+            if (notFound.length > 0){
+                console.error("Failed to find material nodes for ", notFound.join(", "));
+                root.children = root.children.filter(e => e);
             }
             return root;
         }
-        this.selectedTreeNode = buildTree(this.nodesByID[nodeID]);
+        this.selectedTreeNode = buildTree(this.entitiesByID[nodeID]);
         this.showTree = true;
     }
 
@@ -819,7 +846,6 @@ export class DagViewerD3Component {
         let idx = (this.nodes || []).findIndex(n => n.id === nodeID);
         if (idx > -1) {
             this.nodes.splice(idx, 1);
-            delete this.nodesByID[nodeID];
         }
     }
 
@@ -835,12 +861,10 @@ export class DagViewerD3Component {
         let idx = (this._model.materials || []).findIndex(m => m.id === nodeID);
         if (idx > -1) {
             this._model.materials.splice(idx, 1);
-            delete this.nodesByID[nodeID];
         } else {
             idx = (this._model.lyphs || []).findIndex(m => m.id === nodeID);
             if (idx > -1) {
                 this._model.lyphs.splice(idx, 1);
-                delete this.nodesByID[nodeID];
             }
         }
         this.updateSearchOptions();
@@ -872,7 +896,6 @@ export class DagViewerD3Component {
         this.inner.call(this.render, this.graphD3);
         let newNode = MaterialNode.createInstance(newMat, CLASS.MATERIAL);
         this.nodes.push(newNode);
-        this.nodesByID[newMat.id] = newNode;
         let node = this.graphD3.node(newMat.id);
         if (node) {
             let elem = d3.select(node.elem);
@@ -979,7 +1002,7 @@ export class DagViewerD3Component {
         if ((material._inMaterials || []).length > 0) {
             material._inMaterials.forEach(m => {
                 clearMany(m, ["materials"], material.id);
-                this._removeEdge({v: m.id, w: material.id})
+                this._removeEdge({v: m.id, w: material.id});
             });
             material._inMaterials = [];
             this.inner.call(this.render, this.graphD3);
@@ -997,6 +1020,7 @@ export class DagViewerD3Component {
             material.materials.forEach(m => {
                 clearMany(m, ["_inMaterials"], material.id);
                 this._removeEdge({v: material.id, w: m});
+                // this._removeNodeParent(m.id, nodeID);
             });
             material.materials = [];
             this.inner.call(this.render, this.graphD3);
@@ -1126,7 +1150,6 @@ export class DagViewerD3Component {
                 });
                 let newNode = MaterialNode.createInstance(mat, CLASS.LYPH);
                 this.nodes.push(newNode);
-                this.nodesByID[matID] = newNode;
                 this.inner.call(this.render, this.graphD3);
                 node = this.graphD3.node(matID);
                 let elem = d3.select(node.elem);
@@ -1149,7 +1172,6 @@ export class DagViewerD3Component {
         let idx = (this.nodes || []).findIndex(n => n.id === nodeID);
         if (idx > -1) {
             this.nodes.splice(idx, 1);
-            delete this.nodesByID[nodeID];
         }
         this.inner.call(this.render, this.graphD3);
         this.saveStep('Excluded lyph ' + nodeID);
