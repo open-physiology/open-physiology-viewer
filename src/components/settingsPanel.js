@@ -17,12 +17,14 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {ResourceVisibility} from "./gui/resourceVisibility";
-import { toggleNeurulatedGroup, toggleNeuroView, buildNeurulatedTriplets } from "../view/render/neuroView";
+import { toggleNeurulatedGroup, toggleNeuroView, undoNeuroviewEffects } from "../view/render/neuroView";
 import {MatFormFieldModule} from '@angular/material/form-field';
 //import {TreeModule} from '@circlon/angular-tree-component';
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatSelectModule} from "@angular/material/select";
+import {GRAPH_LOADED} from '../view/utils';
+
 /**
  * @ignore
  */
@@ -186,6 +188,9 @@ const COLORS = {
                 (change)="handleNeuroViewChange($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
+              <button mat-raised-button (click)="undoNeuroview()">
+                Undo Neuroview
+              </button>
             </div>
             <div class="default-box-header">
               <div class="search-bar">
@@ -990,7 +995,7 @@ const COLORS = {
         color: ${COLORS.black};
       }
 
-      :host ::ng-deep .mat-slide-toggle-content img {
+      :host ::ng-deep .mat-slide-toggle-contentundoNeuroview img {
         margin-right: 0.534rem;
         transform: rotate(0deg);
         transition: all ease-in-out 0.3s;
@@ -1382,6 +1387,14 @@ export class SettingsPanel {
       this.onUpdateGroupLayout.emit({ group : group, filteredDynamicGroups : this.filteredDynamicGroups}); 
     }
   };
+
+  undoNeuroview = () => {
+    undoNeuroviewEffects(this.groups, this.dynamicGroups);
+    let group = this.dynamicGroups?.filter( group => !group?.hidden && group.cloneOf);
+    if (group[0]){
+      this.onToggleGroup.emit( group[0] );
+    }
+  }
 
   toggleAllDynamicGroup = () => {
     let toggleOn = true;

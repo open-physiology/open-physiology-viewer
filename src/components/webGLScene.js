@@ -707,7 +707,6 @@ export class WebGLSceneComponent {
         this.refreshSettings = true;
         this.loading = true;
         let that = this;
-        let visible = true;
         if (neuroviewEnabled) {
             toggleNeuroView(true, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
             let filteredGroups = that.graphData.dynamicGroups.filter( dg => !dg.hidden );
@@ -721,7 +720,6 @@ export class WebGLSceneComponent {
                     let newGroup = toggleNeurulatedGroup({checked : true }, group, that.toggleGroup, that.graphData, that.graphData.dynamicGroups, that.graphData.scaffoldComponents);
                     const matchScaffolds = toggleScaffoldsNeuroview(that.graphData.scaffoldComponents,buildNeurulatedTriplets(group),true);
                     matchScaffolds?.forEach( r => r.hidden = true );
-
                     matchScaffolds?.forEach((scaffold) => {
                         that.toggleGroup(scaffold);
                     });
