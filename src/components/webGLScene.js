@@ -708,6 +708,11 @@ export class WebGLSceneComponent {
         this.loading = true;
         let that = this;
         if (neuroviewEnabled) {
+            toggleNeuroView(true, that.graphData.activeGroups, that.graphData.dynamicGroups, that.graphData.scaffoldComponents, that.toggleGroup);
+            let filteredGroups = that.graphData.dynamicGroups.filter( dg => !dg.hidden );
+            filteredGroups.forEach((g) => {
+                that.toggleGroup(g);
+            });
             this._config.layout.neuroviewEnabled = true;
             visibleGroups?.forEach( async (vg, index) => {
                 let group =  that.graphData.dynamicGroups.find( g => g.id === vg ) ;

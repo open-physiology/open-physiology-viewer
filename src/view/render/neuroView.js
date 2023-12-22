@@ -40,7 +40,7 @@ export function buildNeurulatedTriplets(group) {
     }
   });
 
-  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l.conveys?.levelIn?.[0]?.hostedBy ); //lyphs -> regions
+  let hostedHousingLyphs = housingLyphs?.map((l) => l?.hostedBy || l?.conveys?.levelIn?.[0]?.hostedBy ); //lyphs -> regions
   hostedHousingLyphs.forEach( h => h != undefined && h?.class == "Region" && neuronTriplets.r.indexOf(h) == -1 ? neuronTriplets.r.push(h) : null)
   neuronTriplets.y = housingLyphs;
   let updatedLyphs = []
@@ -61,15 +61,15 @@ export function buildNeurulatedTriplets(group) {
   ]; // lyphs -> links -> chains, each link can be part of several chains, hence levelIn gives an array that we need to flatten
 
   housingChains = [];
-  group.links.filter( l => l.levelIn?.forEach( ll => !housingChains.find( c => c.id == ll.id ) && housingChains.push(ll) ));
+  group.links.filter( l => l?.levelIn?.forEach( ll => !housingChains.find( c => c.id == ll.id ) && housingChains.push(ll) ));
   neuronTriplets.chains = housingChains;
 
   let links = [];
-  housingChains.forEach( chain => chain.levels.forEach( level => !links.find( c => c.id == level.id ) && links.push(level)));
+  housingChains.forEach( chain => chain?.levels?.forEach( level => !links.find( c => c.id == level.id ) && links.push(level)));
 
   let wiredHousingChains = housingChains
-    .filter((c) => c.wiredTo)
-    .map((c) => c.wiredTo); // chains -> wires
+    .filter((c) => c?.wiredTo)
+    .map((c) => c?.wiredTo); // chains -> wires
 
   wiredHousingChains.forEach((wire) => neuronTriplets.w.indexOf(wire) == -1 && neuronTriplets.w.push(wire));
 
@@ -81,7 +81,7 @@ export function buildNeurulatedTriplets(group) {
     .filter((c) => c.leaf)
     .map((c) => c.leaf);
 
-  let anchoredHousingChainRoots = housingChainRoots.filter((n) => n.anchoredTo); //nodes -> anchors
+  let anchoredHousingChainRoots = housingChainRoots.filter((n) => n?.anchoredTo); //nodes -> anchors
   anchoredHousingChainRoots.forEach((wire) => neuronTriplets.w.indexOf(wire) == -1 && neuronTriplets.w.push(wire));
 
   let anchoredHousingChainLeaves = housingChainLeaves.filter(
@@ -90,8 +90,8 @@ export function buildNeurulatedTriplets(group) {
   anchoredHousingChainLeaves.forEach((wire) => neuronTriplets.w.indexOf(wire) == -1 && neuronTriplets.w.push(wire));
 
   let hostedHousingChains = housingChains
-    .filter((c) => c.hostedBy)
-    .map((c) => c.hostedBy) //chains -> regions
+    .filter((c) => c?.hostedBy)
+    .map((c) => c?.hostedBy) //chains -> regions
   hostedHousingChains.forEach((region) => neuronTriplets.r.indexOf(region) == -1 && neuronTriplets.r.push(region));
 
   let color = random_rgba();
@@ -101,6 +101,10 @@ export function buildNeurulatedTriplets(group) {
     }  
   })
   return neuronTriplets;
+}
+
+export function revertNeuroview(group) {
+
 }
 
 function traverseWires(component, checked){
@@ -249,7 +253,7 @@ export function toggleScaffoldsNeuroview ( scaffoldsList, neuronTriplets, checke
   console.log("neuronTriplets ", neuronTriplets)
   // Filter out scaffolds that match the wires attached to the housing lyphs
   let scaffolds = scaffoldsList.filter(
-    (scaffold) => scaffold.id !== "too-map" &&
+    (scaffold) => scaffold.id === "too-map" &&
       (scaffold.wires?.find((w) => neuronTriplets?.w?.find((wire) => w.id === wire.id)) ||
       scaffold.regions?.find((r) => neuronTriplets?.r?.find((region) => r.id === region.id)) ||
       scaffold.anchors?.find((anchor) => neuronTriplets?.w?.find((wire) => anchor.id === wire?.source?.id || anchor.id === wire?.target?.id )))
@@ -373,11 +377,11 @@ function updateLyphsHosts(matches,neuronTriplets){
       }
     }
 
-    if (m.conveys?.levelIn) {
-      if (m.conveys?.levelIn?.[0]?.wiredTo) {
-        m.wiredTo = m.conveys?.levelIn?.[0]?.wiredTo;
-      } else if ( m.conveys?.levelIn?.[0]?.hostedBy) {
-        m.hostedBy =  m.conveys?.levelIn?.[0]?.hostedBy;
+    if (m?.conveys?.levelIn) {
+      if (m?.conveys?.levelIn?.[0]?.wiredTo) {
+        m.wiredTo = m?.conveys?.levelIn?.[0]?.wiredTo;
+      } else if ( m?.conveys?.levelIn?.[0]?.hostedBy) {
+        m.hostedBy =  m?.conveys?.levelIn?.[0]?.hostedBy;
       }
     }
 
@@ -606,8 +610,6 @@ export const handleOrthogonalLinks = (filteredDynamicGroups, viewPortSize, onTog
 export const toggleNeuroView = (visible, activeGroups, dynamicGroups, scaffolds, toggleGroup) => {
    let groups = activeGroups.filter((g) => g?.hidden == false);
    let visibleGroups = dynamicGroups.filter( dg => !dg?.hidden );
-   console.log("Groups ", groups)
-   console.log("visibleGroups ", visibleGroups)
    handleNeuroView(visibleGroups, groups, scaffolds, visible, toggleGroup);
 }
 
@@ -640,4 +642,78 @@ export const updateRenderedResources = (scaffolds, scaffoldResourceVisibility) =
           }
       }
   });
+}
+
+export const undoNeuroviewEffects = (groups, dynamicGroups) => {
+  // Reset properties of dynamic groups that make them neurulated
+  dynamicGroups?.forEach( group => {
+      group?.lyphs?.forEach( lyph => {
+        lyph.neurulated = false;
+      })
+
+      group?.links?.forEach( link => {
+        delete link.viewObjects["linkSegments"];
+        link.neurulated = false;
+        if ( link.source && link.viewObjects["main"]?.visible) {
+          link.source.inactive = false;
+        }
+        if ( link.target && link.viewObjects["main"]?.visible) {
+          link.target.inactive = false;
+        }
+      })
+
+      group?.chains?.forEach( chain => {
+        if ( chain.root ) {
+          chain.root.inactive = undefined;
+        }
+        if ( chain.leaf ) {
+          chain.leaf.inactive = undefined;
+        }
+
+        chain?.levels?.forEach( link => {
+          if ( link.source ) {
+            link.source.inactive = undefined;
+          }
+          if ( link.target ) {
+            link.target.inactive = undefined;
+          }
+        })
+      })
+  })
+
+  // Reset properties of groups that make them neurulated
+  groups?.forEach( group => {
+      group?.lyphs?.forEach( lyph => {
+        lyph.neurulated = false;
+      })
+
+      group?.links?.forEach( link => {
+        delete link.viewObjects["linkSegments"]
+        link.neurulated = false;
+        if ( link.source && link.viewObjects["main"]?.visible) {
+          link.source.inactive = false;
+        }
+        if ( link.target && link.viewObjects["main"]?.visible) {
+          link.target.inactive = false;
+        }
+      })
+
+      group?.chains?.forEach( chain => {
+        if ( chain.root ) {
+          chain.root.inactive = undefined;
+        }
+        if ( chain.leaf ) {
+          chain.leaf.inactive = undefined;
+        }
+
+        chain?.levels?.forEach( link => {
+          if ( link.source ) {
+            link.source.inactive = undefined;
+          }
+          if ( link.target ) {
+            link.target.inactive = undefined;
+          }
+        })
+      })
+  })
 }
