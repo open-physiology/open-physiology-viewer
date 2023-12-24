@@ -122,6 +122,24 @@ export class DagViewerD3Component {
             .attr("cursor", "pointer")
             .attr("pointer-events", "all");
 
+        const markerColors = ["#e89894", "#999"];
+        const markers = ["M10,-5 L0,0 L10,5", "M 0,-5 L 10,0 L 0,5"];
+
+        this.svg.append("svg:defs").selectAll("marker")
+            .data(["start", "end"])
+            .enter().append("svg:marker")
+            .attr("id",  d => 'marker-' + d)
+            .attr('fill', (d, i) => markerColors[i])
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 15)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr('markerUnits', 'strokeWidth')
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", (d, i) => markers[i]);
+
         const update = (event, source) => {
             const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
             const nodes = root.descendants().reverse();
@@ -162,7 +180,7 @@ export class DagViewerD3Component {
                 });
 
             nodeEnter.append("circle")
-                .attr("r", 5)
+                .attr("r", 3)
                 .attr("fill", d => d.data.category === 'parent'? d._children ? "#bb3F3F": "#e89894": d._children ? "#555" : "#999")
                 .attr("stroke-width", 10);
 
@@ -210,7 +228,8 @@ export class DagViewerD3Component {
                     const o = {x: source.x0, y: source.y0};
                     return diagonal({source: o, target: o});
                 })
-               .attr("stroke", d => d.target.data.category === 'parent'? "#bb3F3F": "#999");
+               .attr("stroke", d => d.target.data.category === 'parent'? "#bb3F3F": "#999")
+               .attr("marker-end", d => `url(#marker-${d.target.data.category === 'parent'? 'start': 'end'})`);
 
             link.merge(linkEnter).transition(transition)
                 .attr("d", diagonal);
