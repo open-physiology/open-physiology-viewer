@@ -8,50 +8,49 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {cloneDeep, isObject, values} from 'lodash-bound';
 import {$Field, $SchemaClass} from "../model";
-import {ChainDeclarationModule} from "./gui/chainDeclarationEditor";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
-import {DiffDialog} from "./gui/diffDialog";
 import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
 import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "./gui/utils";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
+import {DiffDialog} from "./gui/diffDialog";
 
 @Component({
-    selector: 'chainEditor',
+    selector: 'coalescenceEditor',
     template: `
-        <section #chainEditor id="chainEditor" class="w3-row">
-            <section #chainView id="chainView" [class.w3-threequarter]="showPanel">
+        <section #coalescenceEditor id="coalescenceEditor" class="w3-row">
+            <section #coalescenceView id="coalescenceView" [class.w3-threequarter]="showPanel">
                 <section class="w3-col">
-                    <resourceListView 
-                              title="Chains"
-                              expectedClass="Chain"
-                              [listData]="chainList"
-                              [selectedNode]="selectedNode"
-                              (onNodeClick)="selectChain($event)"
-                              (onChange)="processChainChange($event)"
+                    <resourceListView
+                            title="Coalescences"
+                            expectedClass="Coalescence"
+                            [listData]="coalescenceList"
+                            [selectedNode]="selectedNode"
+                            (onNodeClick)="selectCoalescence($event)"
+                            (onChange)="processCoalescenceChange($event)"
                     >
-                    </resourceListView>                    
-                </section>    
+                    </resourceListView>
+                </section>
                 <section class="w3-col">
-                    <resourceListView *ngIf="selectedChain"
-                              title="Lyphs"
-                              ordered="true"
-                              expectedClass="Lyph"
-                              [listData]="chainLyphs"
-                              (onNodeClick)="selectLyph($event)"
-                              (onChange)="processLyphChange($event)"
+                    <resourceListView *ngIf="selectedCoalescence"
+                                      title="Lyphs"
+                                      ordered="true"
+                                      expectedClass="Lyph"
+                                      [listData]="coalescenceLyphs"
+                                      (onNodeClick)="selectLyph($event)"
+                                      (onChange)="processLyphChange($event)"
                     >
                     </resourceListView>
                 </section>
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
                         <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="createChain()" title="New chain">
+                                (click)="createCoalescence()" title="New coalescence">
                             <i class="fa fa-file-pen"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                [disabled]="currentStep === 0" 
+                                [disabled]="currentStep === 0"
                                 (click)="showDiff()" title="Compare code">
                             <i class="fa fa-magnifying-glass"> </i>
                         </button>
@@ -74,7 +73,7 @@ import {ICON, LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
                                 title="Apply changes">
-                            <div style="display: flex">    
+                            <div style="display: flex">
                                 <i class="fa fa-check"> </i>
                                 <span *ngIf="currentStep > 0" style="color: red">*</span>
                             </div>
@@ -82,37 +81,36 @@ import {ICON, LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
                     </section>
                 </section>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter w3-white" id="chainEditorEditPanel">
+            <section *ngIf="showPanel" class="w3-quarter w3-white" id="clsEditorEditPanel">
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
                         (selectedItemChange)="selectBySearch($event)"
-                        (addSelectedItem)="addChainLyph($event)"
+                        (addSelectedItem)="addCoalescenceLyph($event)"
                 >
                 </searchAddBar>
-                <chainDeclaration
-                        [lyph]="selectedChain"
-                        [wireOptions]="wireOptions"
+                <resourceDeclaration
+                        [resource]="selectedCoalescence"
                         (onValueChange)="updateProperty($event)"
                 >
-                </chainDeclaration>
+                </resourceDeclaration>
                 <lyphTreeView *ngIf="selectedLyph"
-                                  title="Layers"
-                                  ordered="true"
-                                  [showMenu]=false  
-                                  [treeData]="layerTree"
-                    >
+                              title="Layers"
+                              ordered="true"
+                              [showMenu]=false
+                              [treeData]="layerTree"
+                >
                 </lyphTreeView>
             </section>
         </section>
     `,
     styles: [`
-        #chainView {
+        #coalescenceView {
             display: flex;
             justify-content: space-between;
         }
-        
-        #chainEditorEditPanel{
+                
+        #clsEditorEditPanel{
           height: 100vh;
           overflow-y: auto;
           overflow-x: auto;
@@ -123,7 +121,7 @@ import {ICON, LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
  * @class
  * @property entitiesByID
  */
-export class ChainEditorComponent {
+export class CoalescenceEditorComponent {
     _model;
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
@@ -143,22 +141,21 @@ export class ChainEditorComponent {
         this.steps = [];
         this.currentStep = 0;
         this.entitiesByID = {};
-        this.prepareChainList();
+        this.prepareCoalescenceList();
         prepareMaterialLyphMap(this._model, this.entitiesByID);
         this.updateLyphOptions();
-        this.updateWireOptions();
-        this.updateView((this._model?.chains||[])[0]) ;
+        this.updateView((this._model?.coalescences || [])[0]);
         this.saveStep('Initial model');
     };
 
-    @Input('selectedNode') set selectedNode(value){
+    @Input('selectedNode') set selectedNode(value) {
         if (value && this._selectedNode !== value) {
             this._selectedNode = value;
-            this.selectChain(value);
+            this.selectCoalescence(value);
         }
     }
 
-    get selectedNode(){
+    get selectedNode() {
         return this._selectedNode;
     }
 
@@ -171,40 +168,40 @@ export class ChainEditorComponent {
     }
 
     /**
-     * Prepare nodes for the editable chain list
+     * Prepare nodes for the editable coalescence list
      */
-    prepareChainList(){
-       this.chainList = [];
-       (this._model.chains || []).forEach((chain, idx) => {
-            if (chain::isObject()) {
-                if (!chain.id) {
+    prepareCoalescenceList() {
+        this.coalescenceList = [];
+        (this._model.coalescences || []).forEach((cl, idx) => {
+            if (cl::isObject()) {
+                if (!cl.id) {
                     let counter = 1;
-                    let newID = "tmpChainID" + counter;
+                    let newID = "tmpCoalescenceID" + counter;
                     while (this.entitiesByID[newID]) {
-                        newID = "tmpChainID" + ++counter;
+                        newID = "tmpCoalescenceID" + ++counter;
                     }
-                    chain._id = true;
-                    chain.id = newID;
+                    cl._id = true;
+                    cl.id = newID;
                 }
-                chain._class = $SchemaClass.Chain;
-                this.entitiesByID[chain.id] = chain;
-                let node = ListNode.createInstance(chain, idx, this._model.chains.length);
-                this.chainList.push(node);
+                cl._class = $SchemaClass.Coalescence;
+                this.entitiesByID[cl.id] = cl;
+                let node = ListNode.createInstance(cl, idx, this._model.coalescences.length);
+                this.coalescenceList.push(node);
             }
-       });
+        });
     }
 
     /**
-     * Select chain
+     * Select coalescence
      * @param node
      */
-     selectChain(node){
+    selectCoalescence(node) {
         let nodeID = node::isObject() ? node.id : node;
-        this.selectedChain = this.entitiesByID[nodeID];
-        this.prepareChainLyphs();
+        this.selectedCoalescence = this.entitiesByID[nodeID];
+        this.prepareCoalescenceLyphs();
     }
 
-    selectLyph(node){
+    selectLyph(node) {
         let nodeID = node::isObject() ? node.id : node;
         this.selectedLyph = this.entitiesByID[nodeID];
         this.prepareLayerTree();
@@ -221,41 +218,43 @@ export class ChainEditorComponent {
         }
     }
 
-    moveLevelUp(node, index) {
-        if (this.selectedChain) {
-            let tmp = this.selectedChain.lyphs[index - 1];
-            this.selectedChain.lyphs[index - 1] = this.selectedChain.lyphs[index];
-            this.selectedChain.lyphs[index] = tmp;
-            this.prepareChainLyphs();
-            this.saveStep("Move up lyph " + index + " of chain " + this.selectedChain.id);
+    moveLyphUp(node, index) {
+        if (this.selectedCoalescence) {
+            let tmp = this.selectedCoalescence.lyphs[index - 1];
+            this.selectedCoalescence.lyphs[index - 1] = this.selectedCoalescence.lyphs[index];
+            this.selectedCoalescence.lyphs[index] = tmp;
+            this.prepareCoalescenceLyphs();
+            this.saveStep("Move up lyph " + index + " of coalescence " + this.selectedCoalescence.id);
         }
     }
 
-    moveLevelDown(node, index) {
-        if (this.selectedChain) {
-            let tmp = this.selectedChain.lyphs[index + 1];
-            this.selectedChain.lyphs[index + 1] = this.selectedChain.lyphs[index];
-            this.selectedChain.lyphs[index] = tmp;
-            this.prepareChainLyphs();
-            this.saveStep("Move down lyph " + index + " of chain " + this.selectedChain.id);
+    moveLyphDown(node, index) {
+        if (this.selectedCoalescence) {
+            let tmp = this.selectedCoalescence.lyphs[index + 1];
+            this.selectedCoalescence.lyphs[index + 1] = this.selectedCoalescence.lyphs[index];
+            this.selectedCoalescence.lyphs[index] = tmp;
+            this.prepareCoalescenceLyphs();
+            this.saveStep("Move down lyph " + index + " of coalescence " + this.selectedCoalescence.id);
         }
     }
+
+
 
     /**
-     * Prepare list of lyph nodes used to define a selected chain
+     * Prepare list of lyph nodes used to define a selected coalescence
      * @returns {[]|*[]}
      */
-    prepareChainLyphs() {
+    prepareCoalescenceLyphs() {
         let res = [];
-        (this.selectedChain?.lyphs||[]).forEach((lyphID, idx) => {
+        (this.selectedCoalescence?.lyphs || []).forEach((lyphID, idx) => {
             let lyph = this.entitiesByID[lyphID];
-            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
+            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedCoalescence.lyphs.length);
             if (lyph?.layers) {
                 node.icons.push(ICON.LAYERS);
             }
             res.push(node);
         });
-        this.chainLyphs = res;
+        this.coalescenceLyphs = res;
     }
 
     /**
@@ -265,10 +264,10 @@ export class ChainEditorComponent {
         this.searchOptions = prepareLyphSearchOptions(this._model);
     }
 
-    updateWireOptions(){
+    updateWireOptions() {
         this.wireOptions = [];
         (this._model?.scaffolds || []).forEach(scaffold => {
-            let nm = scaffold.namespace? scaffold.namespace + ":" : "";
+            let nm = scaffold.namespace ? scaffold.namespace + ":" : "";
             (scaffold.wires || []).forEach(e => {
                 this.wireOptions.push({
                     id: nm + e.id,
@@ -295,45 +294,45 @@ export class ChainEditorComponent {
         }
     }
 
-    processChainChange({operation, node, index}) {
+    processCoalescenceChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.addChain(node, index);
+                this.addCoalescence(node, index);
                 break;
             case 'delete':
-                this.deleteChain(node);
+                this.deleteCoalescence(node);
                 break;
         }
-    }
-
-     /**
-     * Create a new chain definition
-     * @returns {{[p: string]: *, _class: *}}
-     */
-    defineNewChain() {
-        let newCounter = 1;
-        let newID = "_newChain" + newCounter;
-        while (this.entitiesByID[newID]) {
-            newID = "_newChain" + ++newCounter;
-        }
-        let newChain = {
-            [$Field.id]: newID,
-            [$Field.name]: "New chain " + newCounter,
-            "_class": $SchemaClass.Chain
-        }
-        this._model.chains = this._model.chains || [];
-        this._model.chains.push(newChain);
-        this.entitiesByID[newChain.id] = newChain;
-        return newChain;
     }
 
     /**
-    * Create a new chain
-    */
-    createChain() {
-        let chain = this.defineNewChain();
+     * Create a new chain definition
+     * @returns {{[p: string]: *, _class: *}}
+     */
+    defineNewCoalescence() {
+        let newCounter = 1;
+        let newID = "_newCoalescence" + newCounter;
+        while (this.entitiesByID[newID]) {
+            newID = "_newCoalescence" + ++newCounter;
+        }
+        let newCoalescence = {
+            [$Field.id]: newID,
+            [$Field.name]: "New coalescence " + newCounter,
+            "_class": $SchemaClass.Coalescence
+        }
+        this._model.coalescences = this._model.coalescences || [];
+        this._model.coalescences.push(newCoalescence);
+        this.entitiesByID[newCoalescence.id] = newCoalescence;
+        return newCoalescence;
+    }
+
+    /**
+     * Create a new chain
+     */
+    createCoalescence() {
+        let chain = this.defineNewCoalescence();
         let node = ListNode.createInstance(chain);
-        this.chainList = [node, ...this.chainList];
+        this.coalescenceList = [node, ...this.coalescenceList];
         this.saveStep("Create new chain " + chain.id);
     }
 
@@ -342,29 +341,29 @@ export class ChainEditorComponent {
      * @param node
      * @param index
      */
-    addChain(node, index) {
-        this.createChain();
+    addCoalescence(node, index) {
+        this.createCoalescence();
     }
 
-    deleteChain(node){
-        let chain = this.entitiesByID[node.id];
-        let cls = chain._class?.toLowerCase() || $SchemaClass.Chain;
-        if (chain) {
-            let idx = (this._model.chains || []).findIndex(e => e.id === node.id);
+    deleteCoalescence(node) {
+        let coalescence = this.entitiesByID[node.id];
+        let cls = coalescence._class?.toLowerCase() || $SchemaClass.Coalescence;
+        if (coalescence) {
+            let idx = (this._model.coalescences || []).findIndex(e => e.id === node.id);
             if (idx > -1) {
-                this._model.chains.splice(idx, 1);
-                this.prepareChainList();
-                this.updateView(this._model.chains[0]);
-             }
+                this._model.coalescences.splice(idx, 1);
+                this.prepareCoalescenceList();
+                this.updateView(this._model.coalescences[0]);
+            }
         }
         this.saveStep("Delete " + cls + " " + node.id);
     }
 
-    updateView(chain){
-        this.selectedChain = chain;
-        this.prepareChainLyphs();
-        if (this.selectedNode?.id !== this.selectedChain?.id) {
-            this.selectedNode = this.selectedChain.id;
+    updateView(coalescence) {
+        this.selectedCoalescence = coalescence;
+        this.prepareCoalescenceLyphs();
+        if (this.selectedNode?.id !== this.selectedCoalescence?.id) {
+            this.selectedNode = this.selectedCoalescence.id;
         }
     }
 
@@ -377,16 +376,16 @@ export class ChainEditorComponent {
     processLyphChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.addChainLyph(node, index);
+                this.addCoalescenceLyph(node, index);
                 break;
             case 'delete':
-                this.deleteChainLyph(node, index);
+                this.deleteCoalescenceLyph(node, index);
                 break;
             case 'up':
-                this.moveLevelUp(node, index);
+                this.moveLyphUp(node, index);
                 break;
             case 'down':
-                this.moveLevelDown(node, index);
+                this.moveLyphDown(node, index);
                 break;
             case 'defineAsLyph':
                 this.defineAsLyph(node, index);
@@ -394,9 +393,9 @@ export class ChainEditorComponent {
         }
     }
 
-     //Helper method to create a material/lyph object
+    //Helper method to create a material/lyph object
     _addDefinition(prop, nodeID) {
-        if (!this.entitiesByID[nodeID]){
+        if (!this.entitiesByID[nodeID]) {
             this.entitiesByID[nodeID] = {
                 [$Field.id]: nodeID
             };
@@ -420,33 +419,33 @@ export class ChainEditorComponent {
         this.updateLyphOptions();
     }
 
-    _isValidChainLyph(lyph){
-        if (lyph.isTemplate){
-             this.showMessage("Cannot add a lyph template as level to the chain conveying lyphs");
-             return false;
+    _isValidCoalescenceLyph(lyph) {
+        if (lyph.isTemplate) {
+            this.showMessage("Cannot add a lyph template to coalescence");
+            return false;
         }
         return true;
     }
 
-     /**
+    /**
      * Add layer to the lyph
      * @param node
      * @param index
      */
-    addChainLyph(node, index) {
-        if (this.selectedChain) {
-            if (!this.lyphToLink){
+    addCoalescenceLyph(node, index) {
+        if (this.selectedCoalescence) {
+            if (!this.lyphToLink) {
                 this.showMessage("Lyph is not selected!");
             } else {
-                if (this._isValidChainLyph(this.lyphToLink)) {
-                    this.selectedChain.lyphs = this.selectedChain.lyphs || [];
-                    this.selectedChain.lyphs.push(this.lyphToLink.id);
-                    this.prepareChainLyphs();
-                    this.saveStep(`Add level ${this.lyphToLink.id} to chain ${this.selectedChain.id}`);
+                if (this._isValidCoalescenceLyph(this.lyphToLink)) {
+                    this.selectedCoalescence.lyphs = this.selectedCoalescence.lyphs || [];
+                    this.selectedCoalescence.lyphs.push(this.lyphToLink.id);
+                    this.prepareCoalescenceLyphs();
+                    this.saveStep(`Add lyph ${this.lyphToLink.id} to coalescence ${this.selectedCoalescence.id}`);
                 }
             }
         } else {
-            this.showMessage("Cannot add level: no chain is selected!");
+            this.showMessage("Cannot add lyph: no coalescence is selected!");
         }
     }
 
@@ -455,20 +454,20 @@ export class ChainEditorComponent {
      * @param node
      * @param index
      */
-    deleteChainLyph(node, index) {
-       if (!this.selectedChain) {
-            this.showMessage("Cannot delete the chain lyph: chain is not selected!");
-       } else {
-            if (index > -1 && this.selectedChain.lyphs?.length > index) {
-                this.selectedChain.lyphs.splice(index, 1);
+    deleteCoalescenceLyph(node, index) {
+        if (!this.selectedCoalescence) {
+            this.showMessage("Cannot delete the lyph: coalescence is not selected!");
+        } else {
+            if (index > -1 && this.selectedCoalescence.lyphs?.length > index) {
+                this.selectedCoalescence.lyphs.splice(index, 1);
                 let lyph = this.entitiesByID[node.id];
                 if (lyph) {
                     delete lyph.levelIn;
                 }
-                this.saveStep("Remove level " + node.id + " from " + parent.id);
+                this.saveStep("Remove lyph " + node.id + " from " + parent.id);
             }
-            this.prepareChainLyphs();
-       }
+            this.prepareCoalescenceLyphs();
+        }
     }
 
     /**
@@ -481,25 +480,24 @@ export class ChainEditorComponent {
         if (!$Field[prop]) {
             this.showMessage("Cannot update unknown property!");
         }
-        if (this.selectedChain) {
+        if (this.selectedCoalescence) {
             if (prop === $Field.id) {
-                //NK TODO Update references to chains??
                 this.entitiesByID[value] = this.entitiesByID[oldValue];
                 delete this.entitiesByID[oldValue];
-                if (this.selectedChain._id){
-                    delete this.selectedChain._id;
+                if (this.selectedCoalescence._id) {
+                    delete this.selectedCoalescence._id;
                 }
             }
             if (prop === $Field.id) {
-                this.prepareChainList();
+                this.prepareCoalescenceList();
             } else {
-                this.selectedChain[prop] = value;
+                this.selectedCoalescence[prop] = value;
             }
-            this.saveStep(`Update property ${prop} of chain ` + this.selectedChain.id);
+            this.saveStep(`Update property ${prop} of coalescence ` + this.selectedCoalescence.id);
         }
     }
 
-    showMessage(message){
+    showMessage(message) {
         this._snackBar.open(message, "OK", this._snackBarConfig);
     }
 
@@ -518,25 +516,32 @@ export class ChainEditorComponent {
         });
     }
 
-    showDiff(){
-         const dialogRef = this.dialog.open(DiffDialog, {
-            width : '90%',
-            data  : {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
+    /**
+     * Save operation in history
+     * @param action
+     */
+    saveStep(action) {
+        if (this.currentStep > this.steps.length - 1) {
+            this.currentStep = this.steps.length - 1;
+        }
+        if (this.currentStep !== this.steps.length - 1) {
+            this.steps.length = this.currentStep + 1;
+        }
+        //NK test if nested properties are removed
+        let snapshot = this._model::cloneDeep();
+        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedCoalescence?.id});
+        this.currentStep = this.steps.length - 1;
     }
 
-    get currentText(){
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
-            let currentModel = this._model::cloneDeep();
-            return JSON.stringify(currentModel,
-                function(key, val) {
-                    if (!added.includes(key)){
-                        return val;
-                    }},
-                4);
-        }
-        return this._modelText;
+    /**
+     * Restore history state
+     */
+    restoreState() {
+        let restoredStep = this.steps[this.currentStep];
+        this._model = restoredStep.snapshot;
+        this.prepareCoalescenceList();
+        let newSelected = this.entitiesByID[restoredStep.selected];
+        this.updateView(newSelected);
     }
 
     /**
@@ -578,42 +583,36 @@ export class ChainEditorComponent {
         }
     }
 
-     /**
-     * Save operation in history
-     * @param action
-     */
-    saveStep(action) {
-        if (this.currentStep > this.steps.length - 1) {
-            this.currentStep = this.steps.length - 1;
-        }
-        if (this.currentStep !== this.steps.length - 1) {
-            this.steps.length = this.currentStep + 1;
-        }
-        //NK test if nested properties are removed
-        let snapshot = this._model::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedChain?.id});
-        this.currentStep = this.steps.length - 1;
+    showDiff() {
+        const dialogRef = this.dialog.open(DiffDialog, {
+            width: '90%',
+            data: {'oldContent': this._modelText, 'newContent': this.currentText}
+        });
     }
 
-    /**
-     * Restore history state
-     */
-    restoreState(){
-        let restoredStep = this.steps[this.currentStep];
-        this._model = restoredStep.snapshot;
-        this.prepareChainList();
-        let newSelected = this.entitiesByID[restoredStep.selected];
-        this.updateView(newSelected);
+    get currentText() {
+        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
+            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
+            let currentModel = this._model::cloneDeep();
+            return JSON.stringify(currentModel,
+                function (key, val) {
+                    if (!added.includes(key)) {
+                        return val;
+                    }
+                },
+                4);
+        }
+        return this._modelText;
     }
 }
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
+        MatDividerModule, ResourceListViewModule, CheckboxFilterModule, MatListModule,
         LyphTreeViewModule],
-    declarations: [ChainEditorComponent],
-    exports: [ChainEditorComponent]
+    declarations: [CoalescenceEditorComponent],
+    exports: [CoalescenceEditorComponent]
 })
-export class ChainEditorModule {
+export class CoalescenceEditorModule {
 }
 

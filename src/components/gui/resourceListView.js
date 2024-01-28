@@ -67,6 +67,7 @@ export class ListNode {
                                'template' : node.isTemplate || node.class === 'Template',
                                'material' : node.class === 'Material', 
                                'chain'    : node.class === 'Chain', 
+                               'coalescence' : node.class === 'Coalescence',
                                'undefined': node.class === 'Undefined'}"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
@@ -140,6 +141,10 @@ export class ListNode {
         
         .chain {
             background-color: ${COLORS.chain}; 
+        }
+        
+        .coalescence {
+            background-color: ${COLORS.coalescence}; 
         }
         
         .undefined {

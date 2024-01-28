@@ -97,17 +97,23 @@
     <li data-ice="manualNav" class="indent-h1" data-link="manual/editors.html"><a href="manual/editors.html#material-editor" data-ice="link">Material Editor</a></li>
 <li data-ice="manualNav" class="indent-h1" data-link="manual/editors.html"><a href="manual/editors.html#lyph-editor" data-ice="link">Lyph editor</a></li>
 <li data-ice="manualNav" class="indent-h2" data-link="manual/editors.html"><a href="manual/editors.html#operations" data-ice="link">Operations</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#create-new-lyph" data-ice="link">Create new lyph</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#delete-lyph" data-ice="link">Delete lyph</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#delete-lyph-definition" data-ice="link">Delete lyph definition</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#add-subtype" data-ice="link">Add subtype</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#remove-subtypes" data-ice="link">Remove subtypes</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#remove-supertype" data-ice="link">Remove supertype</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#define-as-material-or-define-as-lyph" data-ice="link">Define as material or Define as lyph</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#add-layer" data-ice="link">Add layer</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#delete-layer--or-remove-layerin-" data-ice="link">Delete layer (or remove layerIn)</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#remove-layers" data-ice="link">Remove layers</a></li>
-<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#move-layer-up-down" data-ice="link">Move layer up/down</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#delete-definition" data-ice="link">Delete definition</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#define-as-material-or-define-as-lyph" data-ice="link">Define as material or Define as lyph</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#lyphs-and-templates" data-ice="link">Lyphs and templates</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#create-new-lyph" data-ice="link">Create new lyph</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#delete-lyph" data-ice="link">Delete lyph</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#add-subtype" data-ice="link">Add subtype</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#remove-subtypes" data-ice="link">Remove subtypes</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#remove-supertype" data-ice="link">Remove supertype</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#layers" data-ice="link">Layers</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#add-layer" data-ice="link">Add layer</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#delete-layer--or-remove-layerin-" data-ice="link">Delete layer (or remove layerIn)</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#remove-layers" data-ice="link">Remove layers</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#move-layer-up-down" data-ice="link">Move layer up/down</a></li>
+<li data-ice="manualNav" class="indent-h3" data-link="manual/editors.html"><a href="manual/editors.html#internal-lyphs" data-ice="link">Internal lyphs</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#add-internal" data-ice="link">Add internal</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#delete-internal-lyph--or-remove-internalin-" data-ice="link">Delete internal lyph (or Remove internalIn)</a></li>
+<li data-ice="manualNav" class="indent-h4" data-link="manual/editors.html"><a href="manual/editors.html#remove-internal-lyphs" data-ice="link">Remove internal lyphs</a></li>
 </ul>
   </div>
 <div data-ice="manual">
@@ -980,45 +986,62 @@ ApiNATOMY input models. The editor consists of 3 hierarchical trees, and a prope
 a lyph to inspect and modify. The second view shows the layers of the selected lyph defined by 
 <code>layers</code>/<code>layerIn</code> relationships. The third view shows internal lyphs of the selected lyph 
 defined by <code>internalLyphs</code>/<code>internalIn</code> relationships. </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor.png"></p><h2>Operations</h2><p>CRUD (Create, Read, Update, and Delete) operations can be performed on selected lyphs using mouse right-click 
-menus. These operations are context-dependent - they are applied to a selected lyph in an active tree.
-The active tree is highlighted by a grey border around the tree name. Each applied operation is registered and can be reverted or repeated using <code>Undo</code> and <code>Redo</code> buttons on the right toolbar.
+menus. These operations are context-dependent - they are applied to a selected lyph in an active tree and vary depending
+what tree is active. An active tree is highlighted by a grey border around the tree name. Each applied operation is registered and can be 
+reverted or repeated using <code>Undo</code> and <code>Redo</code> buttons on the right toolbar.
 Some operations, namely, creation of new lyphs
 and transition from one editing state to another (undo/redo) are performed via a vertical toolbar in the right 
-part of the viewer. </p><h3>Create new lyph</h3><p>To create a new lyph, press top button <code>New lyph</code> on the right toolbar. A new lyph with identifier
+part of the viewer. </p><h4>Delete definition</h4><p>Unlike <code>delete</code> operations described below which are context dependent, <code>Delete definition</code> can be performed from any 
+tree and only removes the chosen lyph 
+declaration. This may produce a model with undefined references which will trigger a warning in the ApiNATOMY model (the tool will generate 
+an artificial lyph to proceed with the visualization).  </p><h4>Define as material or Define as lyph</h4><p>It may happen that a lyph refers to a resource in its <code>subtypes</code>, <code>layers</code> or <code>internalLyphs</code> arrays, but the referred
+resource is not declared in the model. To be able to display such a reference graphically in the trees, we generate a<br>tree node that represents the reference but does not correspond to an actual resource declaration in the model, such node
+can be recognized by its grey color. Two options will be given in the context menu for such nodes: <code>Define as lyph</code> and 
+<code>Define as material</code>, which generate a new lyph or material declaration with the given <code>id</code>, respectively. After that the color
+of the corresponding tree node should change to the light orange for a lyph or light green for a material. </p><h3>Lyphs and templates</h3><p>Lyph templates are just lyphs with property <code>isTemplate</code> set to true and they are part of the lyph tree. 
+All operations applicable to lyphs also apply to lyph templates and they are defined just as normal lyphs. 
+However, a lyph template defines an abstract entity that can be referred multiple times from various other structures 
+in a model, each such reference is substituted by a generated lyph instance
+with a unique id by the ApiNATOMY model generator. 
+More importantly for model editing, lyph templates are often reused in definitions of other lyphs via properties
+<code>supertype</code> or <code>subtypes</code>. Lyph templates are shown in yellow as opposed to light orange for normal lyphs. </p><h4>Create new lyph</h4><p>To create a new lyph, press top button <code>New lyph</code> on the right toolbar. A new lyph with identifier
 <code>_newLyph#</code> and name <code>New lyph #</code> where <code>#</code> is a numerical order of the created lyph is added to the <code>lyphs</code> array 
-of the current ApiNATOMY model. A corresponding node is created and added to the top of the lyph tree.  </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-newLyph.png"></p><h3>Delete lyph</h3><p>To delete a lyph from the model, select a lyph in the main tree and click <code>Delete</code> in the context menu. </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-contextMenu.png"></p><p>This operation not only removes the definition, but also clears all the references to the deleted lyph. For example,
+of the current ApiNATOMY model. A corresponding node is created and added to the top of the lyph tree.  </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-newLyph.png"></p><h4>Delete lyph</h4><p>To delete a lyph from the model, select a lyph in the main tree and click <code>Delete</code> in the context menu. </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-contextMenu.png"></p><p>This operation not only removes the definition, but also clears all the references to the deleted lyph. For example,
 the image below shows 2 code changes induced by the deletion of the lyph <code>lt-PNS-ganglion</code>: not only its 
 declaration is removed, but also the <code>supertype</code> reference of the lyph <code>lt-ganglion-visceral-mural</code> 
 is cleared. Instead, if one wants to just detach subtype from the supertype, operation <a href="#remove-supertype">Remove parent</a> 
 should be applied</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-deleteLyph.png"></p><p>Note that the same menu button in <code>Layers</code> and <code>Internal lyphs</code> trees will not delete the chosen lyph definition,
-it only detaches the lyph from the <code>layers</code> and <code>internalLyphs</code> arrays of the selected lyph (root of these trees), respectively.</p><h3>Delete lyph definition</h3><p>Unlike the previous operation, <code>Delete definition</code> only removes the chosen lyph declaration. This may produce 
-a model with undefined references which will trigger a warning in the ApiNATOMY model (the tool will generate 
-an artificial lyph to proceed with the visualization).  </p><h3>Add subtype</h3><p>To add a subtype to a selected lyph that will inherit the lyph&apos;s properties and layers, right-click and select <code>Add</code> in the 
+it only detaches the lyph from the <code>layers</code> and <code>internalLyphs</code> arrays of the selected lyph (root of these trees), respectively.</p><h4>Add subtype</h4><p>To add a subtype to a selected lyph that inherits the lyph&apos;s properties and layers, right-click and select <code>Add</code> in the 
 context menu. By default, a new lyph is created (as described in the operation <a href="#create-new-lyph">Create new lyph</a>) 
 and included to the subtypes of the selected lyph. However, if one wants to include an existing lyph, 
 choose this lyph in the search box on the top of the Settings panel. The image below illustrates 
 this case: first, we select <code>lyph-superior-cervical-ganglion</code> in the search box, then click <code>Add</code> on the lyph <code>lt-white-ramus</code> 
-in the lyph tree, defining the <code>supertype/subtypes</code> relationship between them:     </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-addSubtype.png"></p><p>Note that if a material is selected in the search box, a warning <em>&quot;Cannot add a non-lyph resource as subtype&quot;</em> will be issued.</p><h3>Remove subtypes</h3><p>To clear all subtypes from a lyph, select <code>Remove children</code> in the main tree. This operation removes references from the
+in the lyph tree, defining the <code>supertype/subtypes</code> relationship between them:     </p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-addSubtype.png"></p><p>Note that if a material is selected in the search box, a warning <em>&quot;Cannot add a non-lyph resource as subtype&quot;</em> will be issued.</p><h4>Remove subtypes</h4><p>To clear all subtypes from a lyph, select <code>Remove children</code> in the main tree. This operation removes references from the
 lyph&apos;s property <code>subtypes</code>, the corresponding lyphs will appear at the top level of the main tree. The menu option is not 
-available for lyphs with no subtypes.</p><h3>Remove supertype</h3><p>Lyphs with a supertype are located in a tree brunch under their supertype. To remove the supertype from a lyph, 
+available for lyphs with no subtypes.</p><h4>Remove supertype</h4><p>Lyphs with a supertype are located in a tree brunch under their supertype. To remove the supertype from a lyph, 
 press a right mouse button on it and select <code>Remove parent</code>. The lyph will disappear from the subtree and appear 
-at the top level of the main list. The menu option is not available for lyphs without a supertype.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-removeSupertype.png"></p><h3>Define as material or Define as lyph</h3><p>It may happen that a lyph refers to a resource in its <code>subtypes</code>, <code>layers</code> or <code>internalLyphs</code> arrays, but the referred
-resource is not declared in the model. To be able to display such a reference graphically in the trees, we generate a<br>tree node that represents the reference but does not correspond to an actual resource declaration in the model, such node
-can be recognized by its grey color. Two options will be given in the context menu for such nodes: <code>Define as lyph</code> and 
-<code>Define as material</code>, which generate a new lyph or material declaration with the given <code>id</code>, respectively. After that the color
-of the corresponding tree node should change to the light orange for a lyph or light green for a material. </p><h3>Add layer</h3><p>To add a layer to a lyph specification, select the lyph in the <code>Layers</code> tree and press <code>Add</code> in the right mouse button
+at the top level of the main list. The menu option is not available for lyphs without a supertype.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-removeSupertype.png"></p><h3>Layers</h3><p>One can identify lyphs with layers in the lyph tree by the icon with three bars. This icon may disapper if you delete all
+layers or reappear if you add a layer toa  lyph that previously had no layers. The number of layers in a lyph also affects
+the upper bar limit in the related internal tree&apos;s fields <code>internalLyphsInLayers</code>.   </p><h4>Add layer</h4><p>To add a layer to a lyph specification, select the lyph in the <code>Layers</code> tree and press <code>Add</code> in the right mouse button
 context menu. The operation works similarly to the <a href="#add-subtype">Add subtype</a> operation: if a lyph is selected via the search box,
 it is included to the <code>layers</code> array, otherwise a new lyph is created and included to the layers. Note that one may add 
 materials as layers. It is also allowed to add the same material or lyph template several times to define more than one layer 
 composed of a certain tissue. However, if a user tries to include a lyph from the <code>supertype/subtype</code> hierarchy as a layer,
 the editor will display an error message <em>&quot;Cannot add a layer to this lyph: hierarchy or dependency conflict!&quot;</em>.</p><p>If a selected lyph has a supertype with layers, i.e., it will inherit layers from its supertype, we show these layers 
-in the Layer tree with a locker icon. It is not possible to add a layer to such a lyph, the same error as above will be triggered.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-addLayerFail.png"></p><h3>Delete layer (or remove layerIn)</h3><p>To delete a layer from a selected lyph, right-click on the layer you want to delete and select <code>Delete</code> or <code>Remove parent</code>.
+in the Layer tree with a locker icon. It is not possible to add a layer to such a lyph, the same error as above will be triggered.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-addLayerFail.png"></p><h4>Delete layer (or remove layerIn)</h4><p>To delete a layer from a selected lyph, right-click on the layer you want to delete and select <code>Delete</code> or <code>Remove parent</code>.
 Both operations are equivalent: the first is seen from the point of view of editing the layer tree root while the second 
 removes the parent <code>layerIn</code> property from the layer itself.</p><p>If a selected lyph has a supertype with layers, i.e., it will inherit layers from its supertype, we show these layers 
 in the Layer tree with a locker icon. Such layers cannot be deleted or rearranged, to modify them one must edit the layers
-of the supertype.</p><h3>Remove layers</h3><p>To remove all layers of a selected lyph, right-click on the lyph with layers in the layer tree and press <code>Remove children</code>.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-removeLayers.png"></p><p>This operation will not be available for lyphs without layers.</p><h3>Move layer up/down</h3><p>The order of layers in a lyph is important. The first layer defines the innermost tissue of the corresponding physiological
+of the supertype.</p><h4>Remove layers</h4><p>To remove all layers of a selected lyph, right-click on the lyph with layers in the layer tree and press <code>Remove children</code>.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-removeLayers.png"></p><p>This operation will not be available for lyphs without layers.</p><h4>Move layer up/down</h4><p>The order of layers in a lyph is important. The first layer defines the innermost tissue of the corresponding physiological
 structure while the last layer defines the outermost tissue. To change positions of layers, right-click on a layer and
-choose <code>Move up</code> or <code>Move down</code>.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-layersReorder.png"></p></div>
+choose <code>Move up</code> or <code>Move down</code>.</p><p><img class="screen-shot no-border" src="./manual/asset/lyphEditor-layersReorder.png"></p><h3>Internal lyphs</h3><p>Internal lyphs define internal constituent parts of a selected lyph. They can be positioned in the selected lyph or its 
+layers. To place an internal lyph to a layer of the selected lyph, indicate the ordinal number of the layer next to the
+internal lyph node.  </p><h4>Add internal</h4><p>To add an internal lyph to a lyph specification, select the lyph in the <code>Internal lyphs</code> tree and press <code>Add</code> in the
+right mouse button context menu. The operation works similarly to the <a href="#add-subtype">Add subtype</a> operation: if a lyph 
+is selected via the search box, it is included to the <code>internalLyphs</code> array, otherwise a new lyph is created and becomes 
+internal in the selected lyph. Note that one may add materials as internal lyphs. It is not allowed to add the same 
+material or lyph template several times. an error message <em>&quot;Cannot add this internal lyph to the selected lyph!&quot;</em> will 
+be issued.</p><h4>Delete internal lyph (or Remove internalIn)</h4><h4>Remove internal lyphs</h4></div>
         <a data-ice="link" href="manual/editors.html#lyph-editor"></a>
       </div>
     </div>

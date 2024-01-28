@@ -3,7 +3,8 @@
 The "Material editor" tab provides a GUI for defining materials and material-to-material and material-to-lyph relationships 
 in ApiNATOMY input models. The editor consists of a main view that displays a directed acyclic graph (DAG) 
 of material composition, and a property editing panel that allows users to edit properties of a selected material.
-To select a material, click on a graph node, it will ne highlighted with a grey border around the material node.
+To select a material, click on a graph node, it will be highlighted with a grey border around the material node.
+
 
 <img class="screen-shot no-border" src="asset/materialEditor.png">
 

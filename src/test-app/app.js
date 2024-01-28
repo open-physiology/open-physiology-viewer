@@ -55,6 +55,7 @@ import {removeDisconnectedObjects} from '../view/render/autoLayout'
 import {MaterialEditorModule} from "../components/materialEditor";
 import {LyphEditorModule} from "../components/lyphEditor";
 import {ChainEditorModule} from "../components/chainEditor";
+import {CoalescenceEditorModule} from "../components/coalescenceEditor";
 
 enableProdMode();
 
@@ -238,13 +239,23 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 </mat-tab>
 
                 <!--Chain editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
                     <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor </ng-template>
                     <chainEditor 
                             [model]="_model"
                             [selectedNode] = "selectedChainID"
                             (onChangesSave)="applyEditorChanges($event)"> 
                     </chainEditor> 
+                </mat-tab>
+                
+                <!--Coalescence editor-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
+                    <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor </ng-template>
+                    <coalescenceEditor 
+                            [model]="_model"
+                            [selectedNode] = "selectedCoalescenceID"
+                            (onChangesSave)="applyEditorChanges($event)"> 
+                    </coalescenceEditor> 
                 </mat-tab>
 
             </mat-tab-group>
@@ -698,11 +709,15 @@ export class TestApp {
     }
 
     switchEditor({editor, node}){
-        if (editor === 'lyph' || editor === 'chain'){
+        if (editor === 'lyph' || editor === 'chain' || editor === 'coalescence'){
             if (editor === 'lyph'){
                 this.selectedLyphID = node;
             } else {
-                this.selectedChainID = node;
+                if (editor === 'chain') {
+                    this.selectedChainID = node;
+                } else {
+                    this.selectedCoalescenceID = node;
+                }
             }
             this._tabGroup.selectedIndex += 1 ;
         }
@@ -717,7 +732,7 @@ export class TestApp {
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule, ChainEditorModule],
+        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule],
 	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog, ResourceEditorDialog],

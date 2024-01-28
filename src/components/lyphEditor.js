@@ -11,7 +11,12 @@ import {cloneDeep, sortBy, values, isObject, isNumber} from 'lodash-bound';
 import {$Field, $SchemaClass} from "../model";
 import {LyphDeclarationModule} from "./gui/lyphDeclarationEditor";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
-import {clearMaterialRefs, prepareMaterialSearchOptions, replaceMaterialRefs, prepareMaterialLyphMap} from "./gui/utils";
+import {
+    clearMaterialRefs,
+    prepareMaterialSearchOptions,
+    replaceMaterialRefs,
+    prepareMaterialLyphMap
+} from "./gui/utils";
 import {DiffDialog} from "./gui/diffDialog";
 import {MatDialog} from "@angular/material/dialog";
 import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
@@ -33,13 +38,13 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
                             <i class="fa fa-minus"> </i>
                         </button>
                     </div>
-                    <checkboxFilter *ngIf="showFilter" [options]="topologyOptions" 
-                        (onOptionToggle)="updateTopologyFilter($event)"    
+                    <checkboxFilter *ngIf="showFilter" [options]="topologyOptions"
+                                    (onOptionToggle)="updateTopologyFilter($event)"
                     ></checkboxFilter>
                     <lyphTreeView
                             title="Lyphs"
                             [active]="activeTree === 'lyphTree'"
-                            [expanded] = "lyphTreeExpanded"
+                            [expanded]="lyphTreeExpanded"
                             [treeData]="lyphTree"
                             [selectedNode]="selectedNode"
                             (onNodeClick)="selectLyph($event)"
@@ -77,7 +82,7 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
                             <i class="fa fa-file-pen"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
-                                [disabled]="currentStep === 0" 
+                                [disabled]="currentStep === 0"
                                 (click)="showDiff()" title="Compare code">
                             <i class="fa fa-magnifying-glass"> </i>
                         </button>
@@ -100,7 +105,7 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
                                 title="Apply changes">
-                            <div style="display: flex">    
+                            <div style="display: flex">
                                 <i class="fa fa-check"> </i>
                                 <span *ngIf="currentStep > 0" style="color: red">*</span>
                             </div>
@@ -108,7 +113,7 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
                     </section>
                 </section>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter">
+            <section *ngIf="showPanel" class="w3-quarter w3-white" id="#lyphEditorEditPanel">
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
@@ -122,13 +127,20 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
                         (onValueChange)="updateProperty($event)"
                 >
                 </lyphDeclaration>
-                  <resourceListView 
-                      title="Chains"
-                      showMenu="false"
-                      [listData]="chainList"
-                      (onNodeClick)="selectChain($event)"
-                    >
-                    </resourceListView>   
+                <resourceListView
+                        title="Chains"
+                        showMenu="false"
+                        [listData]="chainList"
+                        (onNodeClick)="selectChain($event)"
+                >
+                </resourceListView>
+                <resourceListView
+                        title="Coalescences"
+                        showMenu="false"
+                        [listData]="coalescenceList"
+                        (onNodeClick)="selectCoalescence($event)"
+                >
+                </resourceListView>
             </section>
         </section>
     `,
@@ -136,6 +148,12 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
         #lyphView {
             display: flex;
             justify-content: space-between;
+        }
+        
+        #lyphEditorEditPanel{
+          height: 100vh;
+          overflow-y: auto;
+          overflow-x: auto;
         }
     `]
 })
@@ -160,11 +178,11 @@ export class LyphEditorComponent {
     layerTree = [];
 
     topologyOptions: Option[] = [
-      { name: 'None', id: undefined },
-      { name: 'TUBE', id: 'TUBE' },
-      { name: 'BAG- (BAG)', id: 'BAG' },
-      { name: 'BAG+ (BAG2)', id: 'BAG2' },
-      { name: 'CYST', id: 'CYST' }
+        {name: 'None', id: undefined},
+        {name: 'TUBE', id: 'TUBE'},
+        {name: 'BAG- (BAG)', id: 'BAG'},
+        {name: 'BAG+ (BAG2)', id: 'BAG2'},
+        {name: 'CYST', id: 'CYST'}
     ];
 
     @Input('model') set model(newModel) {
@@ -178,14 +196,14 @@ export class LyphEditorComponent {
         this.saveStep('Initial model');
     };
 
-    @Input('selectedNode') set selectedNode(value){
+    @Input('selectedNode') set selectedNode(value) {
         if (value && this._selectedNode !== value) {
             this._selectedNode = value;
             this.selectLyph(this._selectedNode);
         }
     }
 
-    get selectedNode(){
+    get selectedNode() {
         return this._selectedNode;
     }
 
@@ -214,10 +232,10 @@ export class LyphEditorComponent {
         }
     }
 
-    prepareChainList(){
+    prepareChainList() {
         this.chainList = [];
-        (this._model.chains||[]).forEach(chain => {
-            if ((chain.lyphs||[]).find(e => e === this.selectedNode)){
+        (this._model.chains || []).forEach(chain => {
+            if ((chain.lyphs || []).find(e => e === this.selectedNode)) {
                 if (chain::isObject()) {
                     chain._class = $SchemaClass.Chain;
                 }
@@ -226,9 +244,28 @@ export class LyphEditorComponent {
         });
     }
 
-    selectChain(node){
+    selectChain(node) {
         if (node.class === $SchemaClass.Chain) {
             this.onSwitchEditor.emit({editor: "chain", node: node.id});
+        }
+    }
+
+    prepareCoalescenceList() {
+        this.coalescenceList = [];
+        (this._model.coalescences || []).forEach(coalescence => {
+            if ((coalescence.lyphs || []).find(e => e === this.selectedNode)) {
+                if (coalescence::isObject()) {
+                    coalescence._class = $SchemaClass.Coalescence;
+                }
+                this.coalescenceList.push(ListNode.createInstance(coalescence));
+            }
+        });
+        console.log(this.coalescenceList);
+    }
+
+    selectCoalescence(node) {
+        if (node.class === $SchemaClass.Coalescence) {
+            this.onSwitchEditor.emit({editor: "coalescence", node: node.id});
         }
     }
 
@@ -259,7 +296,7 @@ export class LyphEditorComponent {
      * @param activeTree
      */
     updateView(selectedLyph, activeTree) {
-        let lyph = selectedLyph? selectedLyph : (this.lyphTree.length > 0) ? this.lyphTree[0].resource : null;
+        let lyph = selectedLyph ? selectedLyph : (this.lyphTree.length > 0) ? this.lyphTree[0].resource : null;
         if (lyph) {
             this.selectLyph(lyph.id);
             if (this.selectedNode !== lyph.id) {
@@ -346,7 +383,7 @@ export class LyphEditorComponent {
             if (!lyphOrID) return {};
             let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
             let topologyOption = this.topologyOptions.find(x => x.id === lyph.topology);
-            if (topologyOption?.disabled){
+            if (topologyOption?.disabled) {
                 return;
             }
             let length = (parent?._subtypes || []).length || 0;
@@ -422,7 +459,7 @@ export class LyphEditorComponent {
     updateRegionOptions() {
         this.regionOptions = [];
         (this._model?.scaffolds || []).forEach(scaffold => {
-            let nm = scaffold.namespace? scaffold.namespace + ":" : "";
+            let nm = scaffold.namespace ? scaffold.namespace + ":" : "";
             (scaffold.regions || []).forEach(e => {
                 this.regionOptions.push({
                     id: nm + e.id,
@@ -439,7 +476,7 @@ export class LyphEditorComponent {
      */
     selectLyph(node) {
         let nodeID = node::isObject() ? node.id : node;
-        if (this._selectedNode !== nodeID){
+        if (this._selectedNode !== nodeID) {
             this._selectedNode = nodeID;
         }
         this.selectedLyph = this.entitiesByID[nodeID];
@@ -447,6 +484,7 @@ export class LyphEditorComponent {
         this.prepareLayerTree();
         this.prepareInternalTree();
         this.prepareChainList();
+        this.prepareCoalescenceList();
         this.activeTree = 'lyphTree';
     }
 
@@ -521,7 +559,7 @@ export class LyphEditorComponent {
                 replaceMaterialRefs(this._model, this.selectedLyphToEdit.id, value);
                 this.entitiesByID[value] = this.entitiesByID[oldValue];
                 delete this.entitiesByID[oldValue];
-                if (this.selectedLyphToEdit._id){
+                if (this.selectedLyphToEdit._id) {
                     //Lyph had a fake generated identifier, now a user assigned identifier explicitly
                     delete this.selectedLyphToEdit._id;
                 }
@@ -543,7 +581,7 @@ export class LyphEditorComponent {
 
     //Helper method to create a material/lyph object
     _addDefinition(prop, nodeID) {
-        if (!this.entitiesByID[nodeID]){
+        if (!this.entitiesByID[nodeID]) {
             this.entitiesByID[nodeID] = {
                 [$Field.id]: nodeID
             };
@@ -883,7 +921,7 @@ export class LyphEditorComponent {
             return false;
         }
         let res = (parent !== child) && !hasTemplateLayers(parent._supertype);
-        if (!res){
+        if (!res) {
             this.showMessage("Cannot add a layer to this lyph: hierarchy or dependency conflict!");
             return false;
         }
@@ -904,7 +942,7 @@ export class LyphEditorComponent {
         return parent !== child;
     }
 
-    showMessage(message){
+    showMessage(message) {
         this._snackBar.open(message, "OK", this._snackBarConfig);
     }
 
@@ -913,8 +951,8 @@ export class LyphEditorComponent {
      * @param node
      */
     addSubtype(node) {
-        if (this.lyphToLink){
-            if (!this.lyphToLink._class || this.lyphToLink._class !== $SchemaClass.Lyph){
+        if (this.lyphToLink) {
+            if (!this.lyphToLink._class || this.lyphToLink._class !== $SchemaClass.Lyph) {
                 this.showMessage("Cannot add a non-lyph resource as subtype");
                 return;
             }
@@ -993,7 +1031,7 @@ export class LyphEditorComponent {
                         parent._node.icons = parent._node.icons.filter(icon => icon !== ICON.LAYERS);
                     }
                 }
-                this.saveStep("Remove layer " + node.id +" from " + parent.id);
+                this.saveStep("Remove layer " + node.id + " from " + parent.id);
             }
             this.prepareLayerTree();
             if (parent.internalLyphs) {
@@ -1041,22 +1079,23 @@ export class LyphEditorComponent {
         this.onChangesSave.emit(this._model);
     }
 
-    showDiff(){
-         const dialogRef = this.dialog.open(DiffDialog, {
-            width : '90%',
-            data  : {'oldContent': this._modelText, 'newContent': this.currentText}
+    showDiff() {
+        const dialogRef = this.dialog.open(DiffDialog, {
+            width: '90%',
+            data: {'oldContent': this._modelText, 'newContent': this.currentText}
         });
     }
 
-    get currentText(){
+    get currentText() {
         if (this.currentStep > 0 && this.currentStep < this.steps.length) {
             const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
             let currentModel = this._model::cloneDeep();
             return JSON.stringify(currentModel,
-                function(key, val) {
-                    if (!added.includes(key)){
+                function (key, val) {
+                    if (!added.includes(key)) {
                         return val;
-                    }},
+                    }
+                },
                 4);
         }
         return this._modelText;
@@ -1075,7 +1114,12 @@ export class LyphEditorComponent {
         }
         //NK test if nested properties are removed
         let snapshot = this._model::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedLyph?.id, activeTree: this.activeTree});
+        this.steps.push({
+            action: action,
+            snapshot: snapshot,
+            selected: this.selectedLyph?.id,
+            activeTree: this.activeTree
+        });
         this.currentStep = this.steps.length - 1;
     }
 
@@ -1121,7 +1165,7 @@ export class LyphEditorComponent {
     /**
      * Restore history state
      */
-    restoreState(){
+    restoreState() {
         let restoredStep = this.steps[this.currentStep];
         this._model = restoredStep.snapshot;
         this.prepareLyphTree();
@@ -1129,7 +1173,7 @@ export class LyphEditorComponent {
         this.updateView(newSelected, restoredStep.activeTree);
     }
 
-    updateTopologyFilter(options){
+    updateTopologyFilter(options) {
         this.prepareLyphTree();
     }
 }
