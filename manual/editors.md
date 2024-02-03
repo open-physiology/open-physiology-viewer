@@ -3,10 +3,21 @@
 The "Material editor" tab provides a GUI for defining materials and material-to-material and material-to-lyph relationships 
 in ApiNATOMY input models. The editor consists of a main view that displays a directed acyclic graph (DAG) 
 of material composition, and a property editing panel that allows users to edit properties of a selected material.
+The view shows the material composition relationship as defined by the `materials`/`materialIn` properties
+of materials (and lyphs which can be viewed as complex materials) in the input model.
 To select a material, click on a graph node, it will be highlighted with a grey border around the material node.
 
-
 <img class="screen-shot no-border" src="asset/materialEditor.png">
+
+On a double click the view is changed to a tree view with the selected material as its root. This view shows 
+the composition hierarchy of the root material, i.e., which materials it includes
+(nodes connected with pink links and arrows directed towards the selected material) and in which materials it is used in 
+(nodes connected with black links and arrows directed away from the selected material).   
+<img class="screen-shot no-border" src="asset/materialEditor-treeView.png.png">
+
+
+## Operations
+
 
 # Lyph editor
 
@@ -21,6 +32,17 @@ defined by `internalLyphs`/`internalIn` relationships.
 
 <img class="screen-shot no-border" src="asset/lyphEditor.png">
 
+Users can identify lyphs that have layers and/or internal lyphs by presence of special icons next to the lyph name in the lyph view.
+For example, a selected lyph in the image below has both layers and internal lyphs.  
+
+<img class="screen-shot no-border" src="asset/lyphEditor-icons.png">
+
+## Operations
+CRUD (Create, Read, Update, and Delete) operations can be performed on selected materials using mouse right-click 
+menus. These operations are context-dependent - they are applied to a selected material. Each applied operation is registered and can be 
+reverted or repeated using `Undo` and `Redo` buttons on the right toolbar.
+
+
 ## Operations
 CRUD (Create, Read, Update, and Delete) operations can be performed on selected lyphs using mouse right-click 
 menus. These operations are context-dependent - they are applied to a selected lyph in an active tree and vary depending
@@ -30,10 +52,24 @@ Some operations, namely, creation of new lyphs
 and transition from one editing state to another (undo/redo) are performed via a vertical toolbar in the right 
 part of the viewer. 
 
+### Lyph definition
+
+#### Edit properties
+A correct lyph definition should include properties `id` and `name` that are used to identify the purpose of the lyph and
+include it into the model graph by reference from other resources. One can edit these properties via the right hand edit panel
+in the Lyph Editor. When identifier is changed, all references to the selected lyph are replaced to the new identifier.
+Identifies should comply to the ApiNATOMY schema, i.e., should not contain spaces or start from a digit.
+Lyph name usually reflects its physiological meaning. However, names can be ambiguous, so to properly specify a physiological
+part represented by a lyph, modellers should annotate it with appropriate ontology terms. Several terms can be assigned to each lyph,
+one can add and remove ontology annotations using a plus icon and icons with trash bin next to the terms in a list. 
+Once an annotation is added, it has a generated temporary identifier that needs to be replaced with a proper term reference.
+Such a reference typically consists of an ontology prefix followed by a semicolon separator, and a term identifier in the 
+chosen ontology, e.g., `UBERON:0001898` for hypothalamus in the [Uber-anatomy ontology](https://www.ebi.ac.uk/ols4/ontologies/uberon),
+or `FMA:5875` for the white communicating ramus in the [Foundational Model of Anatomy](https://www.ebi.ac.uk/ols4/ontologies/fma/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FFMA_5875) ontology.
+
 #### Delete definition
 Unlike `delete` operations described below which are context dependent, `Delete definition` can be performed from any 
-tree and only removes the chosen lyph 
-declaration. This may produce a model with undefined references which will trigger a warning in the ApiNATOMY model (the tool will generate 
+tree and only removes the chosen lyph declaration. This may produce a model with undefined references which will trigger a warning in the ApiNATOMY model (the tool will generate 
 an artificial lyph to proceed with the visualization).  
 
 #### Define as material or Define as lyph
@@ -149,6 +185,22 @@ Internal lyphs define internal constituent parts of a selected lyph. They can be
 layers. To place an internal lyph to a layer of the selected lyph, indicate the ordinal number of the layer next to the
 internal lyph node.  
 
+#### Re-assigning internal lyphs to layers
+Very often lyphs in ApiNATOMY models are not explicitly defined but are generated from generic lyph templates.
+Each generated lyph contains generated layers whose identifiers are unknown at the modelling stage.
+If a modeller wants to specify internal structure of one or more of these layers, the only option is to refer to them by 
+indicating their order within the main lyph. This can be achieved by supplying layer indices next to the items in
+the internal lyph list, implying that the corresponding lyph belongs to the layer with the index given index, where 
+0 refers to the innermost, closest to the axis, lyph. Thus, in the screenshot below, the internal lyph `lyph-laryngeal-mechanoreceptors`
+belongs to the layer with index 1. This lyph will be derived from the abstract material 
+`mat-temporary-laryngeal-wall`.  
+
+<img class="screen-shot no-border" src="asset/lyphEditor-internalLyphs.png">
+
+Model authors can specify and/or modify the layer index using the number input box next to an internal lyph. 
+The maximal value in this list is bounded by the actual number of layers the host will have, whether they are inherited
+from the template or defined explicitely.
+
 #### Add internal
 To add an internal lyph to a lyph specification, select the lyph in the `Internal lyphs` tree and press `Add` in the
 right mouse button context menu. The operation works similarly to the [Add subtype](#add-subtype) operation: if a lyph 
@@ -158,6 +210,12 @@ material or lyph template several times. an error message *"Cannot add this inte
 be issued.
 
 #### Delete internal lyph (or Remove internalIn)
+To delete an internal lyph from a selected lyph, right-click on the lyph you want to delete and select `Delete` or `Remove parent`.
+Both operations are equivalent: the first is seen from the point of view of editing the internal lyph tree root while the second 
+removes the parent `internalIn` property from the lyph itself.
 
 #### Remove internal lyphs
+
+To remove all internal lyphs from a selected lyph, right-click on the root node in the internal lyph tree and press 
+`Remove children`.
 
