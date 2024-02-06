@@ -6,6 +6,9 @@ of material composition, and a property editing panel that allows users to edit 
 The view shows the material composition relationship as defined by the `materials`/`materialIn` properties
 of materials (and lyphs which can be viewed as complex materials) in the input model.
 To select a material, click on a graph node, it will be highlighted with a grey border around the material node.
+The node's incoming and outgoing edges in the DAG will also be highlighted as thick grey lines. Properties
+of the selected material can be viewed and revised via the Property edit panel on the rught. The right bottom panel
+shows lyph definitions in which the selected material is used as layer.
 
 <img class="screen-shot no-border" src="asset/materialEditor.png">
 
@@ -13,11 +16,76 @@ On a double click the view is changed to a tree view with the selected material 
 the composition hierarchy of the root material, i.e., which materials it includes
 (nodes connected with pink links and arrows directed towards the selected material) and in which materials it is used in 
 (nodes connected with black links and arrows directed away from the selected material).   
-<img class="screen-shot no-border" src="asset/materialEditor-treeView.png.png">
 
+<img class="screen-shot no-border" src="asset/materialEditor-treeView.png">
 
 ## Operations
+CRUD (Create, Read, Update, and Delete) operations can be performed on selected materials using mouse right-click 
+menus. These operations are context-dependent - they are applied to a selected material. 
+Each applied operation is registered and can be reverted or repeated using `Undo` and `Redo` buttons on the right toolbar.
 
+### Resource definition
+
+#### Edit properties
+A correct resource definition should include properties `id` and `name` that are used to identify the purpose of the resource and
+include it into the model graph by reference from other resources. One can edit these properties via the right-hand edit panel
+present in Material editor as well as other resource editors (currently, Lyph editor, Chain editor, and Coalescence editor). 
+
+When identifier is changed, all references to the selected resource are replaced to the new identifier. Identifies should comply to the ApiNATOMY schema, 
+i.e., should not contain spaces or start from a digit. Resource name usually reflects its physiological meaning. However, names can be ambiguous, so to properly specify a physiological
+part represented by a resource, modellers should annotate it with appropriate ontology terms. 
+Several terms can be assigned to each resource, one can add and remove ontology annotations using a plus icon and icons with 
+trash bin next to the terms in a list. 
+Once an annotation is added, it has a generated temporary identifier that needs to be replaced with a proper term reference.
+Such a reference typically consists of an ontology prefix followed by a semicolon separator, and a term identifier in the 
+chosen ontology, e.g., `UBERON:0001898` for hypothalamus in the [Uber-anatomy ontology](https://www.ebi.ac.uk/ols4/ontologies/uberon),
+or `FMA:5875` for the white communicating ramus in the [Foundational Model of Anatomy](https://www.ebi.ac.uk/ols4/ontologies/fma/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FFMA_5875) ontology.
+
+<img class="screen-shot no-border" src="asset/materialEditor-properties.png">
+
+#### Create new material
+
+To create a new material, click right button on an empty space and select `Add material`. A new loose node with temporary
+identifier and name will be added to the graph, one can rename and annotate it via the property edit panel. 
+The screenshot below shows the menu to add a new material. 
+
+<img class="screen-shot no-border" src="asset/materialEditor-add.png">
+
+#### Create a new relationship
+
+To include a material into another material, select a parent node, find a child material in the search box and press 
+add button below. The relationship link will be created and appear in the graph.
+It is important to note that lyph templates can be seen as composite materials and may be used as constituent parts of other
+materials too. Existing lyph templates can be added to the graph and linked with existing nodes in the same way as materials,
+via the search panel. To define new lyph templates, use the Lyph editor tab.
+
+The screenshot below shows a material node "Cellular component of alveolar epithelium" linked to a newly created material 
+"New material 1" which was added via the search panel in the right. 
+Apart from this material, the selected node contains also 2 lyph templates as its 
+sub-materials.  
+
+<img class="screen-shot no-border" src="asset/materialEditor-addSearch.png">
+
+#### Delete relationship
+
+To delete a specific relationship, right click on the corresponding edge and press "Delete relation".
+
+<img class="screen-shot no-border" src="asset/materialEditor-deleteRel.png">
+
+#### Delete material, disconnect parents or children
+
+Right click on a material node shows context menu which allows modellers to remove the node from the model, 
+disconnect it from its parents or children.
+
+<img class="screen-shot no-border" src="asset/materialEditor-nodeOperations.png">
+
+#### Define as material or Define as lyph
+
+If a material includes undefined resource, it is shown in the graph with grey node. To correct the model, a user should 
+add an explicit definition for the referred resource by either creating a material or lyph template with the given 
+identifier. The corresponding node will be updated and the color will change to green (material) or orange (lyph template).
+
+<img class="screen-shot no-border" src="asset/materialEditor-undefined.png">
 
 # Lyph editor
 
@@ -38,12 +106,6 @@ For example, a selected lyph in the image below has both layers and internal lyp
 <img class="screen-shot no-border" src="asset/lyphEditor-icons.png">
 
 ## Operations
-CRUD (Create, Read, Update, and Delete) operations can be performed on selected materials using mouse right-click 
-menus. These operations are context-dependent - they are applied to a selected material. Each applied operation is registered and can be 
-reverted or repeated using `Undo` and `Redo` buttons on the right toolbar.
-
-
-## Operations
 CRUD (Create, Read, Update, and Delete) operations can be performed on selected lyphs using mouse right-click 
 menus. These operations are context-dependent - they are applied to a selected lyph in an active tree and vary depending
 what tree is active. An active tree is highlighted by a grey border around the tree name. Each applied operation is registered and can be 
@@ -55,17 +117,10 @@ part of the viewer.
 ### Lyph definition
 
 #### Edit properties
-A correct lyph definition should include properties `id` and `name` that are used to identify the purpose of the lyph and
-include it into the model graph by reference from other resources. One can edit these properties via the right hand edit panel
-in the Lyph Editor. When identifier is changed, all references to the selected lyph are replaced to the new identifier.
-Identifies should comply to the ApiNATOMY schema, i.e., should not contain spaces or start from a digit.
-Lyph name usually reflects its physiological meaning. However, names can be ambiguous, so to properly specify a physiological
-part represented by a lyph, modellers should annotate it with appropriate ontology terms. Several terms can be assigned to each lyph,
-one can add and remove ontology annotations using a plus icon and icons with trash bin next to the terms in a list. 
-Once an annotation is added, it has a generated temporary identifier that needs to be replaced with a proper term reference.
-Such a reference typically consists of an ontology prefix followed by a semicolon separator, and a term identifier in the 
-chosen ontology, e.g., `UBERON:0001898` for hypothalamus in the [Uber-anatomy ontology](https://www.ebi.ac.uk/ols4/ontologies/uberon),
-or `FMA:5875` for the white communicating ramus in the [Foundational Model of Anatomy](https://www.ebi.ac.uk/ols4/ontologies/fma/classes/http%253A%252F%252Fpurl.obolibrary.org%252Fobo%252FFMA_5875) ontology.
+Lyph definition panel extends the general resource definition panel with controls to define lyph's topology, indicate whether 
+a lyph is a reusable template or a specific instance, and assign lyphs to hosting regions.
+
+<img class="screen-shot no-border" src="asset/lyphEditor-properties.png">
 
 #### Delete definition
 Unlike `delete` operations described below which are context dependent, `Delete definition` can be performed from any 

@@ -17,7 +17,11 @@ It consists of the following components:
   * **Material editor** is a GUI for defining chemical compounds and basic tissue elements used throughout  
     physiology models.
   * **Lyph editor** is a GUI for defining key structural resources in ApiNATOMY, *lyphs*, which are layered 
-    compartments composed of materials or other lyphs and represent biological organs or systems.  
+    compartments composed of materials or other lyphs and represent biological organs or systems.
+  * **Chain editor** is a GUI for defining templates that get expanded to generate *chains*, i.e., sequences
+    of model graph links conveying lyphs.  
+  * **Coalescence editor** is a GUI editor for defining pairs (sometimes, sets) of lyphs with overlapping layers that 
+    enable exchange of fluid materials.  
 * **Toolbars**
   * **Main toolbar** allows users to create, load, compose and export data models from the local file system,
     online repository or a given URL. 
