@@ -3,7 +3,7 @@
 The ApiNATOMY lyph viewer is a web application that shows 3d schematics of physiology models. 
 It consists of the following components:
 
-<img class="screen-shot no-border" src="asset/overview-annotated.png" alt="ApiNATOMY viewer screenshot">
+<img src="asset/overview-annotated.png" alt="ApiNATOMY viewer screenshot">
 
 * **Viewer** canvas that features a dynamic graph rendered using a 3D force-directed layout algorithm.
 * **Control panel** that allows users to change parameters of the viewer and select parts of the model to display.
@@ -33,8 +33,21 @@ It consists of the following components:
     visible groups in the current model, camera position and enabled combination of settings parameters.  
 In addition to the aforementioned components, the web application includes header and footer with relevant project information.
  
-<img class="screen-shot no-border" src="asset/overview-zoomed.png" alt="ApiNATOMY viewer scene">
+<img src="asset/overview-zoomed.png" alt="ApiNATOMY viewer scene">
 
+The left-side menu enables users to load models to the viewer and save changes in a current model if they were made by 
+means of built-in editors.
+<img src="asset/overview-menuMain.png" width="40%" alt="ApiNATOMY main menu">
+
+The right-side menu provides controls for the graphical viewer and allows users to analyze and export generated models
+for integration with external resources such as SciGraph.
+<img src="asset/overview-menuModel.png" width="40%" alt="ApiNATOMY model menu">
+
+The bottom menu consists of two parts: 
+* the first part provides operations to create, load and save snapshot models;
+* the second part provides controls to manage states of the current (created or loaded) snapshot model; 
+
+<img src="asset/overview-menuSnapshot.png" width="40%" alt="ApiNATOMY model menu">
 
 ## Model input
 
@@ -45,12 +58,12 @@ the app.
 The image below shows an integrated ACE-based JSON editor. The editor uses the ApiNATOMY JSON Schema for interactive validation - 
 the lines that violate the schema model are marked with error or warning signs.
 
-<img class="screen-shot no-border" src="asset/overview-code.png">
+<img src="asset/overview-code.png">
 
 
 Alternatively, the input model can be edited with the help of the form-based editor as shown in the image below. The fields in the form are also based on the ApiNATOMY JSON schema and are preconfigured to assist the modeller with the choice of correct options, i.e., multi-selection fields that expect references to lyphs, show all suitable lyphs in the model.
 
-<img class="screen-shot no-border" src="asset/resourceEditor.png">
+<img src="asset/resourceEditor.png">
 
 Users that prefer working with a table-style data, can define an ApiNATOMY model using Excel spreadsheets.
 The lyph viewer app can open .xlsx files and convert their content to a corresponding JSON-based model.
@@ -106,7 +119,7 @@ The relationship graph is an auxiliary tool that allows users to trace the resou
 
 The nodes in the relationship graph are organized using the so called `group-in-a-box` layout, which clusters nodes based on their class and creates centers of attraction for each cluster. The area occupied by a cluster depends on its size. Be default we use a setting for the group-in-a-box algorithm that allocates cluster areas based on the treemap pattern.
 
-<img class="screen-shot no-border" src="asset/relationshipGraph.png">
+<img src="asset/relationshipGraph.png">
 
 The group-in-a-box algorithm creates a good initial graph layout. It is used in a combination with the `sticky` force-directed technique when the program reassigns the nodes coordinates when the user drags them to a different location. Hence, users are free to rearrange the nodes in a way that makes understanding the model or tracing certain derivation chains easier.
 

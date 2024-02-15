@@ -4,7 +4,7 @@
 
 The _basal ganglia_ are a group of subcortical nuclei at the base of the forebrain and top of the midbrain. The basal ganglia are associated with a variety of functions, including control of voluntary motor movements, procedural learning, habit learning, eye movements, cognition, and emotion. Basal ganglia are strongly interconnected with the cerebral cortex, thalamus, and brainstem, as well as several other brain areas.
 
-<img src="asset/basalGanglia.png" width="100%" caption = "Basal Ganglia"/>
+<img src="asset/basalGanglia.png" width="100%" alt = "Basal Ganglia"/>
 
 The ApiNATOMY [model](https://github.com/open-physiology/open-physiology-viewer/blob/master/test/data/neuronTreesAuto.json) automatically reproduces the layout from the schematic representation of the basal ganglia created by the physiology experts, given relational constraints among its constituent parts.
 Conceptually, the model consists of:
@@ -13,7 +13,7 @@ Conceptually, the model consists of:
 * a model of a neuron composed of 3 parts: `dendrite` and `axon` modelled as trees
 (we call them `omega trees`) and a conduit representing the axon `hillock` (a specialized part of the cell body, or soma, of a neuron that connects to the axon) that joins the omega trees on its sides.
 
-<img src="asset/basalGanglia-components.png" width="100%" caption = "Basal Ganglia components"/>
+<img src="asset/basalGanglia-components.png" width="100%" alt = "Basal Ganglia components"/>
 
 Even though omega trees often look like simple chains in our schematics, the underlying data model
 implies that a branching tree can be generated from the canonical representation given model parameters such as branching factor or  mean number of branches at each level).
@@ -143,10 +143,10 @@ The topology of the `hillock` lyph, which also inherits the layer structure from
 
 The image below shows the layout created by the tool for the Basal Ganglia scenario based on the
 resource definition explained in this section.
-<img src="asset/basalGanglia-layout.png" width="75%" caption = "Basal Ganglia layout"/>
+<img src="asset/basalGanglia-layout.png" width="75%" alt = "Basal Ganglia layout"/>
 
 There is also an option to instruct the editor to generate 3d representation of lyphs: if a lyph's attribute `create3d` is set to `true`, the user will see 3d-dimensional lyphs when the option `lyphs 3d` in the control panel is enabled. When generating omega trees, the viewer automatically sets `create3d` to `true`, the corresponding layout for the Basal ganglia scenario is shown in the snapshot below.
-<img src="asset/basalGanglia-layout3d.png" width="75%" caption = "Basal Ganglia layout"/>
+<img src="asset/basalGanglia-layout3d.png" width="75%" alt = "Basal Ganglia layout"/>
 
 The live demo of this scenario with the possibility to edit the model file in an integrated JSON editor is available [here](http://open-physiology.org/demo/open-physiology-viewer/trees).
 
@@ -155,7 +155,7 @@ The live demo of this scenario with the possibility to edit the model file in an
 This model illustrates the ApiNATOMY format for the urinary arborisation.
 The purpose of this example is to illustrate how one can model an omega tree with branching points and resource annotation with references to external ontologies.
 
-<img src="asset/urinaryTree.png" width="100%" caption = "Urinary Omega Tree"/>
+<img src="asset/urinaryTree.png" width="100%" alt = "Urinary Omega Tree"/>
 
 The urinary tree [model](https://github.com/open-physiology/open-physiology-viewer/blob/master/test/data/urinaryOmegaTree.json) consists of 21 level.
 Levels are defined as links conveying specific lyphs, from Intravesical Urethra to Visceral Bowman's Capsule.
@@ -208,13 +208,13 @@ The urinary omega tree below is defined in the aforementioned manner: its levels
 
 The images below show the canonical omega tree for the Urinary system model in 2d and 3d.
 
-<img src="asset/urinaryTree-layout.png" width="75%" caption = "Urinary system - canonical omega tree"/>
+<img src="asset/urinaryTree-layout.png" width="75%" alt = "Urinary system - canonical omega tree"/>
 
-<img src="asset/urinaryTree-layout3d.png" width="75%" caption = "Urinary system - canonical omega tree in 3d"/>
+<img src="asset/urinaryTree-layout3d.png" width="75%" alt = "Urinary system - canonical omega tree in 3d"/>
 
 The next image shows the snapshot of the omega tree instance with branching in levels 3 and 7. The actual model of the urinary omega tree has more branching points, but due to the number of visual elements needed to represent the entire model (appr. 90 million), the viewer cannot handle all of them in the same view. If necessary, we recommend to explore different branching points separately by setting branching factor for other levels to 1.
 
-<img src="asset/urinaryTree-instance.png" width="75%" caption = "Urinary system - partially generated omega tree instance"/>
+<img src="asset/urinaryTree-instance.png" width="75%" alt = "Urinary system - partially generated omega tree instance"/>
 
 In this model, several subgroups of items are annotated with a single ontology term. We can represent such a many-to-one mapping by defining and annotating subgroups. hence, in the ApiMATOMY model for this system, you can find subgroups defining a nephron and a loop of Henle, with the corresponding UBERON term IDs.
 
@@ -260,36 +260,36 @@ Please note that this example shows a rough work-in-progress model that demonstr
 
 The example is based on a mock-up for the Bolser-Lewis model
 
-<img src="asset/bolserLewis.png" width="75%" caption = "Bolser-Lewis model mock-up"/>
+<img src="asset/bolserLewis.png" width="75%" alt = "Bolser-Lewis model mock-up"/>
 
 The model author defined the necessary resources in the Excel format. The image below shows the snapshot of the Excel template we developed as alternative to the text-based JSON format. The model from the Excel template can be exported as an .xlsx file and opened from the ApiNATOMY model viewer. The integrated converter translates the model to the JSON-based input format.
 
-<img src="asset/bolserLewis-excelLyphs.png" width="75%" caption = "Bolser-Lewis model Excel page: lyphs"/>
+<img src="asset/bolserLewis-excelLyphs.png" width="75%" alt = "Bolser-Lewis model Excel page: lyphs"/>
 
 The model shows the neuron tree passing through a chain of body compartments. As a requirement, the author wanted to generate the chain given an ordered list of conveying lyphs:
 
-<img src="asset/bolserLewis-excelChain.png" width="75%" caption = "Bolser-Lewis model Excel page: chains"/>
+<img src="asset/bolserLewis-excelChain.png" width="75%" alt = "Bolser-Lewis model Excel page: chains"/>
 
 The chain template shown in the image above produces a chain of connected links that convey the lyphs from the chain's `conveyingLyphs` property:
 
-<img src="asset/chain.png" width="75%" caption = "A group generated from the chain template"/>
+<img src="asset/chain.png" width="75%" alt = "A group generated from the chain template"/>
 
 The neuron tree needs to be generated to match the number of housing lyphs:
 
-<img src="asset/bolserLewis-excelTree.png" width="75%" caption = "Bolser-Lewis model Excel page: trees"/>
+<img src="asset/bolserLewis-excelTree.png" width="75%" alt = "Bolser-Lewis model Excel page: trees"/>
 
 The specification above does not set `numLevels` or `levels` fields; instead the size of the `housingLyphs` array here is used to determine the number of generated tree levels; each tree level is then "embedded" to the corresponding housing lyph. This implies that the tree level link ends are hosted by the housing lyph or, in case of layered lyphs, its outermost layer
 (`hostedBy` relationship is set).
 
-<img src="asset/chain-housedTree.png" width="75%" caption = "An omega tree housed by a set of lyphs which are part of the chain group"/>
+<img src="asset/chain-housedTree.png" width="75%" alt = "An omega tree housed by a set of lyphs which are part of the chain group"/>
 
 Moreover, an embedding coalescence is defined between the pairs of the housing lyphs and the conveying lyphs of the tree levels they house.
 
-<img src="asset/chain-housedTreeCoalescence.png" width="75%" caption = "Embedded lyphs coalesce with their housing lyphs"/>
+<img src="asset/chain-housedTreeCoalescence.png" width="75%" alt = "Embedded lyphs coalesce with their housing lyphs"/>
 
 One can observe that the generated omega tree has collapsible "spacer" links. These links should disappear in the views that do not require the same node to appear in two different locations (i.e., on borders of adjacent lyphs which are displayed with a gap). The lyph viewer determines whether spacer link ends are constrained based on the visibility of the related resources.
 
-<img src="asset/chain-tree.png" width="75%" caption = "A group generated from the tree template"/>
+<img src="asset/chain-tree.png" width="75%" alt = "A group generated from the tree template"/>
 
 
 

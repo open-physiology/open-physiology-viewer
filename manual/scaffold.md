@@ -105,9 +105,9 @@
 
  The images below show the scaffold mock-up and ApiNATOMY rendering:
 
- <img src="asset/tooMap.png" width="50%" caption = "TOO map">
+ <img src="asset/tooMap.png" width="50%" alt = "TOO map">
 
- <img src="asset/tooMap-screenshot.png" width="100%" caption = "TOO map in the ApiNATOMY viewer">
+ <img src="asset/tooMap-screenshot.png" width="100%" alt = "TOO map in the ApiNATOMY viewer">
 
 ## Connectivity model + scaffold:
  A node can be bound to a scaffold's anchor via its property`anchoredTo`. 
@@ -122,7 +122,7 @@
  The image below shows an example of a rendering for a connectivity model 
  with nodes and chains bound to the anchors and wires of the TOO map.
 
- <img src="asset/tooMap-model.png" width="50%" caption = "Connectivity model shaped by the TOO map">
+ <img src="asset/tooMap-model.png" width="50%" alt = "Connectivity model shaped by the TOO map">
 
 
 
