@@ -292,4 +292,29 @@ One can observe that the generated omega tree has collapsible "spacer" links. Th
 <img src="asset/chain-tree.png" width="75%" alt = "A group generated from the tree template"/>
 
 
+## Variance in species
+
+Variance handling fields appear in the Settings panel after loading a model with a variance specification.
+The image below gives an example of such a specification within the WBKG (Whole Body Knowledge Graph) ApiNATOMY model.
+Lyphs are annotated with the help of the `varianceSpecs` field.  
+
+<img src="asset/variance-exampleSpec.png" width="40%" alt = "Variance specification"/>
+
+By default, we show the maximal possible chain. When a variance spec is enabled via the settings panel, a combobox allows 
+a user to select a clade. We mainly need to worry about the field `presence` set to the value `absent`.
+When a clade is selected, lyphs annotated as `absent` will be excluded from the model.
+The image below shows the clade options available in the comb0-box of the Variance tab within the Settings panel.
+
+<img src="asset/variance-clades.png" width="30%" alt = "Full model"/>
+
+Screenshots below show the Infraventricular-csf-tract: 
+  * full chain, 
+  * NCBITAxon:9989 vs-not-rodent variance (lyph-L6-spinal-segment absent),
+  * NCBITaxon:9606 vs-not-human variance (lyph-L6-spinal-segment and lyph-T13-spinal-segment absent)
+
+<img src="asset/variance-full.png" alt = "Full model"/>
+
+<img src="asset/variance-rodents.png" alt = "Variance chain for rodents"/>
+
+<img src="asset/variance-human.png" alt = "Variance chain for humans"/>
 

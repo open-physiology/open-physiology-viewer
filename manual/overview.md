@@ -37,10 +37,12 @@ In addition to the aforementioned components, the web application includes heade
 
 The left-side menu enables users to load models to the viewer and save changes in a current model if they were made by 
 means of built-in editors.
+
 <img src="asset/overview-menuMain.png" width="40%" alt="ApiNATOMY main menu">
 
 The right-side menu provides controls for the graphical viewer and allows users to analyze and export generated models
 for integration with external resources such as SciGraph.
+
 <img src="asset/overview-menuModel.png" width="40%" alt="ApiNATOMY model menu">
 
 The bottom menu consists of two parts: 
