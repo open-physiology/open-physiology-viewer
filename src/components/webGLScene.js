@@ -126,7 +126,6 @@ const WindowResize = require('three-window-resize');
                         [modelId]="graphData?.fullID || graphData?.id"
                         (onSelectBySearch)="selectByName($event)"
                         (onOpenExternal)="openExternal($event)"
-                        (onEditResource)="editResource.emit($event)"
                         (onUpdateShowLabels)="graph?.showLabels($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
@@ -136,6 +135,7 @@ const WindowResize = require('three-window-resize');
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
                 > </settingsPanel>
+<!--                        (onEditResource)="editResource.emit($event)"-->
             </section>
         </section> 
     `,
@@ -270,7 +270,7 @@ export class WebGLSceneComponent {
     /**
      * @emits editResource - a resource was edited
      */
-    @Output() editResource = new EventEmitter();
+    // @Output() editResource = new EventEmitter();
 
     /**
      * @emits scaffoldUpdated - scaffold was graphically altered

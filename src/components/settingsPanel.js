@@ -1023,7 +1023,7 @@ export class SettingsPanel {
 
     @Output() onSelectBySearch = new EventEmitter();
     @Output() onOpenExternal = new EventEmitter();
-    @Output() onEditResource = new EventEmitter();
+    // @Output() onEditResource = new EventEmitter();
     @Output() onUpdateShowLabels = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup = new EventEmitter();

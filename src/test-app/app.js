@@ -14,8 +14,8 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import {MainToolbarModule} from "../components/mainToolbar";
 import {SnapshotToolbarModule} from "../components/snapshotToolbar";
 import {StateToolbarModule} from "../components/stateToolbar";
-import {ResourceEditorModule} from '../components/gui/resourceEditor';
-import {ResourceEditorDialog} from '../components/gui/resourceEditorDialog';
+import {ResourceEditorModule} from '../components/genResourceEditor/resourceEditor';
+import {ResourceEditorDialog} from '../components/genResourceEditor/resourceEditorDialog';
 import {LayoutEditorModule} from "../components/layoutEditor";
 import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
@@ -149,10 +149,10 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             (onImportExternal)="importExternal($event)"    
                             (selectedItemChange)="onSelectedItemChange($event)"
                             (highlightedItemChange)="onHighlightedItemChange($event)"
-                            (editResource)="onEditResource($event)"
                             (scaffoldUpdated)="onScaffoldUpdated($event)"
                             (varianceReset)="applyChanges()"
                     >
+<!--                            (editResource)="onEditResource($event)"-->
                     </webGLScene>
                 </mat-tab> 
 
@@ -524,46 +524,46 @@ export class TestApp {
 	    return this._graphData;
     }
 
-    onEditResource(resource){
-        function findResourceDef(obj, parent, key) {
-            if (!obj) { return; }
-            let result = null;
-            if (obj::isArray()) {
-                result = obj.find((item, i) => findResourceDef(obj[i], obj, i))
-            }
-            else {
-                if (obj::isObject()){
-                    if (obj.id === resource.id) { return [parent, key]; }
-                    result = obj::keys().find(prop => findResourceDef(obj[prop], obj, prop));
-                }
-            }
-            return result;
-        }
-
-        let res = findResourceDef(this._model);
-        if (!res) {
-            throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
-        }
-        let [parent, key] = res;
-        let obj = parent[key]::cloneDeep();
-        const dialogRef = this._dialog.open(ResourceEditorDialog, {
-            width: '75%',
-            data: {
-                title             : `Update resource?`,
-                modelClasses      : modelClasses,
-                modelResources    : this._graphData.entitiesByID || {},
-                resource          : obj,
-                className         : resource.class
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (result !== undefined){
-                parent[key] = result;
-                this.model = this._model;
-            }
-        });
-    }
+    // onEditResource(resource){
+    //     function findResourceDef(obj, parent, key) {
+    //         if (!obj) { return; }
+    //         let result = null;
+    //         if (obj::isArray()) {
+    //             result = obj.find((item, i) => findResourceDef(obj[i], obj, i))
+    //         }
+    //         else {
+    //             if (obj::isObject()){
+    //                 if (obj.id === resource.id) { return [parent, key]; }
+    //                 result = obj::keys().find(prop => findResourceDef(obj[prop], obj, prop));
+    //             }
+    //         }
+    //         return result;
+    //     }
+    //
+    //     let res = findResourceDef(this._model);
+    //     if (!res) {
+    //         throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
+    //     }
+    //     let [parent, key] = res;
+    //     let obj = parent[key]::cloneDeep();
+    //     const dialogRef = this._dialog.open(ResourceEditorDialog, {
+    //         width: '75%',
+    //         data: {
+    //             title             : `Update resource?`,
+    //             modelClasses      : modelClasses,
+    //             modelResources    : this._graphData.entitiesByID || {},
+    //             resource          : obj,
+    //             className         : resource.class
+    //         }
+    //     });
+    //
+    //     dialogRef.afterClosed().subscribe(result => {
+    //         if (result !== undefined){
+    //             parent[key] = result;
+    //             this.model = this._model;
+    //         }
+    //     });
+    // }
 
     onScaffoldUpdated(){
         this._scaffoldUpdated = true;
@@ -728,14 +728,16 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, ResourceEditorModule,
+	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, //ResourceEditorModule,
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
         LyphEditorModule, ChainEditorModule, CoalescenceEditorModule],
-	declarations: [TestApp, ImportDialog, ResourceEditorDialog],
+	declarations: [TestApp, ImportDialog],
+	// declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
-    entryComponents: [ImportDialog, ResourceEditorDialog],
+    entryComponents: [ImportDialog],
+    // entryComponents: [ImportDialog, ResourceEditorDialog],
     providers   : [
         {
             provide: MatSnackBar,

@@ -260,7 +260,6 @@ export class LyphEditorComponent {
                 this.coalescenceList.push(ListNode.createInstance(coalescence));
             }
         });
-        console.log(this.coalescenceList);
     }
 
     selectCoalescence(node) {

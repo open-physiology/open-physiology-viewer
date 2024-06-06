@@ -1,6 +1,6 @@
 import {NgModule, Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {SearchBarModule} from "./searchBar";
+import {SearchBarModule} from "../gui/searchBar";
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatTableModule, MatTableDataSource} from '@angular/material/table';
 import {MatSortModule, MatSort} from '@angular/material/sort';
@@ -12,10 +12,10 @@ import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 
 
 import {FieldEditorDialog} from './fieldEditorDialog';
-import {ResourceSelectDialog} from "./resourceSelectDialog";
+import {ResourceSelectDialog} from "../gui/resourceSelectDialog";
 import {isArray, isObject, entries} from "lodash-bound";
 import {getClassName, $SchemaClass} from '../../model/index';
-import {printFieldValue, parseFieldValue} from "./utils";
+import {printFieldValue, parseFieldValue} from "../gui/utils";
 import {$SchemaType} from "../../model/utils";
 
 @Component({
