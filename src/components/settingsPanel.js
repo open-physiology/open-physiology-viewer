@@ -188,9 +188,6 @@ const COLORS = {
                 (change)="handleNeuroViewChange($event.checked)"
                 >Enable Neuroview</mat-checkbox
               >
-              <button mat-raised-button (click)="undoNeuroview()">
-                Undo Neuroview
-              </button>
             </div>
             <div class="default-box-header">
               <div class="search-bar">
@@ -995,12 +992,6 @@ const COLORS = {
         color: ${COLORS.black};
       }
 
-      :host ::ng-deep .mat-slide-toggle-contentundoNeuroview img {
-        margin-right: 0.534rem;
-        transform: rotate(0deg);
-        transition: all ease-in-out 0.3s;
-      }
-
       :host ::ng-deep .mat-slide-toggle-bar {
         width: 2.134rem;
         height: 1.067rem;
@@ -1365,7 +1356,10 @@ export class SettingsPanel {
     toggleNeuroView(visible, this.groups, this.filteredDynamicGroups, this.scaffolds, this.onToggleGroup)
     // clear array keeping track of manipulated groups
     this.config.layout.neuroviewEnabled = visible;
-    // this.updateRenderedResources(); 
+    this.updateRenderedResources();
+    if (!visible) {
+        this.undoNeuroview()
+    }
   }
 
   toggleGroup = async (event, group) => { 
