@@ -6,7 +6,7 @@ import config from "../../data/config.json";
 @Component({
     selector: 'sciGraphSearch',
     template:`
-        <div mat-dialog-content>
+        <div>
             <div *ngIf ="query" class="default-boxResult">
                 <label> Query </label>
                 <span>{{query}}</span>

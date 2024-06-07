@@ -52,10 +52,10 @@ import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
 import {removeDisconnectedObjects} from '../view/render/autoLayout'
-import {MaterialEditorModule} from "../components/materialEditor";
-import {LyphEditorModule} from "../components/lyphEditor";
-import {ChainEditorModule} from "../components/chainEditor";
-import {CoalescenceEditorModule} from "../components/coalescenceEditor";
+import {MaterialEditorModule} from "../components/editors/materialEditor";
+import {LyphEditorModule} from "../components/editors/lyphEditor";
+import {ChainEditorModule} from "../components/editors/chainEditor";
+import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
 
 enableProdMode();
 

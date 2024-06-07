@@ -7,9 +7,11 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
-import {COLORS} from "./utils";
-import {$Field, $SchemaClass} from "../../model";
+
 import {isNumber, isObject} from "lodash-bound";
+
+import {COLORS} from "../gui/utils";
+import {$Field, $SchemaClass} from "../../model";
 
 export const ICON = {
     LAYERS: "fa fa-bars",

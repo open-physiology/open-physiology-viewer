@@ -6,8 +6,9 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from '@angular/material/button';
 import {MatTooltipModule} from "@angular/material/tooltip";
-import {SearchBarModule} from "./searchBar";
-import {COLORS} from "./utils";
+
+import {SearchBarModule} from "../gui/searchBar";
+import {COLORS} from "../gui/utils";
 
 @Component({
     selector: 'searchAddBar',

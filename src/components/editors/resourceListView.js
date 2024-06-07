@@ -5,9 +5,11 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
-import {COLORS} from "./utils";
 import {MatListModule} from '@angular/material/list';
+
 import {isObject} from "lodash-bound";
+
+import {COLORS} from "../gui/utils";
 
 /**
  * @class

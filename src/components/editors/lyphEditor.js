@@ -1,25 +1,27 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
-import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
-import {SearchAddBarModule} from "./gui/searchAddBar";
-import {CheckboxFilterModule} from "./gui/checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {LyphTreeViewModule, LyphTreeNode, ICON} from "./gui/lyphTreeView";
-import {cloneDeep, sortBy, values, isObject, isNumber} from 'lodash-bound';
-import {$Field, $SchemaClass} from "../model";
-import {LyphDeclarationModule} from "./gui/lyphDeclarationEditor";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatDialog} from "@angular/material/dialog";
+import {cloneDeep, sortBy, values, isObject, isNumber} from 'lodash-bound';
+
+import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
+import {SearchAddBarModule} from "./searchAddBar";
+import {CheckboxFilterModule} from "./checkboxFilter";
+import {LyphTreeViewModule, LyphTreeNode, ICON} from "./lyphTreeView";
+import {LyphDeclarationModule} from "./lyphDeclarationEditor";
+import {DiffDialog} from "./diffDialog";
+import {ListNode, ResourceListViewModule} from "./resourceListView";
+
+import {$Field, $SchemaClass} from "../../model";
 import {
     clearMaterialRefs,
     prepareMaterialSearchOptions,
     replaceMaterialRefs,
     prepareMaterialLyphMap
-} from "./gui/utils";
-import {DiffDialog} from "./gui/diffDialog";
-import {MatDialog} from "@angular/material/dialog";
-import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
+} from "../gui/utils";
 
 @Component({
     selector: 'lyphEditor',
@@ -84,7 +86,7 @@ import {ListNode, ResourceListViewModule} from "./gui/resourceListView";
                         <button class="w3-bar-item w3-hover-light-grey"
                                 [disabled]="currentStep === 0"
                                 (click)="showDiff()" title="Compare code">
-                            <i class="fa fa-magnifying-glass"> </i>
+                            <i class="fa fa-code-compare"> </i>
                         </button>
                         <mat-divider></mat-divider>
                         <button [disabled]="!canUndo" class="w3-bar-item"

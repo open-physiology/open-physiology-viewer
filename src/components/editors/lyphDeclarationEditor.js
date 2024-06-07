@@ -1,4 +1,4 @@
- import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
+import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -7,36 +7,53 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatRadioModule} from "@angular/material/radio";
-import {COLORS} from './utils.js'
 import {SearchAddBarModule} from "./searchAddBar";
- import {$Field} from "../../model";
+
+import {COLORS} from '../gui/utils.js'
+import {$Field} from "../../model";
 
 @Component({
-    selector: 'chainDeclaration',
+    selector: 'lyphDeclaration',
     template: `
          <resourceDeclaration
-            [resource]="_chain"
+            [resource]="lyph"
             (onValueChange)="onValueChange.emit($event)"
         ></resourceDeclaration>
-        <div *ngIf="_chain?._class === 'Chain'" class="resource-box">
+        <div *ngIf="lyph?._class === 'Lyph'" class="resource-box">
             <div class="settings-wrap">
                 <div class="resource-boxContent">                 
+                    <section>
+                        <mat-radio-group name="topology"  aria-label="Topology" [value]="currentTopology">
+                          <mat-radio-button *ngFor="let option of topologyOptions" class="w3-margin-right" 
+                                            [value]="option" (change)="updateValue('topology', option.id)">
+                            {{ option.name }}
+                          </mat-radio-button>
+                        </mat-radio-group>
+                    </section> 
+
+                    <mat-checkbox matTooltip="Indicates that the lyph defines layers for its subtypes"
+                              labelPosition="after"
+                              [checked]="lyph?.isTemplate"
+                              (change)="updateValue('isTemplate', $event.checked)"
+                        >isTemplate?
+                    </mat-checkbox>  
+
                </div>
             </div>
-        <searchAddBar 
-                [searchOptions]="wireOptions"
-                [selected]="selectedWire"
+            <searchAddBar 
+                [searchOptions]="regionOptions"
+                [selected]="selectedRegion"
                 (selectedItemChange)="selectBySearch($event)"
-                (addSelectedItem)="replaceWire($event)"
-        ></searchAddBar>
+                (addSelectedItem)="replaceRegion($event)"
+            ></searchAddBar>
             <div class="settings-wrap">
                 <div class="resource-boxContent">                
-                <!--Search for region-->
+                    <!--Search for region-->
                     <mat-form-field>
                         <input matInput class="w3-input"
-                            placeholder="wiredTo"
-                            matTooltip="Wire to direct the chain"
-                            [value]="chain?.wiredTo"
+                            placeholder="hostedBy"
+                            matTooltip="Lyph or region to host the lyph"
+                            [value]="lyph?.hostedBy"
                             (keyup.enter)="updateValue('name', $event.target.value)"
                         >
                     </mat-form-field>                           
@@ -82,46 +99,55 @@ import {SearchAddBarModule} from "./searchAddBar";
 /**
  * The class to edit a resource field
  */
-export class ChainDeclarationEditor {
-    _chain;
+export class LyphDeclarationEditor {
+    _lyph;
     @Output() onValueChange = new EventEmitter();
 
-    @Input('lyph') set chain(newChain){
-        if (this._chain !== newChain) {
-            this._chain = newChain;
+    topologyOptions: Option[] = [
+      { name: 'None', id: undefined },
+      { name: 'TUBE', id: 'TUBE' },
+      { name: 'BAG- (BAG)', id: 'BAG' },
+      { name: 'BAG+ (BAG2)', id: 'BAG2' },
+      { name: 'CYST', id: 'CYST' }
+    ];
+
+    @Input() regionOptions = [];
+
+    @Input('lyph') set lyph(newLyph){
+        if (this._lyph !== newLyph) {
+            this._lyph = newLyph;
+            this.currentTopology = this.topologyOptions.find(e => e.id === newLyph?.topology) || this.topologyOptions[0];
         }
     }
 
-    @Input() wireOptions;
-
-    get chain(){
-        return this._chain;
+    get lyph(){
+        return this._lyph;
     }
 
     updateValue(prop, value) {
-        if (this.chain && (this.chain[prop] !== value)) {
-            let oldValue = this.chain[prop];
+        if (this.lyph && (this.lyph[prop] !== value)) {
+            let oldValue = this.lyph[prop];
             if (!value){
-                delete this.chain[prop];
+                delete this.lyph[prop];
             } else {
-                this.chain[prop] = value;
+                this.lyph[prop] = value;
             }
             this.onValueChange.emit({prop: prop, value: value, oldValue: oldValue});
         }
     }
 
     selectBySearch(nodeLabel) {
-        this.selectedWire = nodeLabel.substring(
+        this.selectedRegion = nodeLabel.substring(
             nodeLabel.indexOf("(") + 1,
             nodeLabel.lastIndexOf(")")
         );
     }
 
-    replaceWire(value){
-        if (this.chain){
-            let oldValue = this.chain.wiredTo;
-            this.chain.wiredTo = value;
-            this.onValueChange.emit({prop: $Field.wiredTo, value: value, oldValue: oldValue});
+    replaceRegion(value){
+        if (this.lyph){
+            let oldValue = this.lyph.hostedBy;
+            this.lyph.hostedBy = value;
+            this.onValueChange.emit({prop: $Field.hostedBy, value: value, oldValue: oldValue});
         }
     }
 }
@@ -129,8 +155,8 @@ export class ChainDeclarationEditor {
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule,
         MatCheckboxModule, MatRadioModule, ResourceDeclarationModule, SearchAddBarModule],
-    declarations: [ChainDeclarationEditor],
-    exports: [ChainDeclarationEditor]
+    declarations: [LyphDeclarationEditor],
+    exports: [LyphDeclarationEditor]
 })
-export class ChainDeclarationModule {
+export class LyphDeclarationModule {
 }

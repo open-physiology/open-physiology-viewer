@@ -4,7 +4,7 @@ import {
     MAT_DIALOG_DATA
 } from '@angular/material/dialog';
 import {values} from 'lodash-bound';
-import {printFieldValue, parseFieldValue} from "./utils";
+import {printFieldValue, parseFieldValue} from "../gui/utils";
 
 @Component({
     selector: 'resourceSelectDialog',

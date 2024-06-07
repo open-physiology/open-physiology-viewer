@@ -12,7 +12,7 @@ import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 
 
 import {FieldEditorDialog} from './fieldEditorDialog';
-import {ResourceSelectDialog} from "../gui/resourceSelectDialog";
+import {ResourceSelectDialog} from "./resourceSelectDialog";
 import {isArray, isObject, entries} from "lodash-bound";
 import {getClassName, $SchemaClass} from '../../model/index';
 import {printFieldValue, parseFieldValue} from "../gui/utils";

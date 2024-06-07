@@ -1,13 +1,15 @@
 import {NgModule, Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener} from '@angular/core';
 import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
-import * as d3 from "d3";
-import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
-import {SearchAddBarModule} from "./searchAddBar";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
+
+import * as d3 from "d3";
+
+import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
+import {SearchAddBarModule} from "./searchAddBar";
 import {ResourceListViewModule} from "./resourceListView";
-import {COLORS} from "./utils";
+import {COLORS} from "../gui/utils";
 
 
 @Component({

@@ -1,13 +1,15 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {COLORS} from "./utils";
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {$Field} from "../../model";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
-import {MatDialog} from "@angular/material/dialog";
+
+import {UberonOptionsModule} from './uberonOptionsBar';
+
+import {$Field} from "../../model";
+import {COLORS} from "../gui/utils";
 
 @Component({
     selector: 'resourceDeclaration',
@@ -15,6 +17,7 @@ import {MatDialog} from "@angular/material/dialog";
         <div class="resource-box">
             <div class="settings-wrap">
                 <div class="resource-boxContent">
+                    <!--ID-->
                     <mat-form-field>
                         <input matInput class="w3-input"
                                placeholder="id"
@@ -24,7 +27,7 @@ import {MatDialog} from "@angular/material/dialog";
                                (focusout)="updateValue('id', $event.target.value)"
                         >
                     </mat-form-field>
-
+                    <!--Name-->
                     <mat-form-field>
                         <input matInput class="w3-input"
                                placeholder="name"
@@ -34,7 +37,7 @@ import {MatDialog} from "@angular/material/dialog";
                                (focusout)="updateValue('name', $event.target.value)"
                         >
                     </mat-form-field>
-
+                    <!--Ontology terms-->
                     <ul *ngFor="let term of resource?.ontologyTerms; let i = index; trackBy: trackByFn" class="w3-ul">
                         <mat-form-field class="removable_field">
                             <input matInput class="w3-input"
@@ -54,6 +57,11 @@ import {MatDialog} from "@angular/material/dialog";
                         <i class="fa fa-add">
                         </i>
                     </button>
+                    <!--UBERON terms search-->
+                    <uberonSearch
+                        [content] = "resource?.name"
+                        (onInclude) = "addManyToMany('ontologyTerms', $event)"
+                    ></uberonSearch>
                 </div>
             </div>
         </div>
@@ -156,13 +164,31 @@ export class ResourceDeclarationEditor {
         }
     }
 
+    addManyToMany(prop, options){
+         if (this.resource) {
+             this.resource[prop] = this.resource[prop] || [];
+             let changed = false;
+             (options||[]).forEach(option => {
+                if (!this.resource[prop].find(x => x === option.id)) {
+                    if (!option.disabled) {
+                        this.resource[prop].push(option.id);
+                        changed = true;
+                    }
+                }
+             });
+             if (changed) {
+                 this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+             }
+          }
+    }
+
     trackByFn(index, item) {
         return index;
     }
 }
 
 @NgModule({
-    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule],
+    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule, UberonOptionsModule],
     declarations: [ResourceDeclarationEditor],
     exports: [ResourceDeclarationEditor]
 })

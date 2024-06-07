@@ -1,20 +1,20 @@
 import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
-import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
-import {SearchAddBarModule} from "./gui/searchAddBar";
-import {CheckboxFilterModule} from "./gui/checkboxFilter";
+import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
+import {SearchAddBarModule} from "./searchAddBar";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {cloneDeep, isObject, values} from 'lodash-bound';
-import {$Field, $SchemaClass} from "../model";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
-import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
-import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "./gui/utils";
-import {ICON, LyphTreeNode, LyphTreeViewModule} from "./gui/lyphTreeView";
-import {DiffDialog} from "./gui/diffDialog";
+import {ResourceListViewModule, ListNode} from "./resourceListView";
+import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
+import {DiffDialog} from "./diffDialog";
+
+import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "../gui/utils";
+import {$Field, $SchemaClass} from "../../model";
 
 @Component({
     selector: 'coalescenceEditor',
@@ -52,7 +52,7 @@ import {DiffDialog} from "./gui/diffDialog";
                         <button class="w3-bar-item w3-hover-light-grey"
                                 [disabled]="currentStep === 0"
                                 (click)="showDiff()" title="Compare code">
-                            <i class="fa fa-magnifying-glass"> </i>
+                            <i class="fa fa-code-compare"> </i>
                         </button>
                         <mat-divider></mat-divider>
                         <button [disabled]="!canUndo" class="w3-bar-item"
@@ -608,7 +608,7 @@ export class CoalescenceEditorComponent {
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule, CheckboxFilterModule, MatListModule,
+        MatDividerModule, ResourceListViewModule, MatListModule,
         LyphTreeViewModule],
     declarations: [CoalescenceEditorComponent],
     exports: [CoalescenceEditorComponent]

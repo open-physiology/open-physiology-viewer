@@ -1,9 +1,22 @@
 import {NgModule, Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener} from '@angular/core';
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
+import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from "@angular/material/divider";
+import {MatDialog} from "@angular/material/dialog";
+
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
-import {cloneDeep, values, sortBy, isObject, clone} from 'lodash-bound';
+import {cloneDeep, values, sortBy, isObject} from 'lodash-bound';
+
+import {DiffDialog} from "./diffDialog";
+import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
+import {SearchAddBarModule} from "./searchAddBar";
+import {ResourceListViewModule, ListNode} from "./resourceListView";
+import {MaterialGraphViewerModule} from "./materialGraphViewer";
+
+import {$Field, $SchemaClass} from "../../model";
 import {
     clearMaterialRefs,
     clearMany,
@@ -11,17 +24,8 @@ import {
     replaceMaterialRefs,
     prepareMaterialSearchOptions,
     COLORS
-} from './gui/utils.js'
-import {DiffDialog} from "./gui/diffDialog";
-import {ResourceDeclarationModule} from "./gui/resourceDeclarationEditor";
-import {$Field, $SchemaClass} from "../model";
-import {SearchAddBarModule} from "./gui/searchAddBar";
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
-import {MatButtonModule} from '@angular/material/button';
-import {MatDividerModule} from "@angular/material/divider";
-import {MatDialog} from "@angular/material/dialog";
-import {ResourceListViewModule, ListNode} from "./gui/resourceListView";
-import {MaterialGraphViewerModule} from "./gui/materialGraphViewer";
+} from '../gui/utils.js'
+
 
 /**
  * Css class names to represent ApiNATOMY resource classes
@@ -106,7 +110,7 @@ export class Edge {
                         <button class="w3-bar-item w3-hover-light-grey"
                                [disabled]="currentStep === 0" 
                                 (click)="showDiff()" title="Compare code">
-                            <i class="fa fa-magnifying-glass"> </i>
+                            <i class="fa fa-code-compare"> </i>
                         </button>
                         <mat-divider></mat-divider>
                         <button [disabled]="!canUndo" class="w3-bar-item"
@@ -673,15 +677,14 @@ export class DagViewerD3Component {
                     node.id = value;
                     this.updateGraph();
                     this.draw();
-                    this.saveStep("ID update " + value);
                 }
                 if (prop === $Field.name) {
                     this.graphD3.setNode(this.selectedNode, {
                         label: this.selectedMaterial.name || this.selectedMaterial.id,
                     });
                     this.inner.call(this.render, this.graphD3);
-                    this.saveStep("Name update " + value);
                 }
+                this.saveStep(`Update property ${prop} of material ` + this.selectedNode);
             }
         } else {
             let message = `Cannot update the property: material is not selected!`;
