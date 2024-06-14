@@ -1,4 +1,5 @@
 const fs = require('fs');
+const util = require('util');
 const axios = require("axios");
 const converter = require('../../../dist/converter');
 const conversionSteps = {
@@ -75,7 +76,8 @@ class ConversionHandler {
                     Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         }}).then(res => {
             const _filename = that._destination_folder + "/model" + convertedExtensions["xlsx"];
-            fs.writeFileSync(_filename, res.data);
+            const data = util.types.isArrayBuffer(res.data) ? new Uint8Array(res.data) : res.data;
+            fs.writeFileSync(_filename, data);
             return _filename;
         });
     }
@@ -136,9 +138,11 @@ class ConversionHandler {
             if (fs.existsSync(file)) {
                 const filename = this._destination_folder + "/model" + convertedExtensions["json-flattened"];
                 const _jsonld = fs.readFileSync(file, 'binary');
+                const sigh = this;
                 const _callback = function callback(res) {
                     const _flattened = JSON.stringify(res, null, 2);
                     fs.writeFileSync(filename, _flattened);
+                    sigh.result = true;
                     return filename;
                 };
                 converter.fromJsonLDToFlattened(_jsonld, _callback);
@@ -171,7 +175,9 @@ class ConversionHandler {
                     startConverting = true;
                     this.result = await this._conversion_methods[step](this.result);
                 }
-                if (conversionSteps[step] == this.to) {
+                if (conversionSteps[step] == this.to /* || this.to.includes(conversionSteps[step]) */) {
+                    // only stop if there is a single output, otherwise run everything because
+                    // I can't be bothered to implement breaking only on the final step
                     break;
                 }
             }
@@ -183,6 +189,15 @@ class ConversionHandler {
                     this.result = await this._conversion_methods[step](this.result);
                 }
             }
+        }
+        while (!this.result) {
+            await new Promise(r => setTimeout(r, 100));
+        }
+        for (const h of process._getActiveHandles()) {
+            // XXX HACK it seems that axios is failing to clean up
+            // tls connections or something and that prevents the
+            // cli wrapper from exiting with an infinite hang
+            h.end();
         }
     }
 }
