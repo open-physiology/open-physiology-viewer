@@ -103,10 +103,10 @@ const COLORS = {
                         <div *ngIf="config.selected" class="default-boxContent">
                             <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                             </resourceInfoPanel>
-<!--                            <button *ngIf="!!_selected" title="Edit"-->
-<!--                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">-->
-<!--                                <i class="fa fa-edit"> </i>-->
-<!--                            </button> -->
+                            <button *ngIf="_selected && _selected.class === 'Lyph' " title="Edit"
+                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
+                                <i class="fa fa-edit"> </i>
+                            </button> 
                             <sciGraphSearch [selected]="_selected">
                             </sciGraphSearch>
                         </div>
@@ -1023,7 +1023,7 @@ export class SettingsPanel {
 
     @Output() onSelectBySearch = new EventEmitter();
     @Output() onOpenExternal = new EventEmitter();
-    // @Output() onEditResource = new EventEmitter();
+    @Output() onEditResource = new EventEmitter();
     @Output() onUpdateShowLabels = new EventEmitter();
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleGroup = new EventEmitter();

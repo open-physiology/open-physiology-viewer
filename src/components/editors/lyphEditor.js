@@ -482,6 +482,7 @@ export class LyphEditorComponent {
         }
         this.selectedLyph = this.entitiesByID[nodeID];
         this.selectedLyphToEdit = this.selectedLyph;
+
         this.prepareLayerTree();
         this.prepareInternalTree();
         this.prepareChainList();

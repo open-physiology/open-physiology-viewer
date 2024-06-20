@@ -5,6 +5,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 
 import * as d3 from "d3";
+import 'd3-transition';
 
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "./searchAddBar";

@@ -428,6 +428,25 @@ export class Lyph extends Shape {
         return this.internalIn || this.layerIn && this.layerIn.internalIn;
     }
 
+    get prototype(){
+        if (!this.generated){
+            return this;
+        }
+        // NK for generated layers, show parent or its supertype, it will have material layers
+        if (this.layerIn){
+            return this.layerIn.prototype;
+        }
+        if (this.supertype){
+            return this.supertype.prototype;
+        }
+        if (this.cloneOf){
+            return this.cloneOf.prototype;
+        }
+        if (this.generatedFrom){
+            return this.generatedFrom;
+        }
+    }
+
     /**
      * Defines size of the conveying lyph based on the length of the link
      * @returns {{height: number, width: number}}

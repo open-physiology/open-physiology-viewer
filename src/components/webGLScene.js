@@ -134,8 +134,8 @@ const WindowResize = require('three-window-resize');
                         (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
+                        (onEditResource)="editResource.emit($event)"
                 > </settingsPanel>
-<!--                        (onEditResource)="editResource.emit($event)"-->
             </section>
         </section> 
     `,
@@ -270,7 +270,7 @@ export class WebGLSceneComponent {
     /**
      * @emits editResource - a resource was edited
      */
-    // @Output() editResource = new EventEmitter();
+    @Output() editResource = new EventEmitter();
 
     /**
      * @emits scaffoldUpdated - scaffold was graphically altered

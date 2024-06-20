@@ -151,8 +151,8 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             (highlightedItemChange)="onHighlightedItemChange($event)"
                             (scaffoldUpdated)="onScaffoldUpdated($event)"
                             (varianceReset)="applyChanges()"
+                            (editResource)="onEditResource($event)"
                     >
-<!--                            (editResource)="onEditResource($event)"-->
                     </webGLScene>
                 </mat-tab> 
 
@@ -220,8 +220,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor </ng-template>
                     <materialEditor 
                             [model]="_model"
-                            (onChangesSave)="applyEditorChanges($event)"
-                            (onSwitchEditor)="switchEditor($event)"
+                            [selectedNode] = "selectedMaterialID"
+                            (onChangesSave) = "applyEditorChanges($event)"
+                            (onSwitchEditor) = "switchEditor($event)"
                     > 
                     </materialEditor> 
                 </mat-tab>
@@ -524,6 +525,23 @@ export class TestApp {
 	    return this._graphData;
     }
 
+    onEditResource(resource) {
+        let proto = resource.prototype;
+        if (proto){
+            if (proto.class === $SchemaClass.Lyph) {
+                this.selectedLyphID = proto.id;
+                this._tabGroup.selectedIndex = 4;
+            } else if (proto.class === $SchemaClass.Material){
+                this.selectedMaterialID = proto.id;
+                this._tabGroup.selectedIndex = 3;
+            }
+        } else {
+            console.error("Undefined lyph: ", resource);
+            throw new Error("Failed to locate prototype definition for the selected lyph!");
+        }
+    }
+
+    // /* Obsolete method to edit any selected resource via the generated forms*/
     // onEditResource(resource){
     //     function findResourceDef(obj, parent, key) {
     //         if (!obj) { return; }

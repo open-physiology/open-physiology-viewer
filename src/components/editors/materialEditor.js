@@ -732,7 +732,6 @@ export class DagViewerD3Component {
                 root.children = (root.children||[]).concat(parents);
             }
             if (notFound.length > 0){
-                console.error("Failed to find material nodes for ", notFound.join(", "));
                 root.children = root.children.filter(e => e);
             }
             return root;
@@ -749,7 +748,7 @@ export class DagViewerD3Component {
         return this._selectedNode;
     }
 
-    set selectedNode(nodeID) {
+    @Input('selectedNode') set selectedNode(nodeID) {
         if (this._selectedNode !== nodeID) {
             if (this._selectedNode) {
                 let previous = this.graphD3.node(this._selectedNode);
