@@ -335,13 +335,24 @@ export class Resource{
          */
         function valueToJSON(value, depth) { return (value instanceof Resource)? value.toJSON(depth-1, inlineResources): value }
 
+        let alsothis = this;
+        function removeImported(obj) {
+            return (obj instanceof Resource && Object.hasOwn(obj, 'namespace')) ?
+                // FIXME need to exclude externals from the big list probably, individual refs are ok
+                (alsothis.namespace === obj.namespace || obj instanceof External) : true
+        }
+
         /**
          * Serializes field value: array or object
          * @param value - resource field value
          * @param depth - depth of nested resources to output
          * @returns {*} JSON object or an array of JSON objects without circular references
          */
-        function fieldToJSON(value, depth) { return value::isArray()? value.map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
+        function fieldToJSON(value, depth) { return value::isArray() ?
+                                             // XXX the logic used for removeImported fails catastrophically for Externals due to
+                                             // the namespace mismatch so we just skip them entirely until we can fix the logic
+                                             (alsothis instanceof External ? value : value.filter(removeImported)).map(e => valueToJSON(e, depth))
+                                             : valueToJSON(value, depth); }
 
         if (depth <= 0) {
             return this.fullID || this.id || null;

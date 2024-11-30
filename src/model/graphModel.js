@@ -1,5 +1,5 @@
 import { Group } from './groupModel';
-import { Resource } from "./resourceModel";
+import { Resource, External, Reference } from "./resourceModel";
 //import {EDGE_STROKE} from "./utils";
 import {
     entries, keys, values,
@@ -647,6 +647,7 @@ export class Graph extends Group{
         };
 
         let contextPrefix = "local"; // FIXME not sure what the issue is here with "" ...
+                                     // https://github.com/w3c/json-ld-syntax/issues/12
         localContext[contextPrefix] = localContext["@base"];
 
         let schemaContext = schemaToContext(schema, {});
@@ -671,14 +672,58 @@ export class Graph extends Group{
         };
 
         function addType(obj) {
+            // and general cleanup
             obj.class === "OntologyTerm" ?
                 obj["@type"] = "owl:Class" :
                 obj["@type"] = "owl:NamedIndividual" ;
+            if (["External", "OntologyTerm", "Reference"].includes(obj.class)) { delete obj['generated'] } // FIXME why does instanceof fail here ...
+            if (obj.class === "Reference" && obj.namespace !== alsothis.namespace) { delete obj['uri'] }
+            delete obj['border']; // FIXME XXX weird circular brokeness when trying to serialize scaffolds when there is a 'host' property
+            delete obj['id'];  // sigh
+            delete obj['namespace'];  // sigh
+            delete obj['localConventions']; // sigh
+            // cosmetics that are just noise
+            delete obj['imported'];
+            delete obj['length'];
+            delete obj['width'];
+            delete obj['height'];
+            delete obj['layout'];
+            delete obj['radius'];
+            delete obj['thickness'];
+            delete obj['color'];
+            delete obj['lineWidth'];
+            delete obj['hidden'];
+            delete obj['collide'];
+            delete obj['scale'];
+            delete obj['scaleFactor'];
+            // FIXME when serializing the top level group/graph need to remove imported lyphs etc.
             return obj;
         }
 
+        let alsothis = this;
+        function include_in_export (obj) {
+            return  !(obj instanceof Resource) ||
+                (obj instanceof External
+                 && ( Object.hasOwn(obj, 'annotates') ?
+                      obj.annotates.filter(a =>
+                          a.namespace === alsothis.namespace &&
+                              a.id !== alsothis.id).length !== 0
+                      : false )) ||
+                (obj instanceof Reference
+                 && (obj.namespace === alsothis.namespace ||
+                     // FIXME evil hardcoded hack to deal with import issues
+                     obj.namespace !== "wbkg")) ||
+                alsothis.namespace === obj.namespace;
+        }
+
         (this.entitiesByID||{})::values()
-            .forEach(obj => res["@graph"].push((obj instanceof Resource) ? addType(obj.toJSON()) : obj));
+            .forEach(obj =>
+                include_in_export(obj) ? // so you can use the ternary operator but not an if statement ... sigh
+                    res["@graph"].push(
+                        (obj instanceof Resource) ? addType(obj.toJSON()) :
+                            (obj instanceof Object) ? null : obj // avoid including stray objects
+                    ) : null
+            );
 
         return res;
     }
@@ -688,10 +733,12 @@ export class Graph extends Group{
      */
     static entitiesToJSONLDFlat(res, callback){
         let context = {};
+        let bc = res['@context']['@base'];
         res['@context']::entries().forEach(([k, v]) => {
-            if (!(v::isObject() && ("@id" in v) && v["@id"].includes("apinatomy:"))) {
-                if (!(typeof(v) === "string" && v.includes("apinatomy:"))) {
-                    if (k !== "class") {
+            if (!(v::isObject() && ("@id" in v) && ( v["@id"].includes("apinatomy:") || v["@id"] === bc ))) {
+                if (!(typeof(v) === "string" && (v.includes("apinatomy:")
+                                                 || v === bc && ( k !== "@base" && k !== "local" )))) {
+                    if (k !== "class" && k !== "fullID") {
                         context[k] = v;
                     }
                 }
