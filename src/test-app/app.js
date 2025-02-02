@@ -56,6 +56,7 @@ import {MaterialEditorModule} from "../components/editors/materialEditor";
 import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
+import {HubMapModule} from "../components/editors/hubmapViewer";
 
 enableProdMode();
 
@@ -257,6 +258,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                             [selectedNode] = "selectedCoalescenceID"
                             (onChangesSave)="applyEditorChanges($event)"> 
                     </coalescenceEditor> 
+                </mat-tab>
+                
+                <!--HubMap Viewer-->
+                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #hubMapTab>
+                    <ng-template mat-tab-label><i class="fa fa-map"></i> HubMap Viewer </ng-template>
+                    <hubmapViewer> 
+                    </hubmapViewer> 
                 </mat-tab>
 
             </mat-tab-group>
@@ -750,7 +758,7 @@ export class TestApp {
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule],
+        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, HubMapModule],
 	declarations: [TestApp, ImportDialog],
 	// declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],

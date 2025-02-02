@@ -25,7 +25,8 @@ export const COLORS = {
     node: '#ddffff',
     region: '#e3e3e3',
     coalescence: '#ffe7e7',
-    chain: '#ccddff'
+    chain: '#ccddff',
+    external: '#b7fae7'
 };
 
 

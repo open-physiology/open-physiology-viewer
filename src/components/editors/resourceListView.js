@@ -64,13 +64,14 @@ export class ListNode {
                 <mat-list-item *ngFor="let node of listData">
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey list-node" [ngClass]="{
-                               'selected' : node.id === (selectedNode?.id || selectedNode),
-                               'lyph'     : node.class === 'Lyph',
-                               'template' : node.isTemplate || node.class === 'Template',
-                               'material' : node.class === 'Material', 
-                               'chain'    : node.class === 'Chain', 
+                               'selected'    : node.id === (selectedNode?.id || selectedNode),
+                               'lyph'        : node.class === 'Lyph',
+                               'template'    : node.isTemplate || node.class === 'Template',
+                               'material'    : node.class === 'Material', 
+                               'chain'       : node.class === 'Chain', 
                                'coalescence' : node.class === 'Coalescence',
-                               'undefined': node.class === 'Undefined'}"
+                               'external'    : node.class === 'ExternalResource',
+                               'undefined'   : node.class === 'Undefined'}"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
@@ -149,6 +150,10 @@ export class ListNode {
             background-color: ${COLORS.coalescence}; 
         }
         
+        .external {
+            background-color: ${COLORS.external}; 
+        }
+        
         .undefined {
             background-color: lightgrey;
             border: 0.067rem solid lightgrey;
@@ -167,14 +172,6 @@ export class ListNode {
             overflow-y: auto;
         }
 
-        button {
-            background: transparent;
-            color: #797979;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
         .icon-mini {
             transform: scale(0.7);
         }
