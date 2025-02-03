@@ -6,6 +6,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
+import {ClipboardModule} from '@angular/cdk/clipboard'
 
 /**
  * @class
@@ -49,12 +50,12 @@ export class HubMapTreeNode {
                                 {{node.label}} 
                         </button>
                         <button *ngIf=node.annotations class="w3-hover-pale-red w3-hover-border-grey node-item annotation"
-                                    (click)="selectNode(node)">
+                                    (click)="selectAnnotation(node)" [cdkCopyToClipboard]="node.annotations.join(', ')">
                                 {{node.annotations.join(', ')}}
                         </button>
                     </span>
                 </mat-tree-node>
-                <!--Closed node with children-->
+                <!--Closed node with children--> 
                 <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
                     <button *ngIf="treeControl.isExpanded(node)" mat-icon-button matTreeNodeToggle 
                             [attr.aria-label]="'Toggle ' + node.label">
@@ -72,7 +73,7 @@ export class HubMapTreeNode {
                             {{node.label}} 
                         </button>
                          <button *ngIf=node.annotations class="w3-hover-pale-red w3-hover-border-grey node-item annotation"
-                                (click)="selectNode(node)">
+                                (click)="selectAnnotation(node)" [cdkCopyToClipboard]="node.annotations.join(', ')">
                             {{node.annotations.join(', ')}}
                         </button>
                     </span>
@@ -188,8 +189,7 @@ export class HubMapTreeView {
     }
 
     @Output() onNodeClick = new EventEmitter();
-    @Output() onChange = new EventEmitter();
-    @Output() onLayerIndexChange = new EventEmitter();
+    @Output() onAnnotationClick  = new EventEmitter();
 
     get treeData() {
         return this._treeData;
@@ -227,11 +227,15 @@ export class HubMapTreeView {
         this.selectedNode = node;
         this.onNodeClick.emit(node);
     }
+
+    selectAnnotation(node) {
+        this.onAnnotationClick.emit(node);
+    }
 }
 
 @NgModule({
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule,
-        MatTreeModule],
+        MatTreeModule, ClipboardModule],
     declarations: [HubMapTreeView],
     exports: [HubMapTreeView]
 })
