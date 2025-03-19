@@ -511,7 +511,6 @@ export class ChainEditorComponent {
 
     clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
-            //Clean up all helper mods
             const added = ['_class', '_generated'];
             added.forEach(prop => {
                 delete obj[prop];

@@ -1,6 +1,6 @@
-import { NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { cloneDeep, clone, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
+import {NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {cloneDeep, clone, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
 
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -8,14 +8,14 @@ import {MatListModule} from '@angular/material/list'
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
-import FileSaver  from 'file-saver';
+import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 
 import {MainToolbarModule} from "../components/mainToolbar";
 import {SnapshotToolbarModule} from "../components/snapshotToolbar";
 import {StateToolbarModule} from "../components/stateToolbar";
-import {ResourceEditorModule} from '../components/genResourceEditor/resourceEditor';
-import {ResourceEditorDialog} from '../components/genResourceEditor/resourceEditorDialog';
+// import {ResourceEditorModule} from '../components/genResourceEditor/resourceEditor';
+// import {ResourceEditorDialog} from '../components/genResourceEditor/resourceEditorDialog';
 import {LayoutEditorModule} from "../components/layoutEditor";
 import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
@@ -46,7 +46,7 @@ import "@fortawesome/fontawesome-free/css/v4-shims.css";
 
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg, logger} from "../model/logger";
-import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarConfig, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/gui/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
@@ -64,9 +64,9 @@ const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
 @Component({
-	selector: 'test-app',
+    selector: 'test-app',
     changeDetection: ChangeDetectionStrategy.Default,
-	template: `
+    template: `
 
         <!-- Header -->
 
@@ -86,21 +86,21 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 Snapshot model: {{_snapshot.name}}
             </span>
             <snapshot-toolbar id="snapshot-toolbar"
-                (onCreateSnapshot) = "createSnapshot()"
-                (onLoadSnapshot)   = "loadSnapshot($event)"
-                (onSaveSnapshot)   = "saveSnapshot()"                              
+                              (onCreateSnapshot)="createSnapshot()"
+                              (onLoadSnapshot)="loadSnapshot($event)"
+                              (onSaveSnapshot)="saveSnapshot()"
             >
             </snapshot-toolbar>
             <state-toolbar id="state-toolbar"
-                [activeIndex]      = "_snapshot?.activeIndex"
-                [total]            = "_snapshot?.length || 0"         
-                [unsavedState]     = "!!_unsavedState"                           
-                (onPreviousState)  = "previousState()"  
-                (onNextState)      = "nextState()" 
-                (onAddState)       = "saveState()"
-                (onDeleteState)    = "removeState()"
-                (onHomeState)      = "homeState()"
-           >
+                           [activeIndex]="_snapshot?.activeIndex"
+                           [total]="_snapshot?.length || 0"
+                           [unsavedState]="!!_unsavedState"
+                           (onPreviousState)="previousState()"
+                           (onNextState)="nextState()"
+                           (onAddState)="saveState()"
+                           (onDeleteState)="removeState()"
+                           (onHomeState)="homeState()"
+            >
             </state-toolbar>
             <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
 				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
@@ -116,14 +116,15 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 
         <section>
             <main-toolbar
-                [showRepoPanel]     = "showRepoPanel"
-                (onCreateModel)     = "create()"
-                (onLoadModel)       = "load($event)"
-                (onJoinModel)       = "join($event)"
-                (onMergeModel)      = "merge($event)"
-                (onExportModel)     = "save($event)"
-                (onImportExcelModel)= "load($event)" 
-                (onToggleRepoPanel) = "toggleRepoPanel()"   
+                    [showRepoPanel]="showRepoPanel"
+                    (onCreateModel)="create()"
+                    (onLoadModel)="load($event)"
+                    (onJoinModel)="join($event)"
+                    (onMergeModel)="merge($event)"
+                    (onExportModel)="save($event)"
+                    (onModelCommit)="commit($event)"
+                    (onImportExcelModel)="load($event)"
+                    (onToggleRepoPanel)="toggleRepoPanel()"
             >
             </main-toolbar>
         </section>
@@ -133,7 +134,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         <section id="main-panel">
             <section id="repo-panel" *ngIf="showRepoPanel" class="w3-quarter w3-gray w3-border-right w3-border-white">
                 <section class="w3-padding-small">
-                    <i class="fa fa-database"> </i> Model Repository 
+                    <i class="fa fa-database"> </i> Model Repository
                 </section>
                 <modelRepoPanel (onModelLoad)="loadFromRepo($event)">
                 </modelRepoPanel>
@@ -142,49 +143,49 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             <mat-tab-group animationDuration="0ms" #tabGroup>
                 <!--Viewer-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer</ng-template>
                     <webGLScene #webGLScene
-                            [modelClasses]="modelClasses"
-                            [graphData]="_graphData"
-                            [config]="_config"    
-                            (onImportExternal)="importExternal($event)"    
-                            (selectedItemChange)="onSelectedItemChange($event)"
-                            (highlightedItemChange)="onHighlightedItemChange($event)"
-                            (scaffoldUpdated)="onScaffoldUpdated($event)"
-                            (varianceReset)="applyChanges()"
-                            (editResource)="onEditResource($event)"
+                                [modelClasses]="modelClasses"
+                                [graphData]="_graphData"
+                                [config]="_config"
+                                (onImportExternal)="importExternal($event)"
+                                (selectedItemChange)="onSelectedItemChange($event)"
+                                (highlightedItemChange)="onHighlightedItemChange($event)"
+                                (scaffoldUpdated)="onScaffoldUpdated($event)"
+                                (varianceReset)="applyChanges()"
+                                (editResource)="onEditResource($event)"
                     >
                     </webGLScene>
-                </mat-tab> 
+                </mat-tab>
 
                 <!--Relationship graph-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>
                     <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Relationship graph</ng-template>
-                    <relGraph 
+                    <relGraph
                             [graphData]="_graphData"
-                            [isActive]="relGraphTab.isActive"> 
+                            [isActive]="relGraphTab.isActive">
                     </relGraph>
                 </mat-tab>
 
                 <!--Resource editor-->
-<!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
-<!--                    <ng-template mat-tab-label><i class="fa fa-wpforms"></i> Resources</ng-template>-->
-<!--                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">-->
-<!--                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"-->
-<!--                                title="Apply changes">-->
-<!--                            <i class="fa fa-check"> </i>-->
-<!--                        </button>-->
-<!--                    </section>-->
-<!--                    <section id="resource-editor">-->
-<!--                        <resourceEditor-->
-<!--                                [modelClasses]="modelClasses"-->
-<!--                                [modelResources]="_graphData.entitiesByID || {}"-->
-<!--                                [resource]="_model"-->
-<!--                                [className]="className">-->
-<!--                        </resourceEditor>-->
-<!--                    </section>-->
-<!--                </mat-tab>-->
-                
+                <!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
+                <!--                    <ng-template mat-tab-label><i class="fa fa-wpforms"></i> Resources</ng-template>-->
+                <!--                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">-->
+                <!--                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"-->
+                <!--                                title="Apply changes">-->
+                <!--                            <i class="fa fa-check"> </i>-->
+                <!--                        </button>-->
+                <!--                    </section>-->
+                <!--                    <section id="resource-editor">-->
+                <!--                        <resourceEditor-->
+                <!--                                [modelClasses]="modelClasses"-->
+                <!--                                [modelResources]="_graphData.entitiesByID || {}"-->
+                <!--                                [resource]="_model"-->
+                <!--                                [className]="className">-->
+                <!--                        </resourceEditor>-->
+                <!--                    </section>-->
+                <!--                </mat-tab>-->
+
                 <!--Layout editor-->
                 <mat-tab *ngIf="!!_model?.scaffolds" class="w3-margin" [class.w3-threequarter]="showRepoPanel">
                     <ng-template mat-tab-label><i class="fa fa-wpforms"> </i>Layout</ng-template>
@@ -198,73 +199,73 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                         <layoutEditor
                                 [modelClasses]="modelClasses"
                                 [modelResources]="_graphData.entitiesByID || {}"
-                                [resource]="_model">                            
+                                [resource]="_model">
                         </layoutEditor>
                     </section>
                 </mat-tab>
 
                 <!--Code editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-edit"></i> Code </ng-template>
+                    <ng-template mat-tab-label><i class="fa fa-edit"></i> Code</ng-template>
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()"
                                 title="Apply changes">
                             <i class="fa fa-check"> </i>
                         </button>
                     </section>
-                    <section #jsonEditor id="json-editor">                        
+                    <section #jsonEditor id="json-editor">
                     </section>
-                </mat-tab>       
-                
+                </mat-tab>
+
                 <!--Material editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor </ng-template>
-                    <materialEditor 
+                    <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor</ng-template>
+                    <materialEditor
                             [model]="_model"
-                            [selectedNode] = "selectedMaterialID"
-                            (onChangesSave) = "applyEditorChanges($event)"
-                            (onSwitchEditor) = "switchEditor($event)"
-                    > 
-                    </materialEditor> 
+                            [selectedNode]="selectedMaterialID"
+                            (onChangesSave)="applyEditorChanges($event)"
+                            (onSwitchEditor)="switchEditor($event)"
+                    >
+                    </materialEditor>
                 </mat-tab>
 
                 <!--Lyph editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor </ng-template>
-                    <lyphEditor 
+                    <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor</ng-template>
+                    <lyphEditor
                             [model]="_model"
-                            [selectedNode] = "selectedLyphID"
-                            (onChangesSave) = "applyEditorChanges($event)"
-                            (onSwitchEditor) = "switchEditor($event)"
-                    > 
-                    </lyphEditor> 
+                            [selectedNode]="selectedLyphID"
+                            (onChangesSave)="applyEditorChanges($event)"
+                            (onSwitchEditor)="switchEditor($event)"
+                    >
+                    </lyphEditor>
                 </mat-tab>
 
                 <!--Chain editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor </ng-template>
-                    <chainEditor 
+                    <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor</ng-template>
+                    <chainEditor
                             [model]="_model"
-                            [selectedNode] = "selectedChainID"
-                            (onChangesSave)="applyEditorChanges($event)"> 
-                    </chainEditor> 
+                            [selectedNode]="selectedChainID"
+                            (onChangesSave)="applyEditorChanges($event)">
+                    </chainEditor>
                 </mat-tab>
-                
+
                 <!--Coalescence editor-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor </ng-template>
-                    <coalescenceEditor 
+                    <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor</ng-template>
+                    <coalescenceEditor
                             [model]="_model"
-                            [selectedNode] = "selectedCoalescenceID"
-                            (onChangesSave)="applyEditorChanges($event)"> 
-                    </coalescenceEditor> 
+                            [selectedNode]="selectedCoalescenceID"
+                            (onChangesSave)="applyEditorChanges($event)">
+                    </coalescenceEditor>
                 </mat-tab>
-                
+
                 <!--HubMap Viewer-->
                 <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #hubMapTab>
-                    <ng-template mat-tab-label><i class="fa fa-map"></i> HubMap Viewer </ng-template>
-                    <hubmapViewer> 
-                    </hubmapViewer> 
+                    <ng-template mat-tab-label><i class="fa fa-map"></i> HubMap Viewer</ng-template>
+                    <hubmapViewer>
+                    </hubmapViewer>
                 </mat-tab>
 
             </mat-tab-group>
@@ -282,46 +283,46 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
         </footer>
     `,
     styles: [`
-        .vertical-toolbar{
-            width : 48px;
-        }
-                
-        #main-panel{            
-            margin-top : 40px;
-            margin-left: 48px; 
-            width : calc(100% - 48px);
-            height : 90vh
+        .vertical-toolbar {
+            width: 48px;
         }
 
-        #main-panel mat-tab-group{            
-            height : inherit;
+        #main-panel {
+            margin-top: 40px;
+            margin-left: 48px;
+            width: calc(100% - 48px);
+            height: 90vh
+        }
+
+        #main-panel mat-tab-group {
+            height: inherit;
         }
 
         #viewer-panel {
-            width : 100%;
+            width: 100%;
         }
 
-        #json-editor{
-            height : 100vh;
-            width  : calc(100% - 48px);
-        }
-        
-        #resource-editor, #layout-editor{
-            height : 100%;
-            overflow : auto;
-            width  : calc(100% - 48px);
-        }
-        
-        #repo-panel{
-            height : 95vh;
+        #json-editor {
+            height: 100vh;
+            width: calc(100% - 48px);
         }
 
-        footer{
+        #resource-editor, #layout-editor {
+            height: 100%;
+            overflow: auto;
+            width: calc(100% - 48px);
+        }
+
+        #repo-panel {
+            height: 95vh;
+        }
+
+        footer {
             position: absolute;
             bottom: 0;
             width: 100%;
         }
-	`]
+    `]
 })
 export class TestApp {
     modelClasses = modelClasses;
@@ -340,50 +341,65 @@ export class TestApp {
     _snapshotCounter = 1;
     _unsavedState;
 
+    _snackBar;
+    _snackBarConfig = new MatSnackBarConfig();
+
     @ViewChild('webGLScene') _webGLScene: ElementRef;
     @ViewChild('jsonEditor') _container: ElementRef;
     @ViewChild('tabGroup') _tabGroup: ElementRef;
 
-    constructor(dialog: MatDialog){
+    constructor(dialog: MatDialog, snackBar: MatSnackBar) {
         this.model = initModel;
         this._dialog = dialog;
         this._flattenGroups = false;
+
+        this._snackBar = snackBar;
+        this._snackBarConfig = {
+            panelClass: ['w3-panel', 'w3-green'],
+            duration: 1000
+        };
     }
 
-    ngAfterViewInit(){
-        if (!this._container) { return; }
+    ngAfterViewInit() {
+        if (!this._container) {
+            return;
+        }
         this._editor = new JSONEditor(this._container.nativeElement, {
-            mode  : 'code',
-            modes : ['code', 'tree', 'view'],
-            ace   : ace,
+            mode: 'code',
+            modes: ['code', 'tree', 'view'],
+            ace: ace,
             schema: schema
         });
         this._editor.set(this._model);
     }
 
     // noinspection JSMethodCanBeStatic
-    get currentDate(){
+    get currentDate() {
         let today = new Date();
-        let [yyyy, mm, dd] = [today.getFullYear(), (today.getMonth()+1), today.getDate()];
-        if (dd < 10) { dd = '0' + dd; }
-        if (mm < 10) { mm = '0' + mm; }
-        return [yyyy,mm,dd].join("-");
+        let [yyyy, mm, dd] = [today.getFullYear(), (today.getMonth() + 1), today.getDate()];
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        return [yyyy, mm, dd].join("-");
     }
 
-    get className(){
-        return isScaffold(this._model)? $SchemaClass.Scaffold: $SchemaClass.Graph;
+    get className() {
+        return isScaffold(this._model) ? $SchemaClass.Scaffold : $SchemaClass.Graph;
     }
 
-    toggleRepoPanel(){
+    toggleRepoPanel() {
         this.showRepoPanel = !this.showRepoPanel;
     }
 
-    create(){
+    create() {
         logger.clear();
         this.model = {
-            [$Field.name]        : "newModel-" + this._counter++,
-            [$Field.created]     : this.currentDate,
-            [$Field.lastUpdated] : this.currentDate
+            [$Field.name]: "newModel-" + this._counter++,
+            [$Field.created]: this.currentDate,
+            [$Field.lastUpdated]: this.currentDate
         };
         this._flattenGroups = false;
     }
@@ -393,7 +409,7 @@ export class TestApp {
         this._flattenGroups = false;
     }
 
-    importExternal(){
+    importExternal() {
         if (this._model.imports && this._model.imports.length > 0) {
             //Model contains external inputs
             let dialogRef = this._dialog.open(ImportDialog, {
@@ -412,9 +428,9 @@ export class TestApp {
                     if (groups.length > 0 || scaffolds.length > 0) {
                         this.model = this._model;
                     }
-                    if (snapshots.length > 0){
+                    if (snapshots.length > 0) {
                         this.loadSnapshot(snapshots[0]);
-                        if (snapshots.length > 1){
+                        if (snapshots.length > 1) {
                             logger.warn($LogMsg.SNAPSHOT_IMPORT_MULTI);
                         }
                     }
@@ -423,10 +439,10 @@ export class TestApp {
         }
     }
 
-    applyScaffold(modelA, modelB){
+    applyScaffold(modelA, modelB) {
         const applyScaffold = (model, scaffold) => {
             model.scaffolds = model.scaffolds || [];
-            if (!model.scaffolds.find(s => s.id === scaffold.id)){
+            if (!model.scaffolds.find(s => s.id === scaffold.id)) {
                 model.scaffolds.push(scaffold);
             } else {
                 throw new Error("Scaffold with such identifier is already attached to the model!");
@@ -434,7 +450,7 @@ export class TestApp {
             this.model = model;
         };
 
-        if (isScaffold(modelA)){
+        if (isScaffold(modelA)) {
             applyScaffold(modelB, modelA);
         } else {
             applyScaffold(modelA, modelB);
@@ -442,10 +458,10 @@ export class TestApp {
     }
 
     join(newModel) {
-        if (this._model.id === newModel.id){
+        if (this._model.id === newModel.id) {
             throw new Error("Cannot join models with the same identifiers: " + this._model.id);
         }
-        if (isScaffold(this._model) !== isScaffold(newModel)){
+        if (isScaffold(this._model) !== isScaffold(newModel)) {
             this.model = removeDisconnectedObjects(this._model, newModel);
             this.applyScaffold(this._model, newModel);
         } else {
@@ -461,7 +477,7 @@ export class TestApp {
     }
 
     merge(newModel) {
-        if (isScaffold(this._model) !== isScaffold(newModel)){
+        if (isScaffold(this._model) !== isScaffold(newModel)) {
             this.applyScaffold(this._model, newModel);
         } else {
             this.model = {
@@ -471,8 +487,8 @@ export class TestApp {
         }
     }
 
-    save(format){
-        if (format === "excel"){
+    save(format) {
+        if (format === "excel") {
             jsonToExcel(this._model);
         } else {
             if (this._scaffoldUpdated) {
@@ -485,61 +501,143 @@ export class TestApp {
         }
     }
 
-    loadFromRepo({fileName, fileContent}){
-        let [name, extension]  = fileExtensionRe.exec(fileName);
+    commit() {
+        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+        if (!GITHUB_TOKEN){
+            throw Error("Set the GITHUB_TOKEN environment variable!");
+        }
+        console.log(GITHUB_TOKEN)
+        const BRANCH = "main";
+        const FILE_CONTENT = JSON.stringify(this._model, null, 4);
+        const COMMIT_MESSAGE = "Add/update JSON file via API";
+        const BASE_URL = "https://api.github.com/repos/albatros13/apinatomy-models";
+
+        // Helper function to make API requests with XMLHttpRequest
+        function makeRequest(method, url, body = null, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
+            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        callback(null, JSON.parse(xhr.responseText));
+                    } else {
+                        callback(`Error: ${xhr.status} - ${xhr.responseText}`, null);
+                    }
+                }
+            };
+            xhr.send(body ? JSON.stringify(body) : null);
+        }
+
+        const commitJsonFile = () => {
+            console.log(`${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`);
+            // Step 1: Check if the file exists to retrieve its SHA
+            makeRequest(
+                "GET",
+                `${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`,
+                null,
+                (err, fileData) => {
+                    let fileSHA = null;
+                    if (!err) {
+                        fileSHA = fileData.sha;
+                    } else if (err.includes("404")) {
+                        console.log("ℹ️ File does not exist. Creating a new one.");
+                    } else {
+                        console.error("❌ Error checking file existence:", err);
+                        throw Error("Error checking file existence!");
+                    }
+
+                    // Step 2: Create or update the file
+                    makeRequest(
+                        "PUT",
+                        `${BASE_URL}/contents/${FILE_PATH}`,
+                        {
+                            message: COMMIT_MESSAGE,
+                            content: Buffer.from(FILE_CONTENT).toString("base64"), // Convert to Base64
+                            branch: BRANCH,
+                            sha: fileSHA,
+                        },
+                        (err, response) => {
+                            if (err) {
+                                console.error("❌ Error committing file:", err);
+                                throw Error("Error committing file!");
+                            }
+                            this.showMessage("Model file committed successfully!")
+                        }
+                    );
+                }
+            );
+        }
+
+        const FILE_PATH = this._model.id + ".json";
+        commitJsonFile(FILE_PATH);
+    }
+
+    showMessage(message) {
+        this._snackBar.open(message, "OK", this._snackBarConfig);
+    }
+
+
+    loadFromRepo({fileName, fileContent}) {
+        let [name, extension] = fileExtensionRe.exec(fileName);
         extension = extension.toLowerCase();
         this.model = loadModel(fileContent, name, extension);
     }
 
     applyJSONEditorChanges() {
-        if (this._editor){
+        if (this._editor) {
             logger.clear();
-            this._graphData = generateFromJSON({"id":"Empty"});
+            this._graphData = generateFromJSON({"id": "Empty"});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
         }
     }
 
-    applyEditorChanges(newModel){
+    applyEditorChanges(newModel) {
         this._model = newModel;
         this.applyChanges();
     }
 
-    applyChanges(){
+    applyChanges() {
         logger.clear();
         this._graphData = generateFromJSON({"id": "Empty"});
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
-    onSelectedItemChange(item){}
+    onSelectedItemChange(item) {
+    }
 
-	onHighlightedItemChange(item){}
+    onHighlightedItemChange(item) {
+    }
 
-	set model(model){
+    set model(model) {
         this._model = model;
         //try{
-            this._modelName = this._model.name || this._model.id || "?";
-            this._graphData = generateFromJSON(this._model);
+        this._modelName = this._model.name || this._model.id || "?";
+        this._graphData = generateFromJSON(this._model);
         // } catch(err){
         //    throw new Error(err);
         // }
         this._snapshot = undefined;
-        if (this._editor){
+        if (this._editor) {
             this._editor.set(this._model);
         }
     }
 
-    get graphData(){
-	    return this._graphData;
+    get graphData() {
+        return this._graphData;
     }
 
     onEditResource(resource) {
         let proto = resource.prototype;
-        if (proto){
+        if (proto) {
             if (proto.class === $SchemaClass.Lyph) {
                 this.selectedLyphID = proto.id;
                 this._tabGroup.selectedIndex = 4;
-            } else if (proto.class === $SchemaClass.Material){
+            } else if (proto.class === $SchemaClass.Material) {
                 this.selectedMaterialID = proto.id;
                 this._tabGroup.selectedIndex = 3;
             }
@@ -575,7 +673,9 @@ export class TestApp {
     //     const dialogRef = this._dialog.open(ResourceEditorDialog, {
     //         width: '75%',
     //         data: {
-    //             title             : `Update resource?`,
+    //             title             : `
+    //    Update
+    //    resource ? `,
     //             modelClasses      : modelClasses,
     //             modelResources    : this._graphData.entitiesByID || {},
     //             resource          : obj,
@@ -591,13 +691,13 @@ export class TestApp {
     //     });
     // }
 
-    onScaffoldUpdated(){
+    onScaffoldUpdated() {
         this._scaffoldUpdated = true;
     }
 
-    saveScaffoldUpdates(){
-        if (this._model && this._graphData){
-            if (isScaffold(this._model)){
+    saveScaffoldUpdates() {
+        if (this._model && this._graphData) {
+            if (isScaffold(this._model)) {
                 this._graphData.update(this._model);
             } else {
                 (this._graphData.scaffolds || []).forEach(scaffold => {
@@ -611,7 +711,7 @@ export class TestApp {
         }
     }
 
-    saveState(){
+    saveState() {
         if (!this._snapshot) {
             this.createSnapshot();
         }
@@ -619,21 +719,21 @@ export class TestApp {
         this._unsavedState = null;
     }
 
-    homeState(){
-        if (this._unsavedState){
+    homeState() {
+        if (this._unsavedState) {
             this.loadState(this._unsavedState);
-            if (this._snapshot){
+            if (this._snapshot) {
                 this._snapshot.activeIndex = -1;
             }
         }
     }
 
-    getCurrentState(){
-        let state_json =  {
-            [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states||[]).length),
+    getCurrentState() {
+        let state_json = {
+            [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states || []).length),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
-                up      : this._webGLScene.camera.up::pick(["x", "y", "z"])
+                up: this._webGLScene.camera.up::pick(["x", "y", "z"])
             },
             [$Field.layout]: this._config.layout::cloneDeep(),
             [$Field.showLabels]: this._config.showLabels::cloneDeep(),
@@ -642,13 +742,13 @@ export class TestApp {
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
-    restoreState(){
+    restoreState() {
         this._unsavedState = this.getCurrentState();
         this.loadState(this._snapshot.active);
     }
 
-    loadState(activeState){
-        if (activeState.visibleGroups){
+    loadState(activeState) {
+        if (activeState.visibleGroups) {
             this._graphData.showGroups(activeState.visibleGroups);
         }
         if (activeState.camera) {
@@ -664,7 +764,7 @@ export class TestApp {
         if (activeState.labelContent) {
             this._config.labelContent = activeState.labelContent;
         }
-        if (isScaffold(this._model)){
+        if (isScaffold(this._model)) {
             this._graphData.loadState(activeState);
         } else {
             (activeState.scaffolds || []).forEach(scaffold => {
@@ -679,28 +779,28 @@ export class TestApp {
         this._webGLScene.updateGraph();
     }
 
-    previousState(){
+    previousState() {
         if (this._snapshot) {
             this._snapshot.switchToPrev();
             this.restoreState();
         }
     }
 
-    nextState(){
+    nextState() {
         if (this._snapshot) {
             this._snapshot.switchToNext();
             this.restoreState();
         }
     }
 
-    removeState(){
-        if (this._snapshot){
+    removeState() {
+        if (this._snapshot) {
             this._snapshot.removeActive();
             this.restoreState();
         }
     }
 
-    createSnapshot(){
+    createSnapshot() {
         this._snapshot = this.modelClasses.Snapshot.fromJSON({
             [$Field.id]: getGenID("snapshot", this._model.id, this._snapshotCounter),
             [$Field.name]: getGenName("Snapshot for", this._modelName, this._snapshotCounter),
@@ -711,20 +811,20 @@ export class TestApp {
         this._snapshot.annotation = this._model::pick(annotationProperties);
     }
 
-    loadSnapshot(value){
+    loadSnapshot(value) {
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
             throw new Error("Snapshot is not applicable to the model!");
         } else {
-            if (match === 0){
+            if (match === 0) {
                 throw new Error("Snapshot corresponds to a different version of the model!");
             }
         }
         this._snapshot = newSnapshot;
     }
 
-    saveSnapshot(){
+    saveSnapshot() {
         if (this._snapshot) {
             let result = JSON.stringify(this._snapshot.toJSON(2, {
                 [$Field.states]: 4
@@ -734,9 +834,9 @@ export class TestApp {
         }
     }
 
-    switchEditor({editor, node}){
-        if (editor === 'lyph' || editor === 'chain' || editor === 'coalescence'){
-            if (editor === 'lyph'){
+    switchEditor({editor, node}) {
+        if (editor === 'lyph' || editor === 'chain' || editor === 'coalescence') {
+            if (editor === 'lyph') {
                 this.selectedLyphID = node;
             } else {
                 if (editor === 'chain') {
@@ -745,7 +845,7 @@ export class TestApp {
                     this.selectedCoalescenceID = node;
                 }
             }
-            this._tabGroup.selectedIndex += 1 ;
+            this._tabGroup.selectedIndex += 1;
         }
     }
 }
@@ -754,17 +854,17 @@ export class TestApp {
  * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
  */
 @NgModule({
-	imports     : [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, //ResourceEditorModule,
+    imports: [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, //ResourceEditorModule,
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
         LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, HubMapModule],
-	declarations: [TestApp, ImportDialog],
-	// declarations: [TestApp, ImportDialog, ResourceEditorDialog],
+    declarations: [TestApp, ImportDialog],
+    // declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog],
     // entryComponents: [ImportDialog, ResourceEditorDialog],
-    providers   : [
+    providers: [
         {
             provide: MatSnackBar,
             useClass: MatSnackBar
@@ -775,4 +875,5 @@ export class TestApp {
         }
     ]
 })
-export class TestAppModule {}
+export class TestAppModule {
+}

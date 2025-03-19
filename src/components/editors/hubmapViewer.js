@@ -41,7 +41,7 @@ export class HubMapComponent {
     }
 
     ngAfterViewInit() {
-        hubmapAnnotations.forEach(obj => this.annotationMap[obj.node] = obj.annotations);
+        hubmapAnnotations.forEach(obj => this.annotationMap[obj.node] = obj.annotations.map(s => s.substring(s.indexOf(" ")+1) ));
         const mapToNodes = (curr, parent, idx) => {
             let annotations = (curr.name in this.annotationMap)? this.annotationMap[curr.name]: null;
             return new HubMapTreeNode(curr._id, curr.name, curr._type, annotations, parent, idx,

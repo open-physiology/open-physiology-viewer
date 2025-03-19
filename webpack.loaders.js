@@ -41,7 +41,8 @@ module.exports = [
                  "process": false,
                  "fs": false,
                  "os": require.resolve("os-browserify"),
-                 "assert": require.resolve("assert")
+                 "assert": require.resolve("assert"),
+                 "buffer": require.resolve("buffer")
             },
         }
     }

@@ -94,10 +94,10 @@ const WindowResize = require('three-window-resize');
                                 (click)="exportResourceMapLDFlat()" title="Export flattened json-ld resource map">
                             <i class="fa fa-file-text-o"> </i>
                         </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportBondGraph()" title="Export Bond Graph for visible network">
-                            <i>bg</i>
-                        </button>
+<!--                        <button class="w3-bar-item w3-hover-light-grey"-->
+<!--                                (click)="exportBondGraph()" title="Export Bond Graph for visible network">-->
+<!--                            <i>bg</i>-->
+<!--                        </button>-->
                         <button *ngIf="graphData?.logger.status === graphData.logger.statusOptions.ERROR" class="w3-bar-item w3-hover-light-grey"
                                 (click)="showReport()" title="Show logs">
                             <i class="fa fa-exclamation-triangle" style="color:red"> </i>
@@ -490,13 +490,13 @@ export class WebGLSceneComponent {
         }
     }
 
-    exportBondGraph(){
-        if (this._graphData){
-            const structure = this._graphData.generateBondGraph();
-            let blob = new Blob([structure], {type: 'text/turtle'});
-            FileSaver.saveAs(blob, this._graphData.id + '-bg-components-' + this._graphData.uuid + '.ttl');
-        }
-    }
+    // exportBondGraph(){
+    //     if (this._graphData){
+    //         const structure = this._graphData.generateBondGraph();
+    //         let blob = new Blob([structure], {type: 'text/turtle'});
+    //         FileSaver.saveAs(blob, this._graphData.id + '-bg-components-' + this._graphData.uuid + '.ttl');
+    //     }
+    // }
 
     showReport(){
         const dialogRef = this.dialog.open(LogInfoDialog, {

@@ -509,7 +509,7 @@ export class CoalescenceEditorComponent {
     clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
             //Clean up all helper mods
-            const added = ['_class', '_generated'];
+            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
             added.forEach(prop => {
                 delete obj[prop];
             });

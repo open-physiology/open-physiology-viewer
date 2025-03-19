@@ -45,6 +45,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     (click)="toggleRepoPanel()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
            </button> 
+           <button id="commitBtn" class="w3-bar-item w3-hover-light-grey" (click)="commit()" title="Commit changes">
+               <i class="fa fa-code-commit"> </i>
+           </button>
            <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
                <i class="fa fa-file-excel-o"> </i>
            </button>
@@ -71,6 +74,7 @@ export class MainToolbar {
     @Output() onExportModel      = new EventEmitter();
     @Output() onToggleRepoPanel  = new EventEmitter();
     @Output() onImportExcelModel = new EventEmitter();
+    @Output() onModelCommit      = new EventEmitter();
 
     constructor(http: HttpClient, dialog: MatDialog){
         this._http = http;
@@ -129,6 +133,10 @@ export class MainToolbar {
             }
         }
         fileInput.value = '';
+    }
+
+    commit(){
+        this.onModelCommit.emit();
     }
 
     save(){

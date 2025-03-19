@@ -16,7 +16,8 @@ module.exports = [
     new webpack.ProvidePlugin({
         THREE: 'three',
         CSG: 'three-csg-ts',
-        process: 'process/browser'
+        process: 'process/browser',
+        Buffer: ['buffer', 'Buffer'],
     }),
     new LicensePlugin({
         stats: {
@@ -24,5 +25,8 @@ module.exports = [
             errors: false
         },
         outputFilename: 'meta/licenses-all.txt'
+    }),
+    new webpack.DefinePlugin({
+        'process.env.GITHUB_TOKEN': JSON.stringify(process.env.GITHUB_TOKEN)
     })
 ];
