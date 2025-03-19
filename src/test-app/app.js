@@ -506,7 +506,6 @@ export class TestApp {
         if (!GITHUB_TOKEN){
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
-        console.log(GITHUB_TOKEN)
         const BRANCH = "main";
         const FILE_CONTENT = JSON.stringify(this._model, null, 4);
         const COMMIT_MESSAGE = "Add/update JSON file via API";
@@ -544,7 +543,7 @@ export class TestApp {
                     if (!err) {
                         fileSHA = fileData.sha;
                     } else if (err.includes("404")) {
-                        console.log("ℹ️ File does not exist. Creating a new one.");
+                        this.showMessage("File does not exist. Creating a new one.");
                     } else {
                         console.error("❌ Error checking file existence:", err);
                         throw Error("Error checking file existence!");
