@@ -10,5 +10,7 @@
     "contentURL": "annotations/entities?includeCat=subcellular entity&includeCat=cell&includeCat=anatomical entity&content="
   },
   "mainURL": "https://api.github.com/repos/open-physiology/apinatomy-models/contents/models",
-  "repoURL": "https://api.github.com/repos/open-physiology/open-physiology-viewer/contents/test/data"
+  "repoURL": "https://api.github.com/repos/open-physiology/open-physiology-viewer/contents/test/data",
+  "storageURL": "https://api.github.com/repos/albatros13/apinatomy-models",
+  "initModel": "https://raw.githubusercontent.com/albatros13/apinatomy-models/main/wbrcm.json"
 }

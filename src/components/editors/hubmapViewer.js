@@ -36,7 +36,7 @@ export class HubMapComponent {
         this._snackBar = snackBar;
         this._snackBarConfig = {
             panelClass: ['w3-panel', 'w3-blue'],
-            duration: 1000
+            duration: 2000
         };
     }
 

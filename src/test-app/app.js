@@ -1,12 +1,13 @@
 import {NgModule, Component, ViewChild, ElementRef, ErrorHandler, ChangeDetectionStrategy} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-import {cloneDeep, clone, isArray, isObject, keys, merge, mergeWith, pick} from 'lodash-bound';
+import {cloneDeep, clone, isArray, keys, merge, mergeWith, pick} from 'lodash-bound';
 
 import {MatDialogModule, MatDialog} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatListModule} from '@angular/material/list'
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {HttpClient} from '@angular/common/http';
 
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
@@ -57,6 +58,7 @@ import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
 import {HubMapModule} from "../components/editors/hubmapViewer";
+import config from "../data/config.json";
 
 enableProdMode();
 
@@ -348,16 +350,29 @@ export class TestApp {
     @ViewChild('jsonEditor') _container: ElementRef;
     @ViewChild('tabGroup') _tabGroup: ElementRef;
 
-    constructor(dialog: MatDialog, snackBar: MatSnackBar) {
-        this.model = initModel;
+    constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
         this._dialog = dialog;
         this._flattenGroups = false;
 
         this._snackBar = snackBar;
         this._snackBarConfig = {
             panelClass: ['w3-panel', 'w3-green'],
-            duration: 1000
+            duration: 2000
         };
+
+        this.create();
+
+        const url = config.initModel;
+        http.get(url).subscribe(
+            res => {
+                this.model = res;
+                this.showMessage("Successfully loaded WBKG from GitHub!")
+            },
+            err => {
+                console.error(err);
+                this.showErrorMessage("Failed to load WBKG from GitHub!");
+            }
+        );
     }
 
     ngAfterViewInit() {
@@ -503,13 +518,13 @@ export class TestApp {
 
     commit() {
         const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-        if (!GITHUB_TOKEN){
+        if (!GITHUB_TOKEN) {
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
         const BRANCH = "main";
         const FILE_CONTENT = JSON.stringify(this._model, null, 4);
         const COMMIT_MESSAGE = "Add/update JSON file via API";
-        const BASE_URL = "https://api.github.com/repos/albatros13/apinatomy-models";
+        const BASE_URL = config.storageURL;
 
         // Helper function to make API requests with XMLHttpRequest
         function makeRequest(method, url, body = null, callback) {
@@ -579,6 +594,12 @@ export class TestApp {
         this._snackBar.open(message, "OK", this._snackBarConfig);
     }
 
+    showErrorMessage(message) {
+        this._snackBar.open(message, "Error", {
+            panelClass: ['w3-panel', 'w3-red'],
+            duration: 5000
+        });
+    }
 
     loadFromRepo({fileName, fileContent}) {
         let [name, extension] = fileExtensionRe.exec(fileName);
