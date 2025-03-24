@@ -20,7 +20,7 @@ import {
     clearMaterialRefs,
     prepareMaterialSearchOptions,
     replaceMaterialRefs,
-    prepareMaterialLyphMap
+    prepareMaterialLyphMap, prepareImportedMaterialLyphMap
 } from "../gui/utils";
 
 @Component({
@@ -353,6 +353,13 @@ export class LyphEditorComponent {
     prepareLyphTree() {
         this.entitiesByID = {};
         prepareMaterialLyphMap(this._model, this.entitiesByID);
+        //TODO Reenable when the code is adjusted to handle imported lyphs
+        // (this._model.groups||[]).forEach(g => {
+        //     if (g.imported && g.namespace !== this._model.namespace){
+        //         prepareImportedMaterialLyphMap(g, this.entitiesByID);
+        //     }
+        // });
+        let missing = new Set();
         //Prepare _subtype/_supertype hierarchy
         (this._model.lyphs || []).forEach(lyph => {
             if (lyph.supertype) {
@@ -362,10 +369,10 @@ export class LyphEditorComponent {
                     if (!supertype._subtypes.find(x => x.id === lyph.id)) {
                         supertype._subtypes.push(lyph);
                     }
+                    lyph._supertype = lyph.supertype;
                 } else {
-                    this.showMessage("No supertype definition found: " + lyph.supertype);
+                    missing.add(lyph.supertype)
                 }
-                lyph._supertype = lyph.supertype;
             }
             (lyph.subtypes || []).forEach(subtype => {
                 if (this.entitiesByID[subtype]) {
@@ -374,10 +381,13 @@ export class LyphEditorComponent {
                     }
                     this.entitiesByID[subtype]._supertype = lyph;
                 } else {
-                    this.showMessage(`No definition found for subtype ${subtype} of ${lyph.id}`);
+                    missing.add(subtype);
                 }
             });
         });
+        if (missing.size > 0){
+            this.showMessage("No lyph definitions found: " + [...missing].join(', '));
+        }
 
         //Recursively create lyph tree nodes
         const mapToNodes = (lyphOrID, parent, idx) => {

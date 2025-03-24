@@ -35,6 +35,7 @@ export const ICON = {
  * @property layerIndex
  * @property maxLayerIndex
  * @property inherited
+ * @property imported
  */
 export class LyphTreeNode {
     constructor(id, label, type, parent, length, children, isTemplate, index, resource) {
@@ -217,8 +218,8 @@ export class LyphTreeNode {
         <mat-menu #rightTreeMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-type="type" let-hasParent="hasParent" let-index="index"
                          let-hasChildren="hasChildren" let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown"
-                         let-inherited="inherited">
-                <div *ngIf="!inherited">
+                         let-inherited="inherited" let-imported="imported">
+                <div *ngIf="!inherited && !imported">
                     <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
                     <div *ngIf="type === 'Lyph' || type === 'Material'">
                         <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
@@ -288,6 +289,10 @@ export class LyphTreeNode {
 
         .template {
             background-color: ${COLORS.template};
+        }
+        
+       .imported {
+            background-color: ${COLORS.imported};
         }
 
         .undefined {
@@ -411,7 +416,7 @@ export class LyphTreeView {
     hasChild = (_, node) => node.expandable;
 
     onRightClick(e, node) {
-        if (!this.showMenu || node.inherited){
+        if (!this.showMenu || node.inherited || node.imported){
             return;
         }
         e.preventDefault();
@@ -425,7 +430,8 @@ export class LyphTreeView {
             index: node.index,
             canMoveUp: node.canMoveUp,
             canMoveDown: node.canMoveDown,
-            inherited: node.inherited
+            inherited: node.inherited,
+            imported: node.imported
         }
         this.matMenuTrigger.openMenu();
     }

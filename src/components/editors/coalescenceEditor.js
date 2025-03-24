@@ -13,7 +13,7 @@ import {ResourceListViewModule, ListNode} from "./resourceListView";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {DiffDialog} from "./diffDialog";
 
-import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "../gui/utils";
+import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
 
 @Component({
@@ -143,6 +143,12 @@ export class CoalescenceEditorComponent {
         this.entitiesByID = {};
         this.prepareCoalescenceList();
         prepareMaterialLyphMap(this._model, this.entitiesByID);
+        // Prepare lyphs from imported models
+        (this._model.groups||[]).forEach(g => {
+            if (g.imported && g.namespace !== this._model.namespace){
+                prepareImportedMaterialLyphMap(g, this.entitiesByID);
+            }
+        });
         this.updateLyphOptions();
         this.updateView((this._model?.coalescences || [])[0]);
         this.saveStep('Initial model');
@@ -237,8 +243,6 @@ export class CoalescenceEditorComponent {
             this.saveStep("Move down lyph " + index + " of coalescence " + this.selectedCoalescence.id);
         }
     }
-
-
 
     /**
      * Prepare list of lyph nodes used to define a selected coalescence

@@ -15,7 +15,7 @@ import {DiffDialog} from "./diffDialog";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
 
-import {prepareMaterialLyphMap, prepareLyphSearchOptions} from "../gui/utils";
+import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
 
 @Component({
@@ -146,6 +146,11 @@ export class ChainEditorComponent {
         this.entitiesByID = {};
         this.prepareChainList();
         prepareMaterialLyphMap(this._model, this.entitiesByID);
+        (this._model.groups||[]).forEach(g => {
+            if (g.imported && g.namespace !== this._model.namespace){
+                prepareImportedMaterialLyphMap(g, this.entitiesByID);
+            }
+        });
         this.updateLyphOptions();
         this.updateWireOptions();
         this.updateView((this._model?.chains||[])[0]) ;
