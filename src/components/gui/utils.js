@@ -1,5 +1,5 @@
 import {NgModule, Pipe, PipeTransform} from '@angular/core';
-import {isArray, isObject} from 'lodash-bound';
+import {isArray, isObject, clone} from 'lodash-bound';
 import {$Field, $SchemaClass} from "../../model";
 
 
@@ -187,6 +187,18 @@ export function replaceMaterialRefs(model, materialID, newMaterialID) {
     return model;
 }
 
+function assignID(resource, prefix, entitiesByID){
+    if (!resource.id) {
+        let counter = 1;
+        let newResourceID = prefix + counter;
+        while (entitiesByID[newResourceID]) {
+            newResourceID = prefix + ++counter;
+        }
+        resource._id = true;
+        resource.id = newResourceID;
+    }
+}
+
 /**
  * Create a map of lyphs and materials for input model editors
  * @param model
@@ -196,13 +208,7 @@ export function prepareMaterialLyphMap(model, entitiesByID) {
     (model.lyphs || []).forEach(lyph => {
         if (lyph::isObject()) {
             if (!lyph.id) {
-                let counter = 1;
-                let newLyphID = "tmpLyphID" + counter;
-                while (entitiesByID[newLyphID]) {
-                    newLyphID = "tmpLyphID" + ++counter;
-                }
-                lyph._id = true;
-                lyph.id = newLyphID;
+                assignID(lyph, "tmpLyphID", entitiesByID);
             }
             lyph._subtypes = [];
             delete lyph._supertype;
@@ -211,7 +217,10 @@ export function prepareMaterialLyphMap(model, entitiesByID) {
         }
     });
     (model.materials || []).forEach(material => {
-        if (material.id) {
+        if (material::isObject()) {
+            if (!material.id) {
+                assignID(material, "tmpMatID", entitiesByID);
+            }
             material._class = $SchemaClass.Material;
             entitiesByID[material.id] = material;
         }
@@ -223,32 +232,31 @@ export function prepareImportedMaterialLyphMap(model, entitiesByID) {
         console.error("Cannot process imported model without namespace: ", model.id);
         return;
     }
-    (model.lyphs || []).forEach(lyph => {
-        if (lyph::isObject()) {
-            if (!lyph.id) {
-                let counter = 1;
-                let newLyphID = "tmpLyphID" + counter;
-                while (entitiesByID[newLyphID]) {
-                    newLyphID = "tmpLyphID" + ++counter;
-                }
-                lyph._id = true;
-                lyph.id = model.namespace + ":" + newLyphID;
+    (model.lyphs || []).forEach(_lyph => {
+        if (_lyph::isObject()) {
+            let lyph = _lyph::clone();
+             if (!lyph.id) {
+                assignID(lyph, "tmpLyphID", entitiesByID);
             }
             lyph._subtypes = [];
             delete lyph._supertype;
             lyph._class = $SchemaClass.Lyph;
-            lyph.id = model.namespace + ":" + lyph.id;
             lyph.imported = true;
+            lyph.id = model.namespace + ":" + lyph.id;
             entitiesByID[lyph.id] = lyph;
         }
     });
-    (model.materials || []).forEach(material => {
-        if (material.id) {
+    (model.materials || []).forEach(_material => {
+        if (_material::isObject()) {
+            let material = _material::clone();
+             if (!material.id) {
+                assignID(material, "tmpMatID", entitiesByID);
+            }
             material._class = $SchemaClass.Material;
-            material.id = model.namespace + ":" + material.id;
             material.imported = true;
+            material.id = model.namespace + ":" + material.id;
             entitiesByID[material.id] = material;
-        }
+       }
     });
 }
 
@@ -257,17 +265,21 @@ export function prepareImportedMaterialLyphMap(model, entitiesByID) {
  * @param model
  * @returns {{id: *, label: string, type: string}[]}
  */
-export function prepareMaterialSearchOptions(model) {
-    let searchOptions = [];
+export function prepareMaterialSearchOptions(model, searchOptions = [], prefix="") {
     let classNames = [$SchemaClass.Material, $SchemaClass.Lyph];
     [$Field.materials, $Field.lyphs].forEach((prop, i) => {
         (model[prop] || []).forEach(e => searchOptions.push({
-            id: e.id,
-            label: (e.name || '?') + ' (' + e.id + ')',
+            id: prefix+e.id,
+            label: (e.name || '?') + ' (' + prefix+e.id + ')',
             type: e.isTemplate ? 'Template' : classNames[i]
         }));
     });
     searchOptions.sort();
+    (model.groups||[]).forEach(g => {
+        if (g.imported && g.namespace !== model.namespace){
+            prepareMaterialSearchOptions(g, searchOptions, g.namespace+":");
+        }
+    });
     return searchOptions;
 }
 
@@ -276,17 +288,17 @@ export function prepareMaterialSearchOptions(model) {
  * @param model
  * @returns {{id: *, label: string, type: string}[]}
  */
-export function prepareLyphSearchOptions(model, searchOptions = []) {
+export function prepareLyphSearchOptions(model, searchOptions = [], prefix="") {
     (model.lyphs || []).forEach(e => searchOptions.push({
-        id: e.id,
-        label: (e.name || '?') + ' (' + e.id + ')',
+        id: prefix+e.id,
+        label: (e.name || '?') + ' (' + prefix+e.id + ')',
         type: e.isTemplate ? 'Template' : $SchemaClass.Lyph
     }));
     searchOptions.sort();
     //Imported
     (model.groups||[]).forEach(g => {
         if (g.imported && g.namespace !== model.namespace){
-            prepareLyphSearchOptions(g, searchOptions);
+            prepareLyphSearchOptions(g, searchOptions, g.namespace+":");
         }
     });
     return searchOptions;

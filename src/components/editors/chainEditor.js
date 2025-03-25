@@ -444,6 +444,10 @@ export class ChainEditorComponent {
             if (!this.lyphToLink){
                 this.showMessage("Lyph is not selected!");
             } else {
+                if ((this.selectedChain.levels||[]).length > 0){
+                    this.showMessage("Cannot add lyphs - the chain is defined using levels!");
+                    return;
+                }
                 if (this._isValidChainLyph(this.lyphToLink)) {
                     this.selectedChain.lyphs = this.selectedChain.lyphs || [];
                     this.selectedChain.lyphs.push(this.lyphToLink.id);
