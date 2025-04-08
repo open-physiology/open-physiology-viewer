@@ -36,7 +36,7 @@ import {
 } from '../model/index';
 
 import 'hammerjs';
-import initModel from '../data/graph.json';
+import defaultTestModel from '../data/graph.json';
 
 import "./styles/material.scss";
 import 'jsoneditor/dist/jsoneditor.min.css';
@@ -360,8 +360,8 @@ export class TestApp {
             duration: 2000
         };
 
+        // this.model = defaultTestModel;
         this.create();
-
         const url = config.initModel;
         http.get(url).subscribe(
             res => {

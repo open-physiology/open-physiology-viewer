@@ -28,7 +28,7 @@ import {COLORS} from "../gui/utils";
     `,
     styles: [`
         .search-add-bar {
-            padding: 0 1.067rem 2rem 0; 
+            padding: 0 0.625rem 0.625rem 0; 
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
         }

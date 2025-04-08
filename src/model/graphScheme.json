@@ -390,6 +390,34 @@
             }
           ],
           "advanced": true
+        },
+        "laterals": {
+         "description": "Chains created by lateralization of this chain",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ],
+            "relatedTo": "lateralOf"
+          },
+          "advanced": true
+        },
+        "lateralOf": {
+          "description": "A chain used as prototype for the generation of this chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "advanced": true
         }
       }
     },

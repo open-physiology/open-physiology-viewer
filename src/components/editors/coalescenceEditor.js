@@ -35,14 +35,14 @@ import {$Field, $SchemaClass} from "../../model";
                 <section class="w3-col">
                     <resourceListView *ngIf="selectedCoalescence"
                                       title="Lyphs"
-                                      ordered="true"
+                                      ordered=true
                                       expectedClass="Lyph"
                                       [listData]="coalescenceLyphs"
                                       (onNodeClick)="selectLyph($event)"
                                       (onChange)="processLyphChange($event)"
                     >
                     </resourceListView>
-                </section>
+                </section> 
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
                         <button class="w3-bar-item w3-hover-light-grey"
@@ -81,7 +81,7 @@ import {$Field, $SchemaClass} from "../../model";
                     </section>
                 </section>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter w3-white" id="clsEditorEditPanel">
+            <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
@@ -96,7 +96,7 @@ import {$Field, $SchemaClass} from "../../model";
                 </resourceDeclaration>
                 <lyphTreeView *ngIf="selectedLyph"
                               title="Layers"
-                              ordered="true"
+                              ordered=true
                               [showMenu]=false
                               [treeData]="layerTree"
                 >
@@ -110,7 +110,7 @@ import {$Field, $SchemaClass} from "../../model";
             justify-content: space-between;
         }
                 
-        #clsEditorEditPanel{
+        .settings-panel{
           height: 100vh;
           overflow-y: auto;
           overflow-x: auto;

@@ -8,7 +8,7 @@ import {CheckboxFilterModule} from "./checkboxFilter";
 @Component({
     selector: 'uberonSearch',
     template:`
-        <div>
+        <div class="w3-margin-bottom">
             <mat-form-field>
                 <input matInput class="w3-input"
                        placeholder="content"
@@ -24,11 +24,11 @@ import {CheckboxFilterModule} from "./checkboxFilter";
                     <i class="fa fa-database"> </i>
                 </button>
             </div>
-            <div *ngIf="result" class="default-boxResult">
+            <div *ngIf="result" class="w3-margin-top w3-padding-24">
                 <label>Response</label>
                 <span>{{result}}</span>
             </div>
-            <div class="default-boxResult">
+            <div class="w3-block">
                 <checkboxFilter [options]="options"
                     (onOptionToggle)="updateOptions($event)"
                 ></checkboxFilter>

@@ -41,6 +41,8 @@ import {defaults, isObject, flatten, isString, values, merge} from 'lodash-bound
  * @property {Node} root
  * @property {Node} leaf
  * @property chainTopology
+ * @property {Array<Chain>} laterals
+ * @property {Chain} lateralOf
  */
 export class Chain extends GroupTemplate {
 

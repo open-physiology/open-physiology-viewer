@@ -17,51 +17,64 @@ import {COLORS} from "../gui/utils";
         <div class="resource-box">
             <div class="settings-wrap">
                 <div class="resource-boxContent">
-                    <!--ID-->
-                    <mat-form-field>
-                        <input matInput class="w3-input"
-                               placeholder="id"
-                               matTooltip="Identifier"
-                               [value]="resource?.id"
-                               (keyup.enter)="updateValue('id', $event.target.value)"
-                               (focusout)="updateValue('id', $event.target.value)"
-                        >
-                    </mat-form-field>
-                    <!--Name-->
-                    <mat-form-field>
-                        <input matInput class="w3-input"
-                               placeholder="name"
-                               matTooltip="Name"
-                               [value]="resource?.name"
-                               (keyup.enter)="updateValue('name', $event.target.value)"
-                               (focusout)="updateValue('name', $event.target.value)"
-                        >
-                    </mat-form-field>
-                    <!--Ontology terms-->
-                    <ul *ngFor="let term of resource?.ontologyTerms; let i = index; trackBy: trackByFn" class="w3-ul">
-                        <mat-form-field class="removable_field">
+                    <!--Basic properties-->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div class="w3-margin-bottom"><b>Definition</b></div>
+                        <!--ID-->
+                        <mat-form-field>
                             <input matInput class="w3-input"
-                                   placeholder="ontologyTerm"
-                                   matTooltip="Ontology term"
-                                   [value]="term"
-                                   (input)="updateOneOfMany('ontologyTerms', $event.target.value, i)"
+                                   placeholder="id"
+                                   matTooltip="Identifier"
+                                   [value]="resource?.id"
+                                   (keyup.enter)="updateValue('id', $event.target.value)"
+                                   (focusout)="updateValue('id', $event.target.value)"
                             >
                         </mat-form-field>
-                        <button mat-menu-item matTooltip="Remove ontologyTerm"
-                                (click)="deleteOneFromMany(term, 'ontologyTerms')" class="w3-right w3-hover-light-grey">
-                            <i class="fa fa-trash"></i>
+                        <!--Name-->
+                        <mat-form-field>
+                            <input matInput class="w3-input"
+                                   placeholder="name"
+                                   matTooltip="Name"
+                                   [value]="resource?.name"
+                                   (keyup.enter)="updateValue('name', $event.target.value)"
+                                   (focusout)="updateValue('name', $event.target.value)"
+                            >
+                        </mat-form-field>
+                    </div>
+                    <!--Ontology terms-->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div class="w3-margin-bottom"><b>Ontology terms</b></div>
+
+                        <ul *ngFor="let term of resource?.ontologyTerms; let i = index; trackBy: trackByFn"
+                            class="w3-ul">
+                            <mat-form-field class="removable_field">
+                                <input matInput class="w3-input"
+                                       placeholder="ontologyTerm"
+                                       matTooltip="Ontology term"
+                                       [value]="term"
+                                       (input)="updateOneOfMany('ontologyTerms', $event.target.value, i)"
+                                >
+                            </mat-form-field>
+                            <button mat-menu-item matTooltip="Remove ontologyTerm"
+                                    (click)="deleteOneFromMany(term, 'ontologyTerms')"
+                                    class="w3-right w3-hover-light-grey">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </ul>
+                        <button mat-menu-item matTooltip="Add ontologyTerm" (click)="addOneToMany('ontologyTerms')"
+                                class="w3-right w3-hover-light-grey">
+                            <i class="fa fa-add">
+                            </i>
                         </button>
-                    </ul>
-                    <button mat-menu-item matTooltip="Add ontologyTerm" (click)="addOneToMany('ontologyTerms')"
-                            class="w3-right w3-hover-light-grey">
-                        <i class="fa fa-add">
-                        </i>
-                    </button>
-                    <!--UBERON terms search-->
-                    <uberonSearch
-                        [content] = "resource?.name"
-                        (onInclude) = "addManyToMany('ontologyTerms', $event)"
-                    ></uberonSearch>
+                        <!--UBERON terms search-->
+                        <div class="w3-block">
+                            <uberonSearch
+                                    [content]="resource?.name"
+                                    (onInclude)="addManyToMany('ontologyTerms', $event)"
+                            ></uberonSearch>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -82,7 +95,7 @@ import {COLORS} from "../gui/utils";
         }
 
         .resource-box .resource-boxContent {
-            padding: 1.067rem;
+            padding: 0.625rem;
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
             font-weight: 500;
@@ -164,22 +177,22 @@ export class ResourceDeclarationEditor {
         }
     }
 
-    addManyToMany(prop, options){
-         if (this.resource) {
-             this.resource[prop] = this.resource[prop] || [];
-             let changed = false;
-             (options||[]).forEach(option => {
+    addManyToMany(prop, options) {
+        if (this.resource) {
+            this.resource[prop] = this.resource[prop] || [];
+            let changed = false;
+            (options || []).forEach(option => {
                 if (!this.resource[prop].find(x => x === option.id)) {
                     if (!option.disabled) {
                         this.resource[prop].push(option.id);
                         changed = true;
                     }
                 }
-             });
-             if (changed) {
-                 this.onValueChange.emit({prop: prop, value: this.resource[prop]});
-             }
-          }
+            });
+            if (changed) {
+                this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+            }
+        }
     }
 
     trackByFn(index, item) {

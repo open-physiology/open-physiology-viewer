@@ -352,7 +352,7 @@ const COLORS = {
         }
         
         .default-box .default-box-header {
-          padding: 1.067rem;
+          padding: 0.625rem;
           display: flex;
           align-items: center;
         }
@@ -445,7 +445,7 @@ const COLORS = {
         }
 
         .default-box .default-boxContent {
-          padding: 1.067rem;
+          padding: 0.625rem;
           font-size: 0.75rem;
           color: ${COLORS.inputTextColor};
           font-weight: 500;

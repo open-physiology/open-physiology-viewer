@@ -27,19 +27,21 @@ import {COLORS} from "./utils";
                 >
                 <mat-autocomplete #auto="matAutocomplete"
                                   (optionSelected)="this.selectedItemChange.emit($event.option.value)">
-                    <mat-option *ngFor="let option of _filteredOptions | async" [value]="option.label" [ngClass]="option.type">
+                    <mat-option *ngFor="let option of _filteredOptions | async" [value]="option.label"
+                                [ngClass]="option.type">
                         {{option.label}}
                     </mat-option>
                 </mat-autocomplete>
-                <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear" (click)="selectedItemChange.emit(null)">
+                <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear"
+                        (click)="selectedItemChange.emit(null)">
                     <i class="fa fa-close"> </i>
                 </button>
             </mat-form-field>
         </div>
     `,
-    styles: [` 
+    styles: [`
         .search-bar {
-            padding: 1.067rem;
+            padding: 0.625rem;
             flex-grow: 1;
             position: relative;
         }
@@ -52,8 +54,6 @@ import {COLORS} from "./utils";
             padding-left: 1.625rem;
             top: 1.5em;
             color: ${COLORS.inputPlacholderColor};
-            font-size: 0.75rem;
-            font-weight: 500;
         }
 
         .search-bar .mat-form-field-infix {
@@ -64,9 +64,6 @@ import {COLORS} from "./utils";
             margin: 0;
             height: 2.134rem;
             color: ${COLORS.inputTextColor};
-            font-weight: 500;
-            font-size: 0.8rem;
-            line-height: 1.067rem;
             padding: 0.5rem 2rem 0 2rem;
         }
 
@@ -93,9 +90,6 @@ import {COLORS} from "./utils";
             margin: 0;
             height: 2.134rem;
             color: ${COLORS.inputTextColor};
-            font-weight: 500;
-            font-size: 0.8rem;
-            line-height: 1.067rem;
             padding: 0 0.534rem 0 1.734rem;
         }
 
@@ -109,9 +103,6 @@ import {COLORS} from "./utils";
             width: 100%;
             height: 2.134rem;
             color: ${COLORS.inputTextColor};
-            font-weight: 500;
-            font-size: 0.8rem;
-            line-height: 1.067rem;
             padding: 0 0.534rem 0 1.734rem;
         }
 
@@ -139,41 +130,44 @@ import {COLORS} from "./utils";
 
         .search-bar .search-input::placeholder {
             color: ${COLORS.inputPlacholderColor};
-        }           
-        
+        }
+
         .mat-option {
             padding: 0;
             margin: 2px;
+            line-height: 28px;
+            height: 28px;
+            font-size: 12px;
         }
 
         .Lyph {
-            background-color: ${COLORS.lyph}; 
+            background-color: ${COLORS.lyph};
         }
-        
-        .Template{
-            background-color: ${COLORS.template}; 
+
+        .Template {
+            background-color: ${COLORS.template};
         }
-        
+
         .Material {
             background-color: ${COLORS.material};
         }
-        
+
         .Link {
             background-color: ${COLORS.link};
         }
-        
+
         .Node {
             background-color: ${COLORS.node};
         }
-        
+
         .Wire {
-             background-color: ${COLORS.link};
+            background-color: ${COLORS.link};
         }
-        
+
         .Anchor {
             background-color: ${COLORS.node};
         }
-        
+
         .Region {
             background-color: ${COLORS.region};
         }
@@ -190,29 +184,31 @@ export class SearchBar {
     _selected;
     _searchOptions;
 
-    @Input('selected') set selected(value){
+    @Input('selected') set selected(value) {
         this._selected = value;
-        if (!value){
+        if (!value) {
             this._clearFilter();
         } else {
             this._filter(value);
         }
     };
-    @Input('searchOptions') set searchOptions(newOptions){
+
+    @Input('searchOptions') set searchOptions(newOptions) {
         this._searchOptions = newOptions || [];
         this._clearFilter();
     };
+
     @Output() selectedItemChange = new EventEmitter();
     @Output() inputChange = new EventEmitter();
 
     _myControl = new FormControl();
     _filteredOptions: Observable<string[]>;
 
-    get searchOptions(){
+    get searchOptions() {
         return this._searchOptions;
     }
 
-    get selected(){
+    get selected() {
         return this._selected;
     }
 
@@ -223,12 +219,12 @@ export class SearchBar {
         this._clearFilter();
     }
 
-    _clearFilter(){
+    _clearFilter() {
         this._filteredOptions = this._myControl.valueChanges
-        .pipe(
-            startWith(''),
-            map(value => this._filter(value))
-        );
+            .pipe(
+                startWith(''),
+                map(value => this._filter(value))
+            );
     }
 
     _filter(name) {

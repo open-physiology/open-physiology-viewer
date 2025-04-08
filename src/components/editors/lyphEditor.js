@@ -57,7 +57,7 @@ import {
                 <section class="w3-col">
                     <lyphTreeView *ngIf="selectedLyph"
                                   title="Layers"
-                                  ordered="true"
+                                  ordered=true
                                   [active]="activeTree === 'layerTree'"
                                   [treeData]="layerTree"
                                   (onNodeClick)="selectLayer($event)"
@@ -115,7 +115,7 @@ import {
                     </section>
                 </section>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter w3-white" id="#lyphEditorEditPanel">
+            <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
@@ -131,14 +131,14 @@ import {
                 </lyphDeclaration>
                 <resourceListView
                         title="Chains"
-                        showMenu="false"
+                        [showMenu]="false"
                         [listData]="chainList"
                         (onNodeClick)="selectChain($event)"
                 >
                 </resourceListView>
                 <resourceListView
                         title="Coalescences"
-                        showMenu="false"
+                        [showMenu]="false"
                         [listData]="coalescenceList"
                         (onNodeClick)="selectCoalescence($event)"
                 >
@@ -152,7 +152,7 @@ import {
             justify-content: space-between;
         }
         
-        #lyphEditorEditPanel{
+        .settings-panel{
           height: 100vh;
           overflow-y: auto;
           overflow-x: auto;

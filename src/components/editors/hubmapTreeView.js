@@ -39,7 +39,7 @@ export class HubMapTreeNode {
             <div class="title w3-margin">
                 <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
             </div>
-            <mat-tree #tree id="tree" [dataSource]="dataSource" [treeControl]="treeControl">
+            <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node;" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
                     <span>
@@ -127,11 +127,12 @@ export class HubMapTreeNode {
             border: 3px solid darkgrey;
         }
 
-        .treeContainer {
+        .tree-container {
             height: 100vh;
+            overflow-y: auto;
         }
 
-        #tree {
+        .tree {
             height: 80vh;
             overflow-y: auto;
         }

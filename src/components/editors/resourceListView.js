@@ -10,6 +10,7 @@ import {MatListModule} from '@angular/material/list';
 import {isObject} from "lodash-bound";
 
 import {COLORS} from "../gui/utils";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 /**
  * @class
@@ -60,10 +61,10 @@ export class ListNode {
             <div class="title w3-margin">
                 <span class="w3-padding-small">{{title}}</span>
             </div>
-            <mat-nav-list id="nodeList" class="w3-padding-0">                
+            <mat-nav-list class="w3-padding-0 node-list">                
                 <mat-list-item *ngFor="let node of listData">
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey list-node" [ngClass]="{
+                    <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.label}} [ngClass]="{
                                'selected'    : node.id === (selectedNode?.id || selectedNode),
                                'lyph'        : node.class === 'Lyph',
                                'template'    : node.isTemplate || node.class === 'Template',
@@ -104,12 +105,15 @@ export class ListNode {
                     </button>
                     <button *ngIf="canMoveDown" mat-menu-item (click)="processOperation('down', item, index)">Move down
                     </button>
+                    <button *ngIf="splitable" mat-menu-item (click)="processOperation('split', item, index)">Split
+                    </button>
                 </div>
             </ng-template>
         </mat-menu>
 
     `,
     styles: [`
+      
         ::ng-deep .mat-menu-content {
             padding-top: 0 !important;
             padding-bottom: 0 !important;
@@ -124,7 +128,7 @@ export class ListNode {
         .mat-menu-item {
             line-height: 32px;
             height: 32px;
-        }
+        } 
 
         .list-node {
             border: 0.067rem solid lightgrey;
@@ -163,11 +167,11 @@ export class ListNode {
             border: 3px solid darkgrey;
         }
         
-        .listContainer{
+        .list-container{
             height: 100vh;
         }
-
-        #nodeList {
+        
+        .node-list {
             height: 80vh;
             overflow-y: auto;
         }
@@ -205,6 +209,7 @@ export class ResourceListView {
     @Input() expectedClass;
     @Input() selectedNode;
     @Input() showMenu = true;
+    @Input() splitable = false;
 
     @Input('listData') set model(newListData) {
         this._listData = newListData;
@@ -245,7 +250,7 @@ export class ResourceListView {
 }
 
 @NgModule({
-    imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule,
+    imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
         MatListModule, MatMenuModule],
     declarations: [ResourceListView],
     exports: [ResourceListView]

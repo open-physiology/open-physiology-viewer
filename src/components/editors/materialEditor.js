@@ -156,7 +156,7 @@ export class Edge {
                     </materialGraphViewer>
                </section>
             </section>
-            <section *ngIf="showPanel" class="w3-quarter w3-white" id="matEditorEditPanel">
+            <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
                 <searchAddBar 
                         [searchOptions]="searchOptions"
                         [selected]="matToLink"
@@ -314,7 +314,7 @@ export class Edge {
             stroke-width: 0;
         } 
         
-        #matEditorEditPanel{
+        .settings-panel{
           height: 100vh;
           overflow-y: auto;
           overflow-x: auto;

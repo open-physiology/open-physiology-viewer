@@ -12,6 +12,7 @@ import {isNumber, isObject} from "lodash-bound";
 
 import {COLORS} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 export const ICON = {
     LAYERS: "fa fa-bars",
@@ -105,7 +106,7 @@ export class LyphTreeNode {
                 if (loopStart) {
                     loops.push(lyph.id);
                 } else {
-                    res.children = (lyph[prop]||[]).map((e, i) => mapToNodes(e, lyph, i));
+                    res.children = (lyph[prop] || []).map((e, i) => mapToNodes(e, lyph, i));
                     if (includeInherited && lyph.supertype) {
                         let supertype = mapToNodes(lyph.supertype);
                         supertype.children.forEach(c => {
@@ -147,11 +148,11 @@ export class LyphTreeNode {
             <div class="title w3-margin">
                 <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
             </div>
-            <mat-tree #tree id="tree" [dataSource]="dataSource" [treeControl]="treeControl">
+            <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" [ngClass]="{
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                'lyph'     : node.type === 'Lyph',
                                'template' : node.isTemplate,
@@ -183,7 +184,7 @@ export class LyphTreeNode {
                             [attr.aria-label]="'Toggle ' + node.id">
                         <i class="fa fa-chevron-right"> </i>
                     </button>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" [ngClass]="{
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'lyph'     : node.type === 'Lyph', 
                                 'template' : node.isTemplate,
@@ -274,24 +275,24 @@ export class LyphTreeNode {
         .mat-icon-button {
             line-height: normal;
         }
-        
+
         .node-item {
             border: 0.067rem solid lightgrey;
         }
-        
+
         .lyph {
             background-color: ${COLORS.lyph};
         }
 
         .material {
-            background-color: ${COLORS.material}; 
+            background-color: ${COLORS.material};
         }
 
         .template {
             background-color: ${COLORS.template};
         }
-        
-       .imported {
+
+        .imported {
             background-color: ${COLORS.imported};
         }
 
@@ -303,16 +304,16 @@ export class LyphTreeNode {
         .selected {
             border: 3px solid darkgrey;
         }
-        
-        .treeContainer{
+
+        .tree-container {
             height: 100vh;
         }
 
-        #tree {
+        .tree {
             height: 80vh;
             overflow-y: auto;
         }
-        
+
         button {
             background: transparent;
             color: #797979;
@@ -320,7 +321,7 @@ export class LyphTreeNode {
             font-weight: 500;
             cursor: pointer;
         }
-        
+
         .icon-mini {
             transform: scale(0.7);
         }
@@ -362,7 +363,7 @@ export class LyphTreeView {
         }
     }
 
-    @Input('expanded') set expanded(isExpanded){
+    @Input('expanded') set expanded(isExpanded) {
         if (isExpanded) {
             this.treeControl.expandAll();
         } else {
@@ -416,7 +417,7 @@ export class LyphTreeView {
     hasChild = (_, node) => node.expandable;
 
     onRightClick(e, node) {
-        if (!this.showMenu || node.inherited || node.imported){
+        if (!this.showMenu || node.inherited || node.imported) {
             return;
         }
         e.preventDefault();
@@ -451,7 +452,7 @@ export class LyphTreeView {
 }
 
 @NgModule({
-    imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule,
+    imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
         MatTreeModule, MatMenuModule],
     declarations: [LyphTreeView],
     exports: [LyphTreeView]
