@@ -346,19 +346,7 @@ export class LyphEditorComponent {
         }
     }
 
-    /**
-     * Create a hierarchy of defined lyphs
-     * @returns {({}|LyphTreeNode)[]}
-     */
-    prepareLyphTree() {
-        this.entitiesByID = {};
-        prepareMaterialLyphMap(this._model, this.entitiesByID);
-        //TODO Reenable when the code is adjusted to handle imported lyphs
-        // (this._model.groups||[]).forEach(g => {
-        //     if (g.imported && g.namespace !== this._model.namespace){
-        //         prepareImportedMaterialLyphMap(g, this.entitiesByID);
-        //     }
-        // });
+    collectSubtypes(){
         let missing = new Set();
         //Prepare _subtype/_supertype hierarchy
         (this._model.lyphs || []).forEach(lyph => {
@@ -376,6 +364,7 @@ export class LyphEditorComponent {
             }
             (lyph.subtypes || []).forEach(subtype => {
                 if (this.entitiesByID[subtype]) {
+                    lyph._subtypes = lyph._subtypes || [];
                     if (!lyph._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
                         lyph._subtypes.push(this.entitiesByID[subtype]);
                     }
@@ -388,7 +377,22 @@ export class LyphEditorComponent {
         if (missing.size > 0){
             this.showMessage("No lyph definitions found: " + [...missing].join(', '));
         }
+    }
 
+    /**
+     * Create a hierarchy of defined lyphs
+     * @returns {({}|LyphTreeNode)[]}
+     */
+    prepareLyphTree() {
+        this.entitiesByID = {};
+        prepareMaterialLyphMap(this._model, this.entitiesByID);
+        //TODO Reenable when the code is adjusted to handle imported lyphs
+        // (this._model.groups||[]).forEach(g => {
+        //     if (g.imported && g.namespace !== this._model.namespace){
+        //         prepareImportedMaterialLyphMap(g, this.entitiesByID);
+        //     }
+        // });
+        this.collectSubtypes();
         //Recursively create lyph tree nodes
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};

@@ -1,84 +1,82 @@
 import * as rdf from "rdflib";
 
-const prefixes = {
-    rdf:  'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
-    xsd:  'http://www.w3.org/2001/XMLSchema#',
-    bg:   'http://celldl.org/ontologies/bondgraph#',
-    lib:  'http://celldl.org/templates/vascular#',
-    tpl:  'http://celldl.org/ontologies/model-template#', //This does not exist yet
-    //TODO Added this to get rid of "JS error, Profile: NamedNode IRI must be absolute"
-    apinatomy: 'http://apinatomy.org/models/vascular#',
-};
 
-const ns = {};
-for (const [key, value] of Object.entries(prefixes)) {
-    ns[key] = rdf.Namespace(value);
+export function createBG(bgLinks) {
+    const store = rdf.graph();
+
+    const prefixes = {
+        rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+        rdfs: 'http://www.w3.org/2000/01/rdf-schema#',
+        xsd: 'http://www.w3.org/2001/XMLSchema#',
+        cdt: 'https://w3id.org/cdt/',
+        bg: 'http://celldl.org/ontologies/bond-graph#',
+        lib: 'http://celldl.org/templates/vascular#',
+        tpl: 'http://celldl.org/ontologies/model-template#'
+    };
+
+    const ns = {};
+    for (const [key, value] of Object.entries(prefixes)) {
+        ns[key] = rdf.Namespace(value);
+    }
+
+    const fake = "http://xxx.com#";
+    const empty = "http://yyy.com#";
+
+    function addComponent(store, model, templateName, input, output, params, values, isInput, isOutput) {
+        const component = rdf.blankNode();
+        const interface1 = rdf.blankNode();
+        const interface2 = rdf.blankNode();
+        const interface3 = rdf.blankNode();
+        const quantities = rdf.blankNode();
+
+        store.add(interface1, ns.bg('node'),  rdf.sym(empty+"u_"+input));
+        store.add(interface1, ns.tpl('node'), rdf.sym(fake+params[0]));
+        store.add(interface2, ns.bg('node'),  rdf.sym(empty+"v_"+output));
+        store.add(interface2, ns.tpl('node'), rdf.sym(fake+params[1]));
+        store.add(interface3, ns.bg('node'),  rdf.sym(empty+"u_" + output));
+        store.add(interface3, ns.tpl('node'), rdf.sym(fake+params[2]));
+
+        store.add(component, ns.tpl('template'), ns.lib(templateName));
+        store.add(component, ns.tpl('interface'), interface1);
+        store.add(component, ns.tpl('interface'), interface2);
+        store.add(component, ns.tpl('interface'), interface3);
+
+        store.add(model, ns.bg('component'), component);
+
+        const ucum = rdf.namedNode(ns.cdt('ucum'));
+        if (isInput) {
+            store.add( rdf.sym(empty+"u_"+input), ns.bg('value'), rdf.literal(values[0], ucum));
+        } else {
+            if (isOutput) {
+                store.add( rdf.sym(empty+"u_"+output), ns.bg('value'), rdf.literal(values[2], ucum));
+            } else {
+                store.add( rdf.sym(empty+"v_"+output), ns.bg('quantities'), quantities);
+                store.add(quantities, ns.bg('quantity'), ns.lib('resistance'));
+                store.add(quantities, ns.bg('name'),  rdf.sym(empty+'R_'+output));
+                store.add(quantities, ns.bg('value'), rdf.literal(values[1], ucum));
+            }
+        }
+    }
+
+    function createBGLink(store, componentName, templateName, source, target, isInput, isOutput) {
+        const model = rdf.sym(empty+componentName);
+        store.add(model, ns.rdf('type'), ns.bg('Model'));
+        store.add(model, ns.rdfs('label'), rdf.literal('ApiNATOMY model'));
+
+        addComponent(store, model,
+            templateName,
+            source, target,
+            ["pressure_1", "flow", "pressure_2"],
+            ['16 kPa', '100 kPa.s/L', '5 kPa'],
+            isInput, isOutput
+        );
+    }
+
+    bgLinks.forEach(link => {
+        const isInput = (link.source.targetOf || []).filter(lnk => lnk.isVisible && lnk.geometry !== "invisible").length === 0;
+        const isOutput = (link.target.sourceOf || []).filter(lnk => lnk.isVisible && lnk.geometry !== "invisible").length === 0;
+        createBGLink(store, 'apinatomy-model', 'segment-template', link.source.id, link.target.id, isInput, isOutput);
+    });
+    return store;
 }
 
-export function addTemplate(store, templateName){
-    const segmentTemplate = ns.lib(templateName);
-    store.add(segmentTemplate, ns.rdf('type'), ns.tpl('Template'));
-    store.add(segmentTemplate, ns.rdfs('label'), rdf.literal('Vascular segment template'));
-    store.add(segmentTemplate, ns.bg('model'), rdf.sym('https://models.physiomeproject.org/exposure/segment-model'));
-
-    // Add ports
-    const port1 = rdf.blankNode();
-    store.add(port1, ns.rdf('type'), ns.tpl('Port'));
-    store.add(port1, ns.tpl('id'), ns.lib(`${templateName}-node-1`));
-    store.add(port1, ns.rdfs('label'), rdf.literal('Input pressure'));
-
-    const port2 = rdf.blankNode();
-    store.add(port2, ns.rdf('type'), ns.tpl('Port'));
-    store.add(port2, ns.tpl('id'), ns.lib(`${templateName}-node-2`));
-    store.add(port2, ns.rdfs('label'), rdf.literal('Output pressure'));
-
-    store.add(segmentTemplate, ns.tpl('port'), port1);
-    store.add(segmentTemplate, ns.tpl('port'), port2);
-
-    // Add parameters
-    const parameter = rdf.blankNode();
-    store.add(parameter, ns.rdf('type'), ns.tpl('Parameter'));
-    store.add(parameter, ns.tpl('id'), ns.lib('segment-parameter-1'));
-    store.add(parameter, ns.rdfs('label'), rdf.literal('Parameter description'));
-
-    // Units, min, max, and default values can be added here as additional triples.
-    store.add(segmentTemplate, ns.tpl('parameter'), parameter);
-
-    // Add states
-    const state = rdf.blankNode();
-    store.add(state, ns.rdf('type'), ns.tpl('State'));
-    store.add(state, ns.tpl('id'), ns.lib('segment-state-1'));
-    store.add(state, ns.rdfs('label'), rdf.literal('State description'));
-    // Units, min, max, and default values can be added here as additional triples.
-
-    store.add(segmentTemplate, ns.tpl('state'), state);
-}
-
-function addComponent(store, model, template, port1, port2, id1, id2) {
-    const component = rdf.blankNode();
-    store.add(model, ns.bg('component'), component);
-    store.add(component, ns.tpl('template'), template);
-
-    const connection1 = rdf.blankNode();
-    store.add(component, ns.tpl('connection'), connection1);
-    store.add(connection1, ns.tpl('port'), port1);
-    store.add(connection1, ns.tpl('id'), id1);
-
-    const connection2 = rdf.blankNode();
-    store.add(component, ns.tpl('connection'), connection2);
-    store.add(connection2, ns.tpl('port'), port2);
-    store.add(connection2, ns.tpl('id'), id2);
-}
-
-export function createBGLink(store, componentName, templateName, source, target) {
-    const model = ns.apinatomy(componentName);
-    store.add(model, ns.rdf('type'), ns.bg('Model'));
-    addComponent(store, model,
-        ns.lib(templateName),
-        ns.lib(`${templateName}-node-1`),
-        ns.lib(`${templateName}-node-2`),
-        ns.tpl(`${source}`),
-        ns.tpl(`${target}`)
-    );
-}

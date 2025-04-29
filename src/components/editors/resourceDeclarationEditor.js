@@ -8,7 +8,7 @@ import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 
 import {UberonOptionsModule} from './uberonOptionsBar';
 
-import {$Field} from "../../model";
+import {$Field, getGenID} from "../../model";
 import {COLORS} from "../gui/utils";
 
 @Component({
@@ -172,7 +172,7 @@ export class ResourceDeclarationEditor {
     addOneToMany(prop) {
         if (this.resource) {
             this.resource[prop] = this.resource[prop] || [];
-            this.resource[prop].push(this.resource.id + "_" + prop + "_new_" + (this.resource[prop].length + 1));
+            this.resource[prop].push(getGenID(this.resource.id, prop, "new", this.resource[prop].length + 1));
             this.onValueChange.emit({prop: prop, value: this.resource[prop]});
         }
     }

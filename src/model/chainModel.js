@@ -20,7 +20,7 @@ import {
     $Field,
     $Color,
     $Prefix,
-    $SchemaClass, genResource, findResourceByID
+    $SchemaClass, genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, flatten, isString, values, merge} from 'lodash-bound';

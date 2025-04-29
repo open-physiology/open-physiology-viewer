@@ -8,15 +8,16 @@ import {SearchAddBarModule} from "./searchAddBar";
 import {CheckboxFilterModule} from "./checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, values} from 'lodash-bound';
+import {cloneDeep, isObject, sortBy, values} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {DiffDialog} from "./diffDialog";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
+// import {ResourceTreeViewModule, ResourceTreeNode} from "./resourceTreeView";
 
 import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
-import {$Field, $SchemaClass} from "../../model";
+import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
 
 @Component({
     selector: 'chainEditor',
@@ -33,6 +34,16 @@ import {$Field, $SchemaClass} from "../../model";
                             (onChange)="processChainChange($event)"
                     >
                     </resourceListView>
+                    <!--                    <resourceTreeView-->
+                    <!--                            title="Chains"-->
+                    <!--                            [active]=true-->
+                    <!--                            [expanded]=true-->
+                    <!--                            [treeData]="chainTree"-->
+                    <!--                            [selectedNode]="selectedNode"-->
+                    <!--                            (onNodeClick)="selectChain($event)"-->
+                    <!--                            (onChange)="processChainChange($event)"-->
+                    <!--                    >-->
+                    <!--                    </resourceTreeView>-->
                 </section>
                 <section class="w3-col">
                     <resourceListView *ngIf="selectedChain"
@@ -47,14 +58,14 @@ import {$Field, $SchemaClass} from "../../model";
                     </resourceListView>
                 </section>
                 <section *ngIf="selectedChain?.levels" class="w3-col">
-                    <resourceListView 
-                                      title="Levels"
-                                      [showMenu]="false"
-                                      ordered=true
-                                      expectedClass="Link"
-                                      [listData]="chainLevels"
-                                      (onNodeClick)="selectLevel($event)"
-                                      (onChange)="processLevelChange($event)"
+                    <resourceListView
+                            title="Levels"
+                            [showMenu]="false"
+                            ordered=true
+                            expectedClass="Link"
+                            [listData]="chainLevels"
+                            (onNodeClick)="selectLevel($event)"
+                            (onChange)="processLevelChange($event)"
                     >
                     </resourceListView>
                 </section>
@@ -105,7 +116,7 @@ import {$Field, $SchemaClass} from "../../model";
                 >
                 </searchAddBar>
                 <chainDeclaration
-                        [lyph]="selectedChain"
+                        [chain]="selectedChain"
                         [wireOptions]="wireOptions"
                         (onValueChange)="updateProperty($event)"
                         (onCreateLateral)="createLateral($event)"
@@ -145,6 +156,7 @@ export class ChainEditorComponent {
     _selectedNode;
 
     chainList;
+    chainTree = [];
     searchOptions;
     steps = [];
     currentStep = 0;
@@ -159,6 +171,7 @@ export class ChainEditorComponent {
         this.currentStep = 0;
         this.entitiesByID = {};
         this.prepareChainList();
+        // this.prepareChainTree();
         prepareMaterialLyphMap(this._model, this.entitiesByID);
         (this._model.groups || []).forEach(g => {
             if (g.imported && g.namespace !== this._model.namespace) {
@@ -222,7 +235,58 @@ export class ChainEditorComponent {
                 this.chainList.push(node);
             }
         });
+        this.collectLaterals();
     }
+
+    collectLaterals() {
+        const missing = new Set();
+        (this._model.chains || []).forEach(chain => {
+            if (chain.lateralOf) {
+                let supertype = this.entitiesByID[chain.lateralOf];
+                if (supertype) {
+                    supertype._subtypes = supertype._subtypes || [];
+                    if (!supertype._subtypes.find(x => x.id === chain.id)) {
+                        supertype._subtypes.push(chain);
+                    }
+                    chain._supertype = chain.lateralOf;
+                } else {
+                    missing.add(chain.lateralOf)
+                }
+            }
+            (chain.laterals || []).forEach(subtype => {
+                if (this.entitiesByID[subtype]) {
+                    chain._subtypes = chain._subtypes || [];
+                    if (!chain._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
+                        chain._subtypes.push(this.entitiesByID[subtype]);
+                    }
+                    this.entitiesByID[subtype]._supertype = chain;
+                } else {
+                    missing.add(subtype);
+                }
+            });
+        });
+        if (missing.size > 0) {
+            this.showMessage("No chain definitions found: " + [...missing].join(', '));
+        }
+    }
+
+    // prepareChainTree() {
+    //     //Recursively create resource tree nodes
+    //     collectLaterals();
+    //     const mapToNodes = (objOrID, parent, idx) => {
+    //         if (!objOrID) return {};
+    //         let resource = objOrID.id ? objOrID : this.entitiesByID[objOrID];
+    //         let length = (parent?._subtypes || []).length || 0;
+    //         let res = ResourceTreeNode.createInstance(resource, parent, idx, length);
+    //         resource._node = res;
+    //         if (resource._subtypes) {
+    //             res.children = resource._subtypes.map((x, i) => mapToNodes(x, resource, i)).filter(x => x);
+    //         }
+    //         return res;
+    //     };
+    //     let treeData = (this._model.chains || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
+    //     this.chainTree = treeData::sortBy([$Field.id]);
+    // }
 
     /**
      * Select chain
@@ -262,35 +326,49 @@ export class ChainEditorComponent {
         }
     }
 
-    split(node, index){
+    split(node, index) {
         if (this.selectedChain) {
             let headLyphs = this.selectedChain.lyphs.slice(0, index);
             let tailLyphs = this.selectedChain.lyphs.slice(index + 1);
-            if (headLyphs.length === 0 || tailLyphs.length === 0){
+            if (headLyphs.length === 0 || tailLyphs.length === 0) {
                 this.showMessage("Splitting cannot lead to a chain with no lyphs. Create a new chain instead!");
                 return;
             }
             let nodeID = "n-split_" + node.id.replace("lyph_", "").replace("lyph-", "");
             // The main chain gets shorter
-            this.selectedChain.left = nodeID;
             this.selectedChain.lyphs = headLyphs;
             this.selectedChain.leaf = nodeID;
 
             let tailChain = {
-                "id": this.selectedChain.id + "-tail",
-                "root": nodeID,
-                "name": this.selectedChain.name + " tail",
-                "lyphs": tailLyphs,
+                [$Field.id]: getGenID(this.selectedChain.id, $Prefix.tail),
+                [$Field.name]: getGenName(this.selectedChain.name, $Prefix.tail),
+                [$Field.lyphs]: tailLyphs,
+                [$Field.root]: nodeID
             }
+            const oldName = this.selectedChain.name;
             if (this.selectedChain.name?.includes("->")) {
                 const [root, leaf] = this.selectedChain.name.split(/\s*->\s*/);
                 if (node.label?.includes("->")) {
                     const [start, end] = node.label.split(/\s*->\s*/);
                     this.selectedChain.name = this.selectedChain.name.replace(leaf, end);
-                    tailChain.name = end + " -> " + leaf;
+                    tailChain.name = getGenName(end, "->", leaf);
                 }
             }
-            tailChain = this.createChain(tailChain);
+            // Create a group to place both head and tail
+            const gID = getGenID($Prefix.gParts, this.selectedChain.id);
+            let group = (this._model.groups || []).find(g => g.id === gID) || {
+                [$Field.id]: gID,
+                [$Field.name]: getGenName("Parts of", oldName || this.selectedChain.id)
+            }
+            group.chains = group.chains || [];
+            if (!group.chains.find(c => c.id === this.selectedChain.id)) {
+                group.chains.push(this.selectedChain.id);
+            }
+            group.chains.push(tailChain.id);
+            this._model.groups = this._model.groups || [];
+            this._model.groups.push(group);
+
+            tailChain = this.createChain(tailChain, false);
             tailChain.lyphs = tailLyphs;
 
             this.prepareChainLyphs();
@@ -333,7 +411,7 @@ export class ChainEditorComponent {
             res.push(node);
         });
         this.chainLyphs = res;
-        if (this.selectedChain?.levels){
+        if (this.selectedChain?.levels) {
             this.prepareChainLevels();
         }
     }
@@ -399,7 +477,7 @@ export class ChainEditorComponent {
     /**
      * Create a new chain
      */
-    createChain(_chain) {
+    createChain(_chain, register = true) {
         const defineNewChain = () => {
             let newCounter = 1;
             let newID = "_newChain" + newCounter;
@@ -408,7 +486,7 @@ export class ChainEditorComponent {
             }
             return {
                 [$Field.id]: newID,
-                [$Field.name]: "New chain " + newCounter
+                [$Field.name]: getGenName("New chain", newCounter)
             }
         }
         const chain = _chain || defineNewChain();
@@ -420,7 +498,9 @@ export class ChainEditorComponent {
         let node = ListNode.createInstance(chain);
         this.chainList = [node, ...this.chainList];
         this.selectChain(chain.id);
-        this.saveStep("Create chain " + chain.id);
+        if (register) {
+            this.saveStep("Create chain " + chain.id);
+        }
         return chain;
     }
 
@@ -479,12 +559,12 @@ export class ChainEditorComponent {
                 this.defineAsLyph(node, index);
                 break;
             case "split":
-                this.split(node,index);
+                this.split(node, index);
                 break;
         }
     }
 
-    processLevelChange(operation, node, index){
+    processLevelChange(operation, node, index) {
         this.showMessage("Operations on levels not supported!");
     }
 
@@ -608,7 +688,7 @@ export class ChainEditorComponent {
 
     clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
-            const added = ['_class', '_generated'];
+            const added = ['_class', '_generated', '_subtypes', '_supertype'];
             added.forEach(prop => {
                 delete obj[prop];
             });
@@ -706,20 +786,20 @@ export class ChainEditorComponent {
 
     createLateral(lateralPrefix) {
         if (this.selectedChain) {
-            const prefixID = lateralPrefix || "lateral";
+            const prefixID = lateralPrefix || $Prefix.lateral;
             const prefixName = prefixID.charAt(0).toUpperCase() + prefixID.slice(1);
 
             function getResourceCopy(r) {
                 let copy = r::cloneDeep();
-                copy.id = `${prefixID}-${r.id}`;
-                copy.name = `${prefixName}-${r.name}`;
+                copy.id = getGenID(prefixID, r.id);
+                copy.name = getGenName(prefixName, r.name);
                 return copy;
             }
 
             const isLyphInstance = id => {
                 if (id.includes(":")) return false;
                 const lyph = this.entitiesByID[id];
-                return (lyph && !lyph._cloning && lyph._class === "Lyph" && !lyph.isTemplate);
+                return (lyph && !lyph._cloning && lyph._class === $SchemaClass.Lyph && !lyph.isTemplate);
             }
 
             const copyLyph = id => {
@@ -734,12 +814,12 @@ export class ChainEditorComponent {
                 const lyphCopy = getResourceCopy(lyph);
                 //Layers
                 if (lyph.layers) {
-                    lyphCopy.layers = lyph.layers.map(id => isLyphInstance(id) ? `${prefixID}-${id}` : id);
+                    lyphCopy.layers = lyph.layers.map(id => isLyphInstance(id) ? getGenID(prefixID, id) : id);
                     lyph.layers.forEach(id => copyLyph(id));
                 }
                 //Internal lyphs
                 if (lyph.internalLyphs) {
-                    lyphCopy.internalLyphs = lyph.internalLyphs.map(id => isLyphInstance(id) ? `${prefixID}-${id}` : id);
+                    lyphCopy.internalLyphs = lyph.internalLyphs.map(id => isLyphInstance(id) ? getGenID(prefixID, id) : id);
                     lyph.internalLyphs.forEach(id => copyLyph(id));
                 }
                 this._model.lyphs.push(lyphCopy);
@@ -764,12 +844,12 @@ export class ChainEditorComponent {
                 if (link && link._class === $SchemaClass.Link) {
                     const linkCopy = getResourceCopy(link);
                     if (link.conveyingLyph && isLyphInstance(link.conveyingLyph)) {
-                        linkCopy.conveyingLyph = `${prefixID}-${link.conveyingLyph}`;
+                        linkCopy.conveyingLyph = getGenID(prefixID, link.conveyingLyph);
                         copyLyph(link.conveyingLyph);
                     }
                     ["source", "target"].forEach(prop => {
                         if (link[prop]) {
-                            linkCopy[prop] = `${prefixID}-${link[prop]}`;
+                            linkCopy[prop] = getGenID(prefixID, link[prop]);
                             copyNode(link[prop]);
                         }
                     });
@@ -779,23 +859,38 @@ export class ChainEditorComponent {
 
             const chain = getResourceCopy(this.selectedChain);
             if (this.selectedChain.lyphs) {
-                chain.lyphs = this.selectedChain.lyphs.map(id => isLyphInstance(id)? `${prefixID}-${id}`: id);
+                chain.lyphs = this.selectedChain.lyphs.map(id => isLyphInstance(id) ? getGenID(prefixID, id) : id);
                 this.selectedChain.lyphs.forEach(id => copyLyph(id));
-
             } else {
                 if (this.selectedChain.levels) {
                     // Levels are links that connect to a chain - need to clone link definitions
-                    chain.levels = this.selectedChain.levels.map(id => `${prefixID}-${id}`);
+                    chain.levels = this.selectedChain.levels.map(id => getGenID(prefixID, id));
                     this.selectedChain.levels.forEach(id => copyLink(id));
                 }
             }
             // Make lateral chain disconnected by default
-            delete chain.root;
-            delete chain.leaf;
+            // delete chain.root;
+            // delete chain.leaf;
 
             chain.lateralOf = this.selectedChain.id;
             this.selectedChain.laterals = this.selectedChain.laterals || [];
             this.selectedChain.laterals.push(chain.id);
+
+            // Put lateral copy to the common group
+            let groups = (this._model.groups || []).filter(g => g.id.startsWith($Prefix.gParts) && (g.chains || []).find(c => this.selectedChain.id === c.id));
+            if (groups.length === 0) {
+                this._model.groups = this._model.groups || [];
+                this._model.groups.push({
+                    [$Field.id]: getGenID($Prefix.gParts, this.selectedChain.id),
+                    [$Field.name]: getGenName($Prefix.gParts, this.selectedChain.name || this.selectedChain.id),
+                    [$Field.chains]: [this.selectedChain.id, chain.id]
+                });
+            } else {
+                groups.forEach(g => {
+                    g.chains.push(chain.id);
+                });
+            }
+
             this.createChain(chain);
         }
     }
@@ -804,7 +899,7 @@ export class ChainEditorComponent {
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
-        LyphTreeViewModule],
+        LyphTreeViewModule],// ResourceTreeViewModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]
 })

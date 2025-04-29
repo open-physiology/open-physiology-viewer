@@ -14,11 +14,6 @@ import {COLORS} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
-export const ICON = {
-    LAYERS: "fa fa-bars",
-    INTERNAL: "fa fa-building-o",
-    INHERITED: "fa fa-lock"
-}
 
 /**
  * @class
@@ -29,53 +24,38 @@ export const ICON = {
  * @property parent
  * @property length
  * @property children
- * @property isTemplate
  * @property index
  * @property resource
  * @property icons
- * @property layerIndex
- * @property maxLayerIndex
- * @property inherited
  * @property imported
  */
-export class LyphTreeNode {
-    constructor(id, label, type, parent, length, children, isTemplate, index, resource) {
+export class ResourceTreeNode {
+    constructor(id, label, type, parent, length, children, index, resource) {
         this.id = id;
         this.label = label;
         this.parent = parent;
         this.length = length;
         this.children = children;
-        this.isTemplate = isTemplate;
         this.type = type;
         this.index = index;
         this.resource = resource;
         this.icons = [];
-        this.canMoveUp = index > 0 && this.length > 1;
-        this.canMoveDown = index < this.length - 1;
-        if (this.resource?.hasOwnProperty($Field.internalInLayer)) {
-            this.layerIndex = this.resource.internalInLayer;
-        }
-        if (this.parent?.internalLyphs && this.parent?.internalLyphsInLayers) {
-            if (this.index < this.parent?.internalLyphsInLayers.length) {
-                this.layerIndex = this.parent.internalLyphsInLayers[this.index];
-            }
-        }
     }
 
     /**
-     * Create lyph tree node for a given ApiNATOMY lyph object or its ID
-     * @param lyphOrID - lyph object or its identifier
+     * Create resource tree node for a given ApiNATOMY resource object or its ID
+     * @param objOrID - lyph object or its identifier
      * @param parent - lyph's parent in the tree (e.g., supertype)
      * @param idx - position of the node among its siblings
      * @param length - total number of siblings
-     * @returns {LyphTreeNode} - generated tree node to display in the mat-tree-based component
+     * @returns {ResourceTreeNode} - generated tree node to display in the mat-tree-based component
      * @public
      */
-    static createInstance(lyphOrID, parent, idx, length = 0) {
-        if (lyphOrID::isObject()) {
-            return new this(lyphOrID.id, lyphOrID.name, lyphOrID._class || $SchemaClass.Lyph, parent, length, [], lyphOrID.isTemplate, idx, lyphOrID);
+    static createInstance(objOrID, parent, idx, length = 0) {
+        if (objOrID::isObject()) {
+            return new this(objOrID.id, objOrID.name, objOrID._class || "Undefined", parent, length, [], idx, objOrID);
         } else {
-            return new this(lyphOrID, "Generated " + lyphOrID, "Undefined", parent, length, [], false, idx, undefined);
+            return new this(objOrID, "Generated " + objOrID, "Undefined", parent, length, [], idx, undefined);
         }
     }
 
@@ -85,7 +65,7 @@ export class LyphTreeNode {
      * @param entitiesByID - map of all resources
      * @param prop - property to build the hierarchy
      * @param includeInherited - indicates whether to include supertype properties into the hierarchy
-     * @returns {([({}|LyphTreeNode)]|[])[]}
+     * @returns {([({}|ResourceTreeNode)]|[])[]}
      * @public
      */
     static preparePropertyTree(selectedLyph, entitiesByID, prop, includeInherited = false) {
@@ -141,7 +121,7 @@ export class LyphTreeNode {
 }
 
 @Component({
-    selector: 'lyphTreeView',
+    selector: 'resourceTreeView',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="tree-container">
@@ -151,28 +131,13 @@ export class LyphTreeNode {
             <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
-                    <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
-                               'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
-                               'lyph'     : node.type === 'Lyph',
-                               'template' : node.isTemplate,
-                               'material' : node.type === 'Material', 
-                               'undefined': node.type === 'Undefined'}"
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                            [ngClass]="node.type"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
                     </button>
-                    <div *ngFor="let icon of node.icons; let i = index">
-                        <i class="icon-mini" [ngClass]=icon> </i>
-                    </div>
-                    <div *ngIf="showLayerIndex && node?.maxLayerIndex >=0 ">
-                        <input type="number" matInput class="w3-input layer-index"
-                               [value]="node?.layerIndex"
-                               [min]=0
-                               [max]="node?.maxLayerIndex"
-                               (input)="updateLayerIndex(node, $event.target.value)"
-                        />
-                    </div>
+                   
                 </mat-tree-node>
                 <!--Closed node with children-->
                 <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
@@ -184,26 +149,11 @@ export class LyphTreeNode {
                             [attr.aria-label]="'Toggle ' + node.id">
                         <i class="fa fa-chevron-right"> </i>
                     </button>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
-                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
-                                'lyph'     : node.type === 'Lyph', 
-                                'template' : node.isTemplate,
-                                'material' : node.type === 'Material', 
-                                'undefined': node.type === 'Undefined'}"
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                            [ngClass]="node.type"
                             (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
-                    </button>
-                    <div *ngFor="let icon of node.icons; let i = index">
-                        <i class="icon-mini" [ngClass]=icon> </i>
-                    </div>
-                    <div *ngIf="showLayerIndex && node?.maxLayerIndex">
-                        <input type="number" matInput class="w3-input layer-index"
-                               [value]="node?.layerIndex"
-                               [min]=0
-                               [max]="node?.maxLayerIndex"
-                               (input)="updateLayerIndex(node, $event.target.value)"
-                        />
-                    </div>
+                    </button>                    
                 </mat-tree-node>
             </mat-tree>
         </section>
@@ -218,11 +168,9 @@ export class LyphTreeNode {
         <!--Right click menu-->
         <mat-menu #rightTreeMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-type="type" let-hasParent="hasParent" let-index="index"
-                         let-hasChildren="hasChildren" let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown"
-                         let-inherited="inherited" let-imported="imported">
-                <div *ngIf="!inherited && !imported">
+                         let-hasChildren="hasChildren">
                     <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
-                    <div *ngIf="type === 'Lyph' || type === 'Material'">
+                    <div *ngIf="type !== 'Undefined'">
                         <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
                         </button>
                         <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
@@ -234,18 +182,8 @@ export class LyphTreeNode {
                         Remove parent
                     </button>
                     <div *ngIf="type === 'Undefined'">
-                        <button mat-menu-item (click)="processOperation('defineAsMaterial', item, index)">Define as
-                            material
-                        </button>
-                        <button mat-menu-item (click)="processOperation('defineAsLyph', item, index)">Define as lyph
-                        </button>
+                        <button mat-menu-item (click)="processOperation('define', item, index)">Define</button>
                     </div>
-                    <button *ngIf="canMoveUp" mat-menu-item (click)="processOperation('up', item, index)">Move up
-                    </button>
-                    <button *ngIf="canMoveDown" mat-menu-item (click)="processOperation('down', item, index)">Move
-                        down
-                    </button>
-                </div>
             </ng-template>
         </mat-menu>
 
@@ -280,20 +218,44 @@ export class LyphTreeNode {
             border: 0.067rem solid lightgrey;
         }
 
-        .lyph {
+        .Chain {
+            background-color: ${COLORS.chain};
+        }
+        
+         .Lyph {
             background-color: ${COLORS.lyph};
         }
 
-        .material {
-            background-color: ${COLORS.material};
-        }
-
-        .template {
+        .Template {
             background-color: ${COLORS.template};
         }
 
-        .imported {
-            background-color: ${COLORS.imported};
+        .Material {
+            background-color: ${COLORS.material};
+        }
+
+        .Link {
+            background-color: ${COLORS.link};
+        }
+
+        .Node {
+            background-color: ${COLORS.node};
+        }
+
+        .Wire {
+            background-color: ${COLORS.link};
+        }
+
+        .Anchor {
+            background-color: ${COLORS.node};
+        }
+
+        .Region {
+            background-color: ${COLORS.region};
+        }
+
+        .Coalescence {
+            background-color: ${COLORS.coalescence};
         }
 
         .undefined {
@@ -325,22 +287,9 @@ export class LyphTreeNode {
         .icon-mini {
             transform: scale(0.7);
         }
-
-        .layer-index {
-            text-align: right;
-            font: 12px sans-serif;
-            background: ${COLORS.white};
-            border: 0.067rem solid ${COLORS.inputBorderColor};
-            color: ${COLORS.inputTextColor};
-            box-sizing: border-box;
-            height: 1.7rem;
-            font-size: 0.8rem;
-            padding: 0 0.5rem 0 1.734rem;
-            margin-left: 0.2rem;
-        }
     `]
 })
-export class LyphTreeView {
+export class ResourceTreeView {
     _treeData = [];
     _selectedNode;
     rtmTopLeftPosition = {x: '0', y: '0'}
@@ -348,9 +297,7 @@ export class LyphTreeView {
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
     @Input() title;
-    @Input() ordered = false;
     @Input() active = false;
-    @Input() showLayerIndex;
     @Input() showMenu = true;
 
     @Input('treeData') set model(newTreeData) {
@@ -374,13 +321,12 @@ export class LyphTreeView {
     @Input('selectedNode') set selectedNode(node) {
         if (this._selectedNode !== node) {
             this._selectedNode = node;
-            this.treeControl.expand(node);
+            node && this.treeControl.expand(node);
         }
     }
 
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
-    @Output() onLayerIndexChange = new EventEmitter();
 
     get treeData() {
         return this._treeData;
@@ -395,8 +341,6 @@ export class LyphTreeView {
         res.expandable = node?.children?.length > 0;
         res.level = level;
         res.children = res.children || [];
-        res.canMoveUp = res.canMoveUp && this.ordered;
-        res.canMoveDown = res.canMoveDown && this.ordered;
         return res;
     };
 
@@ -428,21 +372,13 @@ export class LyphTreeView {
             type: node.type,
             hasParent: node.parent,
             hasChildren: node.children?.filter(x => !x.inherited).length > 0,
-            index: node.index,
-            canMoveUp: node.canMoveUp,
-            canMoveDown: node.canMoveDown,
-            inherited: node.inherited,
-            imported: node.imported
+            index: node.index
         }
         this.matMenuTrigger.openMenu();
     }
 
     processOperation(operation, node, index) {
         this.onChange.emit({operation: operation, node: node, index: index});
-    }
-
-    updateLayerIndex(node, layerIndex) {
-        this.onLayerIndexChange.emit({node: node, layerIndex: layerIndex});
     }
 
     selectNode(node) {
@@ -454,8 +390,8 @@ export class LyphTreeView {
 @NgModule({
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
         MatTreeModule, MatMenuModule],
-    declarations: [LyphTreeView],
-    exports: [LyphTreeView]
+    declarations: [ResourceTreeView],
+    exports: [ResourceTreeView]
 })
-export class LyphTreeViewModule {
+export class ResourceTreeViewModule {
 }

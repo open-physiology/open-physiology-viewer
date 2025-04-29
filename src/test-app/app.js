@@ -360,19 +360,22 @@ export class TestApp {
             duration: 2000
         };
 
+        // Uncomment to load a default test model (WBKG) instead of an empty new model
         // this.model = defaultTestModel;
         this.create();
-        const url = config.initModel;
-        http.get(url).subscribe(
-            res => {
-                this.model = res;
-                this.showMessage("Successfully loaded WBKG from GitHub!")
-            },
-            err => {
-                console.error(err);
-                this.showErrorMessage("Failed to load WBKG from GitHub!");
-            }
-        );
+
+        // Uncomment to load by default a Git version of WBKG
+        // const url = config.initModel;
+        // http.get(url).subscribe(
+        //     res => {
+        //         this.model = res;
+        //         this.showMessage("Successfully loaded WBKG from GitHub!")
+        //     },
+        //     err => {
+        //         console.error(err);
+        //         this.showErrorMessage("Failed to load WBKG from GitHub!");
+        //     }
+        // );
     }
 
     ngAfterViewInit() {

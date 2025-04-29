@@ -1,7 +1,6 @@
+//Do not include modelClasses here, it creates circular dependency
 import { Group } from './groupModel';
 import { Resource } from "./resourceModel";
-import *  as rdf from "rdflib";
-//import {EDGE_STROKE} from "./utils";
 import {
     entries, keys, values,
     isNumber, isArray, isObject, isString, isEmpty,
@@ -40,9 +39,7 @@ import * as jsonld from "jsonld/dist/node6/lib/jsonld";
 import {Link} from "./edgeModel";
 import * as XLSX from "xlsx";
 import {v4 as uuidv4} from 'uuid';
-import raise from "d3-selection/src/selection/raise";
-//Do not include modelClasses here, it creates circular dependency
-import {createBGLink} from "./bondGraphRDF";
+import {createBG} from "./bondGraphRDF";
 
 export { schema };
 
@@ -704,23 +701,17 @@ export class Graph extends Group{
     }
 
     generateBondGraph(){
-        const store  = rdf.graph();
-
-        // create a map of unique lyph template {fullID -> obj} to derive parameters and states for BG templates
-        // const uniqueTemplates = {};
-        // this.visibleLyphs.forEach(lyph => {
-        //     let lyphTemplate = lyph.prototype;
-        //     if (!(lyphTemplate.fullID in uniqueTemplates)){
-        //         uniqueTemplates[lyphTemplate.fullID] = lyphTemplate;
-        //     }
-        // });
-
-        let bgLinks = this.visibleLinks.filter(lnk => lnk.geometry !== "invisible");
-        bgLinks.forEach(link => {
-            createBGLink(store, 'apinatomy-model', 'segment-template', link.source.id, link.target.id);
-        });
-
-        return store.serialize();
+        const bgLinks = this.visibleLinks.filter(lnk => lnk.geometry !== "invisible");
+        const store = createBG(bgLinks);
+        let res = store.serialize();
+        //Make it acceptable by the bondgraph-tools
+        res = res.replace("@prefix xxx:", "");
+        res = res.replace("<http://xxx.com#>.","");
+        res = res.replaceAll("xxx:", "v:segment-model:")
+        res = res.replace("@prefix yyy:", "@prefix : <#> .");
+        res = res.replace("<http://yyy.com#>.","");
+        res = res.replaceAll("yyy:", ":")
+        return res;
     }
 
     //Find paths which are topologically similar to a cyst

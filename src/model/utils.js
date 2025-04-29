@@ -121,7 +121,12 @@ export const $Prefix = {
     query       : "query",  //dynamic query
     default     : "default", //default group ID
     autoLinks   : "autoLinks", //AUto-generated links
-    force       : "force"
+    force       : "force",
+    lateral     : "lateral",
+    gParts      : "g-parts",
+    tail        : "tail",
+    root        : "root",
+    leaf        : "leaf"
 };
 
 export const $Default = {

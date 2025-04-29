@@ -6,11 +6,12 @@ import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatRadioModule} from "@angular/material/radio";
 import {SearchAddBarModule} from "./searchAddBar";
 
 import {COLORS} from '../gui/utils.js'
-import {$Field} from "../../model";
+import {$Field, $Prefix, getGenID, getGenName} from "../../model";
 
 @Component({
     selector: 'chainDeclaration',
@@ -25,26 +26,38 @@ import {$Field} from "../../model";
                 <div class="resource-boxContent">
                     <div *ngIf="_chain?._class === 'Chain'" class="resource-box">
                         <!-- Root and leaf -->
-                          <div class="w3-padding w3-margin-bottom w3-border">
+                        <div class="w3-padding w3-margin-bottom w3-border">
                             <div class="w3-margin-bottom"><b>Root and leaf</b></div>
                             <mat-form-field>
                                 <input matInput class="w3-input"
                                        placeholder="root"
                                        matTooltip="Chain root node"
                                        [value]="chain?.root"
+                                       [matAutocomplete]="autoRoot"
                                        (keyup.enter)="updateValue('root', $event.target.value)"
                                        (focusout)="updateValue('root', $event.target.value)"
                                 >
+                                <mat-autocomplete #autoRoot="matAutocomplete">
+                                    <mat-option *ngFor="let root of rootOptions" [value]="root">
+                                        <span>{{root}}</span> 
+                                    </mat-option>
+                                </mat-autocomplete>
                             </mat-form-field>
                             <mat-form-field>
                                 <input matInput class="w3-input"
                                        placeholder="leaf"
                                        matTooltip="Chain leaf node"
                                        [value]="chain?.leaf"
+                                       [matAutocomplete]="autoLeaf"
                                        (keyup.enter)="updateValue('leaf', $event.target.value)"
                                        (focusout)="updateValue('leaf', $event.target.value)"
                                 >
-                            </mat-form-field> 
+                                <mat-autocomplete #autoLeaf="matAutocomplete">
+                                    <mat-option *ngFor="let leaf of leafOptions" [value]="leaf">
+                                        <span>{{leaf}}</span> 
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </mat-form-field>
                         </div>
                         <!-- Laterals -->
                         <div class="w3-padding w3-margin-bottom w3-border">
@@ -54,7 +67,7 @@ import {$Field} from "../../model";
                                        placeholder="Lateral prefix"
                                        matTooltip="Lateral chain name prefix"
                                        [(ngModel)]="prefix"
-                                     >
+                                >
                             </mat-form-field>
                             <button (click)="onCreateLateral.emit(prefix)"
                                     matTooltip="Create a lateral chain"
@@ -78,9 +91,9 @@ import {$Field} from "../../model";
                                        matTooltip="Wire to direct the chain"
                                        [value]="chain?.wiredTo"
                                        (keyup.enter)="updateValue('wiredTo', $event.target.value)"
-                                       (focusout)="updateValue('wiredTo', $event.target.value)"                                >
+                                       (focusout)="updateValue('wiredTo', $event.target.value)">
                             </mat-form-field>
-                        </div>                      
+                        </div>
                     </div>
                 </div>
             </div>
@@ -119,6 +132,14 @@ import {$Field} from "../../model";
             position: relative;
             top: -2px;
         }
+        
+        .mat-option {
+            padding: 0;
+            margin: 2px;
+            line-height: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
     `]
 })
 /**
@@ -127,13 +148,22 @@ import {$Field} from "../../model";
 export class ChainDeclarationEditor {
     prefix = "left";
     _chain;
+    rootOptions = [];
+    leafOptions = [];
     @Output() onValueChange = new EventEmitter();
 
     @Output() onCreateLateral = new EventEmitter();
 
-    @Input('lyph') set chain(newChain) {
+    @Input('chain') set chain(newChain) {
         if (this._chain !== newChain) {
             this._chain = newChain;
+            if (this._chain.id) {
+                this.rootOptions = [getGenID($Prefix.root, this._chain.id)];
+                this.leafOptions = [getGenID($Prefix.leaf, this._chain.id)];
+            }
+            if (this._chain.lateralOf){
+                 this.rootOptions.push(getGenID($Prefix.root, this._chain.lateralOf));
+            }
         }
     }
 
@@ -141,6 +171,10 @@ export class ChainDeclarationEditor {
 
     get chain() {
         return this._chain;
+    }
+
+    suggestValue(prop) {
+        return getGenName($Prefix.node, this._chain.id, prop);
     }
 
     updateValue(prop, value) {
@@ -170,14 +204,14 @@ export class ChainDeclarationEditor {
         }
     }
 
-    updatePrefix(value){
+    updatePrefix(value) {
         this.prefix = value;
     }
 }
 
 @NgModule({
     imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule,
-        MatCheckboxModule, MatRadioModule, ResourceDeclarationModule, SearchAddBarModule],
+        MatCheckboxModule, MatRadioModule, ResourceDeclarationModule, SearchAddBarModule, MatAutocompleteModule],
     declarations: [ChainDeclarationEditor],
     exports: [ChainDeclarationEditor]
 })
