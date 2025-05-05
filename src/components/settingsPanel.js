@@ -54,7 +54,7 @@ const COLORS = {
                             </mat-checkbox>
                             Variance
                         </mat-panel-title>
-                    </mat-expansion-panel-header>
+                    </mat-expansion-panel-header>                    
                     <mat-form-field >
                         <div class="default-box pb-0">
                             <mat-select *ngIf="!cladeDisabled" class="default-boxContent"
@@ -101,12 +101,12 @@ const COLORS = {
                                    (selectedItemChange)="this.onSelectBySearch.emit($event)">
                         </searchBar>
                         <div *ngIf="config.selected" class="default-boxContent">
-                            <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
-                            </resourceInfoPanel>
                             <button *ngIf="_selected && _selected.class === 'Lyph' " title="Edit"
-                                    class="w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
+                                    class="w3-bar-item w3-right w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
                                 <i class="fa fa-edit"> </i>
                             </button> 
+                            <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
+                            </resourceInfoPanel>
                             <sciGraphSearch [selected]="_selected">
                             </sciGraphSearch>
                         </div>
@@ -128,7 +128,7 @@ const COLORS = {
                         <div class="default-box-header">
                             <div class="search-bar">
                                 <img src="./styles/images/search.svg"/>
-                                <input type="text" class="search-input" placeholder="Search for a group"
+                                <input type="text" class="w3-input search-input" placeholder="Search for a group"
                                        name="searchTerm" [(ngModel)]="searchTerm"
                                        (input)="search($event.target.value, 'filteredGroups', 'groups')"/>
                                 <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
@@ -140,14 +140,6 @@ const COLORS = {
                             <mat-slide-toggle [checked]="!group.hidden"
                                               (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}{{group.name || group.id}}</mat-slide-toggle>
                         </div>
-                        <!--Tree structure-->
-                        <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                          <ng-template #treeNodeTemplate let-node let-index="index">
-                            <span>{{node.data.name}}</span>
-                            <mat-slide-toggle></mat-slide-toggle>
-                          </ng-template>
-                        </tree-root> -->
-                        <!--Tree structure-->
                     </div>
                 </mat-expansion-panel>
             </mat-accordion>
@@ -169,7 +161,6 @@ const COLORS = {
                                        placeholder="Search for a dynamic group" name="searchDynamicTerm"
                                        [(ngModel)]="searchDynamicTerm"
                                        (input)="search($event?.target?.value, 'filteredDynamicGroups', 'dynamicGroups')"/>
-                                <!--<input type="text" class="search-input" id="filter" #filter (keyup)="tree.treeModel.filterNodes(filter.value)" placeholder="Search for a group"/>-->
                                 <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear"
                                      (click)="clearTreeSearch(filter, tree)"/>
                             </div>
@@ -179,15 +170,7 @@ const COLORS = {
                             <mat-slide-toggle [checked]="!group.hidden"
                                               (change)="onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                         </div>
-                        <!--Tree structure-->
-                        <!-- <tree-root [focused]="true" [nodes]="nodes" #tree>
-                          <ng-template #treeNodeTemplate let-node let-index="index">
-                            <span>{{node.data.name}}</span>
-                            <mat-slide-toggle></mat-slide-toggle>
-                          </ng-template>
-                        </tree-root> -->
-                        <!--Tree structure-->
-                    </div>
+                     </div>
                 </mat-expansion-panel>
             </mat-accordion>
 
@@ -356,92 +339,106 @@ const COLORS = {
           display: flex;
           align-items: center;
         }
+       
+        .mat-form-field {
+          width: 100%;
+        }
 
         .default-box .default-box-header .search-bar {
           flex-grow: 1;
         }
         
-        .mat-form-field {
-          width: 100%;
+        .search-bar {
+            padding: 0 0.625rem 0 0;
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .search-bar .mat-form-field-should-float .mat-form-field-label {
+            display: none !important;
+        }
+
+        .search-bar .mat-form-field-label {
+            padding-left: 1.625rem;
+            top: 1.5em;
+            color: ${COLORS.inputPlacholderColor};
+        }
+
+        .search-bar .mat-form-field-infix {
+            background: ${COLORS.white};
+            border: 0.067rem solid ${COLORS.inputBorderColor};
+            box-sizing: border-box;
+            border-radius: 0.134rem;
+            margin: 0;
+            height: 1.134rem;
+            color: ${COLORS.inputTextColor};
+            padding: 0.5rem 2rem 0 2rem;
+        }
+
+        .search-bar .mat-focused .mat-form-field-infix {
+            outline: none;
+            border-color: ${COLORS.toggleActiveBg};
+            box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
         }
 
         .search-bar .mat-form-field {
-          display: block;
-          width: 100%;
+            display: block;
+            width: 100%;
         }
 
         .search-bar .mat-form-field-underline {
-          display: none;
-        }
-
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-
-        .search-bar .mat-form-field-appearance-legacy .mat-form-field-infix {
-          padding: 0;
-          width: 100%;
-          margin: 0;
-          border: none;
+            display: none;
         }
 
         .search-bar input.mat-input-element {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
+            background: ${COLORS.white};
+            border: 0.067rem solid ${COLORS.inputBorderColor};
+            box-sizing: border-box;
+            border-radius: 0.134rem;
+            margin: 0;
+            height: 2.134rem;
+            color: ${COLORS.inputTextColor};
+            padding: 0 0.534rem 0 1.734rem;
         }
 
         .search-bar .search-input {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          display: block;
-          width: 100%;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0 0.534rem 0 1.734rem;
-        }
-
-        .search-bar {
-          position: relative;
+            background: ${COLORS.white};
+            border: 0.067rem solid ${COLORS.inputBorderColor};
+            box-sizing: border-box;
+            border-radius: 0.134rem;
+            margin: 0;
+            display: block;
+            width: 100%;
+            height: 2.134rem;
+            color: ${COLORS.inputTextColor};
+            padding: 0 0.534rem 0 1.734rem;
+            font-size: 0.75rem;
         }
 
         .search-bar img {
-          position: absolute;
-          left: 0.534rem;
-          top: 50%;
-          transform: translateY(-50%);
-          color: ${COLORS.inputTextColor};
-          font-size: 0.934rem;
+            z-index: 10;
+            position: absolute;
+            left: 0.534rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: ${COLORS.inputTextColor};
+            font-size: 0.934rem;
         }
 
         .search-bar img.input-clear {
-          right: 0.534rem;
-          cursor: pointer;
-          left: auto;
+            right: 0.534rem;
+            cursor: pointer;
+            left: auto;
         }
 
         .search-bar .search-input:focus {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
+            outline: none;
+            border-color: ${COLORS.toggleActiveBg};
+            box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
         }
 
         .search-bar .search-input::placeholder {
-          color: ${COLORS.inputPlacholderColor};
+            color: ${COLORS.inputPlacholderColor};
         }
 
         .default-box .default-boxContent {
@@ -459,24 +456,7 @@ const COLORS = {
         :host >>> .default-box .default-boxContent section section {
           display: flex;
         }
-        :host >>> .default-box .default-boxContent .w3-label {
-          width: 6.25rem;
-          flex: none;
-        }
-        :host >>> .default-box .default-boxContent button {
-          border: ${COLORS.inputBorderColor} 1px solid;
-          background: transparent;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-          padding: 0.313rem 0.625rem;
-          margin: 0.625rem 0 0;
-          cursor: pointer;
-        }
-        :host >>> .default-box .default-boxContent button img {
-          position: relative;
-          top: -2px;
-        }
+
         :host >>> .default-box .default-boxError {
           min-height: 6.25rem;
           display: flex;
@@ -508,43 +488,7 @@ const COLORS = {
           background: transparent !important;
           color:  ${COLORS.inputTextColor} !important;
         }
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-underline {
-          display: none;
-        }
-        :host >>> .default-searchBar .mat-form-field-appearance-legacy .mat-form-field-wrapper {
-          padding-bottom: 0;
-        }
-        :host >>> .default-searchBar .mat-form-field-should-float .mat-form-field-label {
-          display: none !important;
-        }
-        :host >>> .default-searchBar .search-bar img {
-          z-index: 10;
-        }
-        :host >>> .default-searchBar .mat-form-field-label {
-          padding-left: 1.625rem;
-          top: 1.5em;
-          color: ${COLORS.inputPlacholderColor};
-          font-size: 0.75rem;
-          font-weight: 500;
-        }
-        :host >>> .default-searchBar .mat-form-field-infix {
-          background: ${COLORS.white};
-          border: 0.067rem solid ${COLORS.inputBorderColor};
-          box-sizing: border-box;
-          border-radius: 0.134rem;
-          margin: 0;
-          height: 2.134rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 1.067rem;
-          padding: 0.5rem 2rem 0 2rem;
-        }
-        :host >>> .default-searchBar .mat-focused .mat-form-field-infix {
-          outline: none;
-          border-color: ${COLORS.toggleActiveBg};
-          box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
-        }
+
         .default-box h4 {
           background: ${COLORS.headingBg};
           padding: 0.8rem 1.067rem;

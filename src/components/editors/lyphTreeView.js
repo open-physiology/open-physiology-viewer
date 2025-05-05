@@ -25,7 +25,7 @@ export const ICON = {
  * @classdesc This is a lyph, material, or reference to undefined lyph to display in lyph tree viewer
  * @property id
  * @property label
- * @property type
+ * @property class
  * @property parent
  * @property length
  * @property children
@@ -39,14 +39,14 @@ export const ICON = {
  * @property imported
  */
 export class LyphTreeNode {
-    constructor(id, label, type, parent, length, children, isTemplate, index, resource) {
+    constructor(id, label, cls, parent, length, children, isTemplate, index, resource) {
         this.id = id;
         this.label = label;
         this.parent = parent;
         this.length = length;
         this.children = children;
         this.isTemplate = isTemplate;
-        this.type = type;
+        this.class = cls;
         this.index = index;
         this.resource = resource;
         this.icons = [];
@@ -154,10 +154,10 @@ export class LyphTreeNode {
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
-                               'lyph'     : node.type === 'Lyph',
+                               'lyph'     : node.class === 'Lyph',
                                'template' : node.isTemplate,
-                               'material' : node.type === 'Material', 
-                               'undefined': node.type === 'Undefined'}"
+                               'material' : node.class === 'Material', 
+                               'undefined': node.class === 'Undefined'}"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
@@ -186,10 +186,10 @@ export class LyphTreeNode {
                     </button>
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
-                                'lyph'     : node.type === 'Lyph', 
+                                'lyph'     : node.class === 'Lyph', 
                                 'template' : node.isTemplate,
-                                'material' : node.type === 'Material', 
-                                'undefined': node.type === 'Undefined'}"
+                                'material' : node.class === 'Material', 
+                                'undefined': node.class === 'Undefined'}"
                             (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
                     </button>
@@ -217,12 +217,12 @@ export class LyphTreeNode {
 
         <!--Right click menu-->
         <mat-menu #rightTreeMenu="matMenu">
-            <ng-template matMenuContent let-item="item" let-type="type" let-hasParent="hasParent" let-index="index"
+            <ng-template matMenuContent let-item="item" let-class="class" let-hasParent="hasParent" let-index="index"
                          let-hasChildren="hasChildren" let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown"
                          let-inherited="inherited" let-imported="imported">
                 <div *ngIf="!inherited && !imported">
                     <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
-                    <div *ngIf="type === 'Lyph' || type === 'Material'">
+                    <div *ngIf="class === 'Lyph' || class === 'Material'">
                         <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
                         </button>
                         <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
@@ -233,7 +233,7 @@ export class LyphTreeNode {
                     <button *ngIf="hasParent" mat-menu-item (click)="processOperation('removeParent', item, index)">
                         Remove parent
                     </button>
-                    <div *ngIf="type === 'Undefined'">
+                    <div *ngIf="class === 'Undefined'">
                         <button mat-menu-item (click)="processOperation('defineAsMaterial', item, index)">Define as
                             material
                         </button>
@@ -425,7 +425,7 @@ export class LyphTreeView {
         this.rtmTopLeftPosition.y = e.clientY + 'px';
         this.matMenuTrigger.menuData = {
             item: node,
-            type: node.type,
+            class: node.class,
             hasParent: node.parent,
             hasChildren: node.children?.filter(x => !x.inherited).length > 0,
             index: node.index,

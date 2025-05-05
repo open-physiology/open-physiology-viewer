@@ -89,22 +89,6 @@ import {$Field} from "../../model";
             color: ${COLORS.inputTextColor};
             font-weight: 500;
         }
-
-        .resource-box .resource-boxContent button {
-            border: ${COLORS.inputBorderColor} 1px solid;
-            background: transparent;
-            color: ${COLORS.inputTextColor};
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.313rem 0.625rem;
-            margin: 0.625rem 0 0;
-            cursor: pointer;
-        }
-
-        .resource-box .resource-boxContent button img {
-            position: relative;
-            top: -2px;
-        }
     `]
 })
 /**
@@ -148,6 +132,9 @@ export class LyphDeclarationEditor {
     }
 
     selectBySearch(nodeLabel) {
+        if (!nodeLabel){
+            return;
+        }
         this.selectedRegion = nodeLabel.substring(
             nodeLabel.indexOf("(") + 1,
             nodeLabel.lastIndexOf(")")

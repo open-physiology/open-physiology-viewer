@@ -20,7 +20,7 @@ import {COLORS} from "../gui/utils";
             </searchBar>
             <button *ngIf="selected" (click)="addSelectedItem.emit(selected)"
                     matTooltip="Add selected item" 
-                    class="w3-right w3-hover-light-grey">
+                    class="w3-bar-item w3-hover-light-grey">
                 <i class="fa fa-add">
                 </i>
             </button>
@@ -28,23 +28,15 @@ import {COLORS} from "../gui/utils";
     `,
     styles: [`
         .search-add-bar {
-            padding: 0 0.625rem 0.625rem 0; 
-            font-size: 0.75rem;
+            padding: 0 0 1rem 0; 
+            position:relative;
             color: ${COLORS.inputTextColor};
         }
-
-        .search-add-bar button {
-          border: ${COLORS.inputBorderColor} 1px solid;
-          background: transparent;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          padding: 0.313rem 0.625rem;
-          cursor: pointer;
-        }
         
-        .search-add-bar button:hover {
-          background: transparent !important;
-          color:  ${COLORS.inputTextColor} !important;
+        .search-add-bar button {
+            position:absolute;
+            right:  1.3rem;
+            bottom: 0;
         }
     `]
 })

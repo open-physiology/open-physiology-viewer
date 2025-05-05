@@ -55,14 +55,14 @@ import {COLORS} from "../gui/utils";
                                        (input)="updateOneOfMany('ontologyTerms', $event.target.value, i)"
                                 >
                             </mat-form-field>
-                            <button mat-menu-item matTooltip="Remove ontologyTerm"
+                            <button matTooltip="Remove ontologyTerm"
                                     (click)="deleteOneFromMany(term, 'ontologyTerms')"
-                                    class="w3-right w3-hover-light-grey">
+                                    class="w3-bar-item w3-right w3-hover-light-grey">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </ul>
-                        <button mat-menu-item matTooltip="Add ontologyTerm" (click)="addOneToMany('ontologyTerms')"
-                                class="w3-right w3-hover-light-grey">
+                        <button matTooltip="Add ontologyTerm" (click)="addOneToMany('ontologyTerms')"
+                                class="w3-bar-item w3-right w3-hover-light-grey">
                             <i class="fa fa-add">
                             </i>
                         </button>
@@ -99,27 +99,6 @@ import {COLORS} from "../gui/utils";
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
             font-weight: 500;
-        }
-
-        .resource-box .resource-boxContent button {
-            border: ${COLORS.inputBorderColor} 1px solid;
-            background: transparent;
-            color: ${COLORS.inputTextColor};
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.313rem 0.625rem;
-            margin: 0.625rem 0 0;
-            cursor: pointer;
-        }
-
-        .resource-box .resource-boxContent button img {
-            position: relative;
-            top: -2px;
-        }
-
-        .resource-box .resource-boxContent button:hover {
-            background: transparent !important;
-            color: ${COLORS.inputTextColor} !important;
         }
     `]
 })

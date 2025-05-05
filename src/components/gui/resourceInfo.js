@@ -7,11 +7,11 @@ import {isArray, isObject} from 'lodash-bound';
     template: `
         <section *ngFor="let property of resource?.infoFields || []">
             <section>
-                <label class="w3-label">{{property}}: </label>
+                <label class="w3-label"><b>{{property}}: </b></label>
                 <span *ngIf="_fieldMap[property] === FIELD_TYPES.TEXT">
                     {{resource[property] || "?"}}
                 </span>
-
+                
                 <span *ngIf="_fieldMap[property] === FIELD_TYPES.OBJECT">
                     {{resource[property]?.id || "?"}} - {{resource[property]?.name || "?"}}
                     {{"(" + (resource[property]?.class || "?") + ")"}}
@@ -21,7 +21,7 @@ import {isArray, isObject} from 'lodash-bound';
                     <ul *ngFor="let item of resource[property]" class="w3-ul">
                         <li>{{item.id}} - {{item.name || "?"}}
                     </ul>
-                </section>                
+                </section>         
             </section> 
         </section>
     `

@@ -41,7 +41,7 @@ import {COLORS} from "./utils";
     `,
     styles: [`
         .search-bar {
-            padding: 0.625rem;
+            padding: 0 0.625rem 0 0.625rem;
             flex-grow: 1;
             position: relative;
         }
@@ -62,7 +62,7 @@ import {COLORS} from "./utils";
             box-sizing: border-box;
             border-radius: 0.134rem;
             margin: 0;
-            height: 2.134rem;
+            height: 1.134rem;
             color: ${COLORS.inputTextColor};
             padding: 0.5rem 2rem 0 2rem;
         }
@@ -93,23 +93,10 @@ import {COLORS} from "./utils";
             padding: 0 0.534rem 0 1.734rem;
         }
 
-        .search-bar .search-input {
-            background: ${COLORS.white};
-            border: 0.067rem solid ${COLORS.inputBorderColor};
-            box-sizing: border-box;
-            border-radius: 0.134rem;
-            margin: 0;
-            display: block;
-            width: 100%;
-            height: 2.134rem;
-            color: ${COLORS.inputTextColor};
-            padding: 0 0.534rem 0 1.734rem;
-        }
-
         .search-bar img {
             z-index: 10;
             position: absolute;
-            left: 1.534rem;
+            left: 1.150rem;
             top: 50%;
             transform: translateY(-50%);
             color: ${COLORS.inputTextColor};
@@ -122,6 +109,20 @@ import {COLORS} from "./utils";
             left: auto;
         }
 
+        .search-bar .search-input {
+            background: ${COLORS.white};
+            border: 0.067rem solid ${COLORS.inputBorderColor};
+            box-sizing: border-box;
+            border-radius: 0.134rem;
+            margin: 0;
+            display: block;
+            width: 100%;
+            height: 2.134rem;
+            color: ${COLORS.inputTextColor};
+            padding: 0 0.534rem 0 1.734rem;
+            font-size: 0.75rem;
+        }
+                
         .search-bar .search-input:focus {
             outline: none;
             border-color: ${COLORS.toggleActiveBg};
@@ -133,7 +134,7 @@ import {COLORS} from "./utils";
         }
 
         .mat-option {
-            padding: 0;
+            padding: 0 0.6rem;
             margin: 2px;
             line-height: 28px;
             height: 28px;

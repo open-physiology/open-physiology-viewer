@@ -15,8 +15,6 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import {MainToolbarModule} from "../components/mainToolbar";
 import {SnapshotToolbarModule} from "../components/snapshotToolbar";
 import {StateToolbarModule} from "../components/stateToolbar";
-// import {ResourceEditorModule} from '../components/genResourceEditor/resourceEditor';
-// import {ResourceEditorDialog} from '../components/genResourceEditor/resourceEditorDialog';
 import {LayoutEditorModule} from "../components/layoutEditor";
 import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
@@ -365,7 +363,7 @@ export class TestApp {
         this.create();
 
         // Uncomment to load by default a Git version of WBKG
-        // const url = config.initModel;
+        const url = config.initModel;
         // http.get(url).subscribe(
         //     res => {
         //         this.model = res;

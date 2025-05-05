@@ -71,7 +71,7 @@ import {$Field, $Prefix, getGenID, getGenName} from "../../model";
                             </mat-form-field>
                             <button (click)="onCreateLateral.emit(prefix)"
                                     matTooltip="Create a lateral chain"
-                                    class="w3-right w3-hover-light-grey">
+                                    class="w3-bar-item w3-right w3-hover-light-grey">
                                 <i class="fa fa-add">
                                 </i>
                             </button>
@@ -117,22 +117,6 @@ import {$Field, $Prefix, getGenID, getGenName} from "../../model";
             font-weight: 500;
         }
 
-        .resource-box .resource-boxContent button {
-            border: ${COLORS.inputBorderColor} 1px solid;
-            background: transparent;
-            color: ${COLORS.inputTextColor};
-            font-size: 0.75rem;
-            font-weight: 500;
-            padding: 0.313rem 0.625rem;
-            margin: 0.625rem 0 0;
-            cursor: pointer;
-        }
-
-        .resource-box .resource-boxContent button img {
-            position: relative;
-            top: -2px;
-        }
-        
         .mat-option {
             padding: 0;
             margin: 2px;
@@ -157,11 +141,11 @@ export class ChainDeclarationEditor {
     @Input('chain') set chain(newChain) {
         if (this._chain !== newChain) {
             this._chain = newChain;
-            if (this._chain.id) {
+            if (this._chain?.id) {
                 this.rootOptions = [getGenID($Prefix.root, this._chain.id)];
                 this.leafOptions = [getGenID($Prefix.leaf, this._chain.id)];
             }
-            if (this._chain.lateralOf){
+            if (this._chain?.lateralOf){
                  this.rootOptions.push(getGenID($Prefix.root, this._chain.lateralOf));
             }
         }
@@ -190,6 +174,9 @@ export class ChainDeclarationEditor {
     }
 
     selectBySearch(nodeLabel) {
+        if (!nodeLabel){
+            return;
+        }
         this.selectedWire = nodeLabel.substring(
             nodeLabel.indexOf("(") + 1,
             nodeLabel.lastIndexOf(")")

@@ -157,6 +157,10 @@ import {
           overflow-y: auto;
           overflow-x: auto;
         }
+        
+        .vertical-toolbar {
+            margin-right: 20px;
+        }       
     `]
 })
 /**
@@ -386,7 +390,7 @@ export class LyphEditorComponent {
     prepareLyphTree() {
         this.entitiesByID = {};
         prepareMaterialLyphMap(this._model, this.entitiesByID);
-        //TODO Reenable when the code is adjusted to handle imported lyphs
+        // TODO Re-enable when the code is adjusted to handle imported lyphs
         // (this._model.groups||[]).forEach(g => {
         //     if (g.imported && g.namespace !== this._model.namespace){
         //         prepareImportedMaterialLyphMap(g, this.entitiesByID);

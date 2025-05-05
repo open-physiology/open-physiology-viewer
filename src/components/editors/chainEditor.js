@@ -14,6 +14,7 @@ import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {DiffDialog} from "./diffDialog";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
+import {COLORS} from '../gui/utils.js'
 // import {ResourceTreeViewModule, ResourceTreeNode} from "./resourceTreeView";
 
 import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
@@ -37,8 +38,8 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                     <!--                    <resourceTreeView-->
                     <!--                            title="Chains"-->
                     <!--                            [active]=true-->
-                    <!--                            [expanded]=true-->
-                    <!--                            [treeData]="chainTree"-->
+                    <!--                            [expanded]=false-->
+                    <!--                            [treeData]="chainList"-->
                     <!--                            [selectedNode]="selectedNode"-->
                     <!--                            (onNodeClick)="selectChain($event)"-->
                     <!--                            (onChange)="processChainChange($event)"-->
@@ -115,13 +116,29 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                         (addSelectedItem)="addChainLyph($event)"
                 >
                 </searchAddBar>
+                 <!-- level target -->
+                <div class="resource-box" *ngIf="selectedLyph">
+                    <div class="settings-wrap">
+                        <div class="resource-boxContent">
+                            <div class="w3-padding w3-margin-bottom w3-border">
+                                <div class="w3-margin-bottom"><b>Level target</b></div>
+                                <mat-form-field>
+                                    <input disabled matInput class="w3-input"
+                                           matTooltip="Selected level target"
+                                           [value]="selectedLyph._conveys?.target"
+                                    >
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <chainDeclaration
                         [chain]="selectedChain"
                         [wireOptions]="wireOptions"
                         (onValueChange)="updateProperty($event)"
                         (onCreateLateral)="createLateral($event)"
                 >
-                </chainDeclaration>
+                </chainDeclaration>               
                 <lyphTreeView *ngIf="selectedLyph"
                               title="Layers"
                               [ordered]=true
@@ -143,6 +160,23 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
             overflow-y: auto;
             overflow-x: auto;
         }
+        
+        .settings-wrap {
+            padding-bottom: 0.8rem;
+            margin-top: 0;
+            position: relative;
+        }
+
+        .resource-box .resource-boxContent {
+            padding: 0.625rem;
+            font-size: 0.75rem;
+            color: ${COLORS.inputTextColor};
+            font-weight: 500;
+        }
+        
+        .vertical-toolbar {
+            margin-right: 20px;
+        }       
     `]
 })
 /**
@@ -156,7 +190,9 @@ export class ChainEditorComponent {
     _selectedNode;
 
     chainList;
+    chainLyphs = [];
     chainTree = [];
+
     searchOptions;
     steps = [];
     currentStep = 0;
@@ -171,7 +207,6 @@ export class ChainEditorComponent {
         this.currentStep = 0;
         this.entitiesByID = {};
         this.prepareChainList();
-        // this.prepareChainTree();
         prepareMaterialLyphMap(this._model, this.entitiesByID);
         (this._model.groups || []).forEach(g => {
             if (g.imported && g.namespace !== this._model.namespace) {
@@ -180,10 +215,15 @@ export class ChainEditorComponent {
         });
         // Need links and nodes for level editing
         (this._model.links || []).forEach(obj => {
+            if (!obj.id) return;
             obj._class = $SchemaClass.Link;
             this.entitiesByID[obj.id] = obj;
+            if (obj.conveyingLyph && obj.conveyingLyph in this.entitiesByID) {
+                this.entitiesByID[obj.conveyingLyph]._conveys = obj;
+            }
         });
         (this._model.nodes || []).forEach(obj => {
+            if (!obj.id) return;
             obj._class = $SchemaClass.Node;
             this.entitiesByID[obj.id] = obj;
         });
@@ -235,44 +275,43 @@ export class ChainEditorComponent {
                 this.chainList.push(node);
             }
         });
-        this.collectLaterals();
+        // this.prepareChainTree();
     }
 
-    collectLaterals() {
-        const missing = new Set();
-        (this._model.chains || []).forEach(chain => {
-            if (chain.lateralOf) {
-                let supertype = this.entitiesByID[chain.lateralOf];
-                if (supertype) {
-                    supertype._subtypes = supertype._subtypes || [];
-                    if (!supertype._subtypes.find(x => x.id === chain.id)) {
-                        supertype._subtypes.push(chain);
-                    }
-                    chain._supertype = chain.lateralOf;
-                } else {
-                    missing.add(chain.lateralOf)
-                }
-            }
-            (chain.laterals || []).forEach(subtype => {
-                if (this.entitiesByID[subtype]) {
-                    chain._subtypes = chain._subtypes || [];
-                    if (!chain._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
-                        chain._subtypes.push(this.entitiesByID[subtype]);
-                    }
-                    this.entitiesByID[subtype]._supertype = chain;
-                } else {
-                    missing.add(subtype);
-                }
-            });
-        });
-        if (missing.size > 0) {
-            this.showMessage("No chain definitions found: " + [...missing].join(', '));
-        }
-    }
-
+    // collectLaterals() {
+    //     const missing = new Set();
+    //     (this._model.chains || []).forEach(chain => {
+    //         if (chain.lateralOf) {
+    //             let supertype = this.entitiesByID[chain.lateralOf];
+    //             if (supertype) {
+    //                 supertype._subtypes = supertype._subtypes || [];
+    //                 if (!supertype._subtypes.find(x => x.id === chain.id)) {
+    //                     supertype._subtypes.push(chain);
+    //                 }
+    //                 chain._supertype = chain.lateralOf;
+    //             } else {
+    //                 missing.add(chain.lateralOf)
+    //             }
+    //         }
+    //         (chain.laterals || []).forEach(subtype => {
+    //             if (this.entitiesByID[subtype]) {
+    //                 chain._subtypes = chain._subtypes || [];
+    //                 if (!chain._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
+    //                     chain._subtypes.push(this.entitiesByID[subtype]);
+    //                 }
+    //                 this.entitiesByID[subtype]._supertype = chain;
+    //             } else {
+    //                 missing.add(subtype);
+    //             }
+    //         });
+    //     });
+    //     if (missing.size > 0) {
+    //         this.showMessage("No chain definitions found: " + [...missing].join(', '));
+    //     }
+    // }
+    //
     // prepareChainTree() {
-    //     //Recursively create resource tree nodes
-    //     collectLaterals();
+    //     this.collectLaterals();
     //     const mapToNodes = (objOrID, parent, idx) => {
     //         if (!objOrID) return {};
     //         let resource = objOrID.id ? objOrID : this.entitiesByID[objOrID];
@@ -285,7 +324,7 @@ export class ChainEditorComponent {
     //         return res;
     //     };
     //     let treeData = (this._model.chains || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
-    //     this.chainTree = treeData::sortBy([$Field.id]);
+    //     this.chainList = treeData::sortBy([$Field.id]);
     // }
 
     /**
@@ -326,7 +365,7 @@ export class ChainEditorComponent {
         }
     }
 
-    split(node, index) {
+    split(lyphNode, index) {
         if (this.selectedChain) {
             let headLyphs = this.selectedChain.lyphs.slice(0, index);
             let tailLyphs = this.selectedChain.lyphs.slice(index + 1);
@@ -334,7 +373,7 @@ export class ChainEditorComponent {
                 this.showMessage("Splitting cannot lead to a chain with no lyphs. Create a new chain instead!");
                 return;
             }
-            let nodeID = "n-split_" + node.id.replace("lyph_", "").replace("lyph-", "");
+            let nodeID = getGenID($Prefix.leaf, lyphNode.id.replace("lyph_", "").replace("lyph-", ""));
             // The main chain gets shorter
             this.selectedChain.lyphs = headLyphs;
             this.selectedChain.leaf = nodeID;
@@ -348,8 +387,8 @@ export class ChainEditorComponent {
             const oldName = this.selectedChain.name;
             if (this.selectedChain.name?.includes("->")) {
                 const [root, leaf] = this.selectedChain.name.split(/\s*->\s*/);
-                if (node.label?.includes("->")) {
-                    const [start, end] = node.label.split(/\s*->\s*/);
+                if (lyphNode.label?.includes("->")) {
+                    const [start, end] = lyphNode.label.split(/\s*->\s*/);
                     this.selectedChain.name = this.selectedChain.name.replace(leaf, end);
                     tailChain.name = getGenName(end, "->", leaf);
                 }
@@ -402,18 +441,34 @@ export class ChainEditorComponent {
      */
     prepareChainLyphs() {
         let res = [];
-        (this.selectedChain?.lyphs || []).forEach((lyphID, idx) => {
-            let lyph = this.entitiesByID[lyphID];
-            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
-            if (lyph?.layers) {
-                node.icons.push(ICON.LAYERS);
+        if (this.selectedChain) {
+            if (this.selectedChain.lyphs) {
+                this.selectedChain.lyphs.forEach((lyphID, idx) => {
+                    let lyph = this.entitiesByID[lyphID];
+                    let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
+                    if (lyph?.layers) {
+                        node.icons.push(ICON.LAYERS);
+                    }
+                    res.push(node);
+                    if (!lyph._conveys && lyph.conveys) {
+                        lyph._conveys = this.entitiesByID[lyph.conveys];
+                    }
+                    if (!lyph._conveys) {
+                        lyph._conveys = {
+                            "target": getGenID(this.selectedChain?.id, $Prefix.node, idx + 1)
+                        }
+                    }
+                    if (this.selectedChain.leaf && this.selectedChain.lyphs.length-1 === idx){
+                       lyph._conveys.target = this.selectedChain.leaf;
+                    }
+                });
+            } else {
+                if (this.selectedChain.levels) {
+                    this.prepareChainLevels();
+                }
             }
-            res.push(node);
-        });
-        this.chainLyphs = res;
-        if (this.selectedChain?.levels) {
-            this.prepareChainLevels();
         }
+        this.chainLyphs = res;
     }
 
     prepareChainLevels() {
@@ -688,7 +743,7 @@ export class ChainEditorComponent {
 
     clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
-            const added = ['_class', '_generated', '_subtypes', '_supertype'];
+            const added = ['_class', '_generated', '_subtypes', '_supertype', '_conveys'];
             added.forEach(prop => {
                 delete obj[prop];
             });
@@ -877,7 +932,7 @@ export class ChainEditorComponent {
             this.selectedChain.laterals.push(chain.id);
 
             // Put lateral copy to the common group
-            let groups = (this._model.groups || []).filter(g => g.id.startsWith($Prefix.gParts) && (g.chains || []).find(c => this.selectedChain.id === c.id));
+            let groups = (this._model.groups || []).filter(g => g.id.startsWith($Prefix.gParts) && (g.chains || []).find(c => c === this.selectedChain.id));
             if (groups.length === 0) {
                 this._model.groups = this._model.groups || [];
                 this._model.groups.push({
@@ -899,7 +954,8 @@ export class ChainEditorComponent {
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
-        LyphTreeViewModule],// ResourceTreeViewModule],
+        LyphTreeViewModule],
+    //ResourceTreeViewModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]
 })

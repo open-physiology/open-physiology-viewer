@@ -115,6 +115,11 @@ import {$Field, $SchemaClass} from "../../model";
           overflow-y: auto;
           overflow-x: auto;
         }
+ 
+        .vertical-toolbar {
+            margin-right: 20px;
+        }       
+
     `]
 })
 /**
