@@ -66,7 +66,7 @@ import config from '../data/config';
 export class ModelRepoPanel {
     models = {};
     fileNames = [];
-    url = config.repoURL;
+    url = config.storageContentURL;
 
     @Output() onModelLoad = new EventEmitter();
 
@@ -88,6 +88,7 @@ export class ModelRepoPanel {
 
         try {
             this.http.get(this.url).subscribe(res => {
+                console.log(res);
                 this.fileNames = (res||[]).map(model => model.name);
                 this.fileNames = this.fileNames.filter(fileName => getFileExt(fileName) === "json" );
                 (res || []).forEach(model => {

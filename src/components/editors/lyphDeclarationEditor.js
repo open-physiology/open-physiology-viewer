@@ -20,52 +20,48 @@ import {$Field} from "../../model";
                 (onValueChange)="onValueChange.emit($event)"
         ></resourceDeclaration>
         <div class="resource-box">
-            <div class="settings-wrap">
-                <div class="resource-boxContent">
-                    <div *ngIf="lyph?._class === 'Lyph'" class="resource-box">
-                        <!--Topology-->
-                        <div class="w3-padding w3-margin-bottom w3-border">
-                            <div class="w3-margin-bottom"><b>Topology</b></div>
-                            <div class="w3-block">
-                                <mat-checkbox matTooltip="Indicates that the lyph defines layers for its subtypes"
-                                              labelPosition="after"
-                                              [checked]="lyph?.isTemplate"
-                                              (change)="updateValue('isTemplate', $event.checked)"
-                                >isTemplate?
-                                </mat-checkbox>
-                            </div>
-                            <div class="w3-block">
-                                <mat-radio-group name="topology" aria-label="Topology" [value]="currentTopology">
-                                    <mat-radio-button *ngFor="let option of topologyOptions" class="w3-margin-right"
-                                                      [value]="option" (change)="updateValue('topology', option.id)">
-                                        {{ option.name }}
-                                    </mat-radio-button>
-                                </mat-radio-group>
-                            </div>
+            <div class="resource-boxContent">
+                <div *ngIf="lyph?._class === 'Lyph'" class="resource-box">
+                    <!--Topology-->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div class="w3-margin-bottom"><b>Topology</b></div>
+                        <div class="w3-block">
+                            <mat-checkbox matTooltip="Indicates that the lyph defines layers for its subtypes"
+                                          labelPosition="after"
+                                          [checked]="lyph?.isTemplate"
+                                          (change)="updateValue('isTemplate', $event.checked)"
+                            >isTemplate?
+                            </mat-checkbox>
                         </div>
-                        <!--Region-->
-                        <div class="w3-padding w3-margin-bottom w3-border">
-                            <div class="w3-margin-bottom"><b>Region</b></div>
-                            <searchAddBar
-                                    [searchOptions]="regionOptions"
-                                    [selected]="selectedRegion"
-                                    (selectedItemChange)="selectBySearch($event)"
-                                    (addSelectedItem)="replaceRegion($event)"
-                            ></searchAddBar>
-                            <div class="settings-wrap">
-                                <div class="resource-boxContent">
-                                    <!--Search for region-->
-                                    <mat-form-field>
-                                        <input matInput class="w3-input"
-                                               placeholder="hostedBy"
-                                               matTooltip="Lyph or region to host the lyph"
-                                               [value]="lyph?.hostedBy"
-                                               (keyup.enter)="updateValue('hostedBy', $event.target.value)"
-                                               (focusout)="updateValue('hostedBy', $event.target.value)"
-                                        >
-                                    </mat-form-field>
-                                </div>
-                            </div>
+                        <div class="w3-block">
+                            <mat-radio-group name="topology" aria-label="Topology" [value]="currentTopology">
+                                <mat-radio-button *ngFor="let option of topologyOptions" class="w3-margin-right"
+                                                  [value]="option" (change)="updateValue('topology', option.id)">
+                                    {{ option.name }}
+                                </mat-radio-button>
+                            </mat-radio-group>
+                        </div>
+                    </div>
+                    <!--Region-->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div><b>Region</b></div>
+                        <searchAddBar
+                                [searchOptions]="regionOptions"
+                                [selected]="selectedRegion"
+                                (selectedItemChange)="selectBySearch($event)"
+                                (addSelectedItem)="replaceRegion($event)"
+                        ></searchAddBar>
+                        <div class="resource-boxContent">
+                            <!--Search for region-->
+                            <mat-form-field>
+                                <input matInput class="w3-input"
+                                       placeholder="hostedBy"
+                                       matTooltip="Lyph or region to host the lyph"
+                                       [value]="lyph?.hostedBy"
+                                       (keyup.enter)="updateValue('hostedBy', $event.target.value)"
+                                       (focusout)="updateValue('hostedBy', $event.target.value)"
+                                >
+                            </mat-form-field>
                         </div>
                     </div>
                 </div>
@@ -77,14 +73,8 @@ import {$Field} from "../../model";
             width: 100%;
         }
 
-        .settings-wrap {
-            padding-bottom: 0.8rem;
-            margin-top: 0;
-            position: relative;
-        }
-
         .resource-box .resource-boxContent {
-            padding: 0.625rem;
+            padding: 0 0.625rem 0 0.625rem;
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
             font-weight: 500;
@@ -132,7 +122,7 @@ export class LyphDeclarationEditor {
     }
 
     selectBySearch(nodeLabel) {
-        if (!nodeLabel){
+        if (!nodeLabel) {
             return;
         }
         this.selectedRegion = nodeLabel.substring(

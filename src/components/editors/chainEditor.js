@@ -116,19 +116,18 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                         (addSelectedItem)="addChainLyph($event)"
                 >
                 </searchAddBar>
-                 <!-- level target -->
+                <!-- level target -->
                 <div class="resource-box" *ngIf="selectedLyph">
-                    <div class="settings-wrap">
-                        <div class="resource-boxContent">
-                            <div class="w3-padding w3-margin-bottom w3-border">
-                                <div class="w3-margin-bottom"><b>Level target</b></div>
-                                <mat-form-field>
-                                    <input disabled matInput class="w3-input"
-                                           matTooltip="Selected level target"
-                                           [value]="selectedLyph._conveys?.target"
-                                    >
-                                </mat-form-field>
-                            </div>
+                    <div class="resource-boxContent">
+                        <div class="w3-padding w3-margin-bottom w3-border">
+                            <div class="w3-margin-bottom"><b>{{selectedLyph.name || selecledLyph.id}}</b></div>
+                            Level target
+                            <mat-form-field>
+                                <input disabled matInput class="w3-input"
+                                       matTooltip="Selected level target"
+                                       [value]="selectedLyph._conveys?.target"
+                                >
+                            </mat-form-field>
                         </div>
                     </div>
                 </div>
@@ -138,7 +137,7 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                         (onValueChange)="updateProperty($event)"
                         (onCreateLateral)="createLateral($event)"
                 >
-                </chainDeclaration>               
+                </chainDeclaration>
                 <lyphTreeView *ngIf="selectedLyph"
                               title="Layers"
                               [ordered]=true
@@ -160,23 +159,17 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
             overflow-y: auto;
             overflow-x: auto;
         }
-        
-        .settings-wrap {
-            padding-bottom: 0.8rem;
-            margin-top: 0;
-            position: relative;
-        }
 
         .resource-box .resource-boxContent {
-            padding: 0.625rem;
+            padding: 0 0.625rem 0 0.625rem;
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
             font-weight: 500;
         }
-        
+
         .vertical-toolbar {
             margin-right: 20px;
-        }       
+        }
     `]
 })
 /**
@@ -458,8 +451,8 @@ export class ChainEditorComponent {
                             "target": getGenID(this.selectedChain?.id, $Prefix.node, idx + 1)
                         }
                     }
-                    if (this.selectedChain.leaf && this.selectedChain.lyphs.length-1 === idx){
-                       lyph._conveys.target = this.selectedChain.leaf;
+                    if (this.selectedChain.leaf && this.selectedChain.lyphs.length - 1 === idx) {
+                        lyph._conveys.target = this.selectedChain.leaf;
                     }
                 });
             } else {

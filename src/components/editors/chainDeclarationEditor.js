@@ -22,46 +22,46 @@ import {$Field, $Prefix, getGenID, getGenName} from "../../model";
                 (onValueChange)="onValueChange.emit($event)"
         ></resourceDeclaration>
         <div class="resource-box">
-            <div class="settings-wrap">
-                <div class="resource-boxContent">
-                    <div *ngIf="_chain?._class === 'Chain'" class="resource-box">
-                        <!-- Root and leaf -->
-                        <div class="w3-padding w3-margin-bottom w3-border">
-                            <div class="w3-margin-bottom"><b>Root and leaf</b></div>
-                            <mat-form-field>
-                                <input matInput class="w3-input"
-                                       placeholder="root"
-                                       matTooltip="Chain root node"
-                                       [value]="chain?.root"
-                                       [matAutocomplete]="autoRoot"
-                                       (keyup.enter)="updateValue('root', $event.target.value)"
-                                       (focusout)="updateValue('root', $event.target.value)"
-                                >
-                                <mat-autocomplete #autoRoot="matAutocomplete">
-                                    <mat-option *ngFor="let root of rootOptions" [value]="root">
-                                        <span>{{root}}</span> 
-                                    </mat-option>
-                                </mat-autocomplete>
-                            </mat-form-field>
-                            <mat-form-field>
-                                <input matInput class="w3-input"
-                                       placeholder="leaf"
-                                       matTooltip="Chain leaf node"
-                                       [value]="chain?.leaf"
-                                       [matAutocomplete]="autoLeaf"
-                                       (keyup.enter)="updateValue('leaf', $event.target.value)"
-                                       (focusout)="updateValue('leaf', $event.target.value)"
-                                >
-                                <mat-autocomplete #autoLeaf="matAutocomplete">
-                                    <mat-option *ngFor="let leaf of leafOptions" [value]="leaf">
-                                        <span>{{leaf}}</span> 
-                                    </mat-option>
-                                </mat-autocomplete>
-                            </mat-form-field>
-                        </div>
-                        <!-- Laterals -->
-                        <div class="w3-padding w3-margin-bottom w3-border">
-                            <div class="w3-margin-bottom"><b>Lateral chains</b></div>
+            <div class="resource-boxContent">
+                <div *ngIf="_chain?._class === 'Chain'">
+                    <!-- Root and leaf -->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div class="w3-margin-bottom"><b>Root and leaf</b></div>
+                        <mat-form-field>
+                            <input matInput class="w3-input"
+                                   placeholder="root"
+                                   matTooltip="Chain root node"
+                                   [value]="chain?.root"
+                                   [matAutocomplete]="autoRoot"
+                                   (keyup.enter)="updateValue('root', $event.target.value)"
+                                   (focusout)="updateValue('root', $event.target.value)"
+                            >
+                            <mat-autocomplete #autoRoot="matAutocomplete">
+                                <mat-option *ngFor="let root of rootOptions" [value]="root">
+                                    <span>{{root}}</span>
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <input matInput class="w3-input"
+                                   placeholder="leaf"
+                                   matTooltip="Chain leaf node"
+                                   [value]="chain?.leaf"
+                                   [matAutocomplete]="autoLeaf"
+                                   (keyup.enter)="updateValue('leaf', $event.target.value)"
+                                   (focusout)="updateValue('leaf', $event.target.value)"
+                            >
+                            <mat-autocomplete #autoLeaf="matAutocomplete">
+                                <mat-option *ngFor="let leaf of leafOptions" [value]="leaf">
+                                    <span>{{leaf}}</span>
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <!-- Laterals -->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div class="w3-margin-bottom"><b>Lateral chains</b></div>
+                        <div class="button-space">
                             <mat-form-field>
                                 <input matInput class="w3-input"
                                        placeholder="Lateral prefix"
@@ -76,24 +76,24 @@ import {$Field, $Prefix, getGenID, getGenName} from "../../model";
                                 </i>
                             </button>
                         </div>
-                        <!-- Positioning - wiredTo -->
-                        <div class="w3-padding w3-margin-bottom w3-border">
-                            <div class="w3-margin-bottom"><b>Wire</b></div>
-                            <searchAddBar
-                                    [searchOptions]="wireOptions"
-                                    [selected]="selectedWire"
-                                    (selectedItemChange)="selectBySearch($event)"
-                                    (addSelectedItem)="replaceWire($event)"
-                            ></searchAddBar>
-                            <mat-form-field>
-                                <input matInput class="w3-input"
-                                       placeholder="wiredTo"
-                                       matTooltip="Wire to direct the chain"
-                                       [value]="chain?.wiredTo"
-                                       (keyup.enter)="updateValue('wiredTo', $event.target.value)"
-                                       (focusout)="updateValue('wiredTo', $event.target.value)">
-                            </mat-form-field>
-                        </div>
+                    </div>
+                    <!-- Positioning - wiredTo -->
+                    <div class="w3-padding w3-margin-bottom w3-border">
+                        <div><b>Wire</b></div>
+                        <searchAddBar
+                                [searchOptions]="wireOptions"
+                                [selected]="selectedWire"
+                                (selectedItemChange)="selectBySearch($event)"
+                                (addSelectedItem)="replaceWire($event)"
+                        ></searchAddBar>
+                        <mat-form-field>
+                            <input matInput class="w3-input"
+                                   placeholder="wiredTo"
+                                   matTooltip="Wire to direct the chain"
+                                   [value]="chain?.wiredTo"
+                                   (keyup.enter)="updateValue('wiredTo', $event.target.value)"
+                                   (focusout)="updateValue('wiredTo', $event.target.value)">
+                        </mat-form-field>
                     </div>
                 </div>
             </div>
@@ -104,14 +104,8 @@ import {$Field, $Prefix, getGenID, getGenName} from "../../model";
             width: 100%;
         }
 
-        .settings-wrap {
-            padding-bottom: 0.8rem;
-            margin-top: 0;
-            position: relative;
-        }
-
         .resource-box .resource-boxContent {
-            padding: 0.625rem;
+            padding: 0 0.625rem 0 0.625rem;
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
             font-weight: 500;
@@ -123,6 +117,10 @@ import {$Field, $Prefix, getGenID, getGenName} from "../../model";
             line-height: 28px;
             height: 28px;
             font-size: 12px;
+        }
+
+        .button-space {
+            padding: 0 0 1.625rem 0;
         }
     `]
 })
@@ -145,8 +143,8 @@ export class ChainDeclarationEditor {
                 this.rootOptions = [getGenID($Prefix.root, this._chain.id)];
                 this.leafOptions = [getGenID($Prefix.leaf, this._chain.id)];
             }
-            if (this._chain?.lateralOf){
-                 this.rootOptions.push(getGenID($Prefix.root, this._chain.lateralOf));
+            if (this._chain?.lateralOf) {
+                this.rootOptions.push(getGenID($Prefix.root, this._chain.lateralOf));
             }
         }
     }
@@ -174,7 +172,7 @@ export class ChainDeclarationEditor {
     }
 
     selectBySearch(nodeLabel) {
-        if (!nodeLabel){
+        if (!nodeLabel) {
             return;
         }
         this.selectedWire = nodeLabel.substring(

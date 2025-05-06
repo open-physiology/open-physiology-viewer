@@ -15,7 +15,6 @@ import {COLORS} from "../gui/utils";
     selector: 'resourceDeclaration',
     template: `
         <div class="resource-box">
-            <div class="settings-wrap">
                 <div class="resource-boxContent">
                     <!--Basic properties-->
                     <div class="w3-padding w3-margin-bottom w3-border">
@@ -76,7 +75,6 @@ import {COLORS} from "../gui/utils";
 
                     </div>
                 </div>
-            </div>
         </div>
     `,
     styles: [`
@@ -88,14 +86,8 @@ import {COLORS} from "../gui/utils";
             width: calc(100% - 48px);
         }
 
-        .settings-wrap {
-            padding-bottom: 0.8rem;
-            margin-top: 0;
-            position: relative;
-        }
-
         .resource-box .resource-boxContent {
-            padding: 0.625rem;
+            padding: 0 0.625rem 0 0.625rem;
             font-size: 0.75rem;
             color: ${COLORS.inputTextColor};
             font-weight: 500;

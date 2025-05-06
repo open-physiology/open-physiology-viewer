@@ -58,7 +58,7 @@ export class ListNode {
     selector: 'resourceListView',
     template: `
         <section class="list-container">
-            <div class="title w3-margin">
+            <div class="title">
                 <span class="w3-padding-small">{{title}}</span>
             </div>
             <mat-nav-list class="w3-padding-0 node-list">                
