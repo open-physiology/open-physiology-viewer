@@ -278,7 +278,7 @@ export class ResourceTreeNode {
 
         button {
             background: transparent;
-            color: #797979;
+            color: ${COLORS.buttonText};
             font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;

@@ -27,7 +27,27 @@ export const COLORS = {
     coalescence: '#ffe7e7',
     chain: '#ccddff',
     external: '#b7fae7',
-    imported: '#e3e3e3'
+    imported: '#e3e3e3',
+    //
+    undefined: "lightgrey",
+    default: "lightgrey",
+    // Editors
+    selectedBorder: "#FF7F7F",
+    selected: "#FFCCCC",
+    highlighted: "#FFCCCC",
+    border: "#999",
+    path: "lightgrey",
+    pathLink: "#a5a5a5",
+    selectedPathLink: "#FF7F7F",
+    new: "#a5a5a5",
+    buttonText: "#797979",
+    //
+    tooltip: "#f5f5f5",
+    tooltipBorder: "#666",
+    // Hubmap
+    hubmapRoot: "#eeaf9e",
+    hubmapMain: "#e8dbb3",
+    hubmapAnnotation: "#ecf3a6"
 };
 
 
@@ -260,21 +280,23 @@ export function prepareImportedMaterialLyphMap(model, entitiesByID) {
     });
 }
 
+function addOptions(resources, searchOptions, clsName, prefix){
+     (resources || []).forEach(e => searchOptions.push({
+        id: prefix+e.id,
+        label: (e.name || '?') + ' (' + prefix+e.id + ')',
+        type: e.isTemplate ? 'Template' : clsName
+     }));
+}
+
 /**
  * Returns a list of lyph and material names joint with identifiers for search boxes in the GUI components
  * @param model
  * @returns {{id: *, label: string, type: string}[]}
  */
 export function prepareMaterialSearchOptions(model, searchOptions = [], prefix="") {
-    let classNames = [$SchemaClass.Material, $SchemaClass.Lyph];
-    [$Field.materials, $Field.lyphs].forEach((prop, i) => {
-        (model[prop] || []).forEach(e => searchOptions.push({
-            id: prefix+e.id,
-            label: (e.name || '?') + ' (' + prefix+e.id + ')',
-            type: e.isTemplate ? 'Template' : classNames[i]
-        }));
-    });
-    searchOptions.sort();
+    addOptions(model.materials, searchOptions, $SchemaClass.Material, prefix);
+    addOptions((model.lyphs||[]).filter(e => e.isTemplate), searchOptions, $SchemaClass.Lyph, prefix);
+    addOptions((model.lyphs||[]).filter(e => !e.isTemplate), searchOptions, $SchemaClass.Lyph, prefix);
     (model.groups||[]).forEach(g => {
         if (g.imported && g.namespace !== model.namespace){
             prepareMaterialSearchOptions(g, searchOptions, g.namespace+":");
@@ -289,12 +311,8 @@ export function prepareMaterialSearchOptions(model, searchOptions = [], prefix="
  * @returns {{id: *, label: string, type: string}[]}
  */
 export function prepareLyphSearchOptions(model, searchOptions = [], prefix="") {
-    (model.lyphs || []).forEach(e => searchOptions.push({
-        id: prefix+e.id,
-        label: (e.name || '?') + ' (' + prefix+e.id + ')',
-        type: e.isTemplate ? 'Template' : $SchemaClass.Lyph
-    }));
-    searchOptions.sort();
+    addOptions((model.lyphs||[]).filter(e => e.isTemplate), searchOptions, $SchemaClass.Lyph, prefix);
+    addOptions((model.lyphs||[]).filter(e => !e.isTemplate), searchOptions, $SchemaClass.Lyph, prefix);
     //Imported
     (model.groups||[]).forEach(g => {
         if (g.imported && g.namespace !== model.namespace){

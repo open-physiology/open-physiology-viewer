@@ -88,7 +88,6 @@ export class ModelRepoPanel {
 
         try {
             this.http.get(this.url).subscribe(res => {
-                console.log(res);
                 this.fileNames = (res||[]).map(model => model.name);
                 this.fileNames = this.fileNames.filter(fileName => getFileExt(fileName) === "json" );
                 (res || []).forEach(model => {

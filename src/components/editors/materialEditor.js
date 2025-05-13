@@ -68,7 +68,7 @@ export class MaterialNode {
      * @param clsName - resource type
      * @returns {MaterialNode}
      */
-    static createInstance(material, clsName= CLASS.MATERIAL){
+    static createInstance(material, clsName = CLASS.MATERIAL) {
         return new this(
             material.id,
             (material._inMaterials || []).map(parent => parent.id),
@@ -100,7 +100,7 @@ export class Edge {
     selector: 'materialEditor',
     template: `
         <section class="w3-row">
-            <section [class.w3-threequarter]="showPanel">                                
+            <section [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right w3-white" style="position:relative;">
                     <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:20px">
                         <button class="w3-bar-item w3-hover-light-grey"
@@ -108,7 +108,7 @@ export class Edge {
                             <i class="fa fa-file-pen"> </i>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey"
-                               [disabled]="currentStep === 0" 
+                                [disabled]="currentStep === 0"
                                 (click)="showDiff()" title="Compare code">
                             <i class="fa fa-code-compare"> </i>
                         </button>
@@ -131,7 +131,7 @@ export class Edge {
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="saveChanges()"
                                 title="Apply changes">
-                            <div style="display: flex">    
+                            <div style="display: flex">
                                 <i class="fa fa-check"> </i>
                                 <span *ngIf="currentStep > 0" style="color: red">*</span>
                             </div>
@@ -146,35 +146,35 @@ export class Edge {
                     <svg #svgDag>
                         <rect width="100%" height="100%"/>
                         <g/>
-                    </svg>                                                     
-                </section>                
-                <section [hidden]="!showTree"> 
-                    <materialGraphViewer 
-                        [rootNode]="selectedTreeNode"
-                        (onNodeSelect)="onNodeClick($event)"
-                    >                        
+                    </svg>
+                </section>
+                <section [hidden]="!showTree">
+                    <materialGraphViewer
+                            [rootNode]="selectedTreeNode"
+                            (onNodeSelect)="onNodeClick($event)"
+                    >
                     </materialGraphViewer>
-               </section>
+                </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
-                <searchAddBar 
+                <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="matToLink"
                         (selectedItemChange)="selectBySearch($event)"
                         (addSelectedItem)="linkMaterial($event)"
                 >
-                </searchAddBar>                          
+                </searchAddBar>
                 <resourceDeclaration
                         [resource]="selectedMaterial"
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
-                <resourceListView 
-                  title="Lyphs"
-                  [showMenu]=false
-                  [listData]="lyphList"
-                  (onNodeClick)="selectLyph($event)"
+                <resourceListView
+                        title="Lyphs"
+                        [showMenu]=false
+                        [listData]="lyphList"
+                        (onNodeClick)="selectLyph($event)"
                 >
-                </resourceListView>                   
+                </resourceListView>
             </section>
         </section>
         <section #tooltip class="tooltip"></section>
@@ -191,17 +191,23 @@ export class Edge {
                          let-hasChildren="hasChildren">
                 <div *ngIf="[CLASS.LYPH, CLASS.TEMPLATE, CLASS.MATERIAL].includes(type)">
                     <button mat-menu-item (click)="deleteMaterial(item)">Delete</button>
-                    <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item)">Delete definition</button>
-                    <button *ngIf="hasParents" mat-menu-item (click)="removeParents(item)">Disconnect from parents</button>
-                    <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children</button>
+                    <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item)">Delete definition
+                    </button>
+                    <button *ngIf="hasParents" mat-menu-item (click)="removeParents(item)">Disconnect from parents
+                    </button>
+                    <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children
+                    </button>
                 </div>
-                <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents" 
-                        mat-menu-item (click)="excludeLyph(item)">Exclude from view</button>
+                <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents"
+                        mat-menu-item (click)="excludeLyph(item)">Exclude from view
+                </button>
                 <div *ngIf="type === CLASS.UNDEFINED">
                     <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
                     <button mat-menu-item (click)="defineAsLyphTemplate(item)">Define as lyph template</button>
                 </div>
-                <button *ngIf="type === EDGE_CLASS.MATERIAL" mat-menu-item (click)="removeRelation(item)">Delete relation</button>
+                <button *ngIf="type === EDGE_CLASS.MATERIAL" mat-menu-item (click)="removeRelation(item)">Delete
+                    relation
+                </button>
                 <button *ngIf="type === EDGE_CLASS.NEW" mat-menu-item (click)="addMaterial(item)">Add material</button>
 
             </ng-template>
@@ -210,11 +216,12 @@ export class Edge {
     styles: [`
         .vertical-toolbar {
             width: 48px;
-        }       
-        .vertical-toolbar button{
+        }
+
+        .vertical-toolbar button {
             height: 48px;
         }
-        
+
         #materialEditor {
             height: 100vh;
             overflow-y: auto;
@@ -232,24 +239,24 @@ export class Edge {
         .tooltip {
             position: absolute;
             padding: 2px;
-            background-color: #f5f5f5;
+            background-color: ${COLORS.tooltip};
             font: 12px sans-serif;
-            border: 1px solid #666;
+            border: 1px solid ${COLORS.tooltipBorder};
             pointer-events: none;
         }
-        
+
         ::ng-deep .mat-menu-content {
-          padding-top: 0px !important;
-          padding-bottom: 0px !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
         }
-        
-        .mat-menu-item{
-          line-height:32px;
-          height:32px;
+
+        .mat-menu-item {
+            line-height: 32px;
+            height: 32px;
         }
 
         :host /deep/ g.${CLASS.UNDEFINED} > rect {
-            fill: lightgrey;
+            fill: ${COLORS.undefined};
         }
 
         :host /deep/ g.${CLASS.MATERIAL} > rect {
@@ -271,32 +278,32 @@ export class Edge {
         }
 
         :host /deep/ .node rect {
-            stroke: #999;
-            fill: lightgrey;
+            stroke: ${COLORS.border};
+            fill:  ${COLORS.default};
         }
 
         :host /deep/ .node rect:hover {
-            fill: #FFCCCC;
-            stroke-width: 1.5px;
+            fill:  ${COLORS.highlighted};
+            stroke-width: 2px;
         }
 
         :host /deep/ .edgePath path {
-            stroke: lightgrey;
-            stroke-width: 1.5px;
+            stroke:  ${COLORS.path};
+            stroke-width: 2px;
         }
 
         :host /deep/ .edgePath path:hover {
-            stroke: #FFCCCC;
-        }        
+            stroke: ${COLORS.highlighted};
+        }
 
         :host /deep/ .edge .new {
-            stroke: #a5a5a5;
-            fill: #a5a5a5;
+            stroke: ${COLORS.new};
+            fill: ${COLORS.new};
         }
 
         :host /deep/ path.link {
             fill: none;
-            stroke: #a5a5a5;
+            stroke:  ${COLORS.pathLink};
             stroke-width: 4px;
             stroke-dasharray: 10, 2;
             cursor: default;
@@ -312,12 +319,17 @@ export class Edge {
 
         :host /deep/ path.link.hidden {
             stroke-width: 0;
-        } 
+        }
         
-        .settings-panel{
-          height: 100vh;
-          overflow-y: auto;
-          overflow-x: auto;
+        .label {
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .settings-panel {
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: auto;
         }
     `]
 })
@@ -381,8 +393,8 @@ export class DagViewerD3Component {
 
     @HostListener('window:resize', ['$event'])
     getScreenSize(event?) {
-          this.screenHeight = window.innerHeight;
-          this.screenWidth = window.innerWidth;
+        this.screenHeight = window.innerHeight;
+        this.screenWidth = window.innerWidth;
     }
 
     updateSearchOptions() {
@@ -406,7 +418,7 @@ export class DagViewerD3Component {
         window.addEventListener('resize', () => {
             this.width = this.svgRef.nativeElement.clientWidth;
             this.height = this.svgRef.nativeElement.clientHeight;
-            if (this.isHistory){
+            if (this.isHistory) {
                 this.updateGraph();
             }
             this.draw();
@@ -426,11 +438,11 @@ export class DagViewerD3Component {
     }
 
     get undoTitle() {
-        return `Undo ${(this.canUndo? '"' + this.steps[this.currentStep].action + '"': "")}`;
+        return `Undo ${(this.canUndo ? '"' + this.steps[this.currentStep].action + '"' : "")}`;
     }
 
     get redoTitle() {
-      return `Redo ${(this.canRedo? '"' + this.steps[this.currentStep + 1].action + '"': "")}`;
+        return `Redo ${(this.canRedo ? '"' + this.steps[this.currentStep + 1].action + '"' : "")}`;
     }
 
     /**
@@ -461,7 +473,10 @@ export class DagViewerD3Component {
             let x = this.graphD3.node(e.source.id);
             let y = this.graphD3.node(e.target.id);
             if (x && y) {
-                this.graphD3.setEdge(e.source.id, e.target.id, {curve: d3.curveBasis, class: e.source.id + " " + e.target.id});
+                this.graphD3.setEdge(e.source.id, e.target.id, {
+                    curve: d3.curveBasis,
+                    class: e.source.id + " " + e.target.id
+                });
             } else {
                 throw new Error("Graph cannot have an edge between non-existing nodes: " + e.source.id + " --- " + e.target.id);
             }
@@ -492,7 +507,7 @@ export class DagViewerD3Component {
             .attr('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z')
             .style("stroke-width", 1)
             .style("stroke-dasharray", "1,0")
-            .attr('fill', '#a5a5a5');
+            .attr('fill', COLORS.new);
 
         this.drag_line = this.inner.append('svg:path')
             .attr('class', 'link dragline hidden')
@@ -531,9 +546,7 @@ export class DagViewerD3Component {
     }
 
     appendNodeEvents(nodes) {
-        nodes.on('click', d => {
-            this.onNodeClick(d);
-        })
+        nodes.on('click', d => this.onNodeClick(d))
             .on('dblclick', d => this.onDblClick(d))
             .on('contextmenu', d => this.onRightClick(d))
             .on('mouseover', d => {
@@ -659,7 +672,7 @@ export class DagViewerD3Component {
                 this.edges.push(edge);
             });
         });
-       this.nodes::sortBy([$Field.id]);
+        this.nodes::sortBy([$Field.id]);
     }
 
     /**
@@ -701,7 +714,7 @@ export class DagViewerD3Component {
         this.matMenuTrigger.openMenu();
     }
 
-    onDblClick(nodeID){
+    onDblClick(nodeID) {
         const buildTree = (rootMat, includeChildren = true, includeParents = true) => {
             let root = MaterialNode.createInstance(rootMat, rootMat._class);
             let notFound = [];
@@ -717,7 +730,7 @@ export class DagViewerD3Component {
             } else {
                 delete root.children;
             }
-            if (includeParents && rootMat._inMaterials){
+            if (includeParents && rootMat._inMaterials) {
                 let parents = rootMat._inMaterials.map(parent => {
                     let mat = parent::isObject() ? parent : this.entitiesByID[parent];
                     if (mat) {
@@ -726,12 +739,12 @@ export class DagViewerD3Component {
                         notFound.push(parent);
                     }
                 });
-                (parents||[]).forEach(p => {
+                (parents || []).forEach(p => {
                     p.category = 'parent';
                 });
-                root.children = (root.children||[]).concat(parents);
+                root.children = (root.children || []).concat(parents);
             }
-            if (notFound.length > 0){
+            if (notFound.length > 0) {
                 root.children = root.children.filter(e => e);
             }
             return root;
@@ -753,31 +766,36 @@ export class DagViewerD3Component {
             if (this._selectedNode) {
                 let previous = this.graphD3.node(this._selectedNode);
                 if (previous) {
-                    d3.select(previous.elem).select("g rect").attr("stroke", "lightgrey");
-                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke", "lightgrey");
+                    // Unselect previous node
+                    const prevColor = this._selectedNodeColor || COLORS.material;
+                    const elem = d3.select(previous.elem).select("g rect");
+                    elem.style("stroke-width", "1px").style("stroke", COLORS.border).style("fill", prevColor);
+                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke", COLORS.path);
                 }
             }
             this._selectedNode = nodeID;
             let node = this.graphD3.node(nodeID);
             if (node) {
-                let elem = d3.select(node.elem);
-                elem.select("g rect").attr("stroke", "black");
-                d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke", "black");
+                // Emphasize new selected node
+                const elem = d3.select(node.elem).select("g rect");
+                this._selectedNodeColor = elem.attr("fill");
+                elem.style("stroke-width", "4px").style("stroke", COLORS.selectedBorder).style("fill", COLORS.selected);
+                d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke", COLORS.selectedPathLink);
             }
             this.prepareLyphList();
         }
     }
 
-    prepareLyphList(){
+    prepareLyphList() {
         this.lyphList = [];
-        (this._model.lyphs||[]).forEach(lyph => {
-            if ((lyph.layers||[]).find(e => e === this._selectedNode)){
+        (this._model.lyphs || []).forEach(lyph => {
+            if ((lyph.layers || []).find(e => e === this._selectedNode)) {
                 this.lyphList.push(ListNode.createInstance(lyph));
             }
         });
     }
 
-    selectLyph(node){
+    selectLyph(node) {
         if (node.class === $SchemaClass.Lyph || node.class === "Template") {
             this.onSwitchEditor.emit({editor: "lyph", node: node.id});
         }
@@ -796,7 +814,7 @@ export class DagViewerD3Component {
         let node = this.entitiesByID[nodeID];
         let type = CLASS.UNDEFINED;
         if (!node._generated) {
-            type = node._class === $SchemaClass.Material ? CLASS.MATERIAL : node.isTemplate? CLASS.TEMPLATE: CLASS.LYPH;
+            type = node._class === $SchemaClass.Material ? CLASS.MATERIAL : node.isTemplate ? CLASS.TEMPLATE : CLASS.LYPH;
         }
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
@@ -821,7 +839,7 @@ export class DagViewerD3Component {
         this.matMenuTrigger.openMenu();
     }
 
-    _addRelation({v, w}){
+    _addRelation({v, w}) {
         let material1 = this.entitiesByID[v];
         let material2 = this.entitiesByID[w];
         if (material1 && material2) {
@@ -922,7 +940,7 @@ export class DagViewerD3Component {
         }
     }
 
-    resizeCanvas(){
+    resizeCanvas() {
         this.svg.attr("width", Math.max(this.screenWidth, this.graphD3.graph().width + 40));
         this.svg.attr("height", Math.max(this.screenHeight, this.graphD3.graph().height + 40));
     }
@@ -1047,35 +1065,37 @@ export class DagViewerD3Component {
         }
     }
 
-    showDiff(){
-         const dialogRef = this.dialog.open(DiffDialog, {
-            width : '90%',
-            data  : {'oldContent': this._modelText, 'newContent': this.currentText}
+    showDiff() {
+        const dialogRef = this.dialog.open(DiffDialog, {
+            width: '90%',
+            data: {'oldContent': this._modelText, 'newContent': this.currentText}
         });
     }
 
-    get currentText(){
+    get currentText() {
         if (this.currentStep > 0 && this.currentStep < this.steps.length) {
             const added = ['_class', '_generated', '_inMaterials', '_included'];
             let currentModel = this._model::cloneDeep();
             return JSON.stringify(currentModel,
-                function(key, val) {
-                    if (!added.includes(key)){
+                function (key, val) {
+                    if (!added.includes(key)) {
                         return val;
-                    }},
+                    }
+                },
                 4);
         }
         return this._modelText;
     }
+
     /**
      * Save operation in history
      * @param action
      */
     saveStep(action) {
-        if (this.currentStep > this.steps.length - 1){
+        if (this.currentStep > this.steps.length - 1) {
             this.currentStep = this.steps.length - 1;
         }
-        if (this.currentStep !== this.steps.length - 1){
+        if (this.currentStep !== this.steps.length - 1) {
             this.steps.length = this.currentStep + 1;
         }
         let snapshot = this._model::cloneDeep();
@@ -1107,7 +1127,7 @@ export class DagViewerD3Component {
         }
     }
 
-    clearHelpers(){
+    clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
             //Clean up all helper mods
             delete obj._inMaterials;
@@ -1124,7 +1144,7 @@ export class DagViewerD3Component {
 
     selectBySearch(nodeLabel) {
         let nodeID = nodeLabel.substring(
-            nodeLabel.indexOf("(") + 1,
+            nodeLabel.lastIndexOf("(") + 1,
             nodeLabel.lastIndexOf(")")
         );
         let node = this.entitiesByID[nodeID];
@@ -1145,10 +1165,10 @@ export class DagViewerD3Component {
         let mat = this.entitiesByID[matID];
         if (mat) {
             let node = this.graphD3.node(matID);
-            if (!node && mat._class === $SchemaClass.Lyph){
+            if (!node && mat._class === $SchemaClass.Lyph) {
                 this.graphD3.setNode(matID, {
                     label: mat.name,
-                    class: mat.isTemplate? CLASS.TEMPLATE: CLASS.LYPH
+                    class: mat.isTemplate ? CLASS.TEMPLATE : CLASS.LYPH
                 });
                 let newNode = MaterialNode.createInstance(mat, CLASS.LYPH);
                 this.nodes.push(newNode);
@@ -1161,7 +1181,7 @@ export class DagViewerD3Component {
                 }
                 this.saveStep('Include lyph ' + matID);
             }
-            if (this.selectedNode){
+            if (this.selectedNode) {
                 this._addRelation({v: this.selectedNode, w: matID});
             }
             this.matToLink = null;

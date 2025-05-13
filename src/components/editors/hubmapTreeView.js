@@ -7,6 +7,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {ClipboardModule} from '@angular/cdk/clipboard'
+import {COLORS} from "../gui/utils";
 
 /**
  * @class
@@ -94,19 +95,19 @@ export class HubMapTreeNode {
         }
 
         .node-item {
-            border: 0.067rem solid lightgrey;
+            border: 0.067rem solid ${COLORS.default};
         }
 
         .root {
-            background-color: #eeaf9e;
+            background-color: ${COLORS.hubmapRoot};
         }
 
         .main {
-            background-color: #e8dbb3;
+            background-color: ${COLORS.hubmapMain};
         }
 
         .annotation {
-            background-color: #ecf3a6;
+            background-color: ${COLORS.hubmapAnnotation};
         }
 
         .mat-menu-item {
@@ -124,7 +125,7 @@ export class HubMapTreeNode {
         }
 
         .selected {
-            border: 3px solid darkgrey;
+            border: 3px solid ${COLORS.selectedBorder};
         }
 
         .tree-container {
@@ -139,7 +140,7 @@ export class HubMapTreeNode {
 
         button {
             background: transparent;
-            color: #797979;
+            color: ${COLORS.buttonText};
             font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;

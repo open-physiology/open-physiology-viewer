@@ -126,7 +126,7 @@ export class LyphDeclarationEditor {
             return;
         }
         this.selectedRegion = nodeLabel.substring(
-            nodeLabel.indexOf("(") + 1,
+            nodeLabel.lastIndexOf("(") + 1,
             nodeLabel.lastIndexOf(")")
         );
     }

@@ -223,6 +223,7 @@ export class LyphTreeNode {
                 <div *ngIf="!inherited && !imported">
                     <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
                     <div *ngIf="class === 'Lyph' || class === 'Material'">
+                        <button mat-menu-item (click)="processOperation('clone',item, index)">Clone</button>
                         <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
                         </button>
                         <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
@@ -277,7 +278,7 @@ export class LyphTreeNode {
         }
 
         .node-item {
-            border: 0.067rem solid lightgrey;
+            border: 0.067rem solid ${COLORS.border};
         }
 
         .lyph {
@@ -297,12 +298,12 @@ export class LyphTreeNode {
         }
 
         .undefined {
-            background-color: lightgrey;
-            border: 0.067rem solid lightgrey;
+            background-color: ${COLORS.undefined};
+            border: 0.067rem solid ${COLORS.border};
         }
 
         .selected {
-            border: 3px solid darkgrey;
+            border: 3px solid ${COLORS.selectedBorder};
         }
 
         .tree-container {
@@ -316,7 +317,7 @@ export class LyphTreeNode {
 
         button {
             background: transparent;
-            color: #797979;
+            color: ${COLORS.buttonText};
             font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
@@ -374,7 +375,13 @@ export class LyphTreeView {
     @Input('selectedNode') set selectedNode(node) {
         if (this._selectedNode !== node) {
             this._selectedNode = node;
-            this.treeControl.expand(node);
+            if (node::isObject()){
+                let curr = node;
+                while (curr.parent) {
+                    this.treeControl.expand(curr.parent._node);
+                    curr = curr.parent._node;
+                }
+            }
         }
     }
 
@@ -446,7 +453,7 @@ export class LyphTreeView {
     }
 
     selectNode(node) {
-        this.selectedNode = node;
+        this._selectedNode = node;
         this.onNodeClick.emit(node);
     }
 }

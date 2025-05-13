@@ -176,7 +176,7 @@ export class ChainDeclarationEditor {
             return;
         }
         this.selectedWire = nodeLabel.substring(
-            nodeLabel.indexOf("(") + 1,
+            nodeLabel.lastIndexOf("(") + 1,
             nodeLabel.lastIndexOf(")")
         );
     }

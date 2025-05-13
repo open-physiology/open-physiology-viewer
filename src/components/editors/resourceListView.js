@@ -131,7 +131,7 @@ export class ListNode {
         } 
 
         .list-node {
-            border: 0.067rem solid lightgrey;
+            border: 0.067rem solid ${COLORS.border};
         }
 
         .lyph {
@@ -159,12 +159,12 @@ export class ListNode {
         }
         
         .undefined {
-            background-color: lightgrey;
-            border: 0.067rem solid lightgrey;
+            background-color: ${COLORS.undefined}; 
+            border: 0.067rem solid  ${COLORS.border}; 
         }
 
         .selected {
-            border: 3px solid darkgrey;
+            border: 3px solid ${COLORS.selectedBorder};
         }
         
         .list-container{
@@ -191,7 +191,7 @@ export class ListNode {
         
         button {
             background: transparent;
-            color: #797979;
+            color: ${COLORS.buttonText};
             font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;

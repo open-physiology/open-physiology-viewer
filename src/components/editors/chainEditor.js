@@ -504,7 +504,7 @@ export class ChainEditorComponent {
             this.lyphToLink = null;
         } else {
             let nodeID = nodeLabel.substring(
-                nodeLabel.indexOf("(") + 1,
+                nodeLabel.lastIndexOf("(") + 1,
                 nodeLabel.lastIndexOf(")")
             );
             this.lyphToLink = this.entitiesByID[nodeID];
