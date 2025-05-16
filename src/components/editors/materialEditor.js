@@ -25,6 +25,7 @@ import {
     prepareMaterialSearchOptions,
     COLORS
 } from '../gui/utils.js'
+import {LinkedResourceModule} from "./linkedResource";
 
 
 /**
@@ -157,9 +158,12 @@ export class Edge {
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
+                <linkedResource 
+                        [resource]="matToLink">                    
+                </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
-                        [selected]="matToLink"
+                        [selected]="matToLink?.id"
                         (selectedItemChange)="selectBySearch($event)"
                         (addSelectedItem)="linkMaterial($event)"
                 >
@@ -209,7 +213,6 @@ export class Edge {
                     relation
                 </button>
                 <button *ngIf="type === EDGE_CLASS.NEW" mat-menu-item (click)="addMaterial(item)">Add material</button>
-
             </ng-template>
         </mat-menu>
     `,
@@ -242,6 +245,7 @@ export class Edge {
             background-color: ${COLORS.tooltip};
             font: 12px sans-serif;
             border: 1px solid ${COLORS.tooltipBorder};
+            border-radius: 2px;
             pointer-events: none;
         }
 
@@ -762,7 +766,7 @@ export class DagViewerD3Component {
     }
 
     @Input('selectedNode') set selectedNode(nodeID) {
-        if (this._selectedNode !== nodeID) {
+        if (!this._selectedNode !== nodeID) {
             if (this._selectedNode) {
                 let previous = this.graphD3.node(this._selectedNode);
                 if (previous) {
@@ -774,13 +778,15 @@ export class DagViewerD3Component {
                 }
             }
             this._selectedNode = nodeID;
-            let node = this.graphD3.node(nodeID);
-            if (node) {
-                // Emphasize new selected node
-                const elem = d3.select(node.elem).select("g rect");
-                this._selectedNodeColor = elem.attr("fill");
-                elem.style("stroke-width", "4px").style("stroke", COLORS.selectedBorder).style("fill", COLORS.selected);
-                d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke", COLORS.selectedPathLink);
+            if (this.graphD3) {
+                let node = this.graphD3.node(nodeID);
+                if (node) {
+                    // Emphasize new selected node
+                    const elem = d3.select(node.elem).select("g rect");
+                    this._selectedNodeColor = elem.attr("fill");
+                    elem.style("stroke-width", "4px").style("stroke", COLORS.selectedBorder).style("fill", COLORS.selected);
+                    d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke", COLORS.selectedPathLink);
+                }
             }
             this.prepareLyphList();
         }
@@ -828,6 +834,7 @@ export class DagViewerD3Component {
 
     onEmptyClick() {
         this.selectedNode = null;
+        this.matToLink = null;
     }
 
     onEmptyRightClick() {
@@ -1143,16 +1150,21 @@ export class DagViewerD3Component {
     }
 
     selectBySearch(nodeLabel) {
-        let nodeID = nodeLabel.substring(
-            nodeLabel.lastIndexOf("(") + 1,
-            nodeLabel.lastIndexOf(")")
-        );
-        let node = this.entitiesByID[nodeID];
-        if (node) {
-            if (this.selectedNode) {
-                this.matToLink = nodeID;
-            } else {
-                this.selectedNode = nodeID;
+        if (!nodeLabel) {
+            this.matToLink = null;
+        } else {
+            let nodeID = nodeLabel.substring(
+                nodeLabel.lastIndexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+            );
+            let node = this.entitiesByID[nodeID];
+            if (node) {
+                if (this.selectedNode) {
+                    this.matToLink = node;
+                } else {
+                    this.selectedNode = nodeID;
+                    this.matToLink = null;
+                }
             }
         }
     }
@@ -1184,7 +1196,6 @@ export class DagViewerD3Component {
             if (this.selectedNode) {
                 this._addRelation({v: this.selectedNode, w: matID});
             }
-            this.matToLink = null;
         }
     }
 
@@ -1202,7 +1213,7 @@ export class DagViewerD3Component {
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule],
+        MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule, LinkedResourceModule],
     declarations: [DagViewerD3Component],
     exports: [DagViewerD3Component]
 })

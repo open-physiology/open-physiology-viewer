@@ -7,12 +7,18 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
+import {MatTooltipModule, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 
 import {isNumber, isObject} from "lodash-bound";
-
 import {COLORS} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
-import {MatTooltipModule} from "@angular/material/tooltip";
+
+export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
+    showDelay: 0,
+    hideDelay: 0,
+    touchendHideDelay: 1500,
+    disableTooltipInteractivity:true
+};
 
 export const ICON = {
     LAYERS: "fa fa-bars",
@@ -154,6 +160,7 @@ export class LyphTreeNode {
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
+                               'linked'   : (node.id === (linkedNode?.id || linkedNode)),
                                'lyph'     : node.class === 'Lyph',
                                'template' : node.isTemplate,
                                'material' : node.class === 'Material', 
@@ -186,6 +193,7 @@ export class LyphTreeNode {
                     </button>
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
+                                'linked'   : (node.id === (linkedNode?.id || linkedNode)),
                                 'lyph'     : node.class === 'Lyph', 
                                 'template' : node.isTemplate,
                                 'material' : node.class === 'Material', 
@@ -222,10 +230,11 @@ export class LyphTreeNode {
                          let-inherited="inherited" let-imported="imported">
                 <div *ngIf="!inherited && !imported">
                     <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
+                    <button mat-menu-item (click)="processOperation('select',item, index)">Select</button>
                     <div *ngIf="class === 'Lyph' || class === 'Material'">
                         <button mat-menu-item (click)="processOperation('clone',item, index)">Clone</button>
-                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
-                        </button>
+<!--                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition-->
+<!--                        </button>-->
                         <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
                         <button *ngIf="hasChildren" mat-menu-item
                                 (click)="processOperation('removeChildren', item, index)">Remove children
@@ -306,6 +315,10 @@ export class LyphTreeNode {
             border: 3px solid ${COLORS.selectedBorder};
         }
 
+        .linked {
+            border: 3px solid ${COLORS.linkedBorder};
+        }
+
         .tree-container {
             height: 100vh;
         }
@@ -353,6 +366,7 @@ export class LyphTreeView {
     @Input() active = false;
     @Input() showLayerIndex;
     @Input() showMenu = true;
+    @Input() linkedNode;
 
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;
@@ -462,6 +476,7 @@ export class LyphTreeView {
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
         MatTreeModule, MatMenuModule],
     declarations: [LyphTreeView],
+    providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
     exports: [LyphTreeView]
 })
 export class LyphTreeViewModule {

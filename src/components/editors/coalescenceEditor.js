@@ -15,6 +15,7 @@ import {DiffDialog} from "./diffDialog";
 
 import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
+import {LinkedResourceModule} from "./linkedResource";
 
 @Component({
     selector: 'coalescenceEditor',
@@ -82,6 +83,9 @@ import {$Field, $SchemaClass} from "../../model";
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
+                <linkedResource 
+                        [resource]="lyphToLink">                    
+                </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
@@ -110,7 +114,7 @@ import {$Field, $SchemaClass} from "../../model";
             justify-content: space-between;
         }
                 
-        .settings-panel{
+        .settings-panel{33
           height: 100vh;
           overflow-y: auto;
           overflow-x: auto;
@@ -617,7 +621,7 @@ export class CoalescenceEditorComponent {
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule, MatListModule,
+        MatDividerModule, ResourceListViewModule, MatListModule, LinkedResourceModule,
         LyphTreeViewModule],
     declarations: [CoalescenceEditorComponent],
     exports: [CoalescenceEditorComponent]

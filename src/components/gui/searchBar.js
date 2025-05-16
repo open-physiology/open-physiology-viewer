@@ -20,20 +20,20 @@ import {COLORS} from "./utils";
                        matTooltip="Describe resource you want to find"
                        type="text"
                        aria-label="Find resource"
-                       [value]="selected"
+                       [(ngModel)]="selected"
                        [formControl]="_myControl"
                        [matAutocomplete]="auto"
-                       (input)="inputChange.emit($event.target.value)"
+                       (input)="updateInput($event.target.value)"
                 >
                 <mat-autocomplete #auto="matAutocomplete"
-                                  (optionSelected)="this.selectedItemChange.emit($event.option.value)">
+                                  (optionSelected)="selectOption($event.option.value)">
                     <mat-option *ngFor="let option of _filteredOptions | async" [value]="option.label"
                                 [ngClass]="option.type">
                         {{option.label}}
                     </mat-option>
                 </mat-autocomplete>
-                <button *ngIf="selected" matSuffix mat-icon-button aria-label="Clear"
-                        (click)="selectedItemChange.emit(null)">
+                <button *ngIf="selected || nonEmpty" matSuffix mat-icon-button aria-label="Clear"
+                        (click)="selectOption(null)">
                     <i class="fa fa-close"> </i>
                 </button>
             </mat-form-field>
@@ -184,6 +184,7 @@ import {COLORS} from "./utils";
 export class SearchBar {
     _selected;
     _searchOptions;
+    nonEmpty;
 
     @Input('selected') set selected(value) {
         this._selected = value;
@@ -234,6 +235,16 @@ export class SearchBar {
         }
         const filterValue = name.toLowerCase();
         return (this.searchOptions || []).filter(option => option.label && option.label.toLowerCase().includes(filterValue));
+    }
+
+    selectOption(value){
+        this.selected = value;
+        this.selectedItemChange.emit(value);
+    }
+
+    updateInput(value){
+        this.nonEmpty = value?.length > 0;
+        this.inputChange.emit(value);
     }
 }
 

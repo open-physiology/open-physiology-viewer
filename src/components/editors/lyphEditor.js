@@ -5,7 +5,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatDialog} from "@angular/material/dialog";
-import {cloneDeep, clone, sortBy, values, isObject, isNumber} from 'lodash-bound';
+import {cloneDeep, sortBy, values, isObject, isNumber} from 'lodash-bound';
 
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "./searchAddBar";
@@ -23,11 +23,12 @@ import {
     prepareMaterialLyphMap
 } from "../gui/utils";
 import {getGenID} from "../../model/utils";
+import {LinkedResourceModule} from "./linkedResource";
 
 const TREE = {
     lyphTree: "lyphTree",
     layerTree: "layerTree",
-    internaTree: "internalTree"
+    internalTree: "internalTree"
 }
 
 @Component({
@@ -56,6 +57,7 @@ const TREE = {
                             [expanded]="lyphTreeExpanded"
                             [treeData]="lyphTree"
                             [selectedNode]="selectedNode"
+                            [linkedNode]="lyphToLink"
                             (onNodeClick)="selectLyph($event)"
                             (onChange)="processChange($event)"
                     >
@@ -123,6 +125,9 @@ const TREE = {
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
+                <linkedResource 
+                        [resource]="lyphToLink">                    
+                </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
@@ -364,7 +369,7 @@ export class LyphEditorComponent {
                     if (!supertype._subtypes.find(x => x.id === lyph.id)) {
                         supertype._subtypes.push(lyph);
                     }
-                    lyph._supertype = lyph.supertype;
+                    lyph._supertype = supertype;
                 } else {
                     missing.add(lyph.supertype)
                 }
@@ -498,7 +503,7 @@ export class LyphEditorComponent {
         const lyphID = lyph::isObject() ? lyph.id : lyph;
         const selectedNodeID = this._selectedNode::isObject()? this._selectedNode.id: this._selectedNode;
         this.selectedLyph = this.entitiesByID[lyphID];
-        if (selectedNodeID !== lyphID) {
+        if (this.selectedLyph && selectedNodeID !== lyphID) {
             this._selectedNode = this.selectedLyph._node;
         }
         this.selectedLyphToEdit = this.selectedLyph;
@@ -639,6 +644,9 @@ export class LyphEditorComponent {
             case 'clone':
                 this.cloneLyph(node);
                 break;
+            case 'select':
+                this.lyphToLink = this.entitiesByID[node.id];
+                break;
             case 'insert':
                 this.addSubtype(node, index);
                 break;
@@ -673,6 +681,7 @@ export class LyphEditorComponent {
             if (lyph._supertype && lyph._supertype.subtypes) {
                 lyph._supertype.subtypes = lyph._supertype.subtypes.filter(e => e !== node.id);
             } else {
+                console.error(lyph._supertype, node.id);
                 this.showMessage("Cannot delete supertype: supertype definition error!");
             }
             delete lyph.supertype;
@@ -766,6 +775,9 @@ export class LyphEditorComponent {
      */
     processInternalChange({operation, node, index}) {
         switch (operation) {
+            case 'select':
+                this.lyphToLink = this.entitiesByID[node.id];
+                break;
             case 'insert':
                 this.addInternal(node);
                 break;
@@ -890,6 +902,9 @@ export class LyphEditorComponent {
      */
     processLayerChange({operation, node, index}) {
         switch (operation) {
+            case 'select':
+                this.lyphToLink = this.entitiesByID[node.id];
+                break;
             case 'insert':
                 this.addLayer(node);
                 break;
@@ -1004,6 +1019,12 @@ export class LyphEditorComponent {
                     parent.subtypes.push(lyph.id);
                 }
                 parent.isTemplate = true;
+                if (lyph.supertype) {
+                    let oldParent = this.entitiesByID[lyph.supertype];
+                    if (oldParent && oldParent.subtypes) {
+                        oldParent.subtypes = oldParent.subtypes.filter(x => x !== lyph.id);
+                    }
+                }
                 lyph.supertype = parent.id;
                 this.prepareLyphTree();
                 this.selectLyph(lyph);
@@ -1277,7 +1298,8 @@ export class LyphEditorComponent {
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, LyphTreeViewModule, LyphDeclarationModule, CheckboxFilterModule, ResourceListViewModule],
+        MatDividerModule, LyphTreeViewModule, LyphDeclarationModule, CheckboxFilterModule, ResourceListViewModule,
+    LinkedResourceModule, LinkedResourceModule],
     declarations: [LyphEditorComponent],
     exports: [LyphEditorComponent]
 })

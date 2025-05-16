@@ -19,6 +19,7 @@ import {COLORS} from '../gui/utils.js'
 
 import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
 import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
+import {LinkedResourceModule} from "./linkedResource";
 
 @Component({
     selector: 'chainEditor',
@@ -31,6 +32,7 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                             expectedClass="Chain"
                             [listData]="chainList"
                             [selectedNode]="selectedNode"
+                            [linkedNode]="chainToLink"
                             (onNodeClick)="selectChain($event)"
                             (onChange)="processChainChange($event)"
                     >
@@ -53,6 +55,7 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                                       expectedClass="Lyph"
                                       splitable=true
                                       [listData]="chainLyphs"
+                                      [extraActions]="extraActions"
                                       (onNodeClick)="selectLyph($event)"
                                       (onChange)="processLyphChange($event)"
                     >
@@ -109,6 +112,9 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
+                <linkedResource 
+                        [resource]="lyphToLink">                    
+                </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
@@ -181,6 +187,7 @@ export class ChainEditorComponent {
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
     _selectedNode;
+    _extraActions = [{operation: "connectRoot", label: "Connect chain root"}, {operation: "connectLeaf", label: "Connect chain leaf"}];
 
     chainList;
     chainLyphs = [];
@@ -270,6 +277,8 @@ export class ChainEditorComponent {
         });
         // this.prepareChainTree();
     }
+
+
 
     // collectLaterals() {
     //     const missing = new Set();
@@ -451,7 +460,7 @@ export class ChainEditorComponent {
                             "target": getGenID(this.selectedChain?.id, $Prefix.node, idx + 1)
                         }
                     }
-                    if (this.selectedChain.leaf && this.selectedChain.lyphs.length - 1 === idx) {
+                    if (this.selectedChain?.leaf && this.selectedChain.lyphs.length - 1 === idx) {
                         lyph._conveys.target = this.selectedChain.leaf;
                     }
                 });
@@ -511,6 +520,13 @@ export class ChainEditorComponent {
         }
     }
 
+    get extraActions(){
+        if (this.chainToLink){
+            return this._extraActions;
+        }
+        return [];
+    }
+
     processChainChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
@@ -518,6 +534,13 @@ export class ChainEditorComponent {
                 break;
             case 'delete':
                 this.deleteChain(node);
+                break;
+            case 'select':
+                if (this.chainToLink && this.chainToLink.id === node.id){
+                    this.chainToLink = null;
+                } else {
+                    this.chainToLink = this.entitiesByID[node.id];
+                }
                 break;
         }
     }
@@ -609,6 +632,27 @@ export class ChainEditorComponent {
             case "split":
                 this.split(node, index);
                 break;
+            case 'connectRoot':
+                this.connectChain($Field.root, node);
+                break;
+            case 'connectLeaf':
+                this.connectChain($Field.leaf, node);
+                break;
+        }
+    }
+
+    connectChain(prop, node){
+        if (!this.chainToLink) {
+            this.showMessage("Chain to link is not selected!");
+        } else {
+            let lyph = this.entitiesByID[node.id];
+            if (lyph && lyph._conveys?.target) {
+                this.chainToLink[prop] = lyph._conveys?.target;
+                this.saveStep(`Connected ${this.chainToLink.id} to chain ${this.selectedChain.id} after lyph ${lyph.id}`);
+                this.chainToLink = null;
+            } else {
+                this.showMessage("Node to link the chain is not detected!");
+            }
         }
     }
 
@@ -736,7 +780,7 @@ export class ChainEditorComponent {
 
     clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_conveys'];
+            const added = ['_class', '_generated', '_subtypes', '_supertype', '_conveys', '_cloning'];
             added.forEach(prop => {
                 delete obj[prop];
             });
@@ -947,7 +991,7 @@ export class ChainEditorComponent {
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
-        LyphTreeViewModule],
+        LyphTreeViewModule, LinkedResourceModule],
     //ResourceTreeViewModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]

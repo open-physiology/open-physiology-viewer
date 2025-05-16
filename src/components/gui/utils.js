@@ -33,6 +33,7 @@ export const COLORS = {
     default: "lightgrey",
     // Editors
     selectedBorder: "#FF7F7F",
+    linkedBorder: "#4CAF50",
     selected: "#FFCCCC",
     highlighted: "#FFCCCC",
     border: "#999",

@@ -66,6 +66,7 @@ export class ListNode {
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.label}} [ngClass]="{
                                'selected'    : node.id === (selectedNode?.id || selectedNode),
+                               'linked'      : node.id === (linkedNode?.id || linkedNode),                               
                                'lyph'        : node.class === 'Lyph',
                                'template'    : node.isTemplate || node.class === 'Template',
                                'material'    : node.class === 'Material', 
@@ -97,6 +98,8 @@ export class ListNode {
             <ng-template matMenuContent let-item="item" let-class="class" let-index="index"
                 let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown">
                 <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
+                <button *ngIf="class === 'Chain'" 
+                        mat-menu-item (click)="processOperation('select',item, index)">Select</button>
                 <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
                 <button *ngIf="class === 'Undefined'" mat-menu-item 
                         (click)="processOperation('defineAsLyph', item, index)">Define as lyph</button>
@@ -108,6 +111,8 @@ export class ListNode {
                     <button *ngIf="splitable" mat-menu-item (click)="processOperation('split', item, index)">Split
                     </button>
                 </div>
+                 <button *ngFor="let action of extraActions" mat-menu-item 
+                         (click)="processOperation(action.operation, item, index)">{{action.label}}</button>
             </ng-template>
         </mat-menu>
 
@@ -166,7 +171,10 @@ export class ListNode {
         .selected {
             border: 3px solid ${COLORS.selectedBorder};
         }
-        
+
+        .linked {
+            border: 3px solid ${COLORS.linkedBorder};
+        }
         .list-container{
             height: 100vh;
         }
@@ -208,8 +216,11 @@ export class ResourceListView {
     @Input() ordered = false;
     @Input() expectedClass;
     @Input() selectedNode;
+    @Input() linkedNode;
     @Input() showMenu = true;
     @Input() splitable = false;
+
+   @Input() extraActions = [];
 
     @Input('listData') set model(newListData) {
         this._listData = newListData;
