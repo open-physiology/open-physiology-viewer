@@ -14,12 +14,13 @@ import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {DiffDialog} from "./diffDialog";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
-import {COLORS} from '../gui/utils.js'
+import {COLORS, prepareMaterialSearchOptions} from '../gui/utils.js'
 // import {ResourceTreeViewModule, ResourceTreeNode} from "./resourceTreeView";
 
 import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
 import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
 import {LinkedResourceModule} from "./linkedResource";
+
 
 @Component({
     selector: 'chainEditor',
@@ -33,20 +34,12 @@ import {LinkedResourceModule} from "./linkedResource";
                             [listData]="chainList"
                             [selectedNode]="selectedNode"
                             [linkedNode]="chainToLink"
+                            [showColor]=true
                             (onNodeClick)="selectChain($event)"
                             (onChange)="processChainChange($event)"
+                            (onColorUpdate)="updateColor($event)"
                     >
                     </resourceListView>
-                    <!--                    <resourceTreeView-->
-                    <!--                            title="Chains"-->
-                    <!--                            [active]=true-->
-                    <!--                            [expanded]=false-->
-                    <!--                            [treeData]="chainList"-->
-                    <!--                            [selectedNode]="selectedNode"-->
-                    <!--                            (onNodeClick)="selectChain($event)"-->
-                    <!--                            (onChange)="processChainChange($event)"-->
-                    <!--                    >-->
-                    <!--                    </resourceTreeView>-->
                 </section>
                 <section class="w3-col">
                     <resourceListView *ngIf="selectedChain"
@@ -56,20 +49,46 @@ import {LinkedResourceModule} from "./linkedResource";
                                       splitable=true
                                       [listData]="chainLyphs"
                                       [extraActions]="extraActions"
-                                      (onNodeClick)="selectLyph($event)"
+                                      (onNodeClick)="selectLyph($event, true)"
                                       (onChange)="processLyphChange($event)"
                     >
                     </resourceListView>
                 </section>
-                <section *ngIf="selectedChain?.levels" class="w3-col">
-                    <resourceListView
-                            title="Levels"
-                            [showMenu]="false"
-                            ordered=true
-                            expectedClass="Link"
-                            [listData]="chainLevels"
-                            (onNodeClick)="selectLevel($event)"
-                            (onChange)="processLevelChange($event)"
+                <section class="w3-col">
+                    <div style="margin-right:60px;">
+                    <div class="title">
+                        <span class="w3-padding-small">Lyph template</span>
+                    </div>
+                    <div *ngIf="selectedChain" class="resource-box w3-margin-top">
+                        <div class="resource-boxContent">
+                            {{selectedChain.lyphTemplate}}
+                        </div>
+                    </div>
+                    <searchAddBar
+                            [searchOptions]="templateSearchOptions"
+                            [selected]="candidateLyphTemplate?.id"
+                            (selectedItemChange)="selectLyphTemplate($event)"
+                            (addSelectedItem)="updateLyphTemplate($event)"
+                    ></searchAddBar>
+                    </div>
+                    <resourceListView *ngIf="selectedChain"
+                                      title="Housing lyphs"
+                                      ordered=true
+                                      expectedClass="Lyph"
+                                      splitable=true
+                                      [listData]="chainHousingLyphs"
+                                      (onNodeClick)="selectLyph($event)"
+                                      (onChange)="processHousingLyphChange($event)"
+                    >
+                    </resourceListView>
+                    <resourceListView *ngIf="selectedChain?.levels"
+                                      title="Levels"
+                                      [showMenu]="false"
+                                      ordered=true
+                                      expectedClass="Link"
+                                      [listData]="chainLevels"
+                                      (onNodeClick)="selectLevel($event)"
+                                      (onChange)="processLevelChange($event)"
                     >
                     </resourceListView>
                 </section>
@@ -112,8 +131,9 @@ import {LinkedResourceModule} from "./linkedResource";
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
-                <linkedResource 
-                        [resource]="lyphToLink">                    
+                <!-- Select lyph to link -->
+                <linkedResource
+                        [resource]="lyphToLink">
                 </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
@@ -123,7 +143,7 @@ import {LinkedResourceModule} from "./linkedResource";
                 >
                 </searchAddBar>
                 <!-- level target -->
-                <div class="resource-box" *ngIf="selectedLyph">
+                <div class="resource-box" *ngIf="selectedLyph && isSelectedLevelLyph">
                     <div class="resource-boxContent">
                         <div class="w3-padding w3-margin-bottom w3-border">
                             <div class="w3-margin-bottom"><b>{{selectedLyph.name || selecledLyph.id}}</b></div>
@@ -161,7 +181,7 @@ import {LinkedResourceModule} from "./linkedResource";
         }
 
         .settings-panel {
-            height: 100vh;
+            height: 85vh;
             overflow-y: auto;
             overflow-x: auto;
         }
@@ -176,6 +196,13 @@ import {LinkedResourceModule} from "./linkedResource";
         .vertical-toolbar {
             margin-right: 20px;
         }
+
+        .title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            line-height: 0.934rem;
+        }
+
     `]
 })
 /**
@@ -187,11 +214,16 @@ export class ChainEditorComponent {
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
     _selectedNode;
-    _extraActions = [{operation: "connectRoot", label: "Connect chain root"}, {operation: "connectLeaf", label: "Connect chain leaf"}];
+    _extraActions = [{operation: "connectRoot", label: "Connect chain root"}, {
+        operation: "connectLeaf",
+        label: "Connect chain leaf"
+    }];
 
     chainList;
+    //chainTree = [];
+
     chainLyphs = [];
-    chainTree = [];
+    chainHousingLyphs = [];
 
     searchOptions;
     steps = [];
@@ -238,6 +270,7 @@ export class ChainEditorComponent {
         if (value && this._selectedNode !== value) {
             this._selectedNode = value;
             this.selectChain(value);
+            this.candidateLyphTemplate = null;
         }
     }
 
@@ -279,56 +312,6 @@ export class ChainEditorComponent {
     }
 
 
-
-    // collectLaterals() {
-    //     const missing = new Set();
-    //     (this._model.chains || []).forEach(chain => {
-    //         if (chain.lateralOf) {
-    //             let supertype = this.entitiesByID[chain.lateralOf];
-    //             if (supertype) {
-    //                 supertype._subtypes = supertype._subtypes || [];
-    //                 if (!supertype._subtypes.find(x => x.id === chain.id)) {
-    //                     supertype._subtypes.push(chain);
-    //                 }
-    //                 chain._supertype = chain.lateralOf;
-    //             } else {
-    //                 missing.add(chain.lateralOf)
-    //             }
-    //         }
-    //         (chain.laterals || []).forEach(subtype => {
-    //             if (this.entitiesByID[subtype]) {
-    //                 chain._subtypes = chain._subtypes || [];
-    //                 if (!chain._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
-    //                     chain._subtypes.push(this.entitiesByID[subtype]);
-    //                 }
-    //                 this.entitiesByID[subtype]._supertype = chain;
-    //             } else {
-    //                 missing.add(subtype);
-    //             }
-    //         });
-    //     });
-    //     if (missing.size > 0) {
-    //         this.showMessage("No chain definitions found: " + [...missing].join(', '));
-    //     }
-    // }
-    //
-    // prepareChainTree() {
-    //     this.collectLaterals();
-    //     const mapToNodes = (objOrID, parent, idx) => {
-    //         if (!objOrID) return {};
-    //         let resource = objOrID.id ? objOrID : this.entitiesByID[objOrID];
-    //         let length = (parent?._subtypes || []).length || 0;
-    //         let res = ResourceTreeNode.createInstance(resource, parent, idx, length);
-    //         resource._node = res;
-    //         if (resource._subtypes) {
-    //             res.children = resource._subtypes.map((x, i) => mapToNodes(x, resource, i)).filter(x => x);
-    //         }
-    //         return res;
-    //     };
-    //     let treeData = (this._model.chains || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
-    //     this.chainList = treeData::sortBy([$Field.id]);
-    // }
-
     /**
      * Select chain
      * @param node
@@ -339,20 +322,18 @@ export class ChainEditorComponent {
         this.prepareChainLyphs();
     }
 
-    selectLyph(node) {
+    selectLyph(node, isSelectedLevelLyph = true) {
         let nodeID = node::isObject() ? node.id : node;
         this.selectedLyph = this.entitiesByID[nodeID];
         this.prepareLayerTree();
+        this.isSelectedLevelLyph = isSelectedLevelLyph;
     }
 
     selectLevel(node) {
         let nodeID = node::isObject() ? node.id : node;
         this.selectedLink = this.entitiesByID[nodeID];
         if (this.selectedLink.conveyingLyph) {
-            this.selectedLyph = this.entitiesByID[this.selectedLink.conveyingLyph];
-            if (this.selectedLyph) {
-                this.prepareLayerTree();
-            }
+            this.selectLyph(this.selectedLink.conveyingLyph);
         }
     }
 
@@ -444,33 +425,39 @@ export class ChainEditorComponent {
     prepareChainLyphs() {
         let res = [];
         if (this.selectedChain) {
-            if (this.selectedChain.lyphs) {
-                this.selectedChain.lyphs.forEach((lyphID, idx) => {
-                    let lyph = this.entitiesByID[lyphID];
-                    let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
-                    if (lyph?.layers) {
-                        node.icons.push(ICON.LAYERS);
-                    }
-                    res.push(node);
-                    if (!lyph._conveys && lyph.conveys) {
-                        lyph._conveys = this.entitiesByID[lyph.conveys];
-                    }
-                    if (!lyph._conveys) {
-                        lyph._conveys = {
-                            "target": getGenID(this.selectedChain?.id, $Prefix.node, idx + 1)
-                        }
-                    }
-                    if (this.selectedChain?.leaf && this.selectedChain.lyphs.length - 1 === idx) {
-                        lyph._conveys.target = this.selectedChain.leaf;
-                    }
-                });
-            } else {
-                if (this.selectedChain.levels) {
-                    this.prepareChainLevels();
+            (this.selectedChain.lyphs || []).forEach((lyphID, idx) => {
+                let lyph = this.entitiesByID[lyphID];
+                let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
+                if (lyph?.layers) {
+                    node.icons.push(ICON.LAYERS);
                 }
-            }
+                res.push(node);
+                if (!lyph._conveys && lyph.conveys) {
+                    lyph._conveys = this.entitiesByID[lyph.conveys];
+                }
+                if (!lyph._conveys) {
+                    lyph._conveys = {
+                        "target": getGenID(this.selectedChain?.id, $Prefix.node, idx + 1)
+                    }
+                }
+                if (this.selectedChain?.leaf && this.selectedChain.lyphs.length - 1 === idx) {
+                    lyph._conveys.target = this.selectedChain.leaf;
+                }
+            });
+            this.prepareChainHousingLyphs();
+            this.prepareChainLevels();
         }
         this.chainLyphs = res;
+    }
+
+    prepareChainHousingLyphs() {
+        let res = [];
+        (this.selectedChain?.housingLyphs || []).forEach((lyphID, idx) => {
+            let lyph = this.entitiesByID[lyphID];
+            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.housingLyphs.length);
+            res.push(node);
+        });
+        this.chainHousingLyphs = res;
     }
 
     prepareChainLevels() {
@@ -488,6 +475,7 @@ export class ChainEditorComponent {
      */
     updateLyphOptions() {
         this.searchOptions = prepareLyphSearchOptions(this._model);
+        this.templateSearchOptions = prepareMaterialSearchOptions(this._model);
     }
 
     updateWireOptions() {
@@ -520,8 +508,42 @@ export class ChainEditorComponent {
         }
     }
 
-    get extraActions(){
-        if (this.chainToLink){
+    selectLyphTemplate(nodeLabel){
+        if (!nodeLabel) {
+            this.candidateLyphTemplate = null;
+        } else {
+            let nodeID = nodeLabel.substring(
+                nodeLabel.lastIndexOf("(") + 1,
+                nodeLabel.lastIndexOf(")")
+            );
+            this.candidateLyphTemplate = this.entitiesByID[nodeID];
+        }
+    }
+
+    updateLyphTemplate(node) {
+        if (!this.selectedChain) {
+            this.showMessage("Cannot update lyph template: chain is not selected");
+            return;
+        }
+        if (this.selectedChain.lyphs) {
+            this.showMessage("Cannot update lyph template: chain is defined by sequence of lyphs");
+            return;
+        }
+        if (!this.candidateLyphTemplate) {
+            if (this.selectedChain.lyphTemplate) {
+                delete this.selectedChain.lyphTemplate;
+                this.saveStep("Removed lyph template from chain " + this.selectedChain.id);
+            }
+        } else {
+            if (this.candidateLyphTemplate !== this.selectedChain.lyphTemplate) {
+                this.selectedChain.lyphTemplate = this.candidateLyphTemplate.id;
+                this.saveStep("Replaced lyph template in chain " + this.selectedChain.id);
+            }
+        }
+    }
+
+    get extraActions() {
+        if (this.chainToLink) {
             return this._extraActions;
         }
         return [];
@@ -536,7 +558,7 @@ export class ChainEditorComponent {
                 this.deleteChain(node);
                 break;
             case 'select':
-                if (this.chainToLink && this.chainToLink.id === node.id){
+                if (this.chainToLink && this.chainToLink.id === node.id) {
                     this.chainToLink = null;
                 } else {
                     this.chainToLink = this.entitiesByID[node.id];
@@ -641,7 +663,31 @@ export class ChainEditorComponent {
         }
     }
 
-    connectChain(prop, node){
+    processLevelChange(operation, node, index) {
+        this.showMessage("Operations on levels are not supported by the chain editor!");
+    }
+
+    processHousingLyphChange(operation) {
+        switch (operation) {
+            case 'insert':
+                this.addChainHousingLyph(node, index);
+                break;
+            case 'delete':
+                this.deleteChainHousingLyph(node, index);
+                break;
+            case 'up':
+                this.moveHousingLyphUp(node, index);
+                break;
+            case 'down':
+                this.moveHousingLyphDown(node, index);
+                break;
+            case 'defineAsLyph':
+                this.defineAsLyph(node, index);
+                break;
+        }
+    }
+
+    connectChain(prop, node) {
         if (!this.chainToLink) {
             this.showMessage("Chain to link is not selected!");
         } else {
@@ -654,10 +700,6 @@ export class ChainEditorComponent {
                 this.showMessage("Node to link the chain is not detected!");
             }
         }
-    }
-
-    processLevelChange(operation, node, index) {
-        this.showMessage("Operations on levels not supported!");
     }
 
     //Helper method to create a material/lyph object
@@ -741,6 +783,20 @@ export class ChainEditorComponent {
         }
     }
 
+    updateColor({node, color}) {
+        if (node) {
+            let res = this.entitiesByID[node.id];
+            if (res) {
+                if (color) {
+                    res.color = color;
+                } else {
+                    delete res.color;
+                }
+                this.saveStep(`Update color ` + res.id);
+            }
+        }
+    }
+
     /**
      * Update selected lyph property
      * @param prop
@@ -753,7 +809,6 @@ export class ChainEditorComponent {
         }
         if (this.selectedChain) {
             if (prop === $Field.id) {
-                //NK TODO Update references to chains??
                 this.entitiesByID[value] = this.entitiesByID[oldValue];
                 delete this.entitiesByID[oldValue];
                 if (this.selectedChain._id) {
@@ -763,7 +818,11 @@ export class ChainEditorComponent {
             if (prop === $Field.id) {
                 this.prepareChainList();
             } else {
-                this.selectedChain[prop] = value;
+                if (value) {
+                    this.selectedChain[prop] = value;
+                } else {
+                    delete this.selectedChain[prop];
+                }
             }
             this.saveStep(`Update property ${prop} of chain ` + this.selectedChain.id);
         }

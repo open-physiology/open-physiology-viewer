@@ -251,7 +251,7 @@ export class Group extends Resource {
 
             const replaceRefToMaterial = (ref) => {
                 let refID = getID(ref);
-                let lyphID = getGenID($Prefix.material, refID);
+                let lyphID = getGenID($Prefix.lyph, refID);
                 let template = refToResource(lyphID, parentGroup, $Field.lyphs);
                 if (!template || !template.isTemplate) {
                     let material = refToResource(refID, parentGroup, $Field.materials);
@@ -337,12 +337,11 @@ export class Group extends Resource {
      */
     static expandChainTemplates(parentGroup, modelClasses){
         if (!modelClasses || modelClasses === {}){ return; }
-        (parentGroup.chains||[]).forEach((chain, i) => {
+        (parentGroup.chains||[]).forEach(chain => {
             //expand chain templates, but not references
             if (chain::isObject()) {
                 modelClasses.Chain.expandTemplate(parentGroup, chain);
             } else {
-                //FIXME do we need this?
                 logger.info($LogMsg.GROUP_TEMPLATE_OTHER, chain);
                 parentGroup.groups = parentGroup.groups || [];
                 parentGroup.groups.push(getGenID($Prefix.group, chain));
@@ -384,20 +383,31 @@ export class Group extends Resource {
 
     /**
      * Generate subgraphs to model villi
-     * @param json - input model
+     * @param parentGroup - input model
      * @param modelClasses - model resource classes
      */
-    static expandVillusTemplates(json, modelClasses){
-        (json.lyphs||[]).forEach(lyph => {
+    static expandVillusTemplates(parentGroup, modelClasses){
+        (parentGroup.lyphs||[]).forEach(lyph => {
             if (lyph.villus) {
                 lyph.villus.villusOf = lyph.id;
-                modelClasses.Villus.expandTemplate(json, lyph.villus);
+                modelClasses.Villus.expandTemplate(parentGroup, lyph.villus);
             }
         });
     }
 
-    static embedChainsToHousingLyphs(json, modelClasses){
-       (json.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(json, chain));
+    /**
+     * Generate subgraphs to model housed chains
+     * @param parentGroup - input model
+     * @param modelClasses - model resource classes
+     */
+    static embedChainsToHousingLyphs(parentGroup, modelClasses){
+       (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
+       (parentGroup.chains || []).forEach(chain => {
+            if (chain.isTemplate){
+                logger.info($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
+                modelClasses.Chain.replicateChainTemplate(parentGroup, chain);
+            }
+        });
     }
 
     markImported(){

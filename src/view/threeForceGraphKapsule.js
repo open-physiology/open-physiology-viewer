@@ -2,17 +2,16 @@
     forceSimulation,
     forceLink,
     forceManyBody,
-    //forceRadial,
     forceCollide
 } from 'd3-force-3d';
 import {select as d3Select } from 'd3-selection';
 import {drag as d3Drag } from 'd3-drag';
 
 import Kapsule from 'kapsule';
-import {generateFromJSON, modelClasses} from '../model/index';
+import {modelClasses} from '../model/index';
 import './modelView';
 import {extractCoords} from './utils';
-import { autoLayout } from './render/autoLayout'
+// import { autoLayout } from './render/autoLayout'
 
 const {Graph} = modelClasses;
 
@@ -311,7 +310,7 @@ export default Kapsule({
           } else { layout['tick'](); }
 
           state.graphData.updateViewObjects(state);
-          //autoLayout(state.graphScene, state.graphData);
+          // autoLayout(state.graphScene, state.graphData);
         }
     }
 });

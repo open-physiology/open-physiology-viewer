@@ -362,6 +362,26 @@
             "minimum": 0
           }
         },
+        "radial": {
+          "description": "A flag is set if the chain is hosted layers of the same lyph (radially). The flag is set automatically",
+          "type": "boolean",
+          "readOnly": true,
+          "advanced": true
+        },
+        "levelOntologyTerms": {
+          "description": "External ontology terms that get associated with generated chain levels",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/OntologyTerm"
+              }
+            ]
+          }
+        },
         "wiredTo": {
           "description": "Scaffold wire that defines layout of the chain",
           "anyOf": [

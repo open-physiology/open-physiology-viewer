@@ -294,7 +294,6 @@ export class Graph extends Group{
         this.processGraphWaitingList(res, entitiesByID, inputModel.namespace, modelClasses, undefined);
 
         if (!res.generated) {
-
             let noAxisLyphsInternal = (res.lyphs || []).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
             res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID);
 

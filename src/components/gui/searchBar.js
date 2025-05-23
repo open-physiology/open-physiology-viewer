@@ -233,6 +233,10 @@ export class SearchBar {
         if (!name) {
             return this.searchOptions || [];
         }
+        if (!name.toLowerCase){
+            console.error("Initialization with a wrong data type for filtering", name);
+            return this.searchOptions || [];
+        }
         const filterValue = name.toLowerCase();
         return (this.searchOptions || []).filter(option => option.label && option.label.toLowerCase().includes(filterValue));
     }

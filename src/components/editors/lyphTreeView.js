@@ -8,7 +8,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {MatTooltipModule, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from "@angular/material/tooltip";
-
+import {ColorPickerModule} from 'ngx-color-picker';
 import {isNumber, isObject} from "lodash-bound";
 import {COLORS} from "../gui/utils";
 import {$Field, $SchemaClass} from "../../model";
@@ -17,7 +17,7 @@ export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
     showDelay: 0,
     hideDelay: 0,
     touchendHideDelay: 1500,
-    disableTooltipInteractivity:true
+    disableTooltipInteractivity: true
 };
 
 export const ICON = {
@@ -157,8 +157,21 @@ export class LyphTreeNode {
             <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
+                    <input *ngIf="showColor" style="width: 20px; height: 20px;" class="list-node"
+                           type="button"
+                           (contextmenu)="preventDefault($event, node)"
+                           (mousedown)="clearColor($event, node)"
+                           [ngStyle]="{ 'background-color': node.resource?.color }"
+                           [colorPicker]="node.color"
+                           [cpOKButton]="true"
+                           [cpCancelButton]="true"
+                           [cpRemoveColorButton]="true"
+                           [cpSaveClickOutside]="false"
+                           (colorPickerSelect)="updateColor(node, $event)"
+                    />
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                            [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                'linked'   : (node.id === (linkedNode?.id || linkedNode)),
                                'lyph'     : node.class === 'Lyph',
@@ -191,7 +204,13 @@ export class LyphTreeNode {
                             [attr.aria-label]="'Toggle ' + node.id">
                         <i class="fa fa-chevron-right"> </i>
                     </button>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}} [ngClass]="{
+                    <input *ngIf="showColor" style="width: 20px; height: 20px;" class="list-node"
+                           [style.background]="node.color"
+                           [colorPicker]="node.color"
+                           (colorPickerChange)="updateColor(node, $event)"
+                    />
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                            [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'linked'   : (node.id === (linkedNode?.id || linkedNode)),
                                 'lyph'     : node.class === 'Lyph', 
@@ -233,8 +252,8 @@ export class LyphTreeNode {
                     <button mat-menu-item (click)="processOperation('select',item, index)">Select</button>
                     <div *ngIf="class === 'Lyph' || class === 'Material'">
                         <button mat-menu-item (click)="processOperation('clone',item, index)">Clone</button>
-<!--                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition-->
-<!--                        </button>-->
+                        <!--                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition-->
+                        <!--                        </button>-->
                         <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
                         <button *ngIf="hasChildren" mat-menu-item
                                 (click)="processOperation('removeChildren', item, index)">Remove children
@@ -366,6 +385,7 @@ export class LyphTreeView {
     @Input() active = false;
     @Input() showLayerIndex;
     @Input() showMenu = true;
+    @Input() showColor = false;
     @Input() linkedNode;
 
     @Input('treeData') set model(newTreeData) {
@@ -389,7 +409,7 @@ export class LyphTreeView {
     @Input('selectedNode') set selectedNode(node) {
         if (this._selectedNode !== node) {
             this._selectedNode = node;
-            if (node::isObject()){
+            if (node::isObject()) {
                 let curr = node;
                 while (curr.parent) {
                     this.treeControl.expand(curr.parent._node);
@@ -402,6 +422,7 @@ export class LyphTreeView {
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
     @Output() onLayerIndexChange = new EventEmitter();
+    @Output() onColorUpdate = new EventEmitter();
 
     get treeData() {
         return this._treeData;
@@ -410,6 +431,28 @@ export class LyphTreeView {
     get selectedNode() {
         return this._selectedNode;
     }
+
+    preventDefault(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    clearColor(e, node) {
+        if (e.button === 2) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (node.resource?.color) {
+                this.onColorUpdate.emit({node, undefined});
+            }
+        }
+    }
+
+    updateColor(node, color) {
+        if (color !== node.resource?.color) {
+            this.onColorUpdate.emit({node, color});
+        }
+    }
+
 
     _transformer = (node, level) => {
         let res = node;
@@ -474,9 +517,9 @@ export class LyphTreeView {
 
 @NgModule({
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
-        MatTreeModule, MatMenuModule],
+        MatTreeModule, MatMenuModule, ColorPickerModule],
     declarations: [LyphTreeView],
-    providers: [{ provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults }],
+    providers: [{provide: MAT_TOOLTIP_DEFAULT_OPTIONS, useValue: myCustomTooltipDefaults}],
     exports: [LyphTreeView]
 })
 export class LyphTreeViewModule {

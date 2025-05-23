@@ -123,16 +123,16 @@ Link.prototype.createViewObjects = function(state){
         this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
         //TODO create Process resource?
-        if (this.conveyingType){
-            //Draw process edge - line between lyph points p0, p1
-            // let edgeMaterial = MaterialFactory.createLineBasicMaterial({
-            //     color: this.conveyingType === (PROCESS_TYPE.ADVECTIVE)? "#CCC": "#000",
-            //     polygonOffsetFactor: this.polygonOffsetFactor
-            // });
-            // let edgeGeometry = new THREE.BufferGeometry();
-            // edgeGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-            // this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
-        }
+        // if (this.conveyingType){
+        //     // Draw process edge - line between lyph points p0, p1
+        //     let edgeMaterial = MaterialFactory.createLineBasicMaterial({
+        //         color: this.conveyingType === (PROCESS_TYPE.ADVECTIVE)? "#CCC": "#000",
+        //         polygonOffsetFactor: this.polygonOffsetFactor
+        //     });
+        //     let edgeGeometry = new THREE.BufferGeometry();
+        //     edgeGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
+        //     this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
+        // }
     }
 };
 

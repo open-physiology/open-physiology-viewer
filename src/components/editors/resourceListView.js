@@ -6,7 +6,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {MatListModule} from '@angular/material/list';
-
+import {ColorPickerModule} from 'ngx-color-picker';
 import {isObject} from "lodash-bound";
 
 import {COLORS} from "../gui/utils";
@@ -49,7 +49,7 @@ export class ListNode {
         if (objOrID::isObject()) {
             return new this(objOrID.id, objOrID.name, objOrID._class, length, objOrID.isTemplate, idx, objOrID);
         } else {
-            return new this(objOrID, "Generated " + objOrID, "Undefined", length, false, idx,undefined);
+            return new this(objOrID, "Generated " + objOrID, "Undefined", length, false, idx, undefined);
         }
     }
 }
@@ -61,10 +61,23 @@ export class ListNode {
             <div class="title">
                 <span class="w3-padding-small">{{title}}</span>
             </div>
-            <mat-nav-list class="w3-padding-0 node-list">                
+            <mat-nav-list class="w3-padding-0 node-list">
                 <mat-list-item *ngFor="let node of listData">
-                    <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.label}} [ngClass]="{
+                    <input *ngIf="showColor" class="list-node color-rect"
+                           type="button"
+                           (contextmenu)="preventDefault($event, node)"
+                           (mousedown)="clearColor($event, node)"
+                           [ngStyle]="{ 'background-color': node.resource?.color }"
+                           [colorPicker]="node.color"
+                           [cpOKButton]="true"
+                           [cpCancelButton]="true"
+                           [cpRemoveColorButton]="true"
+                           [cpSaveClickOutside]="false"
+                           (colorPickerSelect)="updateColor(node, $event)"
+                    />
+                    <div *ngIf="ordered && (node.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
+                    <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.label}}
+                            [ngClass]="{
                                'selected'    : node.id === (selectedNode?.id || selectedNode),
                                'linked'      : node.id === (linkedNode?.id || linkedNode),                               
                                'lyph'        : node.class === 'Lyph',
@@ -82,6 +95,7 @@ export class ListNode {
                     <div *ngFor="let icon of node.icons; let i = index">
                         <i class="icon-mini" [ngClass]=icon> </i>
                     </div>
+
                 </mat-list-item>
             </mat-nav-list>
         </section>
@@ -96,13 +110,15 @@ export class ListNode {
         <!--Right click menu-->
         <mat-menu #rightListMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-class="class" let-index="index"
-                let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown">
+                         let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown">
                 <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
-                <button *ngIf="class === 'Chain'" 
-                        mat-menu-item (click)="processOperation('select',item, index)">Select</button>
+                <button *ngIf="class === 'Chain'"
+                        mat-menu-item (click)="processOperation('select',item, index)">Select
+                </button>
                 <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
-                <button *ngIf="class === 'Undefined'" mat-menu-item 
-                        (click)="processOperation('defineAsLyph', item, index)">Define as lyph</button>
+                <button *ngIf="class === 'Undefined'" mat-menu-item
+                        (click)="processOperation('defineAsLyph', item, index)">Define as lyph
+                </button>
                 <div *ngIf="ordered">
                     <button *ngIf="canMoveUp" mat-menu-item (click)="processOperation('up', item, index)">Move up
                     </button>
@@ -111,14 +127,14 @@ export class ListNode {
                     <button *ngIf="splitable" mat-menu-item (click)="processOperation('split', item, index)">Split
                     </button>
                 </div>
-                 <button *ngFor="let action of extraActions" mat-menu-item 
-                         (click)="processOperation(action.operation, item, index)">{{action.label}}</button>
+                <button *ngFor="let action of extraActions" mat-menu-item
+                        (click)="processOperation(action.operation, item, index)">{{action.label}}</button>
             </ng-template>
         </mat-menu>
 
     `,
     styles: [`
-      
+
         ::ng-deep .mat-menu-content {
             padding-top: 0 !important;
             padding-bottom: 0 !important;
@@ -133,10 +149,15 @@ export class ListNode {
         .mat-menu-item {
             line-height: 32px;
             height: 32px;
-        } 
+        }
 
         .list-node {
             border: 0.067rem solid ${COLORS.border};
+        }
+        
+        .color-rect{
+            width: 20px; 
+            height: 20px;
         }
 
         .lyph {
@@ -144,28 +165,28 @@ export class ListNode {
         }
 
         .material {
-            background-color: ${COLORS.material}; 
+            background-color: ${COLORS.material};
         }
 
         .template {
             background-color: ${COLORS.template};
         }
-        
+
         .chain {
-            background-color: ${COLORS.chain}; 
+            background-color: ${COLORS.chain};
         }
-        
+
         .coalescence {
-            background-color: ${COLORS.coalescence}; 
+            background-color: ${COLORS.coalescence};
         }
-        
+
         .external {
-            background-color: ${COLORS.external}; 
+            background-color: ${COLORS.external};
         }
-        
+
         .undefined {
-            background-color: ${COLORS.undefined}; 
-            border: 0.067rem solid  ${COLORS.border}; 
+            background-color: ${COLORS.undefined};
+            border: 0.067rem solid ${COLORS.border};
         }
 
         .selected {
@@ -175,10 +196,11 @@ export class ListNode {
         .linked {
             border: 3px solid ${COLORS.linkedBorder};
         }
-        .list-container{
+
+        .list-container {
             height: 100vh;
         }
-        
+
         .node-list {
             height: 80vh;
             overflow-y: auto;
@@ -187,7 +209,7 @@ export class ListNode {
         .icon-mini {
             transform: scale(0.7);
         }
- 
+
         .mat-list-base .mat-list-item, .mat-list-base .mat-list-option {
             height: 32px;
         }
@@ -196,7 +218,7 @@ export class ListNode {
             min-height: 2.2em !important;
             height: 2.2em;
         }
-        
+
         button {
             background: transparent;
             color: ${COLORS.buttonText};
@@ -219,8 +241,9 @@ export class ResourceListView {
     @Input() linkedNode;
     @Input() showMenu = true;
     @Input() splitable = false;
+    @Input() showColor = false;
 
-   @Input() extraActions = [];
+    @Input() extraActions = [];
 
     @Input('listData') set model(newListData) {
         this._listData = newListData;
@@ -228,13 +251,35 @@ export class ResourceListView {
 
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
+    @Output() onColorUpdate = new EventEmitter();
 
     get listData() {
         return this._listData;
     }
 
+    preventDefault(e, node){
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    clearColor(e, node) {
+        if (e.button === 2) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (node.resource?.color) {
+                this.onColorUpdate.emit({node, undefined});
+            }
+        }
+    }
+
+    updateColor(node, color) {
+        if (color !== node.resource?.color) {
+            this.onColorUpdate.emit({node, color});
+        }
+    }
+
     onRightClick(e, node) {
-        if (!this.showMenu){
+        if (!this.showMenu) {
             return;
         }
         e.preventDefault();
@@ -262,7 +307,7 @@ export class ResourceListView {
 
 @NgModule({
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
-        MatListModule, MatMenuModule],
+        MatListModule, MatMenuModule, ColorPickerModule],
     declarations: [ResourceListView],
     exports: [ResourceListView]
 })

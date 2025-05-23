@@ -58,8 +58,10 @@ const TREE = {
                             [treeData]="lyphTree"
                             [selectedNode]="selectedNode"
                             [linkedNode]="lyphToLink"
+                            [showColor]=true
                             (onNodeClick)="selectLyph($event)"
                             (onChange)="processChange($event)"
+                            (onColorUpdate)="updateColor($event)"
                     >
                     </lyphTreeView>
                 </section>
@@ -125,8 +127,8 @@ const TREE = {
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
-                <linkedResource 
-                        [resource]="lyphToLink">                    
+                <linkedResource
+                        [resource]="lyphToLink">
                 </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
@@ -163,16 +165,16 @@ const TREE = {
             display: flex;
             justify-content: space-between;
         }
-        
-        .settings-panel{
-          height: 100vh;
-          overflow-y: auto;
-          overflow-x: auto;
+
+        .settings-panel {
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: auto;
         }
-        
+
         .vertical-toolbar {
             margin-right: 20px;
-        }       
+        }
     `]
 })
 /**
@@ -217,7 +219,7 @@ export class LyphEditorComponent {
         if (value && this._selectedNode !== value) {
             this._selectedNode = value;
             this.selectLyph(this._selectedNode);
-         }
+        }
     }
 
     get selectedNode() {
@@ -291,7 +293,7 @@ export class LyphEditorComponent {
      */
     defineNewLyph(lyphDef) {
         let newLyph = lyphDef;
-        if (!newLyph){
+        if (!newLyph) {
             let newCounter = 1;
             let newID = "_newLyph" + newCounter;
             while (this.entitiesByID[newID]) {
@@ -358,7 +360,7 @@ export class LyphEditorComponent {
         }
     }
 
-    collectSubtypes(){
+    collectSubtypes() {
         let missing = new Set();
         //Prepare _subtype/_supertype hierarchy
         (this._model.lyphs || []).forEach(lyph => {
@@ -386,7 +388,7 @@ export class LyphEditorComponent {
                 }
             });
         });
-        if (missing.size > 0){
+        if (missing.size > 0) {
             this.showMessage("No lyph definitions found: " + [...missing].join(', '));
         }
     }
@@ -497,11 +499,11 @@ export class LyphEditorComponent {
      * @param lyph
      */
     selectLyph(lyph) {
-        if (!lyph){
+        if (!lyph) {
             return;
         }
         const lyphID = lyph::isObject() ? lyph.id : lyph;
-        const selectedNodeID = this._selectedNode::isObject()? this._selectedNode.id: this._selectedNode;
+        const selectedNodeID = this._selectedNode::isObject() ? this._selectedNode.id : this._selectedNode;
         this.selectedLyph = this.entitiesByID[lyphID];
         if (this.selectedLyph && selectedNodeID !== lyphID) {
             this._selectedNode = this.selectedLyph._node;
@@ -743,7 +745,7 @@ export class LyphEditorComponent {
             this.selectLyph(node.parent);
             this.saveStep("Delete " + cls + " " + node.id);
         } else {
-             this.showMessage("Cannot delete lyph: definition not found!");
+            this.showMessage("Cannot delete lyph: definition not found!");
         }
     }
 
@@ -1035,7 +1037,7 @@ export class LyphEditorComponent {
         }
     }
 
-     /**
+    /**
      * Create a new lyph by cloning an existing lyph
      * @param node
      */
@@ -1050,7 +1052,7 @@ export class LyphEditorComponent {
             }
             let lyph = this.defineNewLyph(lyphDef);
             let newNode = LyphTreeNode.createInstance(lyph, node.parent);
-            if (node.parent){
+            if (node.parent) {
                 this.prepareLyphTree();
                 this.selectedNode = newNode;
             } else {
@@ -1097,35 +1099,35 @@ export class LyphEditorComponent {
         }
     }
 
-    cloneLayer(node){
-        if (!node.parent || !node.parent.id){
+    cloneLayer(node) {
+        if (!node.parent || !node.parent.id) {
             this.showMessage("Cannot clone the layer: unknown parent!");
         }
         let parent = this.entitiesByID[node.parent.id];
-        if (parent){
+        if (parent) {
             let newLyph = this.cloneLyph(node);
             this.lyphToLink = newLyph;
             this.addLayer(parent);
             this.selectLyph(parent);
             this.selectLayer(newLyph);
         } else {
-             this.showMessage("Cannot clone the layer: parent not found!");
+            this.showMessage("Cannot clone the layer: parent not found!");
         }
     }
 
-    cloneInternal(node){
-        if (!node.parent || !node.parent.id){
+    cloneInternal(node) {
+        if (!node.parent || !node.parent.id) {
             this.showMessage("Cannot clone the internal lyph: unknown parent!");
         }
         let parent = this.entitiesByID[node.parent.id];
-        if (parent){
+        if (parent) {
             let newLyph = this.cloneLyph(node);
             this.lyphToLink = newLyph;
             this.addInternal(parent);
             this.selectLyph(parent);
             this.selectInternal(newLyph);
         } else {
-             this.showMessage("Cannot clone the internal lyph: parent not found!");
+            this.showMessage("Cannot clone the internal lyph: parent not found!");
         }
     }
 
@@ -1294,12 +1296,26 @@ export class LyphEditorComponent {
     updateTopologyFilter(options) {
         this.prepareLyphTree();
     }
+
+    updateColor({node, color}) {
+        if (node) {
+            let res = this.entitiesByID[node.id];
+            if (res) {
+                if (color) {
+                    res.color = color;
+                } else {
+                    delete res.color;
+                }
+                this.saveStep(`Update color ` + res.id);
+            }
+        }
+    }
 }
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, LyphTreeViewModule, LyphDeclarationModule, CheckboxFilterModule, ResourceListViewModule,
-    LinkedResourceModule, LinkedResourceModule],
+        LinkedResourceModule, LinkedResourceModule],
     declarations: [LyphEditorComponent],
     exports: [LyphEditorComponent]
 })
