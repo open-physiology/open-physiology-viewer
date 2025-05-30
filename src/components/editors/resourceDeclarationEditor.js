@@ -9,7 +9,7 @@ import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {UberonOptionsModule} from './uberonOptionsBar';
 
 import {$Field, getGenID} from "../../model";
-import {COLORS} from "../gui/utils";
+import {COLORS} from "../utils/colors";
 
 @Component({
     selector: 'resourceDeclaration',

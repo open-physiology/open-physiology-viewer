@@ -16,12 +16,9 @@ import {DiffDialog} from "./diffDialog";
 import {ListNode, ResourceListViewModule} from "./resourceListView";
 
 import {$Field, $SchemaClass} from "../../model";
-import {
-    clearMaterialRefs,
-    prepareMaterialSearchOptions,
-    replaceMaterialRefs,
-    prepareMaterialLyphMap
-} from "../gui/utils";
+import {SearchOptions} from "../utils/searchOptions";
+import {ResourceMaps} from "../utils/resourceMaps";
+import {References} from "../utils/references";
 import {getGenID} from "../../model/utils";
 import {LinkedResourceModule} from "./linkedResource";
 
@@ -264,7 +261,7 @@ export class LyphEditorComponent {
     }
 
     selectChain(node) {
-        if (node.class === $SchemaClass.Chain) {
+        if (node && node.class === $SchemaClass.Chain) {
             this.onSwitchEditor.emit({editor: "chain", node: node.id});
         }
     }
@@ -399,7 +396,7 @@ export class LyphEditorComponent {
      */
     prepareLyphTree() {
         this.entitiesByID = {};
-        prepareMaterialLyphMap(this._model, this.entitiesByID);
+        ResourceMaps.materialsAndLyphs(this._model, this.entitiesByID);
         this.collectSubtypes();
         //Recursively create lyph tree nodes
         const mapToNodes = (lyphOrID, parent, idx) => {
@@ -417,6 +414,10 @@ export class LyphEditorComponent {
             }
             if (res.resource?.layers && !res.icons.includes(ICON.LAYERS)) {
                 res.icons.push(ICON.LAYERS);
+            }
+           if (parent?.layers && !res.icons.includes(ICON.LAYERS)) {
+                res.icons.push(ICON.LAYERS);
+                res.icons.push(ICON.INHERITED);
             }
             if (res.resource?.internalLyphs && !res.icons.includes(ICON.INTERNAL)) {
                 res.icons.push(ICON.INTERNAL);
@@ -474,7 +475,7 @@ export class LyphEditorComponent {
      * Prepare a list of lyph id-name pairs for search box
      */
     updateLyphOptions() {
-        this.searchOptions = prepareMaterialSearchOptions(this._model);
+        this.searchOptions = SearchOptions.materialsAndLyphs(this._model);
     }
 
     /**
@@ -585,7 +586,7 @@ export class LyphEditorComponent {
         }
         if (this.selectedLyphToEdit) {
             if (prop === $Field.id) {
-                replaceMaterialRefs(this._model, this.selectedLyphToEdit.id, value);
+                References.replaceMaterialRefs(this._model, this.selectedLyphToEdit.id, value);
                 this.entitiesByID[value] = this.entitiesByID[oldValue];
                 delete this.entitiesByID[oldValue];
                 if (this.selectedLyphToEdit._id) {
@@ -739,7 +740,7 @@ export class LyphEditorComponent {
         let material = this.entitiesByID[node.id];
         let cls = material._class?.toLowerCase() || $SchemaClass.Lyph;
         if (material) {
-            clearMaterialRefs(this._model, node.id);
+            References.clearMaterialRefs(this._model, node.id);
             this._removeMaterialOrLyph(node.id);
             this.prepareLyphTree();
             this.selectLyph(node.parent);
@@ -1016,10 +1017,6 @@ export class LyphEditorComponent {
         let parent = this.entitiesByID[node.id] || this.selectedLyph;
         if (parent) {
             if (this._isValidSubtype(parent, lyph)) {
-                parent.subtypes = parent.subtypes || [];
-                if (!parent.subtypes.includes(lyph.id)) {
-                    parent.subtypes.push(lyph.id);
-                }
                 parent.isTemplate = true;
                 if (lyph.supertype) {
                     let oldParent = this.entitiesByID[lyph.supertype];
@@ -1197,7 +1194,7 @@ export class LyphEditorComponent {
 
     saveChanges() {
         this.clearHelpers();
-        this.onChangesSave.emit(this._model);
+        this.onChangesSave.emit({model: this._model, selected: this.selectedLyph});
     }
 
     showDiff() {

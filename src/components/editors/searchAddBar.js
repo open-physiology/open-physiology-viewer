@@ -8,7 +8,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatTooltipModule} from "@angular/material/tooltip";
 
 import {SearchBarModule} from "../gui/searchBar";
-import {COLORS} from "../gui/utils";
+import {COLORS} from "../utils/colors";
 
 @Component({
     selector: 'searchAddBar',

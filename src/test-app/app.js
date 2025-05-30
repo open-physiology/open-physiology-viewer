@@ -223,7 +223,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <materialEditor
                             [model]="_model"
                             [selectedNode]="selectedMaterialID"
-                            (onChangesSave)="applyEditorChanges($event)"
+                            (onChangesSave)="applyEditorChanges($event, 'material')"
                             (onSwitchEditor)="switchEditor($event)"
                     >
                     </materialEditor>
@@ -235,7 +235,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <lyphEditor
                             [model]="_model"
                             [selectedNode]="selectedLyphID"
-                            (onChangesSave)="applyEditorChanges($event)"
+                            (onChangesSave)="applyEditorChanges($event, 'lyph')"
                             (onSwitchEditor)="switchEditor($event)"
                     >
                     </lyphEditor>
@@ -247,7 +247,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <chainEditor
                             [model]="_model"
                             [selectedNode]="selectedChainID"
-                            (onChangesSave)="applyEditorChanges($event)">
+                            (onChangesSave)="applyEditorChanges($event, 'chain')">
                     </chainEditor>
                 </mat-tab>
 
@@ -257,7 +257,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <coalescenceEditor
                             [model]="_model"
                             [selectedNode]="selectedCoalescenceID"
-                            (onChangesSave)="applyEditorChanges($event)">
+                            (onChangesSave)="applyEditorChanges($event, 'coalescence')">
                     </coalescenceEditor>
                 </mat-tab>
 
@@ -340,6 +340,7 @@ export class TestApp {
     _snapshot;
     _snapshotCounter = 1;
     _unsavedState;
+    _editorSelected = {};
 
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
@@ -617,8 +618,9 @@ export class TestApp {
         }
     }
 
-    applyEditorChanges(newModel) {
-        this._model = newModel;
+    applyEditorChanges({model, selected}, editor) {
+        this._editorSelected[editor] = selected;
+        this._model = model;
         this.applyChanges();
     }
 

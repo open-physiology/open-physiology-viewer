@@ -9,7 +9,7 @@ import {MatListModule} from '@angular/material/list';
 import {ColorPickerModule} from 'ngx-color-picker';
 import {isObject} from "lodash-bound";
 
-import {COLORS} from "../gui/utils";
+import {COLORS} from "../utils/colors";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
 /**
@@ -58,8 +58,8 @@ export class ListNode {
     selector: 'resourceListView',
     template: `
         <section class="list-container">
-            <div class="title">
-                <span class="w3-padding-small">{{title}}</span>
+            <div class="title" (click)="activateList()">
+                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
             </div>
             <mat-nav-list class="w3-padding-0 node-list">
                 <mat-list-item *ngFor="let node of listData">
@@ -199,6 +199,7 @@ export class ListNode {
 
         .list-container {
             height: 100vh;
+            margin-top: 12px;
         }
 
         .node-list {
@@ -242,6 +243,7 @@ export class ResourceListView {
     @Input() showMenu = true;
     @Input() splitable = false;
     @Input() showColor = false;
+    @Input() active = false;
 
     @Input() extraActions = [];
 
@@ -302,6 +304,10 @@ export class ResourceListView {
     selectNode(node) {
         this.selectedNode = node;
         this.onNodeClick.emit(node);
+    }
+
+    activateList(){
+        this.onNodeClick.emit();
     }
 }
 

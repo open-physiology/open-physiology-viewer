@@ -1,6 +1,6 @@
 import {Component, Input, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {COLORS} from "../gui/utils";
+import {COLORS} from "../utils/colors";
 
 @Component({
     selector: 'linkedResource',

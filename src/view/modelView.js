@@ -29,8 +29,8 @@ Chain.prototype.update = function () {
                           this.radial ? Math.min(this.levels[i].length, lyph.housingLyph.width)
                         : this.levels[i].length = Math.min(this.levels[i].length, lyph.housingLyph.height);
                 }
+                [lyph.width, lyph.height] = lyph.sizeFromAxis::values();
             }
-            [lyph.width, lyph.height] = lyph.sizeFromAxis::values();
         }
     }
 

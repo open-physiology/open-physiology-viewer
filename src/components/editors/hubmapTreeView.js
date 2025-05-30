@@ -7,7 +7,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {ClipboardModule} from '@angular/cdk/clipboard'
-import {COLORS} from "../gui/utils";
+import {COLORS} from "../utils/colors";
 
 /**
  * @class

@@ -10,7 +10,7 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {MatTooltipModule, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {ColorPickerModule} from 'ngx-color-picker';
 import {isNumber, isObject} from "lodash-bound";
-import {COLORS} from "../gui/utils";
+import {COLORS} from "../utils/colors";
 import {$Field, $SchemaClass} from "../../model";
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {

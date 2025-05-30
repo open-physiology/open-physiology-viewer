@@ -18,13 +18,12 @@ import {MaterialGraphViewerModule} from "./materialGraphViewer";
 
 import {$Field, $SchemaClass} from "../../model";
 import {
-    clearMaterialRefs,
-    clearMany,
-    isPath,
-    replaceMaterialRefs,
-    prepareMaterialSearchOptions,
     COLORS
-} from '../gui/utils.js'
+} from '../utils/colors';
+import {
+    References,
+} from '../utils/references.js';
+import {SearchOptions} from "../utils/searchOptions";
 import {LinkedResourceModule} from "./linkedResource";
 
 
@@ -402,7 +401,7 @@ export class DagViewerD3Component {
     }
 
     updateSearchOptions() {
-        this.searchOptions = prepareMaterialSearchOptions(this._model);
+        this.searchOptions = SearchOptions.materialsAndLyphTemplates(this._model);
     }
 
     ngAfterViewInit() {
@@ -550,6 +549,26 @@ export class DagViewerD3Component {
     }
 
     appendNodeEvents(nodes) {
+        function isPath(entitiesByID, v, w) {
+            let stack = [];
+            let explored = new Set();
+            stack.push(v);
+            explored.add(v);
+            while (stack.length !== 0) {
+                let t = stack.pop();
+                if (t === w) {
+                    return true;
+                }
+                let t_node = entitiesByID[t];
+                (t_node.materials || []).filter(n => !explored.has(n))
+                    .forEach(n => {
+                        explored.add(n);
+                        stack.push(n);
+                    });
+            }
+            return false;
+        }
+
         nodes.on('click', d => this.onNodeClick(d))
             .on('dblclick', d => this.onDblClick(d))
             .on('contextmenu', d => this.onRightClick(d))
@@ -689,7 +708,7 @@ export class DagViewerD3Component {
             let node = this.graphD3.node(this.selectedNode);
             if (node) {
                 if (prop === $Field.id) {
-                    replaceMaterialRefs(this._model, this.selectedNode, value);
+                    References.replaceMaterialRefs(this._model, this.selectedNode, value);
                     this.selectedNode = value;
                     node.id = value;
                     this.updateGraph();
@@ -1010,7 +1029,7 @@ export class DagViewerD3Component {
     deleteMaterial(nodeID) {
         let material = this.entitiesByID[nodeID];
         if (material) {
-            clearMaterialRefs(this._model, nodeID);
+            References.clearMaterialRefs(this._model, nodeID);
             this._removeMaterialOrLyph(nodeID);
             this._removeNode(nodeID);
             let edges = this.graphD3.nodeEdges(nodeID);
@@ -1028,7 +1047,7 @@ export class DagViewerD3Component {
         let material = this.entitiesByID[nodeID];
         if ((material._inMaterials || []).length > 0) {
             material._inMaterials.forEach(m => {
-                clearMany(m, ["materials"], material.id);
+                References.clearMany(m, ["materials"], material.id);
                 this._removeEdge({v: m.id, w: material.id});
             });
             material._inMaterials = [];
@@ -1045,7 +1064,7 @@ export class DagViewerD3Component {
         let material = this.entitiesByID[nodeID];
         if ((material.materials || []).length > 0) {
             material.materials.forEach(m => {
-                clearMany(m, ["_inMaterials"], material.id);
+                References.clearMany(m, ["_inMaterials"], material.id);
                 this._removeEdge({v: material.id, w: m});
                 // this._removeNodeParent(m.id, nodeID);
             });
@@ -1064,8 +1083,8 @@ export class DagViewerD3Component {
         let material1 = this.entitiesByID[v];
         let material2 = this.entitiesByID[w];
         if ((material1.materials || []).length > 0) {
-            clearMany(material1, ["materials"], w);
-            clearMany(material2, ["_inMaterials"], v);
+            References.clearMany(material1, ["materials"], w);
+            References.clearMany(material2, ["_inMaterials"], v);
             this._removeEdge({v, w});
             this.inner.call(this.render, this.graphD3);
             this.saveStep(`Remove relation ${v + "---" + w}`);
@@ -1146,7 +1165,7 @@ export class DagViewerD3Component {
 
     saveChanges() {
         this.clearHelpers();
-        this.onChangesSave.emit(this._model);
+        this.onChangesSave.emit({model: this._model, selected: this.selectedMaterial});
     }
 
     selectBySearch(nodeLabel) {

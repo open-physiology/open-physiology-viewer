@@ -10,8 +10,8 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 
 import {isNumber, isObject} from "lodash-bound";
 
-import {COLORS} from "../gui/utils";
-import {$Field, $SchemaClass} from "../../model";
+import {COLORS} from "../utils/colors";
+import {$Field} from "../../model";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
 

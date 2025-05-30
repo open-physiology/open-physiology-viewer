@@ -10,8 +10,7 @@ import 'd3-transition';
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "./searchAddBar";
 import {ResourceListViewModule} from "./resourceListView";
-import {COLORS} from "../gui/utils";
-
+import {COLORS} from "../utils/colors";
 
 @Component({
     selector: 'materialGraphViewer',

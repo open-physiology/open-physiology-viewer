@@ -9,7 +9,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatRadioModule} from "@angular/material/radio";
 import {SearchAddBarModule} from "./searchAddBar";
 
-import {COLORS} from '../gui/utils.js'
+import {COLORS} from '../utils/colors';
 import {$Field} from "../../model";
 
 @Component({

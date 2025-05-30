@@ -13,7 +13,8 @@ import {ResourceListViewModule, ListNode} from "./resourceListView";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {DiffDialog} from "./diffDialog";
 
-import {prepareMaterialLyphMap, prepareLyphSearchOptions, prepareImportedMaterialLyphMap} from "../gui/utils";
+import {SearchOptions} from "../utils/searchOptions";
+import {ResourceMaps} from "../utils/resourceMaps";
 import {$Field, $SchemaClass} from "../../model";
 import {LinkedResourceModule} from "./linkedResource";
 
@@ -151,11 +152,11 @@ export class CoalescenceEditorComponent {
         this.currentStep = 0;
         this.entitiesByID = {};
         this.prepareCoalescenceList();
-        prepareMaterialLyphMap(this._model, this.entitiesByID);
+        ResourceMaps.materialsAndLyphs(this._model, this.entitiesByID);
         // Prepare lyphs from imported models
         (this._model.groups||[]).forEach(g => {
             if (g.imported && g.namespace !== this._model.namespace){
-                prepareImportedMaterialLyphMap(g, this.entitiesByID);
+                ResourceMaps.importedMaterialsAndLyphs(g, this.entitiesByID);
             }
         });
         this.updateLyphOptions();
@@ -211,9 +212,11 @@ export class CoalescenceEditorComponent {
      * @param node
      */
     selectCoalescence(node) {
-        let nodeID = node::isObject() ? node.id : node;
-        this.selectedCoalescence = this.entitiesByID[nodeID];
-        this.prepareCoalescenceLyphs();
+        if (node) {
+            let nodeID = node::isObject() ? node.id : node;
+            this.selectedCoalescence = this.entitiesByID[nodeID];
+            this.prepareCoalescenceLyphs();
+        }
     }
 
     selectLyph(node) {
@@ -274,7 +277,7 @@ export class CoalescenceEditorComponent {
      * Prepare a list of lyph id-name pairs for search box
      */
     updateLyphOptions() {
-        this.searchOptions = prepareLyphSearchOptions(this._model);
+        this.searchOptions = SearchOptions.lyphs(this._model);
     }
 
     updateWireOptions() {
@@ -516,7 +519,7 @@ export class CoalescenceEditorComponent {
 
     saveChanges() {
         this.clearHelpers();
-        this.onChangesSave.emit(this._model);
+        this.onChangesSave.emit({model: this._model, selected: this.selectedCoalescence});
     }
 
     clearHelpers() {

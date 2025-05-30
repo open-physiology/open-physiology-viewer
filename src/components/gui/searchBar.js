@@ -7,7 +7,7 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatButtonModule} from '@angular/material/button';
-import {COLORS} from "./utils";
+import {COLORS} from "../utils/colors";
 
 @Component({
     selector: 'searchBar',

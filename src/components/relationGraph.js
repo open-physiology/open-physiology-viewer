@@ -11,7 +11,7 @@ import {MatSliderModule} from "@angular/material/slider";
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {SearchBarModule} from "./gui/searchBar";
 import {$Field, $SchemaClass} from "../model";
-import {prepareSearchOptions} from "./gui/utils";
+import {SearchOptions} from "./utils/searchOptions";
 
 
 @Component({
@@ -208,7 +208,7 @@ export class RelGraph {
             this._graphData = newGraphData;
 
             //Search for lyphs and materials
-            this.searchOptions = prepareSearchOptions(this._graphData);
+            this.searchOptions = SearchOptions.all(this._graphData);
             this.data = {nodes: [], links: []};
 
             let resources = this._graphData::pick([$Field.materials, $Field.lyphs, $Field.coalescences, $Field.links])::values()::flatten();

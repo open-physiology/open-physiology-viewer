@@ -10,7 +10,7 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatRadioModule} from "@angular/material/radio";
 import {SearchAddBarModule} from "./searchAddBar";
 
-import {COLORS} from '../gui/utils.js'
+import {COLORS} from '../utils/colors';
 import {$Field, $Prefix, getGenID, getGenName} from "../../model";
 
 @Component({

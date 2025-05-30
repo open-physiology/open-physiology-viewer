@@ -19,7 +19,7 @@ import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {VARIANCE_PRESENCE} from "../model/utils";
-import {prepareSearchOptions} from "./gui/utils";
+import {SearchOptions} from "./utils/searchOptions";
 
 const WindowResize = require('three-window-resize');
 
@@ -213,7 +213,7 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
-            this.searchOptions = prepareSearchOptions(this._graphData);
+            this.searchOptions = SearchOptions.all(this._graphData);
 
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
