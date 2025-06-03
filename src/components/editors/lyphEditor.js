@@ -3,16 +3,15 @@ import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from "@angular/material/dialog";
-import {cloneDeep, sortBy, values, isObject, isNumber} from 'lodash-bound';
+import {cloneDeep, sortBy, isObject, isNumber} from 'lodash-bound';
 
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "./searchAddBar";
 import {CheckboxFilterModule} from "./checkboxFilter";
 import {LyphTreeViewModule, LyphTreeNode, ICON} from "./lyphTreeView";
 import {LyphDeclarationModule} from "./lyphDeclarationEditor";
-import {DiffDialog} from "./diffDialog";
 import {ListNode, ResourceListViewModule} from "./resourceListView";
 
 import {$Field, $SchemaClass} from "../../model";
@@ -21,6 +20,7 @@ import {ResourceMaps} from "../utils/resourceMaps";
 import {References} from "../utils/references";
 import {getGenID} from "../../model/utils";
 import {LinkedResourceModule} from "./linkedResource";
+import {ResourceEditor} from "./resourceEditor";
 
 const TREE = {
     lyphTree: "lyphTree",
@@ -130,7 +130,7 @@ const TREE = {
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
-                        (selectedItemChange)="selectBySearch($event)"
+                        (selectedItemChange)="selectLyphToLink($event)"
                         (addSelectedItem)="addLyph($event)"
                 >
                 </searchAddBar>
@@ -144,14 +144,14 @@ const TREE = {
                         title="Chains"
                         [showMenu]="false"
                         [listData]="chainList"
-                        (onNodeClick)="selectChain($event)"
+                        (onNodeClick)="switchEditor($event)"
                 >
                 </resourceListView>
                 <resourceListView
                         title="Coalescences"
                         [showMenu]="false"
                         [listData]="coalescenceList"
-                        (onNodeClick)="selectCoalescence($event)"
+                        (onNodeClick)="switchEditor($event)"
                 >
                 </resourceListView>
             </section>
@@ -178,21 +178,13 @@ const TREE = {
  * @class
  * @property entitiesByID
  */
-export class LyphEditorComponent {
-    _model;
-    _snackBar;
-    _snackBarConfig = new MatSnackBarConfig();
-    _selectedNode;
+export class LyphEditorComponent extends ResourceEditor {
+    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
 
-    searchOptions;
-    steps = [];
-    currentStep = 0;
-
-    showPanel = true;
-    entitiesByID = {};
     lyphTree = [];
     internalTree = [];
     layerTree = [];
+    chainList = [];
 
     topologyOptions: Option[] = [
         {name: 'None', id: undefined},
@@ -201,6 +193,10 @@ export class LyphEditorComponent {
         {name: 'BAG+ (BAG2)', id: 'BAG2'},
         {name: 'CYST', id: 'CYST'}
     ];
+
+    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
+        super(snackBar, dialog);
+    }
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
@@ -219,39 +215,22 @@ export class LyphEditorComponent {
         }
     }
 
-    get selectedNode() {
-        return this._selectedNode;
-    }
-
-    @Output() onChangesSave = new EventEmitter();
-    @Output() onSwitchEditor = new EventEmitter();
-
-    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
-        this.dialog = dialog;
-        this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
-    }
-
     /**
      * Select lyph to connect via search menu
      * @param nodeLabel
      */
-    selectBySearch(nodeLabel) {
-        if (!nodeLabel && this.lyphToLink) {
-            this.lyphToLink = null;
-        } else {
-            let nodeID = nodeLabel.substring(
-                nodeLabel.lastIndexOf("(") + 1,
-                nodeLabel.lastIndexOf(")")
-            );
-            this.lyphToLink = this.entitiesByID[nodeID];
-        }
+    selectLyphToLink(nodeLabel) {
+        this.lyphToLink = this.selectBySearch(nodeLabel);
+    }
+
+    get selectedNode() {
+        return this._selectedNode;
     }
 
     prepareChainList() {
         this.chainList = [];
         (this._model.chains || []).forEach(chain => {
-            if ((chain.lyphs || []).find(e => e === this.selectedNode)) {
+            if ((chain.lyphs || []).find(e => e === this.selectedLyph?.id)) {
                 if (chain::isObject()) {
                     chain._class = $SchemaClass.Chain;
                 }
@@ -260,28 +239,16 @@ export class LyphEditorComponent {
         });
     }
 
-    selectChain(node) {
-        if (node && node.class === $SchemaClass.Chain) {
-            this.onSwitchEditor.emit({editor: "chain", node: node.id});
-        }
-    }
-
     prepareCoalescenceList() {
         this.coalescenceList = [];
         (this._model.coalescences || []).forEach(coalescence => {
-            if ((coalescence.lyphs || []).find(e => e === this.selectedNode)) {
+            if ((coalescence.lyphs || []).find(e => e === this.selectedLyph?.id)) {
                 if (coalescence::isObject()) {
                     coalescence._class = $SchemaClass.Coalescence;
                 }
                 this.coalescenceList.push(ListNode.createInstance(coalescence));
             }
         });
-    }
-
-    selectCoalescence(node) {
-        if (node.class === $SchemaClass.Coalescence) {
-            this.onSwitchEditor.emit({editor: "coalescence", node: node.id});
-        }
     }
 
     /**
@@ -399,34 +366,53 @@ export class LyphEditorComponent {
         ResourceMaps.materialsAndLyphs(this._model, this.entitiesByID);
         this.collectSubtypes();
         //Recursively create lyph tree nodes
+        let stack = [];
+        let loops = [];
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};
+            if (parent) {
+                stack.push(parent);
+            }
             let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
             let topologyOption = this.topologyOptions.find(x => x.id === lyph.topology);
             if (topologyOption?.disabled) {
                 return;
             }
             let length = (parent?._subtypes || []).length || 0;
-            let res = LyphTreeNode.createInstance(lyph, parent, idx, length);
-            lyph._node = res;
-            if (lyph._subtypes) {
-                res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i)).filter(x => x);
+            let res = LyphTreeNode.createInstance(lyph || lyphOrID, parent, idx, length);
+            if (lyph) {
+                let loopStart = stack.find(x => x.id === lyph.id);
+                //Loop detected
+                if (loopStart) {
+                    loops.push(lyph.id);
+                } else {
+                    lyph._node = res;
+                    if (lyph._subtypes) {
+                        res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i)).filter(x => x);
+                    }
+                    if (res.resource?.layers && !res.icons.includes(ICON.LAYERS)) {
+                        res.icons.push(ICON.LAYERS);
+                    }
+                    if (parent?.layers && !res.icons.includes(ICON.LAYERS)) {
+                        res.icons.push(ICON.LAYERS);
+                        res.icons.push(ICON.INHERITED);
+                    }
+                    if (res.resource?.internalLyphs && !res.icons.includes(ICON.INTERNAL)) {
+                        res.icons.push(ICON.INTERNAL);
+                    }
+                }
             }
-            if (res.resource?.layers && !res.icons.includes(ICON.LAYERS)) {
-                res.icons.push(ICON.LAYERS);
-            }
-           if (parent?.layers && !res.icons.includes(ICON.LAYERS)) {
-                res.icons.push(ICON.LAYERS);
-                res.icons.push(ICON.INHERITED);
-            }
-            if (res.resource?.internalLyphs && !res.icons.includes(ICON.INTERNAL)) {
-                res.icons.push(ICON.INTERNAL);
+            if (parent) {
+                stack.pop();
             }
             return res;
         };
         let treeData = (this._model.lyphs || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
         this.lyphTree = treeData::sortBy([$Field.isTemplate, $Field.id]);
         this.updateView(this.selectedLyph);
+        if (loops.length > 0) {
+            this.showMessage("Loop is detected in the supertype hierarchy of the following lyphs: " + loops.join(", "));
+        }
     }
 
     /**
@@ -497,20 +483,14 @@ export class LyphEditorComponent {
 
     /**
      * Select an active lyph to see and edit
-     * @param lyph
+     * @param nodeOrID
      */
-    selectLyph(lyph) {
-        if (!lyph) {
-            return;
-        }
-        const lyphID = lyph::isObject() ? lyph.id : lyph;
-        const selectedNodeID = this._selectedNode::isObject() ? this._selectedNode.id : this._selectedNode;
+    selectLyph(nodeOrID) {
+        if (!nodeOrID) return;
+        const lyphID = nodeOrID::isObject() ? nodeOrID.id : nodeOrID;
         this.selectedLyph = this.entitiesByID[lyphID];
-        if (this.selectedLyph && selectedNodeID !== lyphID) {
-            this._selectedNode = this.selectedLyph._node;
-        }
+        this._selectedNode = this.selectedLyph?._node;
         this.selectedLyphToEdit = this.selectedLyph;
-
         this.prepareLayerTree();
         this.prepareInternalTree();
         this.prepareChainList();
@@ -998,10 +978,6 @@ export class LyphEditorComponent {
         return parent !== child;
     }
 
-    showMessage(message) {
-        this._snackBar.open(message, "OK", this._snackBarConfig);
-    }
-
     /**
      * Add subtype to a lyph template
      * @param node
@@ -1032,6 +1008,7 @@ export class LyphEditorComponent {
         } else {
             this.showMessage("Cannot add subtype: no lyph is selected!");
         }
+        9
     }
 
     /**
@@ -1180,103 +1157,13 @@ export class LyphEditorComponent {
         }
     }
 
-    /** History **/
-
-    clearHelpers() {
-        this.entitiesByID::values().forEach(obj => {
-            //Clean up all helper mods
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
-            added.forEach(prop => {
-                delete obj[prop];
-            });
-        });
-    }
-
-    saveChanges() {
-        this.clearHelpers();
-        this.onChangesSave.emit({model: this._model, selected: this.selectedLyph});
-    }
-
-    showDiff() {
-        const dialogRef = this.dialog.open(DiffDialog, {
-            width: '90%',
-            data: {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
-    }
-
-    get currentText() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
-            let currentModel = this._model::cloneDeep();
-            return JSON.stringify(currentModel,
-                function (key, val) {
-                    if (!added.includes(key)) {
-                        return val;
-                    }
-                },
-                4);
-        }
-        return this._modelText;
-    }
-
-    /**
-     * Save operation in history
-     * @param action
-     */
-    saveStep(action) {
-        if (this.currentStep > this.steps.length - 1) {
-            this.currentStep = this.steps.length - 1;
-        }
-        if (this.currentStep !== this.steps.length - 1) {
-            this.steps.length = this.currentStep + 1;
-        }
-        //NK test if nested properties are removed
+    getCurrentState(action) {
         let snapshot = this._model::cloneDeep();
-        this.steps.push({
+        return {
             action: action,
             snapshot: snapshot,
             selected: this.selectedLyph?.id,
-            activeTree: this.activeTree
-        });
-        this.currentStep = this.steps.length - 1;
-    }
-
-    /**
-     * Undo the operation
-     */
-    get canUndo() {
-        return this.currentStep > 0;
-    }
-
-    get canRedo() {
-        return this.currentStep < this.steps.length - 1;
-    }
-
-    get undoTitle() {
-        return `Undo ${(this.canUndo ? '"' + this.steps[this.currentStep].action + '"' : "")}`;
-    }
-
-    get redoTitle() {
-        return `Redo ${(this.canRedo ? '"' + this.steps[this.currentStep + 1].action + '"' : "")}`;
-    }
-
-    /**
-     * Undo the operation
-     */
-    undo() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            this.currentStep -= 1;
-            this.restoreState();
-        }
-    }
-
-    /**
-     * Redo the operation
-     */
-    redo() {
-        if (this.currentStep >= 0 && this.currentStep < this.steps.length - 1) {
-            this.currentStep += 1;
-            this.restoreState();
+            active: this.activeTree
         }
     }
 
@@ -1284,10 +1171,9 @@ export class LyphEditorComponent {
      * Restore history state
      */
     restoreState() {
-        let restoredStep = this.steps[this.currentStep];
-        this._model = restoredStep.snapshot;
         this.prepareLyphTree();
-        this.selectLyph(this.entitiesByID[restoredStep.selected]);
+        this.selectLyph(this.entitiesByID[this.steps[this.currentStep].selected]);
+        this.activeTree = this.steps[this.currentStep].active;
     }
 
     updateTopologyFilter(options) {

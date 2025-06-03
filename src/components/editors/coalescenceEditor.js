@@ -17,6 +17,7 @@ import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
 import {$Field, $SchemaClass} from "../../model";
 import {LinkedResourceModule} from "./linkedResource";
+import {ResourceEditor} from "./resourceEditor";
 
 @Component({
     selector: 'coalescenceEditor',
@@ -90,7 +91,7 @@ import {LinkedResourceModule} from "./linkedResource";
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="lyphToLink?.id"
-                        (selectedItemChange)="selectBySearch($event)"
+                        (selectedItemChange)="selectLyphToLink($event)"
                         (addSelectedItem)="addCoalescenceLyph($event)"
                 >
                 </searchAddBar>
@@ -104,6 +105,7 @@ import {LinkedResourceModule} from "./linkedResource";
                               ordered=true
                               [showMenu]=false
                               [treeData]="layerTree"
+                              (onNodeClick)="switchEditor($event)"
                 >
                 </lyphTreeView>
             </section>
@@ -131,19 +133,10 @@ import {LinkedResourceModule} from "./linkedResource";
  * @class
  * @property entitiesByID
  */
-export class CoalescenceEditorComponent {
-    _model;
-    _snackBar;
-    _snackBarConfig = new MatSnackBarConfig();
-    _selectedNode;
-
-    chainList;
-    searchOptions;
-    steps = [];
-    currentStep = 0;
-
-    showPanel = true;
-    entitiesByID = {};
+export class CoalescenceEditorComponent extends ResourceEditor {
+    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
+        super(snackBar, dialog);
+    }
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
@@ -173,14 +166,6 @@ export class CoalescenceEditorComponent {
 
     get selectedNode() {
         return this._selectedNode;
-    }
-
-    @Output() onChangesSave = new EventEmitter();
-
-    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
-        this.dialog = dialog;
-        this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
     }
 
     /**
@@ -298,16 +283,8 @@ export class CoalescenceEditorComponent {
      * Select lyph to connect via search menu
      * @param nodeLabel
      */
-    selectBySearch(nodeLabel) {
-        if (!nodeLabel && this.lyphToLink) {
-            this.lyphToLink = null;
-        } else {
-            let nodeID = nodeLabel.substring(
-                nodeLabel.lastIndexOf("(") + 1,
-                nodeLabel.lastIndexOf(")")
-            );
-            this.lyphToLink = this.entitiesByID[nodeID];
-        }
+    selectLyphToLink(nodeLabel) {
+        this.lyphToLink = this.selectBySearch(nodeLabel);
     }
 
     processCoalescenceChange({operation, node, index}) {
@@ -513,50 +490,17 @@ export class CoalescenceEditorComponent {
         }
     }
 
-    showMessage(message) {
-        this._snackBar.open(message, "OK", this._snackBarConfig);
-    }
-
-    saveChanges() {
-        this.clearHelpers();
-        this.onChangesSave.emit({model: this._model, selected: this.selectedCoalescence});
-    }
-
-    clearHelpers() {
-        this.entitiesByID::values().forEach(obj => {
-            //Clean up all helper mods
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
-            added.forEach(prop => {
-                delete obj[prop];
-            });
-        });
-    }
-
-    /**
-     * Save operation in history
-     * @param action
-     */
-    saveStep(action) {
-        if (this.currentStep > this.steps.length - 1) {
-            this.currentStep = this.steps.length - 1;
-        }
-        if (this.currentStep !== this.steps.length - 1) {
-            this.steps.length = this.currentStep + 1;
-        }
-        //NK test if nested properties are removed
+    getCurrentState(action){
         let snapshot = this._model::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedCoalescence?.id});
-        this.currentStep = this.steps.length - 1;
+        return {action: action, snapshot: snapshot, selected: this.selectedCoalescence?.id};
     }
 
     /**
      * Restore history state
      */
     restoreState() {
-        let restoredStep = this.steps[this.currentStep];
-        this._model = restoredStep.snapshot;
         this.prepareCoalescenceList();
-        let newSelected = this.entitiesByID[restoredStep.selected];
+        let newSelected = this.entitiesByID[this.steps[this.currentStep].selected];
         this.updateView(newSelected);
     }
 
@@ -597,28 +541,6 @@ export class CoalescenceEditorComponent {
             this.currentStep += 1;
             this.restoreState();
         }
-    }
-
-    showDiff() {
-        const dialogRef = this.dialog.open(DiffDialog, {
-            width: '90%',
-            data: {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
-    }
-
-    get currentText() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
-            let currentModel = this._model::cloneDeep();
-            return JSON.stringify(currentModel,
-                function (key, val) {
-                    if (!added.includes(key)) {
-                        return val;
-                    }
-                },
-                4);
-        }
-        return this._modelText;
     }
 }
 

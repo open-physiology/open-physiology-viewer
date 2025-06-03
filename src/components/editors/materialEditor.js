@@ -8,9 +8,8 @@ import {MatDialog} from "@angular/material/dialog";
 
 import * as d3 from "d3";
 import * as dagreD3 from "dagre-d3";
-import {cloneDeep, values, sortBy, isObject} from 'lodash-bound';
+import {cloneDeep, sortBy, isObject} from 'lodash-bound';
 
-import {DiffDialog} from "./diffDialog";
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "./searchAddBar";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
@@ -25,7 +24,7 @@ import {
 } from '../utils/references.js';
 import {SearchOptions} from "../utils/searchOptions";
 import {LinkedResourceModule} from "./linkedResource";
-
+import {ResourceEditor} from "./resourceEditor";
 
 /**
  * Css class names to represent ApiNATOMY resource classes
@@ -163,7 +162,7 @@ export class Edge {
                 <searchAddBar
                         [searchOptions]="searchOptions"
                         [selected]="matToLink?.id"
-                        (selectedItemChange)="selectBySearch($event)"
+                        (selectedItemChange)="selectMatToLink($event)"
                         (addSelectedItem)="linkMaterial($event)"
                 >
                 </searchAddBar>
@@ -175,7 +174,7 @@ export class Edge {
                         title="Lyphs"
                         [showMenu]=false
                         [listData]="lyphList"
-                        (onNodeClick)="selectLyph($event)"
+                        (onNodeClick)="switchEditor($event)"
                 >
                 </resourceListView>
             </section>
@@ -200,6 +199,8 @@ export class Edge {
                     </button>
                     <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children
                     </button>
+                    <button *ngIf="selectedNode !== item" mat-menu-item (click)="linkMaterial(item)">Connect to selected
+                    </button>                    
                 </div>
                 <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents"
                         mat-menu-item (click)="excludeLyph(item)">Exclude from view
@@ -340,44 +341,34 @@ export class Edge {
  * @class
  * @property entitiesByID
  */
-export class DagViewerD3Component {
+export class MaterialEditorComponent extends ResourceEditor {
+    _helperFields = ['_class', '_generated', '_inMaterials', '_included'];
     CLASS = CLASS;
     EDGE_CLASS = EDGE_CLASS;
 
-    _originalModel;
-    _model;
-    _selectedNode;
-
     showTree = false;
     graphD3;
-    entitiesByID;
     nodes = [];
     edges = [];
     menuTopLeftPosition = {x: '0', y: '0'}
 
-    searchOptions;
-    steps = [];
-    currentStep = 0;
+    //Drag & drop
     selected_node;
     source_node;
     target_node;
     md_node;
     hide_line = true;
-    showPanel = true;
 
-    _snackBar;
-    _snackBarConfig = new MatSnackBarConfig();
+    //Canvas resizing
+    screenHeight;
+    screenWidth;
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
     @ViewChild('materialEditor') materialEditor: ElementRef;
     @ViewChild('svgDag') svgRef: ElementRef;
     @ViewChild('tooltip') tooltipRef: ElementRef;
 
-    @Output() onChangesSave = new EventEmitter();
-    @Output() onSwitchEditor = new EventEmitter();
-
     @Input('model') set model(newModel) {
-        this._originalModel = newModel;
         this._model = newModel::cloneDeep();
         this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
@@ -388,9 +379,7 @@ export class DagViewerD3Component {
     }
 
     constructor(snackBar: MatSnackBar, dialog: MatDialog) {
-        this.dialog = dialog;
-        this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
+        super(snackBar, dialog);
         this.getScreenSize();
     }
 
@@ -599,23 +588,20 @@ export class DagViewerD3Component {
                             .style('marker-end', '');
                         this.target_node = d;
                         if (this.target_node === this.source_node) {
-                            let message = "Cannot create the edge: source and target nodes must be different!";
-                            this._snackBar.open(message, "OK", this._snackBarConfig);
+                            this.showMessage("Cannot create the edge: source and target nodes must be different!");
                             this.resetMouseVars();
                             return;
                         }
                         let areConnected = isPath(this.entitiesByID, this.target_node, this.source_node);
                         if (areConnected) {
-                            let message = "Cannot create the edge: a loop will be introduced!";
-                            this._snackBar.open(message, "OK", this._snackBarConfig);
+                            this.showMessage("Cannot create the edge: a loop will be introduced!");
                         }
                         let existing_edge = this.graphD3.edge(this.source_node, this.target_node);
                         if (!existing_edge) {
                             this._addRelation({v: this.source_node, w: this.target_node});
                             this.resetMouseVars();
                         } else {
-                            let message = "Cannot create the edge: it already exists!";
-                            this._snackBar.open(message, "OK", this._snackBarConfig);
+                            this.showMessage("Cannot create the edge: it already exists!");
                         }
                     }
                 }
@@ -723,8 +709,7 @@ export class DagViewerD3Component {
                 this.saveStep(`Update property ${prop} of material ` + this.selectedNode);
             }
         } else {
-            let message = `Cannot update the property: material is not selected!`;
-            this._snackBar.open(message, "OK", this._snackBarConfig);
+            this.showMessage(`Cannot update the property: material is not selected!`);
         }
     }
 
@@ -780,10 +765,6 @@ export class DagViewerD3Component {
         this.selectedNode = nodeID;
     }
 
-    get selectedNode() {
-        return this._selectedNode;
-    }
-
     @Input('selectedNode') set selectedNode(nodeID) {
         if (!this._selectedNode !== nodeID) {
             if (this._selectedNode) {
@@ -820,10 +801,8 @@ export class DagViewerD3Component {
         });
     }
 
-    selectLyph(node) {
-        if (node.class === $SchemaClass.Lyph || node.class === "Template") {
-            this.onSwitchEditor.emit({editor: "lyph", node: node.id});
-        }
+    get selectedNode() {
+        return this._selectedNode;
     }
 
     get selectedMaterial() {
@@ -866,6 +845,10 @@ export class DagViewerD3Component {
     }
 
     _addRelation({v, w}) {
+        if (v === w){
+            this.showMessage(`Cannot include a material to itself!`);
+            return;
+        }
         let material1 = this.entitiesByID[v];
         let material2 = this.entitiesByID[w];
         if (material1 && material2) {
@@ -880,9 +863,10 @@ export class DagViewerD3Component {
                 this.appendEdgeEvents(d3.select(path.elem));
                 this.saveStep(`Add relation ${v + "---" + w}`);
             } else {
-                let message = `Cannot create the relationship: material ${v} already contains material ${w}!`;
-                this._snackBar.open(message, "OK", this._snackBarConfig);
+                this.showMessage(`Cannot create the relationship: material ${v} already contains material ${w}!`);
             }
+        } else {
+            this.showMessage(`Failed to locate a material definition for ${v} or ${w}`);
         }
     }
 
@@ -1091,99 +1075,18 @@ export class DagViewerD3Component {
         }
     }
 
-    showDiff() {
-        const dialogRef = this.dialog.open(DiffDialog, {
-            width: '90%',
-            data: {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
+    restoreState(){
+        this.updateGraph();
+        this.draw();
     }
 
-    get currentText() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            const added = ['_class', '_generated', '_inMaterials', '_included'];
-            let currentModel = this._model::cloneDeep();
-            return JSON.stringify(currentModel,
-                function (key, val) {
-                    if (!added.includes(key)) {
-                        return val;
-                    }
-                },
-                4);
-        }
-        return this._modelText;
-    }
-
-    /**
-     * Save operation in history
-     * @param action
-     */
-    saveStep(action) {
-        if (this.currentStep > this.steps.length - 1) {
-            this.currentStep = this.steps.length - 1;
-        }
-        if (this.currentStep !== this.steps.length - 1) {
-            this.steps.length = this.currentStep + 1;
-        }
-        let snapshot = this._model::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot});
-        this.currentStep = this.steps.length - 1;
-    }
-
-    /**
-     * Undo the operation
-     */
-    undo() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            this.currentStep -= 1;
-            this._model = this.steps[this.currentStep].snapshot;
-            this.updateGraph();
-            this.draw();
-        }
-    }
-
-    /**
-     * Redo the operation
-     */
-    redo() {
-        if (this.currentStep >= 0 && this.currentStep < this.steps.length - 1) {
-            this.currentStep += 1;
-            this._model = this.steps[this.currentStep].snapshot;
-            this.updateGraph();
-            this.draw();
-        }
-    }
-
-    clearHelpers() {
-        this.entitiesByID::values().forEach(obj => {
-            //Clean up all helper mods
-            delete obj._inMaterials;
-            delete obj._class;
-            delete obj._generated;
-            delete obj._included;
-        });
-    }
-
-    saveChanges() {
-        this.clearHelpers();
-        this.onChangesSave.emit({model: this._model, selected: this.selectedMaterial});
-    }
-
-    selectBySearch(nodeLabel) {
-        if (!nodeLabel) {
-            this.matToLink = null;
+    selectMatToLink(nodeLabel) {
+        let newMat = this.selectBySearch(nodeLabel);
+        if (this._selectedNode) {
+            this.matToLink = newMat;
         } else {
-            let nodeID = nodeLabel.substring(
-                nodeLabel.lastIndexOf("(") + 1,
-                nodeLabel.lastIndexOf(")")
-            );
-            let node = this.entitiesByID[nodeID];
-            if (node) {
-                if (this.selectedNode) {
-                    this.matToLink = node;
-                } else {
-                    this.selectedNode = nodeID;
-                    this.matToLink = null;
-                }
+            if (newMat) {
+                this.onNodeClick(newMat.id);
             }
         }
     }
@@ -1212,9 +1115,13 @@ export class DagViewerD3Component {
                 }
                 this.saveStep('Include lyph ' + matID);
             }
-            if (this.selectedNode) {
-                this._addRelation({v: this.selectedNode, w: matID});
+            if (this._selectedNode) {
+                this._addRelation({v: this._selectedNode, w: matID});
+            } else {
+                this.showMessage("Cannot add a relation: parent material is not selected");
             }
+        } else {
+            this.showMessage(`Failed to find definition of the selected material (${matID})!`);
         }
     }
 
@@ -1233,8 +1140,8 @@ export class DagViewerD3Component {
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule, LinkedResourceModule],
-    declarations: [DagViewerD3Component],
-    exports: [DagViewerD3Component]
+    declarations: [MaterialEditorComponent],
+    exports: [MaterialEditorComponent]
 })
 export class MaterialEditorModule {
 }

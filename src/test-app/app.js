@@ -63,6 +63,18 @@ enableProdMode();
 const ace = require('ace-builds');
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
+
+const TAB_INDEX = {
+    viewer: 0,
+    relation: 1,
+    code: 2,
+    material: 3,
+    lyph: 4,
+    chain: 5,
+    coalescence: 6,
+    hubmap: 7
+}
+
 @Component({
     selector: 'test-app',
     changeDetection: ChangeDetectionStrategy.Default,
@@ -210,10 +222,13 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
                         <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()"
                                 title="Apply changes">
-                            <i class="fa fa-check"> </i>
+                            <div style="display: flex">
+                                <i class="fa fa-check"> </i>
+                                <span *ngIf="codeChanged" style="color: red">*</span>
+                            </div>
                         </button>
                     </section>
-                    <section #jsonEditor id="json-editor">
+                    <section #jsonEditor id="json-editor" (change)="codeChanged = true">
                     </section>
                 </mat-tab>
 
@@ -222,7 +237,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor</ng-template>
                     <materialEditor
                             [model]="_model"
-                            [selectedNode]="selectedMaterialID"
+                            [selectedNode]="_selectedResources['material']"
                             (onChangesSave)="applyEditorChanges($event, 'material')"
                             (onSwitchEditor)="switchEditor($event)"
                     >
@@ -234,7 +249,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor</ng-template>
                     <lyphEditor
                             [model]="_model"
-                            [selectedNode]="selectedLyphID"
+                            [selectedNode]="_selectedResources['lyph']"
                             (onChangesSave)="applyEditorChanges($event, 'lyph')"
                             (onSwitchEditor)="switchEditor($event)"
                     >
@@ -246,8 +261,10 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor</ng-template>
                     <chainEditor
                             [model]="_model"
-                            [selectedNode]="selectedChainID"
-                            (onChangesSave)="applyEditorChanges($event, 'chain')">
+                            [selectedNode]="_selectedResources['chain']"
+                            (onChangesSave)="applyEditorChanges($event, 'chain')"
+                            (onSwitchEditor)="switchEditor($event)"
+                    >
                     </chainEditor>
                 </mat-tab>
 
@@ -256,8 +273,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor</ng-template>
                     <coalescenceEditor
                             [model]="_model"
-                            [selectedNode]="selectedCoalescenceID"
-                            (onChangesSave)="applyEditorChanges($event, 'coalescence')">
+                            [selectedNode]="_selectedResources['coalescence']"
+                            (onChangesSave)="applyEditorChanges($event, 'coalescence')"
+                            (onSwitchEditor)="switchEditor($event)">
                     </coalescenceEditor>
                 </mat-tab>
 
@@ -336,11 +354,11 @@ export class TestApp {
     _flattenGroups;
     _counter = 1;
     _scaffoldUpdated = false;
+    _selectedResources = {};
 
     _snapshot;
     _snapshotCounter = 1;
     _unsavedState;
-    _editorSelected = {};
 
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
@@ -549,7 +567,6 @@ export class TestApp {
         }
 
         const commitJsonFile = () => {
-            console.log(`${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`);
             // Step 1: Check if the file exists to retrieve its SHA
             makeRequest(
                 "GET",
@@ -607,6 +624,7 @@ export class TestApp {
         let [name, extension] = fileExtensionRe.exec(fileName);
         extension = extension.toLowerCase();
         this.model = loadModel(fileContent, name, extension);
+        this.showRepoPanel = false;
     }
 
     applyJSONEditorChanges() {
@@ -615,13 +633,8 @@ export class TestApp {
             this._graphData = generateFromJSON({"id": "Empty"});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
+            this.codeChanged  = false;
         }
-    }
-
-    applyEditorChanges({model, selected}, editor) {
-        this._editorSelected[editor] = selected;
-        this._model = model;
-        this.applyChanges();
     }
 
     applyChanges() {
@@ -658,61 +671,17 @@ export class TestApp {
         let proto = resource.prototype;
         if (proto) {
             if (proto.class === $SchemaClass.Lyph) {
-                this.selectedLyphID = proto.id;
-                this._tabGroup.selectedIndex = 4;
+                this._selectedResources['lyph'] = proto.id;
+                this._tabGroup.selectedIndex = TAB_INDEX['lyph'];
             } else if (proto.class === $SchemaClass.Material) {
-                this.selectedMaterialID = proto.id;
-                this._tabGroup.selectedIndex = 3;
+                this._selectedResources['material'] = proto.id;
+                this._tabGroup.selectedIndex = TAB_INDEX['material'];
             }
         } else {
             console.error("Undefined lyph: ", resource);
             throw new Error("Failed to locate prototype definition for the selected lyph!");
         }
     }
-
-    // /* Obsolete method to edit any selected resource via the generated forms*/
-    // onEditResource(resource){
-    //     function findResourceDef(obj, parent, key) {
-    //         if (!obj) { return; }
-    //         let result = null;
-    //         if (obj::isArray()) {
-    //             result = obj.find((item, i) => findResourceDef(obj[i], obj, i))
-    //         }
-    //         else {
-    //             if (obj::isObject()){
-    //                 if (obj.id === resource.id) { return [parent, key]; }
-    //                 result = obj::keys().find(prop => findResourceDef(obj[prop], obj, prop));
-    //             }
-    //         }
-    //         return result;
-    //     }
-    //
-    //     let res = findResourceDef(this._model);
-    //     if (!res) {
-    //         throw new Error("Failed to locate the resource in the input model! Generated or unidentified resources cannot be edited!");
-    //     }
-    //     let [parent, key] = res;
-    //     let obj = parent[key]::cloneDeep();
-    //     const dialogRef = this._dialog.open(ResourceEditorDialog, {
-    //         width: '75%',
-    //         data: {
-    //             title             : `
-    //    Update
-    //    resource ? `,
-    //             modelClasses      : modelClasses,
-    //             modelResources    : this._graphData.entitiesByID || {},
-    //             resource          : obj,
-    //             className         : resource.class
-    //         }
-    //     });
-    //
-    //     dialogRef.afterClosed().subscribe(result => {
-    //         if (result !== undefined){
-    //             parent[key] = result;
-    //             this.model = this._model;
-    //         }
-    //     });
-    // }
 
     onScaffoldUpdated() {
         this._scaffoldUpdated = true;
@@ -857,18 +826,17 @@ export class TestApp {
         }
     }
 
+
+    applyEditorChanges({model, selected}, editor) {
+        this._selectedResources[editor] = selected;
+        this._model = model;
+        this.applyChanges();
+    }
+
     switchEditor({editor, node}) {
-        if (editor === 'lyph' || editor === 'chain' || editor === 'coalescence') {
-            if (editor === 'lyph') {
-                this.selectedLyphID = node;
-            } else {
-                if (editor === 'chain') {
-                    this.selectedChainID = node;
-                } else {
-                    this.selectedCoalescenceID = node;
-                }
-            }
-            this._tabGroup.selectedIndex += 1;
+        this._selectedResources[editor] = node;
+        if (['material', 'lyph', 'chain', 'coalescence'].includes(editor)) {
+            this._tabGroup.selectedIndex = TAB_INDEX[editor];
         }
     }
 }

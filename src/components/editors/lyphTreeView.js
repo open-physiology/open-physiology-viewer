@@ -9,7 +9,7 @@ import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {MatTooltipModule, MAT_TOOLTIP_DEFAULT_OPTIONS, MatTooltipDefaultOptions} from "@angular/material/tooltip";
 import {ColorPickerModule} from 'ngx-color-picker';
-import {isNumber, isObject} from "lodash-bound";
+import {isNumber, isObject, isString} from "lodash-bound";
 import {COLORS} from "../utils/colors";
 import {$Field, $SchemaClass} from "../../model";
 
@@ -114,7 +114,7 @@ export class LyphTreeNode {
                 } else {
                     res.children = (lyph[prop] || []).map((e, i) => mapToNodes(e, lyph, i));
                     if (includeInherited && lyph.supertype) {
-                        let supertype = mapToNodes(lyph.supertype);
+                        let supertype = mapToNodes(lyph.supertype, lyph);
                         supertype.children.forEach(c => {
                             c.inherited = true;
                             if (!c.icons.includes(ICON.INHERITED)) {
@@ -408,13 +408,23 @@ export class LyphTreeView {
 
     @Input('selectedNode') set selectedNode(node) {
         if (this._selectedNode !== node) {
-            this._selectedNode = node;
-            if (node::isObject()) {
-                let curr = node;
+            if (node::isString()) {
+                //Find by ID
+                this._selectedNode = this.treeControl.dataNodes.find(n => n.id === node);
+            } else {
+                this._selectedNode = node;
+            }
+            if (this._selectedNode) {
+                let curr = this._selectedNode;
                 while (curr.parent) {
                     this.treeControl.expand(curr.parent._node);
                     curr = curr.parent._node;
                 }
+                //Scroll to the selected node - does not work
+                // const elements = document.getElementsByClassName("selected");
+                // if (elements.length > 0) {
+                //    elements[0].scrollIntoView({ behavior: 'smooth'});
+                // }
             }
         }
     }

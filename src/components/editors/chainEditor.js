@@ -10,7 +10,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {cloneDeep, isObject, sortBy, values} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {DiffDialog} from "./diffDialog";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
@@ -20,6 +20,7 @@ import {ResourceMaps} from "../utils/resourceMaps";
 import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
 import {LinkedResourceModule} from "./linkedResource";
 import {MatTabsModule} from "@angular/material/tabs";
+import {ResourceEditor} from "./resourceEditor";
 
 
 @Component({
@@ -102,8 +103,8 @@ import {MatTabsModule} from "@angular/material/tabs";
                             <mat-tab class="w3-margin">
                                 <ng-template mat-tab-label>housingLyphs</ng-template>
                                 <!-- Housing lyphs -->
-                                
-                                <resourceListView *ngIf="selectedChain" 
+
+                                <resourceListView *ngIf="selectedChain"
                                                   title="Housing lyphs"
                                                   ordered=true
                                                   expectedClass="Lyph"
@@ -205,6 +206,7 @@ import {MatTabsModule} from "@angular/material/tabs";
                               [ordered]=true
                               [showMenu]=false
                               [treeData]="layerTree"
+                              (onNodeClick)="switchEditor($event)"
                 >
                 </lyphTreeView>
             </section>
@@ -257,11 +259,13 @@ import {MatTabsModule} from "@angular/material/tabs";
  * @class
  * @property entitiesByID
  */
-export class ChainEditorComponent {
-    _model;
-    _snackBar;
-    _snackBarConfig = new MatSnackBarConfig();
-    _selectedNode;
+export class ChainEditorComponent  extends ResourceEditor {
+    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
+        super(snackBar, dialog);
+    }
+
+    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys'];
+
     _extraActions = [{operation: "connectRoot", label: "Connect chain root"}, {
         operation: "connectLeaf",
         label: "Connect chain leaf"
@@ -272,13 +276,6 @@ export class ChainEditorComponent {
 
     chainLyphs = [];
     chainHousingLyphs = [];
-
-    searchOptions;
-    steps = [];
-    currentStep = 0;
-
-    showPanel = true;
-    entitiesByID = {};
     activeList = "lyphs";
 
     @Input('model') set model(newModel) {
@@ -328,14 +325,6 @@ export class ChainEditorComponent {
         return this._selectedNode;
     }
 
-    @Output() onChangesSave = new EventEmitter();
-
-    constructor(snackBar: MatSnackBar, dialog: MatDialog) {
-        this.dialog = dialog;
-        this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
-    }
-
     /**
      * Prepare nodes for the editable chain list
      */
@@ -360,7 +349,6 @@ export class ChainEditorComponent {
         });
         // this.prepareChainTree();
     }
-
 
     /**
      * Select chain
@@ -488,14 +476,14 @@ export class ChainEditorComponent {
      */
     prepareChainLyphs() {
         let res = [];
-        if (this.selectedChain) {
-            (this.selectedChain.lyphs || []).forEach((lyphID, idx) => {
-                let lyph = this.entitiesByID[lyphID];
-                let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
-                if (lyph?.layers) {
+        (this.selectedChain?.lyphs || []).forEach((lyphID, idx) => {
+            let lyph = this.entitiesByID[lyphID];
+            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
+            res.push(node);
+            if (lyph) {
+                if (lyph.layers) {
                     node.icons.push(ICON.LAYERS);
                 }
-                res.push(node);
                 if (!lyph._conveys && lyph.conveys) {
                     lyph._conveys = this.entitiesByID[lyph.conveys];
                 }
@@ -507,10 +495,10 @@ export class ChainEditorComponent {
                 if (this.selectedChain?.leaf && this.selectedChain.lyphs.length - 1 === idx) {
                     lyph._conveys.target = this.selectedChain.leaf;
                 }
-            });
-            this.prepareChainHousingLyphs();
-            this.prepareChainLevels();
-        }
+            }
+        });
+        this.prepareChainHousingLyphs();
+        this.prepareChainLevels();
         this.chainLyphs = res;
     }
 
@@ -556,32 +544,20 @@ export class ChainEditorComponent {
         });
     }
 
-    selectBySearch(nodeLabel, reference) {
-        if (!nodeLabel && reference) {
-            return null;
-        } else {
-            let nodeID = nodeLabel.substring(
-                nodeLabel.lastIndexOf("(") + 1,
-                nodeLabel.lastIndexOf(")")
-            );
-            return this.entitiesByID[nodeID];
-        }
-    }
-
     /**
      * Select lyph to connect via search menu
      * @param nodeLabel
      */
     selectLyphToLink(nodeLabel) {
-        this.lyphToLink = this.selectBySearch(nodeLabel, this.lyphToLink);
+        this.lyphToLink = this.selectBySearch(nodeLabel);
     }
 
     selectLyphTemplate(nodeLabel) {
-        this.candidateLyphTemplate = this.selectBySearch(nodeLabel, this.candidateLyphTemplate);
+        this.candidateLyphTemplate = this.selectBySearch(nodeLabel);
     }
 
     selectHousingLyphTemplate(nodeLabel) {
-        this.candidateHousingLyphTemplate = this.selectBySearch(nodeLabel, this.candidateHousingLyphTemplate);
+        this.candidateHousingLyphTemplate = this.selectBySearch(nodeLabel);
     }
 
     updateLyphTemplate(node) {
@@ -974,12 +950,12 @@ export class ChainEditorComponent {
         }
     }
 
-    updateNumLevels(value){
+    updateNumLevels(value) {
         if (!this.selectedChain) {
-             return;
+            return;
         }
         let numLevels = parseInt(value);
-        if (numLevels > 0){
+        if (numLevels > 0) {
             this.selectedChain = numLevels;
             this.saveStep(`Updated numLevels property of chain ` + this.selectedChain.id);
         } else {
@@ -994,18 +970,25 @@ export class ChainEditorComponent {
         this._snackBar.open(message, "OK", this._snackBarConfig);
     }
 
-    saveChanges() {
-        this.clearHelpers();
-        this.onChangesSave.emit({model: this._model, selected: this.selectedChain});
-    }
-
     clearHelpers() {
         this.entitiesByID::values().forEach(obj => {
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_conveys', '_cloning'];
-            added.forEach(prop => {
+            this._helperFields.forEach(prop => {
                 delete obj[prop];
             });
         });
+    }
+
+    get currentText() {
+        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
+            let currentModel = this._model::cloneDeep();
+            return JSON.stringify(currentModel,
+                (key, val) => {
+                    if (!this._helperFields.includes(key)) {
+                        return val;
+                    }
+                }, 4);
+        }
+        return this._modelText;
     }
 
     showDiff() {
@@ -1015,86 +998,24 @@ export class ChainEditorComponent {
         });
     }
 
-    get currentText() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            const added = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
-            let currentModel = this._model::cloneDeep();
-            return JSON.stringify(currentModel,
-                function (key, val) {
-                    if (!added.includes(key)) {
-                        return val;
-                    }
-                },
-                4);
-        }
-        return this._modelText;
-    }
-
-    /**
-     * Undo the operation
-     */
-    get canUndo() {
-        return this.currentStep > 0;
-    }
-
-    get canRedo() {
-        return this.currentStep < this.steps.length - 1;
-    }
-
-    get undoTitle() {
-        return `Undo ${(this.canUndo ? '"' + this.steps[this.currentStep].action + '"' : "")}`;
-    }
-
-    get redoTitle() {
-        return `Redo ${(this.canRedo ? '"' + this.steps[this.currentStep + 1].action + '"' : "")}`;
-    }
-
-    /**
-     * Undo the operation
-     */
-    undo() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            this.currentStep -= 1;
-            this.restoreState();
-        }
-    }
-
-    /**
-     * Redo the operation
-     */
-    redo() {
-        if (this.currentStep >= 0 && this.currentStep < this.steps.length - 1) {
-            this.currentStep += 1;
-            this.restoreState();
-        }
-    }
-
-    /**
-     * Save operation in history
-     * @param action
-     */
-    saveStep(action) {
-        if (this.currentStep > this.steps.length - 1) {
-            this.currentStep = this.steps.length - 1;
-        }
-        if (this.currentStep !== this.steps.length - 1) {
-            this.steps.length = this.currentStep + 1;
-        }
-        //NK test if nested properties are removed
+   getCurrentState(action){
         let snapshot = this._model::cloneDeep();
-        this.steps.push({action: action, snapshot: snapshot, selected: this.selectedChain?.id});
-        this.currentStep = this.steps.length - 1;
+        return {
+            action: action,
+            snapshot: snapshot,
+            selected: this.selectedChain?.id,
+            active: this.activeList
+        }
     }
 
     /**
      * Restore history state
      */
     restoreState() {
-        let restoredStep = this.steps[this.currentStep];
-        this._model = restoredStep.snapshot;
         this.prepareChainList();
-        let newSelected = this.entitiesByID[restoredStep.selected];
+        let newSelected = this.entitiesByID[this.steps[this.currentStep].selected];
         this.updateView(newSelected);
+        this.activeList = this.steps[this.currentStep].active;
     }
 
     createLateral(lateralPrefix) {
