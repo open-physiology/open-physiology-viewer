@@ -284,7 +284,7 @@ export class Group extends Resource {
             };
 
             const replaceLyphTemplates = ![$Field.subtypes, $Field.supertype, $Field.lyphTemplate, $Field.housingLyphs,
-                $Field.housingLyphTemplate
+                $Field.housingLyphTemplates
                 //, $Field.lyphs // NK property "lyphs" are needed for coalescences?
             ].includes(key);
             if (resource[key]::isArray()) {
@@ -414,18 +414,16 @@ export class Group extends Resource {
     static embedChainsToHousingLyphs(parentGroup, modelClasses) {
         (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
         (parentGroup.chains || []).forEach(chain => {
-            if (chain.housingLyphTemplate) {
-                // const housingLyphTemplate = refToResource(chain.housingLyphTemplate, parentGroup, $Field.lyphs);
-                // modelClasses.Lyph.expandTemplate(parentGroup, housingLyphTemplate);
+            if (chain.housingLyphTemplates) {
                 modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
             } else {
                 if (chain.isTemplate) {
-                    logger.warn($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
-                    modelClasses.Chain.replicateChainTemplate(parentGroup, chain);
+                    logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
                 }
             }
         });
     }
+
 
     markImported() {
         if (this.imported) {

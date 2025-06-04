@@ -51,9 +51,9 @@ import {ResourceEditor} from "./resourceEditor";
                                       expectedClass="Lyph"
                                       splitable=true
                                       [active]="activeList === 'lyphs'"
-                                      [listData]="chainLyphs"
+                                      [listData]="chainResources['lyphs']"
                                       [extraActions]="extraActions"
-                                      (onNodeClick)="selectLyph($event, true)"
+                                      (onNodeClick)="selectLyph($event, 'lyphs')"
                                       (onChange)="processLyphChange($event)"
                     >
                     </resourceListView>
@@ -74,44 +74,43 @@ import {ResourceEditor} from "./resourceEditor";
                                 (selectedItemChange)="selectLyphTemplate($event)"
                                 (addSelectedItem)="updateLyphTemplate($event)"
                         ></searchAddBar>
+                        <ng-template mat-tab-label>numLevels</ng-template>
+                        <!-- Num levels -->
+                        <input type="number" matInput class="w3-input num-levels"
+                               matTooltip="Number of levels in the chain"
+                               min=0
+                               max=100
+                               [value]="selectedChain?.numLevels"
+                               (input)="updateNumLevels($event.target.value)"
+                        >
+                        <!--Lyph template definition options -->
                         <mat-tab-group animationDuration="0ms" #tabChainMethod>
                             <mat-tab class="w3-margin">
-                                <ng-template mat-tab-label>numLevels</ng-template>
-                                <!-- Num levels -->
-                                <input type="number" matInput class="w3-input num-levels"
-                                       matTooltip="Number of levels in the chain"
-                                       min=0
-                                       max=100
-                                       [value]="selectedChain?.numLevels"
-                                       (input)="updateNumLevels($event.target.value)"
+                                <!-- Housing lyph templates -->
+                                <ng-template mat-tab-label>Housing lyph templates</ng-template>
+                                 <resourceListView *ngIf="selectedChain"
+                                                  title="Housing lyph templates"
+                                                  ordered=true
+                                                  expectedClass="Lyph"
+                                                  splitable=true
+                                                  [active]="activeList === 'housingLyphTemplates'"
+                                                  [listData]="chainResources['housingLyphTemplates']"
+                                                  (onNodeClick)="selectLyph($event, 'housingLyphTemplates')"
+                                                  (onChange)="processHousingLyphTemplateChange($event)"
                                 >
+                                </resourceListView>
                             </mat-tab>
                             <mat-tab class="w3-margin">
-                                <ng-template mat-tab-label>housingLyphTemplate</ng-template>
-                                <div class="resource-box w3-margin-top">
-                                    <div class="resource-boxContent">
-                                        {{selectedChain.housingLyphTemplate}}
-                                    </div>
-                                </div>
-                                <searchAddBar
-                                        [searchOptions]="templateSearchOptions"
-                                        [selected]="candidateHousingLyphTemplate?.id"
-                                        (selectedItemChange)="selectHousingLyphTemplate($event)"
-                                        (addSelectedItem)="updateHousingLyphTemplate($event)"
-                                ></searchAddBar>
-                            </mat-tab>
-                            <mat-tab class="w3-margin">
-                                <ng-template mat-tab-label>housingLyphs</ng-template>
                                 <!-- Housing lyphs -->
-
+                                <ng-template mat-tab-label>Housing lyphs</ng-template>
                                 <resourceListView *ngIf="selectedChain"
                                                   title="Housing lyphs"
                                                   ordered=true
                                                   expectedClass="Lyph"
                                                   splitable=true
                                                   [active]="activeList === 'housingLyphs'"
-                                                  [listData]="chainHousingLyphs"
-                                                  (onNodeClick)="selectHousingLyph($event)"
+                                                  [listData]="chainResources['housingLyphs']"
+                                                  (onNodeClick)="selectLyph($event, 'housingLyphs')"
                                                   (onChange)="processHousingLyphChange($event)"
                                 >
                                 </resourceListView>
@@ -123,7 +122,7 @@ import {ResourceEditor} from "./resourceEditor";
                                       [showMenu]="false"
                                       ordered=true
                                       expectedClass="Link"
-                                      [listData]="chainLevels"
+                                      [listData]="chainResources['levels']"
                                       (onNodeClick)="selectLevel($event)"
                                       (onChange)="processLevelChange($event)"
                     >
@@ -180,7 +179,7 @@ import {ResourceEditor} from "./resourceEditor";
                 >
                 </searchAddBar>
                 <!-- level target -->
-                <div class="resource-box" *ngIf="selectedLyph && isSelectedLevelLyph">
+                <div class="resource-box" *ngIf="selectedLyph && activeTree==='lyphs'">
                     <div class="resource-boxContent">
                         <div class="w3-padding w3-margin-bottom w3-border">
                             <div class="w3-margin-bottom"><b>{{selectedLyph.name || selecledLyph.id}}</b></div>
@@ -259,7 +258,7 @@ import {ResourceEditor} from "./resourceEditor";
  * @class
  * @property entitiesByID
  */
-export class ChainEditorComponent  extends ResourceEditor {
+export class ChainEditorComponent extends ResourceEditor {
     constructor(snackBar: MatSnackBar, dialog: MatDialog) {
         super(snackBar, dialog);
     }
@@ -274,8 +273,13 @@ export class ChainEditorComponent  extends ResourceEditor {
     chainList;
     //chainTree = [];
 
-    chainLyphs = [];
-    chainHousingLyphs = [];
+    chainResources = {
+        [$Field.lyphs]: [],
+        [$Field.housingLyphs]: [],
+        [$Field.housingLyphTemplates]: [],
+        [$Field.levels]: []
+    }
+
     activeList = "lyphs";
 
     @Input('model') set model(newModel) {
@@ -317,7 +321,6 @@ export class ChainEditorComponent  extends ResourceEditor {
             this._selectedNode = value;
             this.selectChain(value);
             this.candidateLyphTemplate = null;
-            this.candidateHousingLyphTemplate = null;
         }
     }
 
@@ -357,27 +360,16 @@ export class ChainEditorComponent  extends ResourceEditor {
     selectChain(node) {
         let nodeID = node::isObject() ? node.id : node;
         this.selectedChain = this.entitiesByID[nodeID];
-        this.prepareChainLyphs();
+        this.prepareChainResources();
     }
 
-    selectLyph(node, isSelectedLevelLyph = true) {
+    selectLyph(node, prop) {
         if (node) {
             let nodeID = node::isObject() ? node.id : node;
             this.selectedLyph = this.entitiesByID[nodeID];
             this.prepareLayerTree();
-            this.isSelectedLevelLyph = isSelectedLevelLyph;
         }
-        this.activeList = "lyphs";
-    }
-
-    selectHousingLyph(node, isSelectedLevelLyph = true) {
-        if (node) {
-            let nodeID = node::isObject() ? node.id : node;
-            this.selectedLyph = this.entitiesByID[nodeID];
-            this.prepareLayerTree();
-            this.isSelectedLevelLyph = isSelectedLevelLyph;
-        }
-        this.activeList = "housingLyphs";
+        this.activeList = prop;
     }
 
     selectLevel(node) {
@@ -444,46 +436,37 @@ export class ChainEditorComponent  extends ResourceEditor {
             tailChain = this.createChain(tailChain, false);
             tailChain.lyphs = tailLyphs;
 
-            this.prepareChainLyphs();
+            this.prepareChainResources([$Field.lyphs]);
             this.saveStep("Split chain " + this.selectedChain.id + " at level " + index);
         }
     }
 
-    moveLevelUp(node, index) {
-        if (this.selectedChain?.lyphs) {
-            let tmp = this.selectedChain.lyphs[index - 1];
-            this.selectedChain.lyphs[index - 1] = this.selectedChain.lyphs[index];
-            this.selectedChain.lyphs[index] = tmp;
-            this.prepareChainLyphs();
+    moveLevelUp(node, index, prop) {
+        if (!this.selectedChain) return;
+        if (this.selectedChain[prop]) {
+            let tmp = this.selectedChain[prop][index - 1];
+            this.selectedChain[prop][index - 1] = this.selectedChain[prop][index];
+            this.selectedChain[prop][index] = tmp;
+            this.prepareChainResources([prop]);
             this.saveStep("Move up lyph " + index + " of chain " + this.selectedChain.id);
         }
     }
 
-    moveLevelDown(node, index) {
-        if (this.selectedChain?.lyphs) {
-            let tmp = this.selectedChain.lyphs[index + 1];
-            this.selectedChain.lyphs[index + 1] = this.selectedChain.lyphs[index];
-            this.selectedChain.lyphs[index] = tmp;
-            this.prepareChainLyphs();
+    moveLevelDown(node, index, prop) {
+        if (!this.selectedChain) return;
+        if (this.selectedChain[prop]) {
+            let tmp = this.selectedChain[prop][index + 1];
+            this.selectedChain[prop][index + 1] = this.selectedChain[prop][index];
+            this.selectedChain[prop][index] = tmp;
+            this.prepareChainResources([prop]);
             this.saveStep("Move down lyph " + index + " of chain " + this.selectedChain.id);
         }
     }
 
-
-    /**
-     * Prepare list of lyph nodes used to define a selected chain
-     * @returns {[]|*[]}
-     */
-    prepareChainLyphs() {
-        let res = [];
+    prepareLevelTargets() {
         (this.selectedChain?.lyphs || []).forEach((lyphID, idx) => {
             let lyph = this.entitiesByID[lyphID];
-            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.lyphs.length);
-            res.push(node);
             if (lyph) {
-                if (lyph.layers) {
-                    node.icons.push(ICON.LAYERS);
-                }
                 if (!lyph._conveys && lyph.conveys) {
                     lyph._conveys = this.entitiesByID[lyph.conveys];
                 }
@@ -497,29 +480,39 @@ export class ChainEditorComponent  extends ResourceEditor {
                 }
             }
         });
-        this.prepareChainHousingLyphs();
-        this.prepareChainLevels();
-        this.chainLyphs = res;
     }
 
-    prepareChainHousingLyphs() {
-        let res = [];
-        (this.selectedChain?.housingLyphs || []).forEach((lyphID, idx) => {
-            let lyph = this.entitiesByID[lyphID];
-            let node = ListNode.createInstance(lyph || lyphID, idx, this.selectedChain.housingLyphs.length);
-            res.push(node);
+    prepareChainLyphIcons(nodes) {
+        (nodes || []).forEach(node => {
+            let lyph = node.resource;
+            if (lyph?.layers) {
+                node.icons.push(ICON.LAYERS);
+            }
         });
-        this.chainHousingLyphs = res;
     }
 
-    prepareChainLevels() {
+    prepareResourceList(prop) {
         let res = [];
-        (this.selectedChain?.levels || []).forEach((linkID, idx) => {
-            let link = this.entitiesByID[linkID];
-            let node = ListNode.createInstance(link || linkID, idx, this.selectedChain.levels.length);
+        if (!this.selectedChain) return res;
+        (this.selectedChain[prop] || []).forEach((resourceID, idx) => {
+            let resource = this.entitiesByID[resourceID];
+            let node = ListNode.createInstance(resource || resourceID, idx, this.selectedChain[prop].length);
             res.push(node);
         });
-        this.chainLevels = res;
+        return res;
+    }
+
+    prepareChainResources(props) {
+        if (!props || props.length === 0) {
+            props = [$Field.lyphs, $Field.housingLyphs, $Field.housingLyphTemplates, $Field.levels];
+        }
+        props.forEach(prop => {
+            this.chainResources[prop] = this.prepareResourceList(prop);
+            if (prop === $Field.lyphs) {
+                this.prepareLevelTargets();
+                this.prepareChainLyphIcons(this.chainResources[prop]);
+            }
+        });
     }
 
     /**
@@ -556,10 +549,6 @@ export class ChainEditorComponent  extends ResourceEditor {
         this.candidateLyphTemplate = this.selectBySearch(nodeLabel);
     }
 
-    selectHousingLyphTemplate(nodeLabel) {
-        this.candidateHousingLyphTemplate = this.selectBySearch(nodeLabel);
-    }
-
     updateLyphTemplate(node) {
         if (!this.selectedChain) {
             this.showMessage("Cannot update lyph template: chain is not selected");
@@ -578,28 +567,6 @@ export class ChainEditorComponent  extends ResourceEditor {
             if (this.candidateLyphTemplate !== this.selectedChain.lyphTemplate) {
                 this.selectedChain.lyphTemplate = this.candidateLyphTemplate.id;
                 this.saveStep("Replaced lyph template in chain " + this.selectedChain.id);
-            }
-        }
-    }
-
-    updateHousingLyphTemplate(node) {
-        if (!this.selectedChain) {
-            this.showMessage("Cannot update housing lyph template: chain is not selected");
-            return;
-        }
-        if (this.selectedChain.lyphs) {
-            this.showMessage("Cannot update housing lyph template: chain is defined by sequence of lyphs");
-            return;
-        }
-        if (!this.candidateHousingLyphTemplate) {
-            if (this.selectedChain.housingLyphTemplate) {
-                delete this.selectedChain.housingLyphTemplate;
-                this.saveStep("Removed houising lyph template from chain " + this.selectedChain.id);
-            }
-        } else {
-            if (this.candidateHousingLyphTemplate !== this.selectedChain.housingLyphTemplate) {
-                this.selectedChain.housingLyphTemplate = this.candidateHousingLyphTemplate.id;
-                this.saveStep("Replaced housing lyph template in chain " + this.selectedChain.id);
             }
         }
     }
@@ -684,7 +651,7 @@ export class ChainEditorComponent  extends ResourceEditor {
 
     updateView(chain) {
         this.selectedChain = chain;
-        this.prepareChainLyphs();
+        this.prepareChainResources();
         if (this.selectedNode?.id !== this.selectedChain?.id) {
             this.selectedNode = this.selectedChain.id;
         }
@@ -700,19 +667,19 @@ export class ChainEditorComponent  extends ResourceEditor {
     processLyphChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.addChainLyph(node, index);
+                this.addLyphToList(node, index, $Field.lyphs, this._isLyphInstance);
                 break;
             case 'delete':
-                this.deleteChainLyph(node, index);
+                this.deleteLyphFromList(node, index, $Field.lyphs, $Field.levelIn);
                 break;
             case 'up':
-                this.moveLevelUp(node, index);
+                this.moveLevelUp(node, index, $Field.lyphs);
                 break;
             case 'down':
-                this.moveLevelDown(node, index);
+                this.moveLevelDown(node, index, $Field.lyphs);
                 break;
             case 'defineAsLyph':
-                this.defineAsLyph(node, index);
+                this.defineAsLyph(node);
                 break;
             case "split":
                 this.split(node, index);
@@ -727,10 +694,14 @@ export class ChainEditorComponent  extends ResourceEditor {
     }
 
     addLyph(node, index) {
-        if (this.activeList === "housingLyphs") {
-            this.addChainHousingLyph(node, index)
-        } else {
-            this.addChainLyph(node, index);
+        switch (this.activeList) {
+            case $Field.lyphs:
+                this.addLyphToList(node, index, $Field.lyphs, this._isLyphInstance);
+                break;
+            case $Field.housingLyphs: this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
+                break;
+            case $Field.housingLyphTemplates: this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
+                break;
         }
     }
 
@@ -738,76 +709,45 @@ export class ChainEditorComponent  extends ResourceEditor {
         this.showMessage("Operations on levels are not supported by the chain editor!");
     }
 
+    // housing lyph templates
+    processHousingLyphTemplateChange({operation, node, index}) {
+        switch (operation) {
+            case 'insert':
+                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
+                break;
+            case 'delete':
+                 this.deleteLyphFromList(node, index, $Field.housingLyphTemplates, $Field.providesChains);
+                break;
+            case 'up':
+                this.moveLevelUp(node, index, $Field.housingLyphTemplates);
+                break;
+            case 'down':
+                this.moveLevelDown(node, index, $Field.housingLyphTemplates);
+                break;
+            case 'defineAsLyph':
+                this.defineAsLyph(node, true);
+                break;
+        }
+    }
+
+    // housing lyphs
     processHousingLyphChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.addChainHousingLyph(node, index);
+                this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
                 break;
             case 'delete':
-                this.deleteChainHousingLyph(node, index);
+                this.deleteLyphFromList(node, index, $Field.housingLyphs, $Field.bundlesChains);
                 break;
             case 'up':
-                this.moveHousingLyphUp(node, index);
+                this.moveLevelUp(node, index, $Field.housingLyphs);
                 break;
             case 'down':
-                this.moveHousingLyphDown(node, index);
+                this.moveLevelDown(node, index, $Field.housingLyphs);
                 break;
             case 'defineAsLyph':
-                this.defineAsLyph(node, index);
+                this.defineAsLyph(node);
                 break;
-        }
-    }
-
-    addChainHousingLyph(node, index) {
-        if (this.selectedChain) {
-            if (!this.lyphToLink) {
-                this.showMessage("Lyph is not selected!");
-            } else {
-                if (this._isValidChainLyph(this.lyphToLink)) {
-                    this.selectedChain.housingLyphs = this.selectedChain.housingLyphs || [];
-                    this.selectedChain.housingLyphs.push(this.lyphToLink.id);
-                    this.prepareChainHousingLyphs();
-                    this.saveStep(`Added housing lyph ${this.lyphToLink.id} to chain ${this.selectedChain.id}`);
-                }
-            }
-        } else {
-            this.showMessage("Cannot add housing lyph: no chain is selected!");
-        }
-    }
-
-    deleteChainHousingLyph(node, index) {
-        if (!this.selectedChain) {
-            this.showMessage("Cannot delete the chain housing lyph: chain is not selected!");
-        } else {
-            if (index > -1 && this.selectedChain.housingLyphs?.length > index) {
-                this.selectedChain.housingLyphs.splice(index, 1);
-                let lyph = this.entitiesByID[node.id];
-                if (lyph && lyph.bundlesChains) {
-                    lyph.bundlesChains = lyph.bundlesChains.filter(x => x !== this.selectedChain.id);
-                }
-                this.saveStep("Remove housing lyph " + node.id + " from " + this.selectedChain.id);
-            }
-            this.prepareChainHousingLyphs();
-        }
-    }
-
-    moveHousingLyphUp(node, index) {
-        if (this.selectedChain?.housingLyphs) {
-            let tmp = this.selectedChain.housingLyphs[index - 1];
-            this.selectedChain.housingLyphs[index - 1] = this.selectedChain.housingLyphs[index];
-            this.selectedChain.housingLyphs[index] = tmp;
-            this.prepareChainHousingLyphs();
-            this.saveStep("Move up housing lyph " + index + " of chain " + this.selectedChain.id);
-        }
-    }
-
-    moveHousingLyphDown(node, index) {
-        if (this.selectedChain?.housingLyphs) {
-            let tmp = this.selectedChain.housingLyphs[index + 1];
-            this.selectedChain.housingLyphs[index + 1] = this.selectedChain.housingLyphs[index];
-            this.selectedChain.housingLyphs[index] = tmp;
-            this.prepareChainHousingLyphs();
-            this.saveStep("Move down housing lyph " + index + " of chain " + this.selectedChain.id);
         }
     }
 
@@ -844,64 +784,70 @@ export class ChainEditorComponent  extends ResourceEditor {
     /**
      * Add lyph definition
      * @param node
+     * @param isTemplate
      */
-    defineAsLyph(node) {
+    defineAsLyph(node, isTemplate= false) {
         this._addDefinition($Field.lyphs, node.id);
         node.class = $SchemaClass.Lyph;
+        if (isTemplate){
+            node.isTemplate = true;
+        }
         this.saveStep("Define as lyph " + node.id);
         this.updateLyphOptions();
     }
 
-    _isValidChainLyph(lyph) {
-        if (lyph.isTemplate) {
-            this.showMessage("Cannot add a lyph template as level to the chain conveying lyphs");
-            return false;
-        }
-        return true;
+    _isLyphInstance(lyph) {
+        return !lyph.isTemplate;
     }
+
+    _isLyphTemplate(lyph) {
+        return lyph.isTemplate;
+    }
+
 
     /**
      * Add layer to the lyph
      * @param node
      * @param index
+     * @param prop
+     * @param fncValidate
      */
-    addChainLyph(node, index) {
+    addLyphToList(node, index, prop, fncValidate) {
         if (this.selectedChain) {
             if (!this.lyphToLink) {
                 this.showMessage("Lyph is not selected!");
             } else {
-                if ((this.selectedChain.levels || []).length > 0) {
-                    this.showMessage("Cannot add lyphs - the chain is defined using levels!");
-                    return;
+                if (!fncValidate || fncValidate(this.lyphToLink)) {
+                    this.selectedChain[prop] = this.selectedChain[prop] || [];
+                    this.selectedChain[prop].push(this.lyphToLink.id);
+                    this.prepareChainResources([prop]);
+                    this.saveStep(`Added ${this.lyphToLink.id} to chain's ${this.selectedChain.id} "${prop}"`);
+                } else {
+                    this.showMessage(`Cannot add lyph ${this.lyphToLink.id} to the chain's property "${prop}" because of the wrong "isTemplate" setting!`);
                 }
-                this.selectedChain.lyphs = this.selectedChain.lyphs || [];
-                this.selectedChain.lyphs.push(this.lyphToLink.id);
-                this.prepareChainLyphs();
-                this.saveStep(`Add level ${this.lyphToLink.id} to chain ${this.selectedChain.id}`);
             }
         } else {
-            this.showMessage("Cannot add level: no chain is selected!");
+            this.showMessage("Cannot add lyph: no chain is selected!");
         }
     }
 
-    /**
-     * Delete layer from the lyph
-     * @param node
-     * @param index
-     */
-    deleteChainLyph(node, index) {
+    deleteLyphFromList(node, index, prop, relatedProp){
         if (!this.selectedChain) {
-            this.showMessage("Cannot delete the chain lyph: chain is not selected!");
+            this.showMessage("Cannot delete the lyph: chain is not selected!");
         } else {
-            if (index > -1 && this.selectedChain.lyphs?.length > index) {
-                this.selectedChain.lyphs.splice(index, 1);
+            if (index > -1 && this.selectedChain[prop]?.length > index) {
+                this.selectedChain[prop].splice(index, 1);
                 let lyph = this.entitiesByID[node.id];
-                if (lyph) {
-                    delete lyph.levelIn;
+                if (lyph && lyph[relatedProp]) {
+                    if (lyph[relatedProp]::isArray()){
+
+                    } else {
+                        delete lyph[relatedProp];
+                    }
                 }
-                this.saveStep("Remove level " + node.id + " from " + this.selectedChain.id);
+                this.saveStep(`Removed lyph ${node.id} from chain's ${this.selectedChain.id} property ${prop}`);
             }
-            this.prepareChainLyphs();
+            this.prepareChainResources([prop]);
         }
     }
 
@@ -952,11 +898,12 @@ export class ChainEditorComponent  extends ResourceEditor {
 
     updateNumLevels(value) {
         if (!this.selectedChain) {
+            this.showMessage("Cannot update number of levels: chain is not selected");
             return;
         }
         let numLevels = parseInt(value);
         if (numLevels > 0) {
-            this.selectedChain = numLevels;
+            this.selectedChain.numLevels = numLevels;
             this.saveStep(`Updated numLevels property of chain ` + this.selectedChain.id);
         } else {
             if (this.selectedChain.numLevels) {
@@ -966,39 +913,7 @@ export class ChainEditorComponent  extends ResourceEditor {
         }
     }
 
-    showMessage(message) {
-        this._snackBar.open(message, "OK", this._snackBarConfig);
-    }
-
-    clearHelpers() {
-        this.entitiesByID::values().forEach(obj => {
-            this._helperFields.forEach(prop => {
-                delete obj[prop];
-            });
-        });
-    }
-
-    get currentText() {
-        if (this.currentStep > 0 && this.currentStep < this.steps.length) {
-            let currentModel = this._model::cloneDeep();
-            return JSON.stringify(currentModel,
-                (key, val) => {
-                    if (!this._helperFields.includes(key)) {
-                        return val;
-                    }
-                }, 4);
-        }
-        return this._modelText;
-    }
-
-    showDiff() {
-        const dialogRef = this.dialog.open(DiffDialog, {
-            width: '90%',
-            data: {'oldContent': this._modelText, 'newContent': this.currentText}
-        });
-    }
-
-   getCurrentState(action){
+    getCurrentState(action) {
         let snapshot = this._model::cloneDeep();
         return {
             action: action,
@@ -1014,6 +929,7 @@ export class ChainEditorComponent  extends ResourceEditor {
     restoreState() {
         this.prepareChainList();
         let newSelected = this.entitiesByID[this.steps[this.currentStep].selected];
+        console.log("Restored selected: ", newSelected);
         this.updateView(newSelected);
         this.activeList = this.steps[this.currentStep].active;
     }

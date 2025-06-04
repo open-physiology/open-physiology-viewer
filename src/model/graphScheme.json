@@ -363,20 +363,22 @@
             "minimum": 0
           }
         },
-        "housingLyphTemplate": {
+        "housingLyphTemplates": {
           "description": "A lyph template who's layers are going to house the chain",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Lyph"
-            }
-          ],
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Lyph"
+              }
+            ]
+          },
           "relatedTo": "providesChains"
         },
         "radial": {
-          "description": "A flag is set if the chain is hosted layers of the same lyph (radially). The flag is set automatically",
+          "description": "A flag to indicate that the chain is hosted in layers of the same lyph (stretched radially). The flag is set automatically",
           "type": "boolean",
           "readOnly": true,
           "advanced": true
@@ -1867,7 +1869,7 @@
               }
             ]
           },
-          "relatedTo": "housingLyphTemplate",
+          "relatedTo": "housingLyphTemplates",
           "readOnly": true,
           "advanced": true
         },

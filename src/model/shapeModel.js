@@ -90,6 +90,7 @@ export class Shape extends VisualResource {
  * @property bundles
  * @property endBbundles
  * @property bundlesChains
+ * @property providesChains
  * @property prev
  * @property next
  * @property villus

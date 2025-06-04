@@ -183,6 +183,42 @@ export const getGenName = (...args) => args.join(" ");
 export const getID  = (e) => e::isObject()? e.id : e;
 
 /**
+ * Given a lyph ID, returns IDs of all derived lyphs, i.e., reachable via subtypes/supertype property pairs in the input or partially generated JSON model
+ * @param targetLyphID
+ * @param lyphs
+ * @param lyphsByID
+ * @returns {any[]}
+ */
+export function findAllDerived(targetLyphID, lyphs, lyphsByID) {
+          const derived = new Set();
+          const queue = [targetLyphID];
+
+          while (queue.length > 0) {
+            const currentId = queue.shift();
+
+            for (const obj of lyphs) {
+              // If currentId is the supertype of obj, it's derived
+              if (obj.supertype === currentId && !derived.has(obj.id)) {
+                derived.add(obj.id);
+                queue.push(obj.id);
+              }
+            }
+
+            // Add any explicitly declared subtypes
+            const current = lyphsByID[currentId];
+            if (current?.subtypes) {
+              for (const subtypeId of current.subtypes) {
+                if (!derived.has(subtypeId)) {
+                  derived.add(subtypeId);
+                  queue.push(subtypeId);
+                }
+              }
+            }
+          }
+          return [...derived];
+        }
+
+/**
  * Compares resources
  * @param e1 - identifier or a reference of the first resource
  * @param e2 - identifier or a reference of the second resource
