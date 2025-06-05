@@ -811,7 +811,7 @@ export class Graph extends Group{
             });
 
             let groupId = getGenID($Prefix.group, seed.id);
-            let groupName = getGenName("Generated group for", seed.id);
+            let groupName = getGenName("Group for", seed.id);
 
             //Find a group with seed that contains any of the group lyphs
             let groups = (this.groups||[]).filter(g => g.seed && groupLyphs.find(lyph => lyph.id === g.seed.id));

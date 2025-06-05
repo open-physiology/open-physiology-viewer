@@ -598,7 +598,6 @@ export class Chain extends GroupTemplate {
 
     static replicateToHousingLyphSubtypes(parentGroup, chain) {
 
-
         const processOne = (housingLyphTemplateID, startLayer) => {
             let housingLyphTemplate = refToResource(housingLyphTemplateID, parentGroup, $Field.lyphs);
             if (!housingLyphTemplate) {
@@ -628,9 +627,10 @@ export class Chain extends GroupTemplate {
                 if (chain.levelOntologyTerms) {
                     genChain.levelOntologyTerms = chain.levelOntologyTerms;
                 }
-                let numLevels = (lyph.layers || []).length;
-                if ((chain.numLevels > 0) && (chain.numLevels < numLevels)) {
-                    numLevels = chain.numLevels;
+                let numLayers = (lyph.layers || []).length;
+                let numLevels = numLayers - startLayer;
+                if (chain.numLevels) {
+                    numLevels = Math.min(chain.numLevels, numLevels);
                 }
                 for (let i = startLayer; i < startLayer + numLevels; i++) {
                     genChain.housingLyphs.push(lyph.layers[i]);

@@ -36,6 +36,8 @@ export class ListNode {
         this.icons = [];
         this.canMoveUp = index > 0 && this.length > 1;
         this.canMoveDown = index < this.length - 1;
+        this.layerIndex = resource?._layerIndex;
+        this.maxLayerIndex = (this.resource?.layers||[]).length - 1;
     }
 
     /**
@@ -75,7 +77,7 @@ export class ListNode {
                            [cpSaveClickOutside]="false"
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
-                    <div *ngIf="ordered && (node.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
+                    <div *ngIf="ordered && (node.index > -1)" class="w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.label}}
                             [ngClass]="{
                                'selected'    : node.id === (selectedNode?.id || selectedNode),
@@ -94,6 +96,15 @@ export class ListNode {
                     <span *ngIf="expectedClass && expectedClass !== node.class" style="color: red">!</span>
                     <div *ngFor="let icon of node.icons; let i = index">
                         <i class="icon-mini" [ngClass]=icon> </i>
+                    </div>
+                    
+                    <div *ngIf="showLayerIndex && node?.maxLayerIndex >=0 ">
+                        <input type="number" matInput class="w3-input layer-index"
+                               [value]="node?.layerIndex"
+                               [min]=0
+                               [max]="node?.maxLayerIndex"
+                               (input)="updateLayerIndex(node, $event.target.value)"
+                        />
                     </div>
 
                 </mat-list-item>
@@ -227,6 +238,20 @@ export class ListNode {
             font-weight: 500;
             cursor: pointer;
         }
+        
+        .layer-index {
+            text-align: right;
+            font: 12px sans-serif;
+            background: ${COLORS.white};
+            border: 0.067rem solid ${COLORS.inputBorderColor};
+            color: ${COLORS.inputTextColor};
+            box-sizing: border-box;
+            height: 1.7rem;
+            font-size: 0.8rem;
+            padding: 0 0.5rem 0 1.734rem;
+            margin-left: 0.2rem;
+        }
+
     `]
 })
 export class ResourceListView {
@@ -240,12 +265,12 @@ export class ResourceListView {
     @Input() expectedClass;
     @Input() selectedNode;
     @Input() linkedNode;
-    @Input() showMenu = true;
     @Input() splitable = false;
     @Input() showColor = false;
     @Input() active = false;
-
     @Input() extraActions = [];
+    @Input() showMenu = true;
+    @Input() showLayerIndex;
 
     @Input('listData') set model(newListData) {
         this._listData = newListData;
@@ -254,9 +279,14 @@ export class ResourceListView {
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
     @Output() onColorUpdate = new EventEmitter();
+    @Output() onLayerIndexChange = new EventEmitter();
 
     get listData() {
         return this._listData;
+    }
+
+    updateLayerIndex(node, layerIndex) {
+        this.onLayerIndexChange.emit({node: node, layerIndex: layerIndex});
     }
 
     preventDefault(e, node){

@@ -15,6 +15,11 @@ Chain.prototype.update = function () {
 
     //Resize chain lyphs to match the estimated level length
     const resizeLevels = () => {
+        let min = {
+            width: Number.MAX_VALUE,
+            height: Number.MAX_VALUE
+        };
+        let minLength = Number.MAX_VALUE;
         for (let i = 0; i < this.levels?.length; i++) {
             const lyph = this.levels[i].conveyingLyph;
             if (this.length) {
@@ -30,7 +35,14 @@ Chain.prototype.update = function () {
                         : this.levels[i].length = Math.min(this.levels[i].length, lyph.housingLyph.height);
                 }
                 [lyph.width, lyph.height] = lyph.sizeFromAxis::values();
+                min.width = Math.min(lyph.width, min.width);
+                min.height = Math.min(lyph.height, min.height);
             }
+        }
+        // Make chain lyphs all the same size
+        for (let i = 0; i < this.levels?.length; i++) {
+            const lyph = this.levels[i].conveyingLyph;
+            [lyph.width, lyph.height] = [min.width, min.height];
         }
     }
 

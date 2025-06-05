@@ -2,9 +2,12 @@ import {NgModule, Component, Input, Output, EventEmitter, ChangeDetectionStrateg
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatSelectModule} from "@angular/material/select";
 
 import {HttpClient} from "@angular/common/http";
 import config from '../data/config';
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 /**
  * @ignore
@@ -18,12 +21,23 @@ import config from '../data/config';
                 <fieldset class="w3-card w3-round w3-margin-small">
                     <legend>URL</legend>
                     <input matInput class="w3-input"
-                           matTooltip="Model repository link"
+                           [matTooltip]="url"
                            type="text"
                            [value]="url"
                            [max]="100"
                            (input)="url = $event.target.value"
                     >
+                    <mat-form-field class="full-width">
+                        <mat-select
+                                matTooltip="Choose repository"
+                                [value]="selectedRepo"
+                                (selectionChange)="selectRepo($event.value)">
+                            <mat-option *ngFor="let repo of repositories" [value]="repo">
+                                {{repo.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
                     <button class="w3-bar-item w3-hover-light-grey w3-right"
                             (click)="executeQuery()" title="Load models">
                         <i class="fa fa-database"> </i>
@@ -61,12 +75,22 @@ import config from '../data/config';
             height: 90vh;
             overflow-y: scroll;
         }
+        
+        .full-width {
+          width: 100%;
+        }
     `]
 })
 export class ModelRepoPanel {
     models = {};
     fileNames = [];
     url = config.storageContentURL;
+    repositories = [
+        {name: "GitHub storage", url: config.storageContentURL},
+        {name: "Test models", url: config.testContentURL},
+        {name: "SPARC models", url: config.sparcContentURL}
+    ]
+    selectedRepo = this.repositories[0];
 
     @Output() onModelLoad = new EventEmitter();
 
@@ -76,6 +100,13 @@ export class ModelRepoPanel {
      */
     constructor(http: HttpClient) {
         this.http  = http;
+    }
+
+    selectRepo(value){
+        this.selectedRepo = value;
+        if (this.selectedRepo){
+            this.url = this.selectedRepo.url;
+        }
     }
 
     executeQuery(){
@@ -93,6 +124,7 @@ export class ModelRepoPanel {
                 (res || []).forEach(model => {
                     this.models[model.name] = model;
                 });
+            //TODO? get
             })
         } catch (e){
             throw new Error("Failed to access the model repository, please revise the repository URL.");
@@ -114,7 +146,7 @@ export class ModelRepoPanel {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatListModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, MatListModule, MatSelectModule, MatFormFieldModule, MatTooltipModule],
     declarations: [ModelRepoPanel],
     exports: [ModelRepoPanel]
 })

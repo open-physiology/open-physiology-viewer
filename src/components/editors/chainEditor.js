@@ -1,4 +1,4 @@
-import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
+import {NgModule, Component, Input} from '@angular/core';
 import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {MatMenuModule} from "@angular/material/menu";
@@ -8,10 +8,9 @@ import {SearchAddBarModule} from "./searchAddBar";
 import {CheckboxFilterModule} from "./checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, sortBy, values} from 'lodash-bound';
+import {cloneDeep, isObject, isNumber} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {DiffDialog} from "./diffDialog";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
 import {COLORS} from '../utils/colors.js'
@@ -74,7 +73,7 @@ import {ResourceEditor} from "./resourceEditor";
                                 (selectedItemChange)="selectLyphTemplate($event)"
                                 (addSelectedItem)="updateLyphTemplate($event)"
                         ></searchAddBar>
-                        <ng-template mat-tab-label>numLevels</ng-template>
+                        <div class="title w3-padding-small">Number of levels</div>
                         <!-- Num levels -->
                         <input type="number" matInput class="w3-input num-levels"
                                matTooltip="Number of levels in the chain"
@@ -93,10 +92,12 @@ import {ResourceEditor} from "./resourceEditor";
                                                   ordered=true
                                                   expectedClass="Lyph"
                                                   splitable=true
+                                                  showLayerIndex="true"
                                                   [active]="activeList === 'housingLyphTemplates'"
                                                   [listData]="chainResources['housingLyphTemplates']"
                                                   (onNodeClick)="selectLyph($event, 'housingLyphTemplates')"
                                                   (onChange)="processHousingLyphTemplateChange($event)"
+                                                  (onLayerIndexChange) = "processHousingLayerChange($event)"
                                 >
                                 </resourceListView>
                             </mat-tab>
@@ -263,7 +264,7 @@ export class ChainEditorComponent extends ResourceEditor {
         super(snackBar, dialog);
     }
 
-    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys'];
+    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex'];
 
     _extraActions = [{operation: "connectRoot", label: "Connect chain root"}, {
         operation: "connectLeaf",
@@ -318,7 +319,6 @@ export class ChainEditorComponent extends ResourceEditor {
 
     @Input('selectedNode') set selectedNode(value) {
         if (value && this._selectedNode !== value) {
-            this._selectedNode = value;
             this.selectChain(value);
             this.candidateLyphTemplate = null;
         }
@@ -348,6 +348,7 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.entitiesByID[chain.id] = chain;
                 let node = ListNode.createInstance(chain, idx, this._model.chains.length);
                 this.chainList.push(node);
+                chain._node = node;
             }
         });
         // this.prepareChainTree();
@@ -360,6 +361,7 @@ export class ChainEditorComponent extends ResourceEditor {
     selectChain(node) {
         let nodeID = node::isObject() ? node.id : node;
         this.selectedChain = this.entitiesByID[nodeID];
+        this._selectedNode = this.selectedChain?._node;
         this.prepareChainResources();
     }
 
@@ -496,6 +498,11 @@ export class ChainEditorComponent extends ResourceEditor {
         if (!this.selectedChain) return res;
         (this.selectedChain[prop] || []).forEach((resourceID, idx) => {
             let resource = this.entitiesByID[resourceID];
+            if (prop === $Field.housingLyphTemplates) {
+                if (this.selectedChain.housingLayers?.length > idx) {
+                    resource._layerIndex = this.selectedChain.housingLayers[idx];
+                }
+            }
             let node = ListNode.createInstance(resource || resourceID, idx, this.selectedChain[prop].length);
             res.push(node);
         });
@@ -775,7 +782,7 @@ export class ChainEditorComponent extends ResourceEditor {
         }
         let resource = this.entitiesByID[nodeID];
         resource.name = "Generated " + nodeID;
-        resource._class = prop === $Field.lyphs ? $SchemaClass.Lyph : $SchemaClass.Material;
+        resource._class = $SchemaClass.Lyph;
         delete resource._generated;
         this._model[prop] = this._model[prop] || [];
         this._model[prop].push(resource);
@@ -788,7 +795,6 @@ export class ChainEditorComponent extends ResourceEditor {
      */
     defineAsLyph(node, isTemplate= false) {
         this._addDefinition($Field.lyphs, node.id);
-        node.class = $SchemaClass.Lyph;
         if (isTemplate){
             node.isTemplate = true;
         }
@@ -797,7 +803,7 @@ export class ChainEditorComponent extends ResourceEditor {
     }
 
     _isLyphInstance(lyph) {
-        return !lyph.isTemplate;
+        return lyph._class === $SchemaClass.Lyph && !lyph.isTemplate;
     }
 
     _isLyphTemplate(lyph) {
@@ -823,7 +829,7 @@ export class ChainEditorComponent extends ResourceEditor {
                     this.prepareChainResources([prop]);
                     this.saveStep(`Added ${this.lyphToLink.id} to chain's ${this.selectedChain.id} "${prop}"`);
                 } else {
-                    this.showMessage(`Cannot add lyph ${this.lyphToLink.id} to the chain's property "${prop}" because of the wrong "isTemplate" setting!`);
+                    this.showMessage(`Cannot add ${this.lyphToLink.id} to the chain's property "${prop}" - wrong resource type!`);
                 }
             }
         } else {
@@ -929,7 +935,6 @@ export class ChainEditorComponent extends ResourceEditor {
     restoreState() {
         this.prepareChainList();
         let newSelected = this.entitiesByID[this.steps[this.currentStep].selected];
-        console.log("Restored selected: ", newSelected);
         this.updateView(newSelected);
         this.activeList = this.steps[this.currentStep].active;
     }
@@ -1042,6 +1047,29 @@ export class ChainEditorComponent extends ResourceEditor {
             }
 
             this.createChain(chain);
+        }
+    }
+
+        /**
+     * Update 'internalLyphsInLayers' property
+     * @param node
+     * @param layerIndex
+     */
+    processHousingLayerChange({node, layerIndex}) {
+        if (this.selectedChain && node && node.resource) {
+            let lyph = node.resource;
+            let idx = node.index;
+            if (!idx::isNumber()) {
+                idx = (lyph.providesChains || []).findIndex(e => e === this.selectedChain.id);
+            }
+            if (idx > -1) {
+                this.selectedChain.housingLayers = this.selectedChain.housingLayers || [];
+                if (this.selectedChain.housingLayers.length < idx) {
+                    this.selectedChain.housingLayers.length = idx + 1;
+                }
+                this.selectedChain.housingLayers[idx] = Number(layerIndex);
+                this.saveStep(`Start chain ${node.id} from layer ` + layerIndex);
+            }
         }
     }
 }

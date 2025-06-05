@@ -169,7 +169,7 @@ export class LyphTreeNode {
                            [cpSaveClickOutside]="false"
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
-                    <div *ngIf="ordered && (node?.index > -1)" class="w3-serif w3-padding-small">{{node.index}}</div>
+                    <div *ngIf="ordered && (node?.index > -1)" class="w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
                             [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),

@@ -58,8 +58,7 @@
             ]
           },
           "relatedTo": "borderAnchors",
-          "advanced": true,
-          "readOnly": true
+                    "readOnly": true
         },
         "sourceOf": {
           "description": "Wires that start in this anchor",
@@ -74,8 +73,7 @@
               }
             ]
           },
-          "relatedTo": "source",
-          "advanced": true
+          "relatedTo": "source"
         },
         "targetOf": {
           "description": "Wires that end in this anchor",
@@ -90,8 +88,7 @@
               }
             ]
           },
-          "relatedTo": "target",
-          "advanced": true
+          "relatedTo": "target"
         },
         "partOf": {
           "description": "Scaffold that contains the anchor ",
@@ -109,8 +106,7 @@
               "$ref": "#/definitions/Node"
             }
           ],
-          "relatedTo": "anchoredTo",
-          "advanced": true
+          "relatedTo": "anchoredTo"
         }
       }
     },
@@ -352,8 +348,7 @@
               "type": "number",
               "minimum": 0
             }
-          },
-          "advanced": true
+          }
         },
         "housingLayers": {
           "description": "Indices of the layers in housing lyphs to embed the chain levels. The field should be used when the housing lyph layers are generated and not known in advance.",
@@ -380,8 +375,7 @@
         "radial": {
           "description": "A flag to indicate that the chain is hosted in layers of the same lyph (stretched radially). The flag is set automatically",
           "type": "boolean",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "levelOntologyTerms": {
           "description": "External ontology terms that get associated with generated chain levels",
@@ -407,8 +401,7 @@
               "$ref": "#/definitions/Wire"
             }
           ],
-          "advanced": true,
-          "relatedTo": "wiredChains"
+                    "relatedTo": "wiredChains"
         },
         "startFromLeaf": {
           "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
@@ -423,8 +416,7 @@
             {
               "$ref": "#/definitions/Shape"
             }
-          ],
-          "advanced": true
+          ]
         },
         "laterals": {
          "description": "Chains created by lateralization of this chain",
@@ -439,8 +431,7 @@
               }
             ],
             "relatedTo": "lateralOf"
-          },
-          "advanced": true
+          }
         },
         "lateralOf": {
           "description": "A chain used as prototype for the generation of this chain",
@@ -451,8 +442,7 @@
             {
               "$ref": "#/definitions/Chain"
             }
-          ],
-          "advanced": true
+          ]
         }
       }
     },
@@ -502,8 +492,7 @@
           "items": {
             "$ref": "#/definitions/Group"
           },
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         }
       }
     },
@@ -538,8 +527,7 @@
               "$ref": "#/definitions/Coalescence"
             }
           ],
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "lyphs": {
           "description": "Coalescing lyphs, i.e., lyphs with overlapping layers",
@@ -663,8 +651,7 @@
               }
             ]
           },
-          "advanced": true,
-          "default": []
+                    "default": []
         }
       }
     },
@@ -698,13 +685,11 @@
           "enum": [
             "dashed",
             "thick"
-          ],
-          "advanced": true
+          ]
         },
         "lineWidth": {
           "description": "Edge line width, used in combination with `stroke` set to `dashed`",
-          "type": "number",
-          "advanced": true
+          "type": "number"
         },
         "arcCenter": {
           "description": "Center of an elliptic curve for an arc edge",
@@ -731,8 +716,7 @@
               "$ref": "#/definitions/Border"
             }
           ],
-          "relatedTo": "borders",
-          "advanced": true
+          "relatedTo": "borders"
         }
       },
       "dependencies": {
@@ -773,8 +757,7 @@
               }
             ]
           },
-          "relatedTo": "external",
-          "advanced": true
+          "relatedTo": "external"
         }
       }
     },
@@ -799,8 +782,7 @@
               }
             ]
           },
-          "relatedTo": "ontologyTerms",
-          "advanced": true
+          "relatedTo": "ontologyTerms"
         },
         "cladeInVariances": {
           "description": "Variance specs in which the term defines clade",
@@ -841,8 +823,7 @@
               }
             ]
           },
-          "relatedTo": "references",
-          "advanced": true
+          "relatedTo": "references"
         },
         "parent": {
           "description": "Reference that contains the given published resource, i.e., a book contains a figure",
@@ -869,8 +850,7 @@
               }
             ]
           },
-          "relatedTo": "parent",
-          "advanced": true
+          "relatedTo": "parent"
         }
       }
     },
@@ -983,8 +963,7 @@
       "properties": {
         "inactive": {
           "description": "A boolean flag to indicate that this group should not appear in the view panel",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "hidden": {
           "description": "A property that indicates whether this group is hidden",
@@ -1001,8 +980,7 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "advanced": true,
-          "relatedTo": "seedIn"
+                    "relatedTo": "seedIn"
         },
         "hostedBy": {
           "description": "ID or reference of a region on which lyphs from the group must be projected to",
@@ -1014,8 +992,7 @@
               "$ref": "#/definitions/Region"
             }
           ],
-          "advanced": true,
-          "relatedTo": "hostedGroup"
+                    "relatedTo": "hostedGroup"
         },
         "generatedFrom": {
           "description": "Group template which was used to generate the current lyph",
@@ -1158,24 +1135,21 @@
               }
             ]
           },
-          "advanced": true,
-          "default": []
+                    "default": []
         },
         "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",
           "type": "array",
           "items": {
             "$ref": "#/definitions/Scaffold"
-          },
-          "advanced": true
+          }
         },
         "varianceSpecs": {
           "description": "Specifications of variance among species",
           "type": "array",
           "items": {
             "$ref": "#/definitions/VarianceSpec"
-          },
-          "advanced": true
+          }
         }
       }
     },
@@ -1249,8 +1223,7 @@
         },
         "length": {
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
-          "type": "number",
-          "advanced": true
+          "type": "number"
         },
         "conveyingType": {
           "description": "Process type associated with links in the group derived from the template",
@@ -1364,8 +1337,7 @@
             ]
           },
           "relatedTo": "levels",
-          "advanced": true,
-          "readOnly": true
+                    "readOnly": true
         },
         "endsIn": {
           "description": "A lyph which contains one of the chain link ends",
@@ -1396,8 +1368,7 @@
         "collapsible": {
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
           "type": "boolean",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "geometry": {
           "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
@@ -1435,18 +1406,15 @@
         "directed": {
           "description": "When set to true, defines a directed edge with arrow at the end",
           "type": "boolean",
-          "default": false,
-          "advanced": true
+          "default": false
         },
         "reversed": {
           "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "strength": {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",
-          "type": "number",
-          "advanced": true
+          "type": "number"
         },
         "prev": {
           "description": "References to preceding links in ordered chains that pass through the current link",
@@ -1462,8 +1430,7 @@
             ]
           },
           "relatedTo": "next",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "next": {
           "description": "References to following links in ordered chains that pass through the current link",
@@ -1479,8 +1446,7 @@
             ]
           },
           "relatedTo": "prev",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "prevChainEndLevels": {
           "description": "References to end levels of chains preceding the chains in which the current link is a level.",
@@ -1496,8 +1462,7 @@
             ]
           },
           "relatedTo": "nextChainStartLevels",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "nextChainStartLevels": {
           "description": "References to start levels of chains following the chain in which the current link is a level.",
@@ -1513,8 +1478,7 @@
             ]
           },
           "relatedTo": "prevChainEndLevels",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         }
       }
     },
@@ -1557,8 +1521,7 @@
               "description": "Maximal value",
               "type": "number"
             }
-          },
-          "advanced": true
+          }
         },
         "length": {
           "description": "Anatomical lyph length defined in the form of power of 1/10",
@@ -1572,8 +1535,7 @@
               "description": "Maximal value",
               "type": "number"
             }
-          },
-          "advanced": true
+          }
         },
         "subtypes": {
           "description": "Lyphs that are anatomical subtypes of the given lyph",
@@ -1588,8 +1550,7 @@
               }
             ]
           },
-          "relatedTo": "supertype",
-          "advanced": true
+          "relatedTo": "supertype"
         },
         "supertype": {
           "description": "Lyph which is an anatomical supertype of the given lyph",
@@ -1658,8 +1619,7 @@
               "$ref": "#/definitions/Link"
             }
           ],
-          "relatedTo": "conveyingLyph",
-          "advanced": true
+          "relatedTo": "conveyingLyph"
         },
         "layers": {
           "description": "Lyph layers",
@@ -1687,8 +1647,7 @@
             }
           ],
           "relatedTo": "layers",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "templateInChains": {
           "description": "Chains in which the current lyph is a lyph template",
@@ -1704,8 +1663,7 @@
             ]
           },
           "relatedTo": "lyphTemplate",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "internalIn": {
           "description": "ID or reference of the lyph that contains the given lyph as its part",
@@ -1717,14 +1675,12 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "relatedTo": "internalLyphs",
-          "advanced": true
+          "relatedTo": "internalLyphs"
         },
         "internalInLayer": {
           "description": "Layer number of the lyph that contains the given lyph as its part",
           "type": "number",
-          "minimum": 0,
-          "advanced": true
+          "minimum": 0
         },
         "internalLyphs": {
           "description": "Lyphs that are internal parts of the given lyph",
@@ -1760,8 +1716,7 @@
         "internalLyphColumns": {
           "description": "Defines number of columns in the grid layout for the internal lyphs",
           "type": "number",
-          "default": 1,
-          "advanced": true
+          "default": 1
         },
         "internalLyphsInLayers": {
           "description": "Indices of layers to position internal lyphs. The field should be used when layers are generated and not known in advance",
@@ -1789,8 +1744,7 @@
               "$ref": "#/definitions/Region"
             }
           ],
-          "relatedTo": "hostedLyphs",
-          "advanced": true
+          "relatedTo": "hostedLyphs"
         },
         "channels": {
           "description": "ID or reference of the channel which this lyph houses",
@@ -1853,8 +1807,7 @@
               }
             ]
           },
-          "relatedTo": "housingLyphs",
-          "advanced": true
+          "relatedTo": "housingLyphs"
         },
         "providesChains": {
           "description": "Chains houses by the abstract layers of the given lyph template",
@@ -1870,8 +1823,7 @@
             ]
           },
           "relatedTo": "housingLyphTemplates",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "housingLyph": {
           "description": "A derived property that links a lyph with it's housing lyph",
@@ -1883,7 +1835,6 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-          "advanced": true,
           "readOnly": true
         },
         "seedIn": {
@@ -1896,8 +1847,7 @@
               "$ref": "#/definitions/Group"
             }
           ],
-          "advanced": true,
-          "relatedTo": "seed"
+                    "relatedTo": "seed"
         },
         "villus": {
           "description": "Small, finger-like projections that extend into the lumen",
@@ -1909,8 +1859,7 @@
               "$ref": "#/definitions/Villus"
             }
           ],
-          "advanced": true,
-          "relatedTo": "villusOf"
+                    "relatedTo": "villusOf"
         },
         "inCoalescences": {
           "description": "A set of coalescences that include the current lyph",
@@ -1926,8 +1875,7 @@
             ]
           },
           "relatedTo": "lyphs",
-          "default": [],
-          "advanced": true
+          "default": []
         },
         "inChains": {
           "description": "Shows chains in which the given lyph is used as level",
@@ -1942,8 +1890,7 @@
               }
             ]
           },
-          "relatedTo": "lyphs",
-          "advanced": true
+          "relatedTo": "lyphs"
         },
         "generatedFrom": {
           "description": "Material which was used to generate the current lyph",
@@ -1955,15 +1902,13 @@
               "$ref": "#/definitions/Material"
             }
           ],
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "angle": {
           "description": "Angle (in degrees) to rotate the lyph around its axis",
           "type": "number",
           "minimum": 0,
-          "maximum": 360,
-          "advanced": true
+          "maximum": 360
         },
         "infoFields": {
           "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
@@ -1982,20 +1927,17 @@
             "internalIn",
             "bundles",
             "supertype"
-          ],
-          "advanced": true
+          ]
         },
         "width": {
           "description": "Width of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout width)",
           "type": "number",
-          "minimum": 0,
-          "advanced": true
+          "minimum": 0
         },
         "height": {
           "description": "Height of the visual object representing lyph. When set manually, should not exceed 100 (% of graph layout length)",
           "type": "number",
-          "minimum": 0,
-          "advanced": true
+          "minimum": 0
         },
         "scale": {
           "description": "Defines the size of the conveying lyph as percentage of its axis' length",
@@ -2009,19 +1951,16 @@
               "type": "number",
               "minimum": 0
             }
-          },
-          "advanced": true
+          }
         },
         "create3d": {
           "description": "Create 3d visual objects for this lyph",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "layerWidth": {
           "description": "Defines the percentage of the hosting lyph's width occupied by the given lyph as layer",
           "type": "number",
-          "minimum": 0,
-          "advanced": true
+          "minimum": 0
         }
       }
     },
@@ -2061,8 +2000,7 @@
               }
             ]
           },
-          "relatedTo": "materials",
-          "advanced": true
+          "relatedTo": "materials"
         },
         "transportedBy": {
           "description": "Channels that transfer the current material",
@@ -2077,8 +2015,7 @@
               }
             ]
           },
-          "relatedTo": "materials",
-          "advanced": true
+          "relatedTo": "materials"
         }
       }
     },
@@ -2136,8 +2073,7 @@
         "internalInLayer": {
           "description": "Layer number of the lyph that the given done must be projected to",
           "type": "number",
-          "minimum": 0,
-          "advanced": true
+          "minimum": 0
         },
         "controlNodes": {
           "description": "A set of nodes that define the position of the current node as their center of mass",
@@ -2151,8 +2087,7 @@
                 "$ref": "#/definitions/Node"
               }
             ]
-          },
-          "advanced": true
+          }
         },
         "layout": {
           "description": "Positioning constraints, i.e., foci points that attract this node in the force-directed layout",
@@ -2161,20 +2096,17 @@
         },
         "fixed": {
           "description": "Fixed nodes are positioned to the desired location",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "charge": {
           "description": "Defines the force with which this node attracts or repels other nodes in the force-directed graph.",
           "type": "number",
-          "default": 0,
-          "advanced": true
+          "default": 0
         },
         "collide": {
           "description": "Defines the radius for the collision force in the force-directed layout. The collision force treats nodes as circles with a given radius, rather than points, and prevents nodes from overlapping.",
           "type": "number",
-          "default": 5,
-          "advanced": true
+          "default": 5
         },
         "sourceOf": {
           "description": "Links that start in this node",
@@ -2189,8 +2121,7 @@
               }
             ]
           },
-          "relatedTo": "source",
-          "advanced": true
+          "relatedTo": "source"
         },
         "targetOf": {
           "description": "Links that end in this node",
@@ -2205,8 +2136,7 @@
               }
             ]
           },
-          "relatedTo": "target",
-          "advanced": true
+          "relatedTo": "target"
         },
         "rootOf": {
           "description": "The chain that starts in this node",
@@ -2248,8 +2178,7 @@
               "$ref": "#/definitions/Anchor"
             }
           ],
-          "advanced": true,
-          "relatedTo": "anchoredNode"
+                    "relatedTo": "anchoredNode"
         }
       }
     },
@@ -2536,8 +2465,7 @@
               "$ref": "#/definitions/Chain"
             }
           ],
-          "advanced": true,
-          "relatedTo": "hostedBy"
+                    "relatedTo": "hostedBy"
         },
         "hostedLyphs": {
           "description": "Lyphs that should be projected to a given lyph",
@@ -2552,8 +2480,7 @@
               }
             ]
           },
-          "relatedTo": "hostedBy",
-          "advanced": true
+          "relatedTo": "hostedBy"
         },
         "internalIn": {
           "description": "ID or reference of the region that contains the current region as its part",
@@ -2565,8 +2492,7 @@
               "$ref": "#/definitions/Region"
             }
           ],
-          "relatedTo": "internalRegions",
-          "advanced": true
+          "relatedTo": "internalRegions"
         },
         "internalRegions": {
           "description": "Regions that are internal parts of the given region",
@@ -2601,14 +2527,12 @@
         "fullID": {
           "description": "Unique resource identifier with namespace",
           "$ref": "#/definitions/IdentifierScheme",
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "namespace": {
           "description": "Resource namespace",
           "$ref": "#/definitions/IdentifierScheme",
-          "advanced": true,
-          "readOnly": true
+                    "readOnly": true
         },
         "name": {
           "description": "Resource name",
@@ -2621,8 +2545,7 @@
         },
         "description": {
           "description": "Resource description, comments, modeling assumptions, etc.",
-          "type": "string",
-          "advanced": true
+          "type": "string"
         },
         "generated": {
           "description": "A boolean flag to mark automatically generated resources",
@@ -2648,8 +2571,7 @@
                 "type": "object"
               }
             }
-          },
-          "advanced": true
+          }
         },
         "interpolate": {
           "description": "Dynamically apply property interpolation schemes to selected resources",
@@ -2670,8 +2592,7 @@
                 "$ref": "#/definitions/OffsetScheme"
               }
             }
-          },
-          "advanced": true
+          }
         },
         "infoFields": {
           "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
@@ -2684,8 +2605,7 @@
             "namespace",
             "name",
             "class"
-          ],
-          "advanced": true
+          ]
         },
         "external": {
           "description": "Identifier of a resource in an external ontology (i.e., ID of an FMA term) ",
@@ -2786,8 +2706,7 @@
             }
           ],
           "relatedTo": "host",
-          "default": {},
-          "advanced": true
+          "default": {}
         },
         "points": {
           "description": "Points defining the border shape",
@@ -2795,8 +2714,7 @@
           "items": {
             "$ref": "#/definitions/Point2Scheme"
           },
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         }
       }
     },
@@ -2833,14 +2751,12 @@
           "items": {
             "$ref": "#/definitions/Group"
           },
-          "readOnly": true,
-          "advanced": true
+          "readOnly": true
         },
         "numInstances": {
           "description": "Indicates how many tree instances to create",
           "type": "number",
-          "default": 1,
-          "advanced": true
+          "default": 1
         }
       }
     },
@@ -2861,15 +2777,13 @@
         "val": {
           "description": "A value that defines the size of the vertice",
           "type": "number",
-          "minimum": 0,
-          "advanced": true
+          "minimum": 0
         },
         "offset": {
           "description": "Defines position of the vertice on its host edge, i.e, fraction of the edge's length starting from the source vertice.",
           "type": "number",
           "minimum": 0,
-          "maximum": 1,
-          "advanced": true
+          "maximum": 1
         }
       }
     },
@@ -2938,18 +2852,15 @@
         },
         "hidden": {
           "description": "A flag to indicate that this resource should not be visualized",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "inactive": {
           "description": "A boolean flag to indicate that this visual resource should not be highlighted",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "skipLabel": {
           "description": "A flag to indicate that this resource is visualized without the corresponding text label",
-          "type": "boolean",
-          "advanced": true
+          "type": "boolean"
         },
         "cloneOf": {
           "description": "A resource that was copied to create the current resource. This field is used to link resource clones to the original resource. We clone nodes that are hosted by more than one lyph border, and nodes, links and lyphs to generate an instance of an omega tree.",
@@ -3089,8 +3000,7 @@
             ]
           },
           "relatedTo": "facets",
-          "advanced": true,
-          "readOnly": true
+                    "readOnly": true
         },
         "partOf": {
           "description": "Scaffold that contains the wire",
@@ -3111,8 +3021,7 @@
               }
             ]
           },
-          "relatedTo": "wiredTo",
-          "advanced": true
+          "relatedTo": "wiredTo"
         }
       },
       "dependencies": {

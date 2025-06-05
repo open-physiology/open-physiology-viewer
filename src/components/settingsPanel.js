@@ -17,11 +17,11 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatFormFieldModule} from '@angular/material/form-field';
-//import {TreeModule} from '@circlon/angular-tree-component';
 import {ResourceVisibility} from "./gui/resourceVisibility";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatSelectModule} from "@angular/material/select";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 /**
  * @ignore
@@ -137,7 +137,7 @@ const COLORS = {
                             <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
                         </div>
                         <div class="wrap" *ngFor="let group of filteredGroups">
-                            <mat-slide-toggle [checked]="!group.hidden" [matTooltip]="group.name + ' ' + group.id"
+                            <mat-slide-toggle [checked]="!group.hidden" [matTooltip]="group.name + ' (' + group.id + ')'"
                                               (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}
                                 {{group.name || group.id}}</mat-slide-toggle>
                         </div>
@@ -145,7 +145,7 @@ const COLORS = {
                 </mat-expansion-panel>
             </mat-accordion>
 
-
+            <!--Dynamic groups-->
             <mat-accordion *ngIf="!!dynamicGroups">
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
@@ -168,7 +168,7 @@ const COLORS = {
                             <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
                         </div>
                         <div class="wrap" *ngFor="let group of filteredDynamicGroups">
-                            <mat-slide-toggle [checked]="!group.hidden"
+                            <mat-slide-toggle [checked]="!group.hidden" [matTooltip]="group.name + ' (' + group.id + ')'"
                                               (change)="onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                         </div>
                      </div>
@@ -479,6 +479,10 @@ const COLORS = {
           color: ${COLORS.black};
           margin: 0;
         }
+        
+        .default-box {
+            font-size: 0.75rem;
+        }
 
         :host ::ng-deep .default-box .wrap {
           padding: 0 1.067rem;
@@ -725,7 +729,7 @@ export class SettingsPanel {
     imports: [CommonModule, FormsModule, BrowserAnimationsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
         MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule,
         MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule,
-        MatFormFieldModule, MatAutocompleteModule, MatSelectModule
+        MatFormFieldModule, MatAutocompleteModule, MatSelectModule, MatTooltipModule
     ], //TreeModule],
     declarations: [SettingsPanel, StopPropagation, ResourceVisibility],
     entryComponents: [LogInfoDialog],

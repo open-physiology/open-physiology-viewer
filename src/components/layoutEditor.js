@@ -114,7 +114,7 @@ export class LayoutEditor {
 
     @Input('modelClasses') set modelClasses(newValue) {
         this._modelClasses = newValue;
-        this._relationshipFields = schemaClassModels[$SchemaClass.Component].schema.properties::entries().filter(([key, spec]) => !spec.readOnly && !spec.advanced);
+        this._relationshipFields = schemaClassModels[$SchemaClass.Component].schema.properties::entries().filter(([key, spec]) => !spec.readOnly);
     }
 
     get modelClasses() {
