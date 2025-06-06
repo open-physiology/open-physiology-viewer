@@ -660,7 +660,7 @@ export class ChainEditorComponent extends ResourceEditor {
         this.selectedChain = chain;
         this.prepareChainResources();
         if (this.selectedNode?.id !== this.selectedChain?.id) {
-            this.selectedNode = this.selectedChain.id;
+            this.selectedNode = this.selectedChain?._node;
         }
         this.activeList = "lyphs";
     }

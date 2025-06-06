@@ -42,7 +42,9 @@ Chain.prototype.update = function () {
         // Make chain lyphs all the same size
         for (let i = 0; i < this.levels?.length; i++) {
             const lyph = this.levels[i].conveyingLyph;
-            [lyph.width, lyph.height] = [min.width, min.height];
+            if (lyph) {
+                [lyph.width, lyph.height] = [min.width, min.height];
+            }
         }
     }
 
