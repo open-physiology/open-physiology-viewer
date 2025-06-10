@@ -18,7 +18,7 @@ import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
-import {VARIANCE_PRESENCE} from "../model/utils";
+import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 
 const WindowResize = require('three-window-resize');
@@ -259,6 +259,29 @@ export class WebGLSceneComponent {
         this.highlight(entity, this.selectColor, entity !== this.highlighted);
         this._selected = entity;
         this.selectedItemChange.emit(entity);
+    }
+
+    @Input('showChain') set showChain(obj){
+        if (!obj || !obj.id) return;
+        if (this._graphData){
+            let chain = obj;
+            if (!obj.class){
+                const fullID = getFullID(this._graphData.namespace, obj.id);
+                chain = this._graphData.entitiesByID[fullID];
+            }
+            (this._graphData.groups||[]).forEach(g => g.hide());
+            if (chain?.group) {
+                chain.group.show();
+                (chain.generatedChains||[]).forEach(c => {
+                    if (c?.group){
+                        c.group.show();
+                    }
+                });
+                if (this.graph) {
+                    this.graph.graphData(this._graphData);
+                }
+            }
+        }
     }
 
     /**

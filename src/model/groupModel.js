@@ -424,6 +424,15 @@ export class Group extends Resource {
         });
     }
 
+    assignHousingLyphs(){
+        (this.lyphs || []).forEach(lyph => {
+            let axis = lyph.axis;
+            let housingLyph = axis && (axis.fasciculatesIn || axis.endsIn);
+            if (housingLyph) {
+                lyph.housingLyph = housingLyph;
+            }
+        });
+    }
 
     markImported() {
         if (this.imported) {

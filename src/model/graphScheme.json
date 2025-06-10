@@ -58,7 +58,7 @@
             ]
           },
           "relatedTo": "borderAnchors",
-                    "readOnly": true
+          "readOnly": true
         },
         "sourceOf": {
           "description": "Wires that start in this anchor",
@@ -377,6 +377,35 @@
           "type": "boolean",
           "readOnly": true
         },
+        "generatedFrom": {
+          "description": "A chain template (a chain with housingLyphTemplates) that was used to generate the current chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Chain"
+            }
+          ],
+          "relatedTo": "generatedChains",
+          "readOnly": true
+        },
+        "generatedChains": {
+          "description": "Chains derived from the current chain template",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Chain"
+              }
+            ]
+          },
+          "relatedTo": "generatedFrom",
+          "readOnly": true
+        },
         "levelOntologyTerms": {
           "description": "External ontology terms that get associated with generated chain levels",
           "type": "array",
@@ -401,7 +430,7 @@
               "$ref": "#/definitions/Wire"
             }
           ],
-                    "relatedTo": "wiredChains"
+          "relatedTo": "wiredChains"
         },
         "startFromLeaf": {
           "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
@@ -419,7 +448,7 @@
           ]
         },
         "laterals": {
-         "description": "Chains created by lateralization of this chain",
+          "description": "Chains created by lateralization of this chain",
           "type": "array",
           "items": {
             "anyOf": [
@@ -651,7 +680,7 @@
               }
             ]
           },
-                    "default": []
+          "default": []
         }
       }
     },
@@ -980,7 +1009,7 @@
               "$ref": "#/definitions/Lyph"
             }
           ],
-                    "relatedTo": "seedIn"
+          "relatedTo": "seedIn"
         },
         "hostedBy": {
           "description": "ID or reference of a region on which lyphs from the group must be projected to",
@@ -992,7 +1021,7 @@
               "$ref": "#/definitions/Region"
             }
           ],
-                    "relatedTo": "hostedGroup"
+          "relatedTo": "hostedGroup"
         },
         "generatedFrom": {
           "description": "Group template which was used to generate the current lyph",
@@ -1135,7 +1164,7 @@
               }
             ]
           },
-                    "default": []
+          "default": []
         },
         "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",
@@ -1337,7 +1366,7 @@
             ]
           },
           "relatedTo": "levels",
-                    "readOnly": true
+          "readOnly": true
         },
         "endsIn": {
           "description": "A lyph which contains one of the chain link ends",
@@ -1847,7 +1876,7 @@
               "$ref": "#/definitions/Group"
             }
           ],
-                    "relatedTo": "seed"
+          "relatedTo": "seed"
         },
         "villus": {
           "description": "Small, finger-like projections that extend into the lumen",
@@ -1859,7 +1888,7 @@
               "$ref": "#/definitions/Villus"
             }
           ],
-                    "relatedTo": "villusOf"
+          "relatedTo": "villusOf"
         },
         "inCoalescences": {
           "description": "A set of coalescences that include the current lyph",
@@ -2178,7 +2207,7 @@
               "$ref": "#/definitions/Anchor"
             }
           ],
-                    "relatedTo": "anchoredNode"
+          "relatedTo": "anchoredNode"
         }
       }
     },
@@ -2465,7 +2494,7 @@
               "$ref": "#/definitions/Chain"
             }
           ],
-                    "relatedTo": "hostedBy"
+          "relatedTo": "hostedBy"
         },
         "hostedLyphs": {
           "description": "Lyphs that should be projected to a given lyph",
@@ -2532,7 +2561,7 @@
         "namespace": {
           "description": "Resource namespace",
           "$ref": "#/definitions/IdentifierScheme",
-                    "readOnly": true
+          "readOnly": true
         },
         "name": {
           "description": "Resource name",
@@ -3000,7 +3029,7 @@
             ]
           },
           "relatedTo": "facets",
-                    "readOnly": true
+          "readOnly": true
         },
         "partOf": {
           "description": "Scaffold that contains the wire",

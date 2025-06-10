@@ -160,6 +160,7 @@ const TAB_INDEX = {
                                 [modelClasses]="modelClasses"
                                 [graphData]="_graphData"
                                 [config]="_config"
+                                [showChain]="_showChain"
                                 (onImportExternal)="importExternal($event)"
                                 (selectedItemChange)="onSelectedItemChange($event)"
                                 (highlightedItemChange)="onHighlightedItemChange($event)"
@@ -178,25 +179,6 @@ const TAB_INDEX = {
                             [isActive]="relGraphTab.isActive">
                     </relGraph>
                 </mat-tab>
-
-                <!--Resource editor-->
-                <!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
-                <!--                    <ng-template mat-tab-label><i class="fa fa-wpforms"></i> Resources</ng-template>-->
-                <!--                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">-->
-                <!--                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"-->
-                <!--                                title="Apply changes">-->
-                <!--                            <i class="fa fa-check"> </i>-->
-                <!--                        </button>-->
-                <!--                    </section>-->
-                <!--                    <section id="resource-editor">-->
-                <!--                        <resourceEditor-->
-                <!--                                [modelClasses]="modelClasses"-->
-                <!--                                [modelResources]="_graphData.entitiesByID || {}"-->
-                <!--                                [resource]="_model"-->
-                <!--                                [className]="className">-->
-                <!--                        </resourceEditor>-->
-                <!--                    </section>-->
-                <!--                </mat-tab>-->
 
                 <!--Layout editor-->
                 <mat-tab *ngIf="!!_model?.scaffolds" class="w3-margin" [class.w3-threequarter]="showRepoPanel">
@@ -264,6 +246,7 @@ const TAB_INDEX = {
                             [selectedNode]="_selectedResources['chain']"
                             (onChangesSave)="applyEditorChanges($event, 'chain')"
                             (onSwitchEditor)="switchEditor($event)"
+                            (onShowInTheViewer)="showSelectedChain($event)"
                     >
                     </chainEditor>
                 </mat-tab>
@@ -839,6 +822,14 @@ export class TestApp {
             this._tabGroup.selectedIndex = TAB_INDEX[editor];
         }
     }
+
+    showSelectedChain(node){
+        let chain = (this._model?.chains||[]).find(x => x.id === node.id);
+        if (chain){
+            this._tabGroup.selectedIndex = TAB_INDEX["viewer"];
+            this._showChain = chain;
+        }
+    }
 }
 
 /**
@@ -851,10 +842,8 @@ export class TestApp {
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
         LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, HubMapModule],
     declarations: [TestApp, ImportDialog],
-    // declarations: [TestApp, ImportDialog, ResourceEditorDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog],
-    // entryComponents: [ImportDialog, ResourceEditorDialog],
     providers: [
         {
             provide: MatSnackBar,

@@ -414,9 +414,11 @@ export function autoLayout(scene, graphData) {
     let links = getSceneObjectByModelClass(scene.children, "Link");
     graphData?.chains?.forEach(chain => {
         chain.levels?.map(link => {
-            let host = link?.conveyingLyph?.conveys?.fasciculatesIn?.viewObjects["main"];
+            // let host = link?.conveyingLyph?.conveys?.fasciculatesIn?.viewObjects["main"];
+            let host = link?.fasciculatesIn?.viewObjects["main"];
             if (host === undefined) {
-                host = link?.conveyingLyph?.conveys?.endsIn?.viewObjects["main"];
+                // host = link?.conveyingLyph?.conveys?.endsIn?.viewObjects["main"];
+                host = link?.endsIn?.viewObjects["main"];
             }
             host = host ? traverseMeshParent(host) : host;
             link?.conveyingLyph && lyphDic[host?.userData?.id] ? lyphDic[host?.userData?.id].lyphs.push(link?.conveyingLyph?.viewObjects["main"]) : lyphDic[host?.userData?.id] = {
@@ -428,12 +430,10 @@ export function autoLayout(scene, graphData) {
 
     Object.keys(lyphDic).forEach(dic => {
         let host = lyphDic[dic]["host"];
-        if (host?.type == "Mesh") {
+        if (host?.type === "Mesh") {
             let lyphs = lyphDic[dic]["lyphs"];
-            let size = host?.geometry ? getMeshBoundingBoxSize(host) : null;
             const targetSize = host?.geometry ? new THREE.Box3().setFromObject(host)?.getSize() : null;
             const width = targetSize?.x;
-            const height = targetSize?.y;
             const middle = host ? getWorldPosition(host) : null;
             middle ? middle.x = middle.x - (width / 2) : null;
             middle ? middle.z = middle.z + 1 : null;
@@ -451,7 +451,7 @@ export function autoLayout(scene, graphData) {
         }
     });
 
-    //FIXME : Fix chians with nodes
+    //FIXME : Fix chains with nodes
     //autoLayoutChains(scene, graphData, links);
     //links.forEach( link => !link.modifiedChain ? removeEntity(scene, link): link.visible = false);
 }

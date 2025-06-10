@@ -8,7 +8,7 @@ import {
     isEmpty,
     merge,
     keys,
-    flatten, isArray, unionBy, mergeWith, sample
+    flatten, isArray, unionBy, mergeWith, sample, values
 } from "lodash-bound";
 import * as colorSchemes from 'd3-scale-chromatic';
 import schema from "./graphScheme";
@@ -17,16 +17,16 @@ import {$LogMsg, logger} from "./logger";
 const colors = [...colorSchemes.schemePaired, ...colorSchemes.schemeDark2];
 
 export const $SchemaType = {
-    ARRAY  : "array",
-    OBJECT : "object",
-    STRING : "string",
-    NUMBER : "number",
+    ARRAY: "array",
+    OBJECT: "object",
+    STRING: "string",
+    NUMBER: "number",
     BOOLEAN: "boolean"
 };
 
 export const ModelType = {
-    GRAPH  : "Graph",
-    SCAFFOLD : "Scaffold",
+    GRAPH: "Graph",
+    SCAFFOLD: "Scaffold",
 };
 
 /**
@@ -73,60 +73,60 @@ export const ModelType = {
 export const $SchemaClass = schema.definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 export const $Field = $SchemaClass::keys().map(className => schema.definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
-export const EDGE_GEOMETRY        = schema.definitions.EdgeGeometryScheme.enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const WIRE_GEOMETRY        = schema.definitions[$SchemaClass.Wire].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
-export const LINK_GEOMETRY        = schema.definitions[$SchemaClass.Link].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
-export const EDGE_STROKE          = schema.definitions[$SchemaClass.Edge].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const PROCESS_TYPE         = schema.definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const LYPH_TOPOLOGY        = schema.definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const EDGE_GEOMETRY = schema.definitions.EdgeGeometryScheme.enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const WIRE_GEOMETRY = schema.definitions[$SchemaClass.Wire].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
+export const LINK_GEOMETRY = schema.definitions[$SchemaClass.Link].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
+export const EDGE_STROKE = schema.definitions[$SchemaClass.Edge].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const PROCESS_TYPE = schema.definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const LYPH_TOPOLOGY = schema.definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const COALESCENCE_TOPOLOGY = schema.definitions[$SchemaClass.Coalescence].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 /**
  * @property BASAL
  * @property ABSENT
  * @property OBSERVED
  */
-export const VARIANCE_PRESENCE    = schema.definitions[$SchemaClass.VarianceSpec].properties[$Field.presence].enum.map(r => [r.toUpperCase(), r])::fromPairs();
+export const VARIANCE_PRESENCE = schema.definitions[$SchemaClass.VarianceSpec].properties[$Field.presence].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 
 export const $Color = {
-    Anchor       : "#ccc",
-    Wire         : "#000",
-    Link         : "#000",
-    Node         : "#000",
-    Region       : "#c0c0c0",
-    InternalNode : "#ccc"
+    Anchor: "#ccc",
+    Wire: "#000",
+    Link: "#000",
+    Node: "#000",
+    Region: "#c0c0c0",
+    InternalNode: "#ccc"
 };
 
 export const $Prefix = {
-    node        : "node",   //generated node
-    source      : "s",      //source node
-    target      : "t",      //target node
-    link        : "lnk",    //generated link (edge)
-    lyph        : "lyph",   //generated lyph
-    group       : "group",  //generated group
-    instance    : "inst",   //instance
-    chain       : "chain",  //chain
-    tree        : "tree",   //tree
-    channel     : "ch",     //channel
-    coalescence : "cls",    //coalescence instance
-    border      : "b",      //lyph border
-    villus      : "vls",    //villus template
-    layer       : "layer",  //generated lyph layer
-    internal    : "int",    //generated internal lyph
-    template    : "ref",    //from lyph template
-    material    : "mat",    //from material reference
-    clone       : "clone",  //node clone
-    join        : "join",   //joint node
-    anchor      : "p",      //anchor point
-    wire        : "wire",   //wire
-    query       : "query",  //dynamic query
-    default     : "default", //default group ID
-    autoLinks   : "autoLinks", //AUto-generated links
-    force       : "force",
-    lateral     : "lateral",
-    gParts      : "g-parts",
-    tail        : "tail",
-    root        : "root",
-    leaf        : "leaf"
+    node: "node",   //generated node
+    source: "s",      //source node
+    target: "t",      //target node
+    link: "lnk",    //generated link (edge)
+    lyph: "lyph",   //generated lyph
+    group: "group",  //generated group
+    instance: "inst",   //instance
+    chain: "chain",  //chain
+    tree: "tree",   //tree
+    channel: "ch",     //channel
+    coalescence: "cls",    //coalescence instance
+    border: "b",      //lyph border
+    villus: "vls",    //villus template
+    layer: "layer",  //generated lyph layer
+    internal: "int",    //generated internal lyph
+    template: "ref",    //from lyph template
+    material: "mat",    //from material reference
+    clone: "clone",  //node clone
+    join: "join",   //joint node
+    anchor: "p",      //anchor point
+    wire: "wire",   //wire
+    query: "query",  //dynamic query
+    default: "default", //default group ID
+    autoLinks: "autoLinks", //AUto-generated links
+    force: "force",
+    lateral: "lateral",
+    gParts: "g-parts",
+    tail: "tail",
+    root: "root",
+    leaf: "leaf"
 };
 
 export const $Default = {
@@ -134,7 +134,7 @@ export const $Default = {
 }
 
 export const getNewID = entitiesByID => "new-" +
-    (entitiesByID? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
+    (entitiesByID ? entitiesByID::keys().length : Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5));
 
 
 export const getRefID = ref => {
@@ -147,20 +147,22 @@ export const getRefID = ref => {
 export const isDefined = value => value && value::isArray() && value.length > 0;
 
 //Exclude namespace from local arguments which are often given IDs that could be defined with namespace
-export const getGenID = (...args) => args.filter(arg => arg !== null).map(arg => arg::isNumber()? arg: getRefID(arg)).join("_");
+export const getGenID = (...args) => args.filter(arg => arg !== null).map(arg => arg::isNumber() ? arg : getRefID(arg)).join("_");
 
 export const getFullID = (namespace, ref) => {
-    if (!ref){ return ref; }
+    if (!ref) {
+        return ref;
+    }
     let id = getID(ref);
     if (id && id::isString() && id.indexOf(":") > -1) {
         return id;
     }
-    const nm = (ref::isObject() && ref.namespace)? ref.namespace: namespace;
-    return (nm? nm + ":" : "") + id;
+    const nm = (ref::isObject() && ref.namespace) ? ref.namespace : namespace;
+    return (nm ? nm + ":" : "") + id;
 };
 
-export const getRefNamespace = (ref, namespace= undefined) => {
-    if (ref::isObject() && ref.namespace){
+export const getRefNamespace = (ref, namespace = undefined) => {
+    if (ref::isObject() && ref.namespace) {
         return ref.namespace;
     }
     let id = getID(ref);
@@ -180,43 +182,49 @@ export const getGenName = (...args) => args.join(" ");
  * @param e - resource or its identifier
  * @returns {*} resource identifier
  */
-export const getID  = (e) => e::isObject()? e.id : e;
+export const getID = (e) => e::isObject() ? e.id : e;
 
 /**
  * Given a lyph ID, returns IDs of all derived lyphs, i.e., reachable via subtypes/supertype property pairs in the input or partially generated JSON model
  * @param targetLyphID
- * @param lyphs
  * @param lyphsByID
  * @returns {any[]}
  */
-export function findAllDerived(targetLyphID, lyphs, lyphsByID) {
-          const derived = new Set();
-          const queue = [targetLyphID];
+export function findAllDerived(targetLyphID, lyphsByID) {
+    let lyphs = lyphsByID::values();
+    const derived = new Set();
+    const queue = [targetLyphID];
 
-          while (queue.length > 0) {
-            const currentId = queue.shift();
+    while (queue.length > 0) {
+        const currentId = queue.shift();
 
-            for (const obj of lyphs) {
-              // If currentId is the supertype of obj, it's derived
-              if (obj.supertype === currentId && !derived.has(obj.id)) {
-                derived.add(obj.id);
-                queue.push(obj.id);
-              }
-            }
-
-            // Add any explicitly declared subtypes
-            const current = lyphsByID[currentId];
-            if (current?.subtypes) {
-              for (const subtypeId of current.subtypes) {
-                if (!derived.has(subtypeId)) {
-                  derived.add(subtypeId);
-                  queue.push(subtypeId);
+        for (const lyph of lyphs) {
+            if (lyph.supertype) {
+                let supertypeId = getRefID(lyph.supertype);
+                if (supertypeId === currentId && !derived.has(lyph.id)) {
+                    derived.add(lyph);
+                    queue.push(lyph.id);
                 }
-              }
             }
-          }
-          return [...derived];
         }
+
+        // Add any explicitly declared subtypes
+        const current = lyphsByID[currentId];
+        if (current?.subtypes) {
+            for (const subtypeRef of current.subtypes) {
+                let subtypeId = getRefID(subtypeRef);
+                if (!derived.has(subtypeId)) {
+                    let supertype = lyphsByID[subtypeId];
+                    if (supertype) {
+                        derived.add(supertype);
+                    }
+                    queue.push(subtypeId);
+                }
+            }
+        }
+    }
+    return [...derived];
+}
 
 /**
  * Compares resources
@@ -224,7 +232,7 @@ export function findAllDerived(targetLyphID, lyphs, lyphsByID) {
  * @param e2 - identifier or a reference of the second resource
  * @returns {boolean} true if resource identifier match, false otherwise
  */
-export const compareResources  = (e1, e2) => getID(e1) === getID(e2);
+export const compareResources = (e1, e2) => getID(e1) === getID(e2);
 
 /**
  * Merge resource schema.definitions
@@ -237,10 +245,10 @@ export function mergeResources(a, b) {
     if (a === undefined) {
         return b;
     }
-    if (b === undefined){
+    if (b === undefined) {
         return a;
     }
-    if (a::isArray()){
+    if (a::isArray()) {
         if (b::isArray()) {
             let ab = [];
             a.forEach(aEl => aEl && ab.push(aEl));
@@ -250,8 +258,8 @@ export function mergeResources(a, b) {
             return a.push(b);
         }
     } else {
-        if (a::isObject()){
-            return b::isObject()? a::mergeWith(b, mergeResources): a;
+        if (a::isObject()) {
+            return b::isObject() ? a::mergeWith(b, mergeResources) : a;
         } else {
             return a;
         }
@@ -264,28 +272,28 @@ export function mergeResources(a, b) {
  * @param clsName - class of the generated resource
  * @param parentGroup - parent group that contains all resources
  */
-export function mergeWithModel(resource, clsName, parentGroup){
+export function mergeWithModel(resource, clsName, parentGroup) {
     const clsToProp = {
-        [$SchemaClass.External]    : $Field.external,
+        [$SchemaClass.External]: $Field.external,
         [$SchemaClass.OntologyTerm]: $Field.ontologyTerms,
-        [$SchemaClass.Reference]   : $Field.references,
-        [$SchemaClass.Lyph]        : $Field.lyphs,
-        [$SchemaClass.Material]    : $Field.materials,
-        [$SchemaClass.Link]        : $Field.links,
-        [$SchemaClass.Node]        : $Field.nodes,
-        [$SchemaClass.Chain]       : $Field.chains,
-        [$SchemaClass.Tree]        : $Field.trees,
-        [$SchemaClass.Channel]     : $Field.channels,
-        [$SchemaClass.Coalescence] : $Field.coalescences,
-        [$SchemaClass.Group]       : $Field.groups,
-        [$SchemaClass.Scaffold]    : $Field.scaffolds,
-        [$SchemaClass.Anchor]      : $Field.anchors,
-        [$SchemaClass.Region]      : $Field.regions,
-        [$SchemaClass.Wire]        : $Field.wires,
-        [$SchemaClass.Component]   : $Field.components
+        [$SchemaClass.Reference]: $Field.references,
+        [$SchemaClass.Lyph]: $Field.lyphs,
+        [$SchemaClass.Material]: $Field.materials,
+        [$SchemaClass.Link]: $Field.links,
+        [$SchemaClass.Node]: $Field.nodes,
+        [$SchemaClass.Chain]: $Field.chains,
+        [$SchemaClass.Tree]: $Field.trees,
+        [$SchemaClass.Channel]: $Field.channels,
+        [$SchemaClass.Coalescence]: $Field.coalescences,
+        [$SchemaClass.Group]: $Field.groups,
+        [$SchemaClass.Scaffold]: $Field.scaffolds,
+        [$SchemaClass.Anchor]: $Field.anchors,
+        [$SchemaClass.Region]: $Field.regions,
+        [$SchemaClass.Wire]: $Field.wires,
+        [$SchemaClass.Component]: $Field.components
     }
     let prop = clsToProp[clsName];
-    if (prop){
+    if (prop) {
         parentGroup[prop] = parentGroup[prop] || [];
         if (!parentGroup[prop].find(x => x && resource && x.id === resource.id)) {
             parentGroup[prop].push(resource);
@@ -298,15 +306,15 @@ export function mergeWithModel(resource, clsName, parentGroup){
  * @param resources - list of resources
  * @param defaultColor - optional default color
  */
-export const addColor = (resources, defaultColor) => (resources||[])
+export const addColor = (resources, defaultColor) => (resources || [])
     .forEach((e, i) => {
-        if (e::isObject() && !e.color){
+        if (e::isObject() && !e.color) {
             e.color = e.supertype?.color || e.cloneOf?.color || defaultColor || colors[i % colors.length];
         }
     });
 
-export function pickColor(){
-  return colors::sample();
+export function pickColor() {
+    return colors::sample();
 }
 
 /**
@@ -321,9 +329,11 @@ export const getClassName = (spec) => {
         let refs = getClassRefs(spec);
         ref = refs && refs[0];
     }
-    if (ref){
+    if (ref) {
         let clsName = ref.substr(ref.lastIndexOf("/") + 1).trim();
-        if (!schema.definitions[clsName]) { return null; }
+        if (!schema.definitions[clsName]) {
+            return null;
+        }
         return clsName;
     }
 };
@@ -336,7 +346,9 @@ export const getSchemaClass = (spec) => schema.definitions[getClassName(spec)];
  * @param nodeID
  */
 export const addBorderNode = (border, nodeID) => {
-    if (!border){ return; }
+    if (!border) {
+        return;
+    }
     border.hostedNodes = border.hostedNodes || [];
     if (!border.hostedNodes.find(n => n === nodeID || (n && n.id === nodeID))) {
         border.hostedNodes.push(nodeID);
@@ -371,7 +383,7 @@ export const isIncluded = (eArray, ref, namespace = undefined) =>
  * @returns {number}
  */
 export const findIndex = (eArray, ref, namespace = undefined) =>
-    (eArray||[]).findIndex(x => getFullID(namespace, x) === getFullID(namespace, ref));
+    (eArray || []).findIndex(x => getFullID(namespace, x) === getFullID(namespace, ref));
 
 /**
  * Find resource object given its reference (identifier)
@@ -383,14 +395,14 @@ export const findIndex = (eArray, ref, namespace = undefined) =>
  */
 export const refToResource = (ref, parentGroup, prop, generate = false) => {
     if (!ref) return undefined;
-    if (ref::isObject()){
+    if (ref::isObject()) {
         return ref;
     }
     let res;
     if (parentGroup[prop + "ByID"]) {
         res = parentGroup[prop + "ByID"][getFullID(parentGroup.namespace, ref)];
     }
-    if (parentGroup.entitiesByID){
+    if (parentGroup.entitiesByID) {
         res = res || parentGroup.entitiesByID[getFullID(parentGroup.namespace, ref)];
     }
     //Look for generated resources in the parent group
@@ -411,7 +423,7 @@ export const refToResource = (ref, parentGroup, prop, generate = false) => {
 }
 
 export const refsToResources = (eArray, parentGroup, prop, generate = false) => {
-    return (eArray||[]).map(e => refToResource(e, parentGroup, prop, generate));
+    return (eArray || []).map(e => refToResource(e, parentGroup, prop, generate));
 }
 
 /**
@@ -420,11 +432,17 @@ export const refsToResources = (eArray, parentGroup, prop, generate = false) => 
  * @returns {*} - list of references
  */
 const getClassRefs = (spec) => {
-    if (!spec){ return null; }
-    if (spec.$ref) { return [spec.$ref]; }
-    if (spec.items) { return getClassRefs(spec.items); }
+    if (!spec) {
+        return null;
+    }
+    if (spec.$ref) {
+        return [spec.$ref];
+    }
+    if (spec.items) {
+        return getClassRefs(spec.items);
+    }
     let expr = spec.oneOf || spec.anyOf || spec.allOf;
-    if (expr){
+    if (expr) {
         return expr.filter(e => e.$ref && !e.$ref.endsWith("Scheme")).map(e => e.$ref);
     }
 };
@@ -452,32 +470,34 @@ export const genResource = (json, caller) => {
  * @param prop - property in the group
  */
 export const mergeGenResource = (group, parentGroup, resource, prop) => {
-    if (!resource) { return; }
+    if (!resource) {
+        return;
+    }
 
     let nm = getRefNamespace(resource, parentGroup?.namespace);
 
-    if (resource::isObject()){
+    if (resource::isObject()) {
         resource.id === resource.id || getNewID();
         resource.namespace = nm;
         resource.fullID = resource.fullID || getFullID(nm, resource.id);
     }
 
-    if (group){
+    if (group) {
         group[prop] = group[prop] || [];
-        if (resource::isObject()){
-            if (!isIncluded(group[prop], resource.id, nm)){
+        if (resource::isObject()) {
+            if (!isIncluded(group[prop], resource.id, nm)) {
                 group[prop].push(resource.fullID);
             }
             resource.hidden = group.hidden;
         } else {
-            if (!isIncluded(group[prop], resource, nm)){
+            if (!isIncluded(group[prop], resource, nm)) {
                 group[prop].push(getFullID(nm, resource));
             }
         }
     }
-    if (parentGroup && resource::isObject()){
+    if (parentGroup && resource::isObject()) {
         parentGroup[prop] = parentGroup[prop] || [];
-        if (!isIncluded(parentGroup[prop], resource.id, nm)){
+        if (!isIncluded(parentGroup[prop], resource.id, nm)) {
             parentGroup[prop].push(resource);
             if (parentGroup[prop + "ByID"]) {
                 parentGroup[prop + "ByID"][resource.fullID] = resource;
@@ -504,11 +524,13 @@ export const mergeGenResources = (group, parentGroup, edge) => {
  * @param ids
  */
 export const showGroups = (groups, ids) => {
-    if (!ids) {return;}
+    if (!ids) {
+        return;
+    }
     let groupsToShow = new Set();
-    (groups||[]).forEach(g => {
+    (groups || []).forEach(g => {
         g.hide();
-        if (ids.find(id => g.isGeneratedFrom(id))){
+        if (ids.find(id => g.isGeneratedFrom(id))) {
             groupsToShow.add(g);
         }
     });
@@ -537,12 +559,12 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
         }
     })
     inputModel.main = [modelProps];
-    for (let i = 0; i < (inputModel[prop]||[]).length; i++){
+    for (let i = 0; i < (inputModel[prop] || []).length; i++) {
         let group = inputModel[prop][i];
         group::keys().forEach(key => {
             //Cannot convert nested resources, flatten the model
-            if (group[key]::isObject() && group[key].id){
-                if (sheetNames.includes(key)){
+            if (group[key]::isObject() && group[key].id) {
+                if (sheetNames.includes(key)) {
                     inputModel[key] = inputModel[key] || [];
                     inputModel[key].push(group[key]::cloneDeep());
                     group[key] = group[key].id;
@@ -551,22 +573,22 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
         })
     }
     inputModel::keys().forEach(key => {
-        const objToStr = obj => obj::isObject()? (obj.id ? obj.id : JSON.stringify(obj)): obj;
-        (inputModel[key]||[]).forEach(resource => {
-            if (resource.levels){
+        const objToStr = obj => obj::isObject() ? (obj.id ? obj.id : JSON.stringify(obj)) : obj;
+        (inputModel[key] || []).forEach(resource => {
+            if (resource.levels) {
                 resource.levelTargets = [];
-                (resource.levels||[]).forEach((level, i) => {
-                    if (level && level.target){
+                (resource.levels || []).forEach((level, i) => {
+                    if (level && level.target) {
                         resource.levelTargets.push(i + ":" + getID(level.target))
                     }
                 })
                 resource.levelTargets = resource.levelTargets.join(", ");
                 delete resource.levels;
             }
-            if (resource.border){
+            if (resource.border) {
                 const borderNames = ["inner", "radial1", "outer", "radial2"];
-                if (resource.border.borders){
-                    for (let i = 0; i < 4; i++){
+                if (resource.border.borders) {
+                    for (let i = 0; i < 4; i++) {
                         if (resource.border.borders[i] && resource.border.borders[i].hostedNodes) {
                             resource[borderNames[i]] = resource.border.borders[i].hostedNodes.join(", ");
                         }
@@ -596,21 +618,21 @@ export const prepareForExport = (inputModel, prop, propNames, sheetNames) => {
  * @param msg - logging message
  */
 export const mergeRecursively = (obj, key, props, msg) => {
-    if (obj._processed){
+    if (obj._processed) {
         return;
     }
-    (obj[key]||[]).forEach(obj2 => {
+    (obj[key] || []).forEach(obj2 => {
         if (obj2.id === obj.id) {
             logger.warn(msg, obj.id, obj2.id);
             return;
         }
-        if (obj2[key]){
+        if (obj2[key]) {
             mergeRecursively(obj2, key, props, msg);
         }
     });
-    (obj[key]||[]).forEach(obj2 => {
+    (obj[key] || []).forEach(obj2 => {
         if (obj2.id !== obj.id) {
-            (props||[]).forEach(prop => {
+            (props || []).forEach(prop => {
                 if (obj2[prop]::isArray()) {
                     obj[prop] = (obj[prop] || [])::unionBy(obj2[prop], $Field.fullID);
                     obj[prop] = obj[prop].filter(x => x && x.class);
@@ -627,9 +649,9 @@ export const mergeRecursively = (obj, key, props, msg) => {
  * @param key - property to recurse
  * @param prop - property to delete
  */
-export function deleteRecursively(obj, key, prop){
+export function deleteRecursively(obj, key, prop) {
     delete obj[prop];
-    (obj[key]||[]).forEach(obj2 => deleteRecursively(obj2, key, prop));
+    (obj[key] || []).forEach(obj2 => deleteRecursively(obj2, key, prop));
 }
 
 /**
@@ -638,14 +660,14 @@ export function deleteRecursively(obj, key, prop){
  * @param relFieldNames - resource properties to process
  * @param groupProp - property name to classify resources (e.g., "group" or "component")
  */
-export function collectNestedResources(json, relFieldNames = [], groupProp){
+export function collectNestedResources(json, relFieldNames = [], groupProp) {
     relFieldNames.forEach(prop => {
         let mapProp = [prop + "ByID"];
-        if (!json[mapProp]){
+        if (!json[mapProp]) {
             json[mapProp] = {};
         }
-        if (json[prop]::isArray()){
-            (json[prop]||[]).forEach( r => {
+        if (json[prop]::isArray()) {
+            (json[prop] || []).forEach(r => {
                 if (r::isObject()) {
                     r.id = r.id || getNewID();
                     r.namespace = r.namespace || getRefNamespace(r.id, json.namespace);
@@ -658,13 +680,13 @@ export function collectNestedResources(json, relFieldNames = [], groupProp){
                 }
             })
         }
-        (json[groupProp]||[]).forEach(g => {
-            if ( g::isObject()) {
+        (json[groupProp] || []).forEach(g => {
+            if (g::isObject()) {
                 g[mapProp] = json[mapProp];
             }
         });
     });
-    (json[groupProp]||[]).forEach(g => g::isObject() && collectNestedResources(g, relFieldNames, groupProp));
+    (json[groupProp] || []).forEach(g => g::isObject() && collectNestedResources(g, relFieldNames, groupProp));
 }
 
 /**
@@ -674,9 +696,11 @@ export function collectNestedResources(json, relFieldNames = [], groupProp){
  * @returns {boolean}           - returns true if at least one reference extends the given class
  */
 const extendsClass = (refs, value) => {
-    if (!refs) { return false; }
+    if (!refs) {
+        return false;
+    }
     let res = false;
-    (refs||[]).forEach(ref => {
+    (refs || []).forEach(ref => {
         let clsName = getClassName(ref);
         if (clsName) {
             if (clsName === value) {
@@ -696,10 +720,10 @@ const extendsClass = (refs, value) => {
  */
 const getFieldDefaultValues = (className) => {
     const initValue = (specObj) => {
-        return specObj.default?
+        return specObj.default ?
             (specObj.default::isObject()
                 ? specObj.default::cloneDeep()
-                : specObj.default )
+                : specObj.default)
             : undefined;
     }
     return schema.definitions[className].properties::entries().map(([key, value]) => ({[key]: initValue(value)}));
@@ -713,17 +737,17 @@ const getFieldDefaultValues = (className) => {
 const recurseSchema = (className, handler) => {
     let stack = [className];
     let i = 0;
-    while (stack[i]){
+    while (stack[i]) {
         let clsName = stack[i];
-        if (schema.definitions[clsName]){
+        if (schema.definitions[clsName]) {
             let refs = getClassRefs(schema.definitions[clsName]);
-            (refs||[]).forEach(ref => {
+            (refs || []).forEach(ref => {
                 stack.push(ref.substr(ref.lastIndexOf("/") + 1).trim());
             });
         }
         i++;
     }
-    while (stack.length > 0){
+    while (stack.length > 0) {
         let clsName = stack.pop();
         handler(clsName);
     }
@@ -791,8 +815,8 @@ export class SchemaClass {
      * @param clsNames - resource class names
      * @returns {any[]}
      */
-    filteredRelNames(clsNames = []){
-        return (this.relationships||[]).filter(([, spec]) => !clsNames.includes(getClassName(spec))).map(([key, ]) => key);
+    filteredRelNames(clsNames = []) {
+        return (this.relationships || []).filter(([, spec]) => !clsNames.includes(getClassName(spec))).map(([key,]) => key);
     }
 
     /**
@@ -800,8 +824,8 @@ export class SchemaClass {
      * @param clsName - resource class name
      * @returns {any[]}
      */
-    selectedRelNames(clsName){
-        return (this.relClassNames::entries()||[]).filter(([, cls]) => cls === clsName).map(([key, ]) => key);
+    selectedRelNames(clsName) {
+        return (this.relClassNames::entries() || []).filter(([, cls]) => cls === clsName).map(([key,]) => key);
     }
 }
 
@@ -810,14 +834,16 @@ export class SchemaClass {
  */
 
 export const assignEntityByID = (res, entitiesByID, namespace, modelClasses) => {
-    if (entitiesByID){
-        if (!res.id) { res.id = getNewID(entitiesByID); }
-        if (res.id::isNumber()){
+    if (entitiesByID) {
+        if (!res.id) {
+            res.id = getNewID(entitiesByID);
+        }
+        if (res.id::isNumber()) {
             res.id = res.id.toString();
             logger.warn($LogMsg.RESOURCE_NUM_ID_TO_STR, res.id);
         }
 
-        if (entitiesByID[res.fullID]){
+        if (entitiesByID[res.fullID]) {
             if (entitiesByID[res.fullID] !== res) {
                 logger.warn($LogMsg.RESOURCE_NOT_UNIQUE, entitiesByID[res.fullID], res);
             }
@@ -839,19 +865,19 @@ export const assignEntityByID = (res, entitiesByID, namespace, modelClasses) => 
  */
 export const reviseWaitingList = (waitingList, context) => {
     let res = context;
-    (waitingList[res.fullID]||[]).forEach(([obj, key, clsName]) => {
+    (waitingList[res.fullID] || []).forEach(([obj, key, clsName]) => {
         if (obj[key]::isArray()) {
             obj[key].forEach((e, i) => {
-                if (e === res.id || e === res.fullID){
-                    if (!schemaClassModels[res.class].extendsClass(clsName)){
+                if (e === res.id || e === res.fullID) {
+                    if (!schemaClassModels[res.class].extendsClass(clsName)) {
                         logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
                     }
                     obj[key][i] = res;
                 }
             });
         } else {
-            if (obj[key] === res.id || obj[key] === res.fullID){
-                if (!schemaClassModels[res.class].extendsClass(clsName)){
+            if (obj[key] === res.id || obj[key] === res.fullID) {
+                if (!schemaClassModels[res.class].extendsClass(clsName)) {
                     logger.error($LogMsg.RESOURCE_TYPE_MISMATCH, obj.id, key, res.id, clsName, res.class);
                 }
                 obj[key] = res;
@@ -862,7 +888,7 @@ export const reviseWaitingList = (waitingList, context) => {
 };
 
 /**
-/**
+ /**
  * Replace IDs with object references
  * @param {Object} modelClasses - map of class names vs implementation of ApiNATOMY resources
  * @param {Map<string, Resource>} entitiesByID - map of resources in the global model
@@ -872,7 +898,9 @@ export const replaceIDs = (modelClasses, entitiesByID, res) => {
     const skip = value => !value || value::isObject() && value::isEmpty() || value.class && (value instanceof modelClasses[value.class]);
 
     const createObj = (res, key, value, spec) => {
-        if (skip(value)) { return value; }
+        if (skip(value)) {
+            return value;
+        }
 
         if (value::isNumber()) {
             value = value.toString();
@@ -880,7 +908,7 @@ export const replaceIDs = (modelClasses, entitiesByID, res) => {
         }
 
         let clsName = getClassName(spec);
-        if (!clsName){
+        if (!clsName) {
             logger.warn($LogMsg.RESOURCE_NO_CLASS,
                 spec, value);
             return value;
@@ -912,10 +940,10 @@ export const replaceIDs = (modelClasses, entitiesByID, res) => {
         }
 
         //value is an object and it is not in the map
-        if (isClassAbstract(clsName)){
+        if (isClassAbstract(clsName)) {
             if (value.class) {
                 clsName = value.class;
-                if (!modelClasses[clsName]){
+                if (!modelClasses[clsName]) {
                     logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, value.class, value);
                 }
             } else {
@@ -926,7 +954,7 @@ export const replaceIDs = (modelClasses, entitiesByID, res) => {
         return modelClasses[clsName].fromJSON(value, modelClasses, entitiesByID, res.namespace);
     };
 
-    if (!modelClasses[res.class]){
+    if (!modelClasses[res.class]) {
         logger.error($LogMsg.RESOURCE_NO_CLASS_DEF, modelClasses, this.class);
         return;
     }
@@ -934,12 +962,14 @@ export const replaceIDs = (modelClasses, entitiesByID, res) => {
     let refFields = schemaClassModels[res.class].relationships;
     // let res = this;
     refFields.forEach(([key, spec]) => {
-        if (skip(res[key])) { return; }
-        if (res[key]::isArray()){
+        if (skip(res[key])) {
+            return;
+        }
+        if (res[key]::isArray()) {
             res[key] = res[key].map(value => createObj(res, key, value, spec));
         } else {
             res[key] = createObj(res, key, res[key], spec);
-            if (spec.type === $SchemaType.ARRAY){ //The spec expects multiple values, replace an object with an array of objects
+            if (spec.type === $SchemaType.ARRAY) { //The spec expects multiple values, replace an object with an array of objects
                 res[key] = [res[key]];
             }
         }

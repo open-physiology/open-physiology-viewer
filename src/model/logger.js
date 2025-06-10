@@ -34,6 +34,7 @@ export const $LogMsg = {
     CHAIN_NO_ROOT               : "A chain without root",
     CHAIN_NO_LEAF               : "A chain without leaf",
     CHAIN_NO_LEVELS             : "A chain without levels",
+    CHAIN_TEMPLATE_SKIPPED      : "A housed chain template is skipped (no levels to show)",
     CHAIN_MISMATCH_HOUSING      : "Mismatch between number of levels and the number of housing lyphs",
     CHAIN_REF_NOT_FOUND         : "Referred chain definition not found in the model",
 

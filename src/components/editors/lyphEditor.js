@@ -230,11 +230,17 @@ export class LyphEditorComponent extends ResourceEditor {
     prepareChainList() {
         this.chainList = [];
         (this._model.chains || []).forEach(chain => {
+            if (!chain::isObject()) return;
             if ((chain.lyphs || []).find(e => e === this.selectedLyph?.id)) {
-                if (chain::isObject()) {
-                    chain._class = $SchemaClass.Chain;
+                chain._class = $SchemaClass.Chain;
+                if (!this.chainList.find(x => x.id === chain.id)) {
+                    this.chainList.push(ListNode.createInstance(chain));
                 }
-                this.chainList.push(ListNode.createInstance(chain));
+            }
+            if (chain.lyphTemplate === this.selectedLyph?.id) {
+                if (!this.chainList.find(x => x.id === chain.id)) {
+                    this.chainList.push(ListNode.createInstance(chain));
+                }
             }
         });
     }
@@ -353,7 +359,7 @@ export class LyphEditorComponent extends ResourceEditor {
             });
         });
         if (missing.size > 0) {
-            this.showMessage("No lyph definitions found: " + [...missing].join(', '));
+            this.showMessage("Cannot generate tree nodes for lyphs (external or undefined): " + [...missing].join(', '));
         }
     }
 

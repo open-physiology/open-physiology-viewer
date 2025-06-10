@@ -19,7 +19,6 @@ Chain.prototype.update = function () {
             width: Number.MAX_VALUE,
             height: Number.MAX_VALUE
         };
-        let minLength = Number.MAX_VALUE;
         for (let i = 0; i < this.levels?.length; i++) {
             const lyph = this.levels[i].conveyingLyph;
             if (this.length) {

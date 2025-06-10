@@ -1,4 +1,4 @@
-import {NgModule, Component, Input} from '@angular/core';
+import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {MatMenuModule} from "@angular/material/menu";
@@ -87,7 +87,7 @@ import {ResourceEditor} from "./resourceEditor";
                             <mat-tab class="w3-margin">
                                 <!-- Housing lyph templates -->
                                 <ng-template mat-tab-label>Housing lyph templates</ng-template>
-                                 <resourceListView *ngIf="selectedChain"
+                                <resourceListView *ngIf="selectedChain"
                                                   title="Housing lyph templates"
                                                   ordered=true
                                                   expectedClass="Lyph"
@@ -97,7 +97,7 @@ import {ResourceEditor} from "./resourceEditor";
                                                   [listData]="chainResources['housingLyphTemplates']"
                                                   (onNodeClick)="selectLyph($event, 'housingLyphTemplates')"
                                                   (onChange)="processHousingLyphTemplateChange($event)"
-                                                  (onLayerIndexChange) = "processHousingLayerChange($event)"
+                                                  (onLayerIndexChange)="processHousingLayerChange($event)"
                                 >
                                 </resourceListView>
                             </mat-tab>
@@ -162,6 +162,13 @@ import {ResourceEditor} from "./resourceEditor";
                             <div style="display: flex">
                                 <i class="fa fa-check"> </i>
                                 <span *ngIf="currentStep > 0" style="color: red">*</span>
+                            </div>
+                        </button>
+                        <button [disabled]="currentStep > 0" class="w3-bar-item w3-hover-light-grey"
+                                (click)="showInTheViewer()"
+                                title="Show in the viewer">
+                            <div style="display: flex">
+                                <i class="fa fa-street-view"> </i>
                             </div>
                         </button>
                     </section>
@@ -705,9 +712,11 @@ export class ChainEditorComponent extends ResourceEditor {
             case $Field.lyphs:
                 this.addLyphToList(node, index, $Field.lyphs, this._isLyphInstance);
                 break;
-            case $Field.housingLyphs: this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
+            case $Field.housingLyphs:
+                this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
                 break;
-            case $Field.housingLyphTemplates: this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
+            case $Field.housingLyphTemplates:
+                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
                 break;
         }
     }
@@ -723,7 +732,7 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
                 break;
             case 'delete':
-                 this.deleteLyphFromList(node, index, $Field.housingLyphTemplates, $Field.providesChains);
+                this.deleteLyphFromList(node, index, $Field.housingLyphTemplates, $Field.providesChains);
                 break;
             case 'up':
                 this.moveLevelUp(node, index, $Field.housingLyphTemplates);
@@ -793,9 +802,9 @@ export class ChainEditorComponent extends ResourceEditor {
      * @param node
      * @param isTemplate
      */
-    defineAsLyph(node, isTemplate= false) {
+    defineAsLyph(node, isTemplate = false) {
         this._addDefinition($Field.lyphs, node.id);
-        if (isTemplate){
+        if (isTemplate) {
             node.isTemplate = true;
         }
         this.saveStep("Define as lyph " + node.id);
@@ -837,7 +846,7 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
-    deleteLyphFromList(node, index, prop, relatedProp){
+    deleteLyphFromList(node, index, prop, relatedProp) {
         if (!this.selectedChain) {
             this.showMessage("Cannot delete the lyph: chain is not selected!");
         } else {
@@ -845,7 +854,7 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.selectedChain[prop].splice(index, 1);
                 let lyph = this.entitiesByID[node.id];
                 if (lyph && lyph[relatedProp]) {
-                    if (lyph[relatedProp]::isArray()){
+                    if (lyph[relatedProp]::isArray()) {
 
                     } else {
                         delete lyph[relatedProp];
@@ -1050,7 +1059,7 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
-        /**
+    /**
      * Update 'internalLyphsInLayers' property
      * @param node
      * @param layerIndex
@@ -1071,6 +1080,12 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.saveStep(`Start chain ${node.id} from layer ` + layerIndex);
             }
         }
+    }
+
+    @Output() onShowInTheViewer = new EventEmitter();
+
+    showInTheViewer() {
+        this.onShowInTheViewer.emit(this._selectedNode);
     }
 }
 

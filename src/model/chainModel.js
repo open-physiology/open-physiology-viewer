@@ -46,6 +46,9 @@ import {defaults, isObject, flatten, isString, values, merge, clone} from 'lodas
  * @property {Array<Chain>} laterals
  * @property {Chain} lateralOf
  * @property {Lyph} housingLyphTemplates
+ * @property {boolean} radial,
+ * @property {Chain} generatedFrom
+ * @property {Array<Chain>} generatedChains
  */
 export class Chain extends GroupTemplate {
 
@@ -60,7 +63,7 @@ export class Chain extends GroupTemplate {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.class = json.class || $SchemaClass.Chain;
         let res = super.fromJSON(json, modelClasses, entitiesByID, namespace);
-        if (!res.validateTopology()) {
+        if (!res.housingLyphTemplates && !res.validateTopology()) {
             logger.error($LogMsg.CHAIN_WRONG_TOPOLOGY, res.id);
         }
         return res;
@@ -533,8 +536,8 @@ export class Chain extends GroupTemplate {
             const levelFullID = getFullID(level.namespace, level.id);
 
             if (!hostLyph.isTemplate) {
-                let sourceBorderIndex = chain.radial ? 0 : 1;
-                let targetBorderIndex = chain.radial ? 2 : 3;
+                let sourceBorderIndex = chain.radial ? 2 : 1;
+                let targetBorderIndex = chain.radial ? 0 : 3;
                 if (chain.housingLayers) {
                     if (sameAsNext && chain.housingLayers.length > i) {
                         sourceBorderIndex = chain.housingLayers[i] > chain.housingLayers[i + 1] ? 0 : 2;
@@ -610,8 +613,7 @@ export class Chain extends GroupTemplate {
             }
             const genChains = [];
             //All descendant specific lyphs
-             let subtypes = findAllDerived(housingLyphTemplate.id, parentGroup.lyphs, parentGroup.lyphsByID).
-                map(x => refToResource(x, parentGroup, $Field.lyphs)).filter(x => !x.isTemplate);
+             let subtypes = findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID);
              subtypes.forEach(lyph => {
                 const genChainID = getGenID(chain.id, $Prefix.clone, lyph.id);
                 let genChain = {
@@ -619,10 +621,11 @@ export class Chain extends GroupTemplate {
                     [$Field.namespace]: parentGroup.namespace,
                     [$Field.lyphTemplate]: chain.lyphTemplate,
                     [$Field.housingLyphs]: [],
+                    [$Field.generatedFrom]: chain.id,
                     [$Field.radial]: true
                 };
                 if (chain.name) {
-                    genChain.name = getGenName(chain.name, "in", lyph.id);
+                    genChain.name = getGenName(chain.name, "in", lyph.name || lyph.id);
                 }
                 if (chain.levelOntologyTerms) {
                     genChain.levelOntologyTerms = chain.levelOntologyTerms;
@@ -633,7 +636,7 @@ export class Chain extends GroupTemplate {
                     numLevels = Math.min(chain.numLevels, numLevels);
                 }
                 for (let i = startLayer; i < startLayer + numLevels; i++) {
-                    genChain.housingLyphs.push(lyph.layers[i]);
+                    genChain.housingLyphs.push(getFullID(lyph.namespace, lyph.layers[i]));
                 }
                 genChains.push(genChain);
 
@@ -698,7 +701,11 @@ export class Chain extends GroupTemplate {
      */
     connect() {
         if ((this.levels || []).length === 0) {
-            logger.error($LogMsg.CHAIN_NO_LEVELS, this.id);
+            if (this.housingLyphTemplates){
+                logger.info($LogMsg.CHAIN_TEMPLATE_SKIPPED, this.id);
+            } else {
+                logger.error($LogMsg.CHAIN_NO_LEVELS, this.id);
+            }
             return;
         }
 

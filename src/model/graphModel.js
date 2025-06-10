@@ -17,9 +17,7 @@ import {
     $Default,
     $SchemaClass,
     $Prefix,
-    getGenID,
-    getID,
-    getGenName,
+    getGenID, getID, getGenName,
     prepareForExport,
     findResourceByID,
     collectNestedResources,
@@ -319,15 +317,9 @@ export class Graph extends Group{
             //Connect chain's last level with the following chain's first level (issue #129)
             (res.chains || []).forEach(r => r.connect ? r.connect() : logger.error($LogMsg.CLASS_ERROR_UNDEFINED, r));
             //Assign helper property housingLyph for simpler Cypher queries
-            (res.lyphs || []).forEach(lyph => {
-                if (lyph instanceof modelClasses.Lyph) {
-                    let axis = lyph.axis;
-                    let housingLyph = axis && (axis.fasciculatesIn || axis.endsIn);
-                    if (housingLyph) {
-                        lyph.housingLyph = housingLyph;
-                    }
-                }
-            });
+
+            res.assignHousingLyphs();
+            (res.groups ||[]).forEach(g => g.assignHousingLyphs());
 
             res.mergeSubgroupResources();
             deleteRecursively(res, $Field.group, "_processed");

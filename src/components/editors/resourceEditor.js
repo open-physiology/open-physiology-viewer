@@ -1,7 +1,7 @@
 import {cloneDeep, values} from "lodash-bound";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {MatDialog} from "@angular/material/dialog";
-import {EventEmitter, HostListener, Output} from "@angular/core";
+import {EventEmitter, Output} from "@angular/core";
 import {DiffDialog} from "./diffDialog";
 import {$SchemaClass} from "../../model";
 
