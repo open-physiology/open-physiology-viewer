@@ -21,6 +21,8 @@ import {References} from "../utils/references";
 import {getGenID} from "../../model/utils";
 import {LinkedResourceModule} from "./linkedResource";
 import {ResourceEditor} from "./resourceEditor";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 const TREE = {
     lyphTree: "lyphTree",
@@ -140,20 +142,31 @@ const TREE = {
                         (onValueChange)="updateProperty($event)"
                 >
                 </lyphDeclaration>
-                <resourceListView
-                        title="Chains"
-                        [showMenu]="false"
-                        [listData]="chainList"
-                        (onNodeClick)="switchEditor($event)"
-                >
-                </resourceListView>
-                <resourceListView
-                        title="Coalescences"
-                        [showMenu]="false"
-                        [listData]="coalescenceList"
-                        (onNodeClick)="switchEditor($event)"
-                >
-                </resourceListView>
+
+
+                <mat-tab-group animationDuration="0ms" #tabChainMethod>
+                    <mat-tab class="w3-margin">
+                        <!-- Chains -->
+                        <ng-template mat-tab-label>Chains</ng-template>
+                        <resourceListView
+                                title="Chains"
+                                [showMenu]="false"
+                                [listData]="chainList"
+                                (onNodeClick)="switchEditor($event)">
+                        </resourceListView>
+                    </mat-tab>
+                    <mat-tab class="w3-margin">
+                        <!-- Coalescences -->
+                        <ng-template mat-tab-label>Coalescences</ng-template>
+                        <resourceListView
+                                title="Coalescences"
+                                [showMenu]="false"
+                                [listData]="coalescenceList"
+                                (onNodeClick)="switchEditor($event)"
+                        >
+                        </resourceListView>
+                    </mat-tab>
+                </mat-tab-group>
             </section>
         </section>
     `,
@@ -1204,7 +1217,7 @@ export class LyphEditorComponent extends ResourceEditor {
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, LyphTreeViewModule, LyphDeclarationModule, CheckboxFilterModule, ResourceListViewModule,
-        LinkedResourceModule, LinkedResourceModule],
+        LinkedResourceModule, LinkedResourceModule, MatTabsModule, MatTooltipModule],
     declarations: [LyphEditorComponent],
     exports: [LyphEditorComponent]
 })

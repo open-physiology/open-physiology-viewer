@@ -8,7 +8,7 @@ import {SearchAddBarModule} from "./searchAddBar";
 import {CheckboxFilterModule} from "./checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, isNumber} from 'lodash-bound';
+import {cloneDeep, isObject, isNumber, sortBy} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
@@ -20,6 +20,7 @@ import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
 import {LinkedResourceModule} from "./linkedResource";
 import {MatTabsModule} from "@angular/material/tabs";
 import {ResourceEditor} from "./resourceEditor";
+import {ResourceTreeNode, ResourceTreeViewModule} from "./resourceTreeView";
 
 
 @Component({
@@ -29,18 +30,32 @@ import {ResourceEditor} from "./resourceEditor";
             <section #chainView id="chainView" [class.w3-threequarter]="showPanel">
                 <section class="w3-col">
                     <!-- Chain list-->
-                    <resourceListView
+<!--                    <resourceListView-->
+<!--                            title="Chains"-->
+<!--                            expectedClass="Chain"-->
+<!--                            [listData]="chainList"-->
+<!--                            [selectedNode]="selectedNode"-->
+<!--                            [linkedNode]="chainToLink"-->
+<!--                            [showColor]=true-->
+<!--                            (onNodeClick)="selectChain($event)"-->
+<!--                            (onChange)="processChainChange($event)"-->
+<!--                            (onColorUpdate)="updateColor($event)"-->
+<!--                    >-->
+<!--                    </resourceListView>-->
+                    
+                        <resourceTreeView
                             title="Chains"
-                            expectedClass="Chain"
-                            [listData]="chainList"
+                            [active]=true
+                            [expanded]=false
+                            [treeData]="chainList"
                             [selectedNode]="selectedNode"
-                            [linkedNode]="chainToLink"
                             [showColor]=true
                             (onNodeClick)="selectChain($event)"
                             (onChange)="processChainChange($event)"
                             (onColorUpdate)="updateColor($event)"
                     >
-                    </resourceListView>
+                    </resourceTreeView>
+                    
                 </section>
                 <section class="w3-col">
                     <!-- Lyphs -->
@@ -187,7 +202,7 @@ import {ResourceEditor} from "./resourceEditor";
                 >
                 </searchAddBar>
                 <!-- level target -->
-                <div class="resource-box" *ngIf="selectedLyph && activeTree==='lyphs'">
+                <div class="resource-box" *ngIf="selectedLyph && activeList === 'lyphs'">
                     <div class="resource-boxContent">
                         <div class="w3-padding w3-margin-bottom w3-border">
                             <div class="w3-margin-bottom"><b>{{selectedLyph.name || selecledLyph.id}}</b></div>
@@ -335,11 +350,61 @@ export class ChainEditorComponent extends ResourceEditor {
         return this._selectedNode;
     }
 
+    collectLaterals() {
+        const missing = new Set();
+        (this._model.chains || []).forEach(chain => {
+            if (chain.lateralOf) {
+                let supertype = this.entitiesByID[chain.lateralOf];
+                if (supertype) {
+                    supertype._subtypes = supertype._subtypes || [];
+                    if (!supertype._subtypes.find(x => x.id === chain.id)) {
+                        supertype._subtypes.push(chain);
+                    }
+                    chain._supertype = chain.lateralOf;
+                } else {
+                    missing.add(chain.lateralOf)
+                }
+            }
+            (chain.laterals || []).forEach(subtypeID => {
+                const subtype = this.entitiesByID[subtypeID];
+                if (subtype) {
+                    chain._subtypes = chain._subtypes || [];
+                    if (!chain._subtypes.find(x => x.id === subtype.id)) {
+                        chain._subtypes.push(subtype);
+                    }
+                    subtype._supertype = chain;
+                } else {
+                    missing.add(subtypeID);
+                }
+            });
+        });
+        if (missing.size > 0) {
+            this.showMessage("No chain definitions found: " + [...missing].join(', '));
+        }
+    }
+
+    prepareChainTree() {
+        this.collectLaterals();
+        const mapToNodes = (objOrID, parent, idx) => {
+            if (!objOrID) return {};
+            let resource = objOrID.id ? objOrID : this.entitiesByID[objOrID];
+            let length = (parent?._subtypes || []).length || 0;
+            let res = ResourceTreeNode.createInstance(resource, parent, idx, length);
+            resource._node = res;
+            if (resource._subtypes) {
+                res.children = resource._subtypes.map((x, i) => mapToNodes(x, resource, i)).filter(x => x);
+            }
+            return res;
+        };
+        let treeData = (this._model.chains || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
+        this.chainList = treeData::sortBy([$Field.id]);
+    }
+
     /**
      * Prepare nodes for the editable chain list
      */
     prepareChainList() {
-        this.chainList = [];
+        // this.chainList = [];
         (this._model.chains || []).forEach((chain, idx) => {
             if (chain::isObject()) {
                 if (!chain.id) {
@@ -353,12 +418,12 @@ export class ChainEditorComponent extends ResourceEditor {
                 }
                 chain._class = $SchemaClass.Chain;
                 this.entitiesByID[chain.id] = chain;
-                let node = ListNode.createInstance(chain, idx, this._model.chains.length);
-                this.chainList.push(node);
-                chain._node = node;
+                // let node = ListNode.createInstance(chain, idx, this._model.chains.length);
+                // this.chainList.push(node);
+                // chain._node = node;
             }
         });
-        // this.prepareChainTree();
+        this.prepareChainTree();
     }
 
     /**
@@ -631,7 +696,8 @@ export class ChainEditorComponent extends ResourceEditor {
         this._model.chains.push(chain);
         this.entitiesByID[chain.id] = chain;
         //Add to model
-        let node = ListNode.createInstance(chain);
+        // let node = ListNode.createInstance(chain);
+        let node = ResourceTreeNode.createInstance(chain);
         this.chainList = [node, ...this.chainList];
         this.selectChain(chain.id);
         if (register) {
@@ -1036,9 +1102,8 @@ export class ChainEditorComponent extends ResourceEditor {
             // delete chain.root;
             // delete chain.leaf;
 
+            if (chain.laterals) delete chain.laterals; // Remove cloned prototype's laterals
             chain.lateralOf = this.selectedChain.id;
-            this.selectedChain.laterals = this.selectedChain.laterals || [];
-            this.selectedChain.laterals.push(chain.id);
 
             // Put lateral copy to the common group
             let groups = (this._model.groups || []).filter(g => g.id.startsWith($Prefix.gParts) && (g.chains || []).find(c => c === this.selectedChain.id));
@@ -1092,8 +1157,7 @@ export class ChainEditorComponent extends ResourceEditor {
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
         MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
-        LyphTreeViewModule, LinkedResourceModule, MatTabsModule],
-    //ResourceTreeViewModule],
+        LyphTreeViewModule, LinkedResourceModule, MatTabsModule, ResourceTreeViewModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]
 })

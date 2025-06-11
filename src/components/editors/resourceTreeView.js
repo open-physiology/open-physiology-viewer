@@ -7,12 +7,11 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
-
 import {isNumber, isObject} from "lodash-bound";
-
 import {COLORS} from "../utils/colors";
 import {$Field} from "../../model";
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {ColorPickerModule} from "ngx-color-picker";
 
 
 /**
@@ -131,8 +130,20 @@ export class ResourceTreeNode {
             <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
                     <button mat-icon-button disabled></button>
+                    <input *ngIf="showColor" style="width: 20px; height: 20px;" class="list-node"
+                           type="button"
+                           (contextmenu)="preventDefault($event, node)"
+                           (mousedown)="clearColor($event, node)"
+                           [ngStyle]="{ 'background-color': node.resource?.color }"
+                           [colorPicker]="node.color"
+                           [cpOKButton]="true"
+                           [cpCancelButton]="true"
+                           [cpRemoveColorButton]="true"
+                           [cpSaveClickOutside]="false"
+                           (colorPickerSelect)="updateColor(node, $event)"
+                    />
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
-                            [ngClass]="node.type"
+                            [ngClass]="getNgClass(node)"                            
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
@@ -149,9 +160,14 @@ export class ResourceTreeNode {
                             [attr.aria-label]="'Toggle ' + node.id">
                         <i class="fa fa-chevron-right"> </i>
                     </button>
+                    <input *ngIf="showColor" style="width: 20px; height: 20px;" class="list-node"
+                           [style.background]="node.color"
+                           [colorPicker]="node.color"
+                           (colorPickerChange)="updateColor(node, $event)"
+                    />
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
-                            [ngClass]="node.type"
-                            (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
+                           [ngClass]="getNgClass(node)" 
+                           (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
                         {{node.id}}
                     </button>                    
                 </mat-tree-node>
@@ -171,8 +187,8 @@ export class ResourceTreeNode {
                          let-hasChildren="hasChildren">
                     <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
                     <div *ngIf="type !== 'Undefined'">
-                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition
-                        </button>
+<!--                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition-->
+<!--                        </button>-->
                         <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
                         <button *ngIf="hasChildren" mat-menu-item
                                 (click)="processOperation('removeChildren', item, index)">Remove children
@@ -218,53 +234,57 @@ export class ResourceTreeNode {
             border: 0.067rem solid lightgrey;
         }
 
-        .Chain {
+        .chain {
             background-color: ${COLORS.chain};
         }
         
-         .Lyph {
+        .lyph {
             background-color: ${COLORS.lyph};
         }
 
-        .Template {
+        .template {
             background-color: ${COLORS.template};
         }
 
-        .Material {
+        .material {
             background-color: ${COLORS.material};
         }
 
-        .Link {
+        .link {
             background-color: ${COLORS.link};
         }
 
-        .Node {
+        .node {
             background-color: ${COLORS.node};
         }
 
-        .Wire {
+        .wire {
             background-color: ${COLORS.link};
         }
 
-        .Anchor {
+        .anchor {
             background-color: ${COLORS.node};
         }
 
-        .Region {
+        .region {
             background-color: ${COLORS.region};
         }
 
-        .Coalescence {
+        .coalescence {
             background-color: ${COLORS.coalescence};
         }
 
         .undefined {
-            background-color: lightgrey;
-            border: 0.067rem solid lightgrey;
+            background-color: ${COLORS.undefined};
+            border: 0.067rem solid ${COLORS.border};
         }
 
         .selected {
-            border: 3px solid darkgrey;
+            border: 3px solid ${COLORS.selectedBorder};
+        }
+        
+        .linked {
+            border: 3px solid ${COLORS.linkedBorder};
         }
 
         .tree-container {
@@ -299,6 +319,8 @@ export class ResourceTreeView {
     @Input() title;
     @Input() active = false;
     @Input() showMenu = true;
+    @Input() showColor = false;
+    @Input() linkedNode;
 
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;
@@ -325,8 +347,34 @@ export class ResourceTreeView {
         }
     }
 
+    @Output() onColorUpdate = new EventEmitter();
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
+
+    getNgClass(node) {
+        let typeCls = node.type? node.type.toLowerCase(): 'undefined';
+        return {
+            'selected': this.active && (node.id === (this.selectedNode?.id || this.selectedNode)),
+            'linked': (node.id === (this.linkedNode?.id || this.linkedNode)),
+            [typeCls]: true
+        };
+    }
+
+    clearColor(e, node) {
+        if (e.button === 2) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (node.resource?.color) {
+                this.onColorUpdate.emit({node, undefined});
+            }
+        }
+    }
+
+    updateColor(node, color) {
+        if (color !== node.resource?.color) {
+            this.onColorUpdate.emit({node, color});
+        }
+    }
 
     get treeData() {
         return this._treeData;
@@ -389,7 +437,7 @@ export class ResourceTreeView {
 
 @NgModule({
     imports: [CommonModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, MatInputModule, MatTooltipModule,
-        MatTreeModule, MatMenuModule],
+        MatTreeModule, MatMenuModule, ColorPickerModule],
     declarations: [ResourceTreeView],
     exports: [ResourceTreeView]
 })
