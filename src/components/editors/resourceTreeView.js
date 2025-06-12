@@ -125,7 +125,7 @@ export class ResourceTreeNode {
     template: `
         <section class="tree-container">
             <div class="title w3-margin">
-                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
+                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{listTitle}}</span>
             </div>
             <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -142,11 +142,11 @@ export class ResourceTreeNode {
                            [cpSaveClickOutside]="false"
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.id}}
                             [ngClass]="getNgClass(node)"                            
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
-                        {{node.id}}
+                        {{node.label || node.id}}
                     </button>
                    
                 </mat-tree-node>
@@ -165,10 +165,10 @@ export class ResourceTreeNode {
                            [colorPicker]="node.color"
                            (colorPickerChange)="updateColor(node, $event)"
                     />
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.id}}
                            [ngClass]="getNgClass(node)" 
                            (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
-                        {{node.id}}
+                        {{node.label || node.id}}
                     </button>                    
                 </mat-tree-node>
             </mat-tree>
@@ -200,6 +200,9 @@ export class ResourceTreeNode {
                     <div *ngIf="type === 'Undefined'">
                         <button mat-menu-item (click)="processOperation('define', item, index)">Define</button>
                     </div>
+                    <button *ngFor="let action of extraActions" mat-menu-item
+                        (click)="processOperation(action.operation, item, index)">{{action.label}}
+                    </button>
             </ng-template>
         </mat-menu>
 
@@ -258,18 +261,6 @@ export class ResourceTreeNode {
             background-color: ${COLORS.node};
         }
 
-        .wire {
-            background-color: ${COLORS.link};
-        }
-
-        .anchor {
-            background-color: ${COLORS.node};
-        }
-
-        .region {
-            background-color: ${COLORS.region};
-        }
-
         .coalescence {
             background-color: ${COLORS.coalescence};
         }
@@ -316,8 +307,9 @@ export class ResourceTreeView {
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
-    @Input() title;
+    @Input() listTitle;
     @Input() active = false;
+    @Input() extraActions = [];
     @Input() showMenu = true;
     @Input() showColor = false;
     @Input() linkedNode;

@@ -152,7 +152,7 @@ export class LyphTreeNode {
     template: `
         <section class="tree-container">
             <div class="title w3-margin">
-                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
+                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{listTitle}}</span>
             </div>
             <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
@@ -170,7 +170,7 @@ export class LyphTreeNode {
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
                     <div *ngIf="ordered && (node?.index > -1)" class="w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.id}}
                             [ngClass]="{
                                'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                'linked'   : (node.id === (linkedNode?.id || linkedNode)),
@@ -180,7 +180,7 @@ export class LyphTreeNode {
                                'undefined': node.class === 'Undefined'}"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
-                        {{node.id}}
+                        {{node.label || node.id}}
                     </button>
                     <div *ngFor="let icon of node.icons; let i = index">
                         <i class="icon-mini" [ngClass]=icon> </i>
@@ -209,7 +209,7 @@ export class LyphTreeNode {
                            [colorPicker]="node.color"
                            (colorPickerChange)="updateColor(node, $event)"
                     />
-                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.label}}
+                    <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.id}}
                             [ngClass]="{
                                 'selected' : active && (node.id === (selectedNode?.id || selectedNode)),
                                 'linked'   : (node.id === (linkedNode?.id || linkedNode)),
@@ -218,7 +218,7 @@ export class LyphTreeNode {
                                 'material' : node.class === 'Material', 
                                 'undefined': node.class === 'Undefined'}"
                             (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
-                        {{node.id}}
+                        {{node.label || node.id}}
                     </button>
                     <div *ngFor="let icon of node.icons; let i = index">
                         <i class="icon-mini" [ngClass]=icon> </i>
@@ -380,7 +380,7 @@ export class LyphTreeView {
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
-    @Input() title;
+    @Input() listTitle;
     @Input() ordered = false;
     @Input() active = false;
     @Input() showLayerIndex;

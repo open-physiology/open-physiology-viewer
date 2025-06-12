@@ -80,15 +80,16 @@ export class Shape extends VisualResource {
  * @property isTemplate
  * @property supertype
  * @property subtypes
- * @property conveys
- * @property layers
- * @property layerIn
- * @property internalIn
- * @property inMaterials
- * @property inCoalescences
- * @property inChains
+ * @property {Link} conveys
+ * @property Array<Lyph> layers
+ * @property {Lyph} layerIn
+ * @property Array<Lyph> internalIn
+ * @property Array<Material> inMaterials
+ * @property Array<Coalescence> inCoalescences
+ * @property Array<Chain> inChains
+ * @property Array<Chain> templateInChains
  * @property bundles
- * @property endBbundles
+ * @property endBundles
  * @property bundlesChains
  * @property providesChains
  * @property prev

@@ -9,7 +9,7 @@ export class ResourceEditor {
     _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
     _model;
     _snackBar;
-    _snackBarConfig = new MatSnackBarConfig();
+    _snackBarWarningConfig = new MatSnackBarConfig();
     _selectedNode;
     _modelText;
 
@@ -25,11 +25,14 @@ export class ResourceEditor {
     constructor(snackBar: MatSnackBar, dialog: MatDialog) {
         this.dialog = dialog;
         this._snackBar = snackBar;
-        this._snackBarConfig.panelClass = ['w3-panel', 'w3-orange'];
+        this._snackBarWarningConfig = {
+            panelClass: ['w3-panel', 'w3-orange'],
+            duration: 2000
+        };
     }
 
-    showMessage(message) {
-        this._snackBar.open(message, "OK", this._snackBarConfig);
+    showWarning(message) {
+        this._snackBar.open(message, "OK", this._snackBarWarningConfig);
     }
 
     selectBySearch(nodeLabel) {

@@ -8,7 +8,6 @@ import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {MatListModule} from '@angular/material/list';
 import {ColorPickerModule} from 'ngx-color-picker';
 import {isObject} from "lodash-bound";
-
 import {COLORS} from "../utils/colors";
 import {MatTooltipModule} from "@angular/material/tooltip";
 
@@ -61,7 +60,7 @@ export class ListNode {
     template: `
         <section class="list-container">
             <div class="title" (click)="activateList()">
-                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
+                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{listTitle}}</span>
             </div>
             <mat-nav-list class="w3-padding-0 node-list">
                 <mat-list-item *ngFor="let node of listData">
@@ -78,7 +77,7 @@ export class ListNode {
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
                     <div *ngIf="ordered && (node.index > -1)" class="w3-padding-small">{{node.index}}</div>
-                    <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.label}}
+                    <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.id}}
                             [ngClass]="{
                                'selected'    : node.id === (selectedNode?.id || selectedNode),
                                'linked'      : node.id === (linkedNode?.id || linkedNode),                               
@@ -91,7 +90,7 @@ export class ListNode {
                                'undefined'   : node.class === 'Undefined'}"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
-                        {{node.id}}
+                        {{node.label || node.id}}
                     </button>
                     <span *ngIf="expectedClass && expectedClass !== node.class" style="color: red">!</span>
                     <div *ngFor="let icon of node.icons; let i = index">
@@ -260,7 +259,7 @@ export class ResourceListView {
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
 
-    @Input() title;
+    @Input() listTitle;
     @Input() ordered = false;
     @Input() expectedClass;
     @Input() selectedNode;

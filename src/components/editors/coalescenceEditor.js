@@ -26,7 +26,7 @@ import {ResourceEditor} from "./resourceEditor";
             <section #coalescenceView id="coalescenceView" [class.w3-threequarter]="showPanel">
                 <section class="w3-col">
                     <resourceListView
-                            title="Coalescences"
+                            listTitle="Coalescences"
                             expectedClass="Coalescence"
                             [listData]="coalescenceList"
                             [selectedNode]="selectedNode"
@@ -37,7 +37,7 @@ import {ResourceEditor} from "./resourceEditor";
                 </section>
                 <section class="w3-col">
                     <resourceListView *ngIf="selectedCoalescence"
-                                      title="Lyphs"
+                                      listTitle="Lyphs"
                                       ordered=true
                                       expectedClass="Lyph"
                                       [listData]="coalescenceLyphs"
@@ -101,7 +101,7 @@ import {ResourceEditor} from "./resourceEditor";
                 >
                 </resourceDeclaration>
                 <lyphTreeView *ngIf="selectedLyph"
-                              title="Layers"
+                              listTitle="Layers"
                               ordered=true
                               [showMenu]=false
                               [treeData]="layerTree"
@@ -217,7 +217,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
         let loops = [];
         [this.layerTree, loops] = LyphTreeNode.preparePropertyTree(this.selectedLyph, this.entitiesByID, $Field.layers, true);
         if (loops.length > 0) {
-            this.showMessage("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
+            this.showWarning("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
         }
     }
 
@@ -414,7 +414,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
 
     _isValidCoalescenceLyph(lyph) {
         if (lyph.isTemplate) {
-            this.showMessage("Cannot add a lyph template to coalescence");
+            this.showWarning("Cannot add a lyph template to coalescence");
             return false;
         }
         return true;
@@ -428,7 +428,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
     addCoalescenceLyph(node, index) {
         if (this.selectedCoalescence) {
             if (!this.lyphToLink) {
-                this.showMessage("Lyph is not selected!");
+                this.showWarning("Lyph is not selected!");
             } else {
                 if (this._isValidCoalescenceLyph(this.lyphToLink)) {
                     this.selectedCoalescence.lyphs = this.selectedCoalescence.lyphs || [];
@@ -438,7 +438,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
                 }
             }
         } else {
-            this.showMessage("Cannot add lyph: no coalescence is selected!");
+            this.showWarning("Cannot add lyph: no coalescence is selected!");
         }
     }
 
@@ -449,7 +449,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
      */
     deleteCoalescenceLyph(node, index) {
         if (!this.selectedCoalescence) {
-            this.showMessage("Cannot delete the lyph: coalescence is not selected!");
+            this.showWarning("Cannot delete the lyph: coalescence is not selected!");
         } else {
             if (index > -1 && this.selectedCoalescence.lyphs?.length > index) {
                 this.selectedCoalescence.lyphs.splice(index, 1);
@@ -471,7 +471,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
      */
     updateProperty({prop, value, oldValue}) {
         if (!$Field[prop]) {
-            this.showMessage("Cannot update unknown property!");
+            this.showWarning("Cannot update unknown property!");
         }
         if (this.selectedCoalescence) {
             if (prop === $Field.id) {

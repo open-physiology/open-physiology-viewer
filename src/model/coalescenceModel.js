@@ -1,7 +1,7 @@
 import {Resource} from './resourceModel';
 import {logger, $LogMsg} from "./logger";
 import {keys, values, uniqBy} from 'lodash-bound';
-import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID, genResource} from "./utils";
+import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID, genResource, findAllDerived} from "./utils";
 
 /**
  * Coalescence model
@@ -43,6 +43,7 @@ export class Coalescence extends Resource {
                 //TODO find derived lyph instances recursively?
                 //TODO do not define coalescences for layers of abstract lyphs?
                 lyphMap[lyphOrMat.id] = lyphOrMat.subtypes || [];
+                // let subtypes = findAllDerived(lyphOrMat.id,)
             } else {
                 if (lyphOrMat.class === $SchemaClass.Material) {
                     lyphMap[lyphOrMat.id] = (inputModel.lyphs || []).filter(e => e.generatedFrom === lyphOrMat);

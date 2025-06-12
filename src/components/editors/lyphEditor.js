@@ -51,7 +51,7 @@ const TREE = {
                                     (onOptionToggle)="updateTopologyFilter($event)"
                     ></checkboxFilter>
                     <lyphTreeView
-                            title="Lyphs"
+                            listTitle="Lyphs"
                             [active]="activeTree === 'lyphTree'"
                             [expanded]="lyphTreeExpanded"
                             [treeData]="lyphTree"
@@ -66,7 +66,7 @@ const TREE = {
                 </section>
                 <section class="w3-col">
                     <lyphTreeView *ngIf="selectedLyph"
-                                  title="Layers"
+                                  listTitle="Layers"
                                   ordered=true
                                   [active]="activeTree === 'layerTree'"
                                   [treeData]="layerTree"
@@ -77,7 +77,7 @@ const TREE = {
                 </section>
                 <section class="w3-col">
                     <lyphTreeView *ngIf="selectedLyph"
-                                  title="Internal lyphs"
+                                  listTitle="Internal lyphs"
                                   [active]="activeTree === 'internalTree'"
                                   [treeData]="internalTree"
                                   [showLayerIndex]="true"
@@ -149,7 +149,7 @@ const TREE = {
                         <!-- Chains -->
                         <ng-template mat-tab-label>Chains</ng-template>
                         <resourceListView
-                                title="Chains"
+                                listTitle="Chains"
                                 [showMenu]="false"
                                 [listData]="chainList"
                                 (onNodeClick)="switchEditor($event)">
@@ -159,7 +159,7 @@ const TREE = {
                         <!-- Coalescences -->
                         <ng-template mat-tab-label>Coalescences</ng-template>
                         <resourceListView
-                                title="Coalescences"
+                                listTitle="Coalescences"
                                 [showMenu]="false"
                                 [listData]="coalescenceList"
                                 (onNodeClick)="switchEditor($event)"
@@ -301,7 +301,7 @@ export class LyphEditorComponent extends ResourceEditor {
     updateView(newSelected) {
         let lyph = newSelected ? newSelected : (this.lyphTree.length > 0) ? this.lyphTree[0].resource : null;
         this.selectLyph(lyph);
-        this.updateLyphOptions();
+        this.updateSearchOptions();
         this.lyphToLink = null;
         this.activeTree = TREE.lyphTree;
     }
@@ -336,10 +336,10 @@ export class LyphEditorComponent extends ResourceEditor {
                     }
                 }
             } else {
-                this.showMessage("Cannot add lyph: the parent lyph is not selected!");
+                this.showWarning("Cannot add lyph: the parent lyph is not selected!");
             }
         } else {
-            this.showMessage("Unknown lyph!");
+            this.showWarning("Unknown lyph!");
         }
     }
 
@@ -372,7 +372,7 @@ export class LyphEditorComponent extends ResourceEditor {
             });
         });
         if (missing.size > 0) {
-            this.showMessage("Cannot generate tree nodes for lyphs (external or undefined): " + [...missing].join(', '));
+            this.showWarning("Cannot generate tree nodes for lyphs (external or undefined): " + [...missing].join(', '));
         }
     }
 
@@ -389,9 +389,7 @@ export class LyphEditorComponent extends ResourceEditor {
         let loops = [];
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};
-            if (parent) {
-                stack.push(parent);
-            }
+            if (parent) stack.push(parent);
             let lyph = lyphOrID.id ? lyphOrID : this.entitiesByID[lyphOrID];
             let topologyOption = this.topologyOptions.find(x => x.id === lyph.topology);
             if (topologyOption?.disabled) {
@@ -409,28 +407,26 @@ export class LyphEditorComponent extends ResourceEditor {
                     if (lyph._subtypes) {
                         res.children = lyph._subtypes.map((x, i) => mapToNodes(x, lyph, i)).filter(x => x);
                     }
-                    if (res.resource?.layers && !res.icons.includes(ICON.LAYERS)) {
+                    if (res.resource?.layers?.length > 0 && !res.icons.includes(ICON.LAYERS)) {
                         res.icons.push(ICON.LAYERS);
                     }
-                    if (parent?.layers && !res.icons.includes(ICON.LAYERS)) {
+                    if (parent?.layers?.length > 0 && !res.icons.includes(ICON.LAYERS)) {
                         res.icons.push(ICON.LAYERS);
                         res.icons.push(ICON.INHERITED);
                     }
-                    if (res.resource?.internalLyphs && !res.icons.includes(ICON.INTERNAL)) {
+                    if (res.resource?.internalLyphs?.length > 0 && !res.icons.includes(ICON.INTERNAL)) {
                         res.icons.push(ICON.INTERNAL);
                     }
                 }
             }
-            if (parent) {
-                stack.pop();
-            }
+            if (parent) stack.pop();
             return res;
         };
         let treeData = (this._model.lyphs || []).filter(e => !e._supertype).map(e => mapToNodes(e)).filter(x => x);
         this.lyphTree = treeData::sortBy([$Field.isTemplate, $Field.id]);
         this.updateView(this.selectedLyph);
         if (loops.length > 0) {
-            this.showMessage("Loop is detected in the supertype hierarchy of the following lyphs: " + loops.join(", "));
+            this.showWarning("Loop is detected in the supertype hierarchy of the following lyphs: " + loops.join(", "));
         }
     }
 
@@ -479,7 +475,7 @@ export class LyphEditorComponent extends ResourceEditor {
     /**
      * Prepare a list of lyph id-name pairs for search box
      */
-    updateLyphOptions() {
+    updateSearchOptions() {
         this.searchOptions = SearchOptions.materialsAndLyphs(this._model);
     }
 
@@ -505,15 +501,16 @@ export class LyphEditorComponent extends ResourceEditor {
      * @param nodeOrID
      */
     selectLyph(nodeOrID) {
-        if (!nodeOrID) return;
-        const lyphID = nodeOrID::isObject() ? nodeOrID.id : nodeOrID;
-        this.selectedLyph = this.entitiesByID[lyphID];
-        this._selectedNode = this.selectedLyph?._node;
-        this.selectedLyphToEdit = this.selectedLyph;
-        this.prepareLayerTree();
-        this.prepareInternalTree();
-        this.prepareChainList();
-        this.prepareCoalescenceList();
+        if (nodeOrID) {
+            const lyphID = nodeOrID::isObject() ? nodeOrID.id : nodeOrID;
+            this.selectedLyph = this.entitiesByID[lyphID];
+            this._selectedNode = this.selectedLyph?._node;
+            this.selectedLyphToEdit = this.selectedLyph;
+            this.prepareLayerTree();
+            this.prepareInternalTree();
+            this.prepareChainList();
+            this.prepareCoalescenceList();
+        }
         this.activeTree = TREE.lyphTree;
     }
 
@@ -557,7 +554,7 @@ export class LyphEditorComponent extends ResourceEditor {
         let loops = [];
         [this.layerTree, loops] = LyphTreeNode.preparePropertyTree(this.selectedLyph, this.entitiesByID, $Field.layers, true);
         if (loops.length > 0) {
-            this.showMessage("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
+            this.showWarning("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
         }
     }
 
@@ -568,7 +565,7 @@ export class LyphEditorComponent extends ResourceEditor {
         let loops = [];
         [this.internalTree, loops] = LyphTreeNode.preparePropertyTree(this.selectedLyph, this.entitiesByID, $Field.internalLyphs, true);
         if (loops.length > 0) {
-            this.showMessage("Loop is detected in the internal lyph hierarchy of the following lyphs: " + loops.join(", "));
+            this.showWarning("Loop is detected in the internal lyph hierarchy of the following lyphs: " + loops.join(", "));
         }
         this._setMaxLayerIndex();
     }
@@ -581,7 +578,7 @@ export class LyphEditorComponent extends ResourceEditor {
      */
     updateProperty({prop, value, oldValue}) {
         if (!$Field[prop]) {
-            this.showMessage("Cannot update unknown property!");
+            this.showWarning("Cannot update unknown property!");
         }
         if (this.selectedLyphToEdit) {
             if (prop === $Field.id) {
@@ -594,7 +591,7 @@ export class LyphEditorComponent extends ResourceEditor {
                 }
             }
             if ([$Field.id, $Field.name, $Field.isTemplate].includes(prop)) {
-                this.updateLyphOptions();
+                this.updateSearchOptions();
             }
             if (prop === $Field.id) {
                 this.updateLyphTreeNodeID(oldValue, value);
@@ -621,18 +618,6 @@ export class LyphEditorComponent extends ResourceEditor {
         delete resource._generated;
         this._model[prop] = this._model[prop] || [];
         this._model[prop].push(resource);
-    }
-
-    //Helper method to remove material/lyph object
-    _removeMaterialOrLyph(nodeID) {
-        let idx = (this._model.materials || []).findIndex(m => m.id === nodeID);
-        if (idx > -1) {
-            this._model.materials.splice(idx, 1);
-        } else {
-            idx = (this._model.lyphs || []).findIndex(m => m.id === nodeID);
-            this._model.lyphs.splice(idx, 1);
-        }
-        this.updateLyphOptions();
     }
 
     /**
@@ -684,14 +669,14 @@ export class LyphEditorComponent extends ResourceEditor {
                 lyph._supertype.subtypes = lyph._supertype.subtypes.filter(e => e !== node.id);
             } else {
                 console.error(lyph._supertype, node.id);
-                this.showMessage("Cannot delete supertype: supertype definition error!");
+                this.showWarning("Cannot delete supertype: supertype definition error!");
             }
             delete lyph.supertype;
             this.prepareLyphTree();
             this.selectLyph(lyph);
             this.saveStep("Remove supertype of " + node.id);
         } else {
-            this.showMessage("Cannot delete supertype: lyph not found!");
+            this.showWarning("Cannot delete supertype: lyph not found!");
         }
     }
 
@@ -710,7 +695,7 @@ export class LyphEditorComponent extends ResourceEditor {
             this.selectLyph(lyph);
             this.saveStep("Remove subtypes of " + node.id);
         } else {
-            this.showMessage("Cannot remove subtypes: lyph not found!");
+            this.showWarning("Cannot remove subtypes: lyph not found!");
         }
     }
 
@@ -722,12 +707,13 @@ export class LyphEditorComponent extends ResourceEditor {
     deleteDefinition(node, activeTree) {
         let lyph = this.entitiesByID[node.id];
         if (lyph) {
-            this._removeMaterialOrLyph(node.id);
+            References.removeMaterialOrLyph(this._model, node.id);
+            this.updateSearchOptions();
             this.prepareLyphTree();
             this.selectLyph(lyph.supertype);
             this.saveStep("Delete definition " + node.id);
         } else {
-            this.showMessage("Cannot delete definition: lyph not found!");
+            this.showWarning("Cannot delete definition: lyph not found!");
         }
     }
 
@@ -740,12 +726,13 @@ export class LyphEditorComponent extends ResourceEditor {
         let cls = material._class?.toLowerCase() || $SchemaClass.Lyph;
         if (material) {
             References.clearMaterialRefs(this._model, node.id);
-            this._removeMaterialOrLyph(node.id);
+            References.removeMaterialOrLyph(this._model, node.id);
+            this.updateSearchOptions();
             this.prepareLyphTree();
             this.selectLyph(node.parent);
             this.saveStep("Delete " + cls + " " + node.id);
         } else {
-            this.showMessage("Cannot delete lyph: definition not found!");
+            this.showWarning("Cannot delete lyph: definition not found!");
         }
     }
 
@@ -839,10 +826,10 @@ export class LyphEditorComponent extends ResourceEditor {
                     this.saveStep(`Add internal lyph ${lyph.id} to lyph ${parent.id}`);
                 }
             } else {
-                this.showMessage("Cannot add internal lyph to a resource other than lyph!");
+                this.showWarning("Cannot add internal lyph to a resource other than lyph!");
             }
         } else {
-            this.showMessage("Cannot add internal: no lyph is selected!");
+            this.showWarning("Cannot add internal: no lyph is selected!");
         }
     }
 
@@ -854,7 +841,7 @@ export class LyphEditorComponent extends ResourceEditor {
     deleteInternal(node, index) {
         let parent = node.parent::isObject() ? node.parent : this.entitiesByID[node.parent];
         if (!parent) {
-            this.showMessage("Cannot delete the internal tree root!");
+            this.showWarning("Cannot delete the internal tree root!");
         } else {
             if (index > -1 && parent.internalLyphs?.length > index) {
                 parent.internalLyphs.splice(index, 1);
@@ -955,7 +942,7 @@ export class LyphEditorComponent extends ResourceEditor {
 
     _isValidSubtype(parent, child) {
         if (parent === child) {
-            this.showMessage("Cannot add a lyph as subtype to its a supertype!");
+            this.showWarning("Cannot add a lyph as subtype to its a supertype!");
             return false;
         }
         return true;
@@ -977,7 +964,7 @@ export class LyphEditorComponent extends ResourceEditor {
         }
         let res = (parent !== child) && !hasTemplateLayers(parent._supertype);
         if (!res) {
-            this.showMessage("Cannot add a layer to this lyph: hierarchy or dependency conflict!");
+            this.showWarning("Cannot add a layer to this lyph: hierarchy or dependency conflict!");
             return false;
         }
         return true;
@@ -985,12 +972,12 @@ export class LyphEditorComponent extends ResourceEditor {
 
     _isValidInternal(parent, child) {
         if ((child.internalLyphs || []).find(e => e.id === parent.id)) {
-            this.showMessage("Cannot include lyph as internal to itself!");
+            this.showWarning("Cannot include lyph as internal to itself!");
             return false;
         }
         if (!child.isTemplate) {
             if ((parent.internalLyphs || []).find(e => e.id === child.id)) {
-                this.showMessage("The lyph is already included as internal!");
+                this.showWarning("The lyph is already included as internal!");
                 return false;
             }
         }
@@ -1004,7 +991,7 @@ export class LyphEditorComponent extends ResourceEditor {
     addSubtype(node) {
         if (this.lyphToLink) {
             if (!this.lyphToLink._class || this.lyphToLink._class !== $SchemaClass.Lyph) {
-                this.showMessage("Cannot add a non-lyph resource as subtype");
+                this.showWarning("Cannot add a non-lyph resource as subtype");
                 return;
             }
         }
@@ -1025,7 +1012,7 @@ export class LyphEditorComponent extends ResourceEditor {
                 this.saveStep(`Add subtype ${lyph.id} to lyph ${parent.id}`);
             }
         } else {
-            this.showMessage("Cannot add subtype: no lyph is selected!");
+            this.showWarning("Cannot add subtype: no lyph is selected!");
         }
         9
     }
@@ -1055,7 +1042,7 @@ export class LyphEditorComponent extends ResourceEditor {
             this.saveStep("Clone lyph " + lyph.id);
             return lyph;
         } else {
-            this.showMessage("Cannot clone the lyph: definition not found!");
+            this.showWarning("Cannot clone the lyph: definition not found!");
         }
     }
 
@@ -1085,16 +1072,16 @@ export class LyphEditorComponent extends ResourceEditor {
                     this.saveStep(`Add layer ${lyph.id} to lyph ${parent.id}`);
                 }
             } else {
-                this.showMessage("Cannot add layer to a resource other than lyph!");
+                this.showWarning("Cannot add layer to a resource other than lyph!");
             }
         } else {
-            this.showMessage("Cannot add layer: no lyph is selected!");
+            this.showWarning("Cannot add layer: no lyph is selected!");
         }
     }
 
     cloneLayer(node) {
         if (!node.parent || !node.parent.id) {
-            this.showMessage("Cannot clone the layer: unknown parent!");
+            this.showWarning("Cannot clone the layer: unknown parent!");
         }
         let parent = this.entitiesByID[node.parent.id];
         if (parent) {
@@ -1104,13 +1091,13 @@ export class LyphEditorComponent extends ResourceEditor {
             this.selectLyph(parent);
             this.selectLayer(newLyph);
         } else {
-            this.showMessage("Cannot clone the layer: parent not found!");
+            this.showWarning("Cannot clone the layer: parent not found!");
         }
     }
 
     cloneInternal(node) {
         if (!node.parent || !node.parent.id) {
-            this.showMessage("Cannot clone the internal lyph: unknown parent!");
+            this.showWarning("Cannot clone the internal lyph: unknown parent!");
         }
         let parent = this.entitiesByID[node.parent.id];
         if (parent) {
@@ -1120,7 +1107,7 @@ export class LyphEditorComponent extends ResourceEditor {
             this.selectLyph(parent);
             this.selectInternal(newLyph);
         } else {
-            this.showMessage("Cannot clone the internal lyph: parent not found!");
+            this.showWarning("Cannot clone the internal lyph: parent not found!");
         }
     }
 
@@ -1132,7 +1119,7 @@ export class LyphEditorComponent extends ResourceEditor {
     deleteLayer(node, index) {
         let parent = node.parent::isObject() ? node.parent : this.entitiesByID[node.parent];
         if (!parent) {
-            this.showMessage("Cannot delete the layer tree root!");
+            this.showWarning("Cannot delete the layer tree root!");
         } else {
             if (index > -1 && parent.layers?.length > index) {
                 parent.layers.splice(index, 1);

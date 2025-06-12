@@ -10,7 +10,7 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
     template: `
         <section #hubmapPanel id="hubmapPanel">
             <hubmapTreeView
-                    title="Roots"
+                    listTitle="Roots"
                     [treeData]="treeData"
                     [selectedNode]="selectedNode"
                     [expanded]="true"

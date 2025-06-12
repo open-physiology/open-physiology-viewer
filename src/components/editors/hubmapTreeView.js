@@ -38,7 +38,7 @@ export class HubMapTreeNode {
     template: `
         <section class="tree-container">
             <div class="title w3-margin">
-                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{title}}</span>
+                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{listTitle}}</span>
             </div>
             <mat-tree class="tree" [dataSource]="dataSource" [treeControl]="treeControl">
                 <mat-tree-node *matTreeNodeDef="let node;" matTreeNodePadding>
@@ -165,7 +165,7 @@ export class HubMapTreeView {
     _selectedNode;
     rtmTopLeftPosition = {x: '0', y: '0'}
 
-    @Input() title;
+    @Input() listTitle;
 
     @Input('treeData') set model(newTreeData) {
         this._treeData = newTreeData;

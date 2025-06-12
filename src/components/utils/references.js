@@ -93,9 +93,36 @@ export class References {
         });
         (model.chains || []).forEach(chain => this.clearMany(chain, [$Field.lyphs, $Field.housingLyphs], materialID));
         (model.groups || []).forEach(group => this.clearMany(group, [$Field.seed], materialID));
-        (model.chains || []).forEach(chain => this.clearMany(chain, [$Field.lyphs], materialID));
         (model.links || []).forEach(link => this.clearMany(link, [$Field.conveyingMaterials], materialID));
         return model;
+    }
+
+    static clearChainRefs(model, chainID) {
+        (model.nodes || []).forEach(node => this.clearOne(node, [$Field.rootOf, $Field.leafOf], chainID));
+        (model.chains || []).forEach(chain => {
+            this.clearMany(chain, [$Field.laterals], chainID);
+            this.clearOne(chain, [$Field.lateralOf], chainID);
+        });
+        (model.links || []).forEach(link => this.clearMany(link, [$Field.levelIn], chainID));
+        (model.lyphs || []).forEach(lyph => {
+            this.clearMany(lyph, [$Field.inChains, $Field.templateInChains, $Field.bundlesChains, $Field.providesChains], chainID);
+        });
+        return model;
+    }
+
+    /**
+     * Remove material or lyph from the model
+     * @param model
+     * @param materialID
+     */
+    static removeMaterialOrLyph(model, materialID) {
+        let idx = (model.materials || []).findIndex(m => m.id === materialID);
+        if (idx > -1) {
+            model.materials.splice(idx, 1);
+        } else {
+            idx = (model.lyphs || []).findIndex(m => m.id === materialID);
+            model.lyphs.splice(idx, 1);
+        }
     }
 
     static replaceMaterialRefs(model, materialID, newMaterialID) {

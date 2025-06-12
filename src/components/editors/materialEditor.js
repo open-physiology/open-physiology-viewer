@@ -171,7 +171,7 @@ export class Edge {
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
                 <resourceListView
-                        title="Lyphs"
+                        listTitle="Lyphs"
                         [showMenu]=false
                         [listData]="lyphList"
                         (onNodeClick)="switchEditor($event)"
@@ -588,20 +588,20 @@ export class MaterialEditorComponent extends ResourceEditor {
                             .style('marker-end', '');
                         this.target_node = d;
                         if (this.target_node === this.source_node) {
-                            this.showMessage("Cannot create the edge: source and target nodes must be different!");
+                            this.showWarning("Cannot create the edge: source and target nodes must be different!");
                             this.resetMouseVars();
                             return;
                         }
                         let areConnected = isPath(this.entitiesByID, this.target_node, this.source_node);
                         if (areConnected) {
-                            this.showMessage("Cannot create the edge: a loop will be introduced!");
+                            this.showWarning("Cannot create the edge: a loop will be introduced!");
                         }
                         let existing_edge = this.graphD3.edge(this.source_node, this.target_node);
                         if (!existing_edge) {
                             this._addRelation({v: this.source_node, w: this.target_node});
                             this.resetMouseVars();
                         } else {
-                            this.showMessage("Cannot create the edge: it already exists!");
+                            this.showWarning("Cannot create the edge: it already exists!");
                         }
                     }
                 }
@@ -709,7 +709,7 @@ export class MaterialEditorComponent extends ResourceEditor {
                 this.saveStep(`Update property ${prop} of material ` + this.selectedNode);
             }
         } else {
-            this.showMessage(`Cannot update the property: material is not selected!`);
+            this.showWarning(`Cannot update the property: material is not selected!`);
         }
     }
 
@@ -846,7 +846,7 @@ export class MaterialEditorComponent extends ResourceEditor {
 
     _addRelation({v, w}) {
         if (v === w){
-            this.showMessage(`Cannot include a material to itself!`);
+            this.showWarning(`Cannot include a material to itself!`);
             return;
         }
         let material1 = this.entitiesByID[v];
@@ -863,10 +863,10 @@ export class MaterialEditorComponent extends ResourceEditor {
                 this.appendEdgeEvents(d3.select(path.elem));
                 this.saveStep(`Add relation ${v + "---" + w}`);
             } else {
-                this.showMessage(`Cannot create the relationship: material ${v} already contains material ${w}!`);
+                this.showWarning(`Cannot create the relationship: material ${v} already contains material ${w}!`);
             }
         } else {
-            this.showMessage(`Failed to locate a material definition for ${v} or ${w}`);
+            this.showWarning(`Failed to locate a material definition for ${v} or ${w}`);
         }
     }
 
@@ -885,19 +885,6 @@ export class MaterialEditorComponent extends ResourceEditor {
         if (idx > -1) {
             this.edges.splice(idx, 1);
         }
-    }
-
-    _removeMaterialOrLyph(nodeID) {
-        let idx = (this._model.materials || []).findIndex(m => m.id === nodeID);
-        if (idx > -1) {
-            this._model.materials.splice(idx, 1);
-        } else {
-            idx = (this._model.lyphs || []).findIndex(m => m.id === nodeID);
-            if (idx > -1) {
-                this._model.lyphs.splice(idx, 1);
-            }
-        }
-        this.updateSearchOptions();
     }
 
     defineNewMaterial() {
@@ -968,7 +955,8 @@ export class MaterialEditorComponent extends ResourceEditor {
     deleteDefinition(nodeID) {
         let material = this.entitiesByID[nodeID];
         if (material) {
-            this._removeMaterialOrLyph(nodeID);
+            References.removeMaterialOrLyph(this._model, nodeID);
+            this.updateSearchOptions();
             this.entitiesByID[nodeID]._generated = true;
             delete this.entitiesByID[nodeID]._class;
             let node = this.graphD3.node(nodeID);
@@ -1014,7 +1002,8 @@ export class MaterialEditorComponent extends ResourceEditor {
         let material = this.entitiesByID[nodeID];
         if (material) {
             References.clearMaterialRefs(this._model, nodeID);
-            this._removeMaterialOrLyph(nodeID);
+            References.removeMaterialOrLyph(this._model, nodeID);
+            this.updateSearchOptions();
             this._removeNode(nodeID);
             let edges = this.graphD3.nodeEdges(nodeID);
             (edges || []).forEach(({v, w}) => this._removeEdge({v, w}));
@@ -1118,10 +1107,10 @@ export class MaterialEditorComponent extends ResourceEditor {
             if (this._selectedNode) {
                 this._addRelation({v: this._selectedNode, w: matID});
             } else {
-                this.showMessage("Cannot add a relation: parent material is not selected");
+                this.showWarning("Cannot add a relation: parent material is not selected");
             }
         } else {
-            this.showMessage(`Failed to find definition of the selected material (${matID})!`);
+            this.showWarning(`Failed to find definition of the selected material (${matID})!`);
         }
     }
 
