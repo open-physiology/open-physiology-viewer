@@ -1,0 +1,1299 @@
+{
+  "id": "vascular",
+  "name": "vascular",
+  "imports": [
+    "https://raw.githubusercontent.com/albatros13/apinatomy-models/main/wbrcm.json"
+  ],
+  "lyphs": [
+    {
+      "id": "lyph_50010931_50010931_3855",
+      "name": "Aorta -> Left coronary artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_50010931_3855"
+    },
+    {
+      "id": "lyph_50010931_3855_50010931_3802",
+      "name": "Aorta -> Right coronary artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_3855_50010931_3802"
+    },
+    {
+      "id": "lyph_50010931_3802_50010931_69316",
+      "name": "Aorta -> Brachiocephalic artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_3802_50010931_69316"
+    },
+    {
+      "id": "lyph_50010931_69316_50010931_69326",
+      "name": "Aorta -> Left common carotid artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69316_50010931_69326"
+    },
+    {
+      "id": "lyph_50010931_69326_50010931_69319",
+      "name": "Aorta -> Left subclavian artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69326_50010931_69319"
+    },
+    {
+      "id": "lyph_50010931_69319_50010931_69334",
+      "name": "Aorta -> Pericardial artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69319_50010931_69334"
+    },
+    {
+      "id": "lyph_50010931_69334_50010931_68141",
+      "name": "Aorta -> Right bronchial artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69334_50010931_68141"
+    },
+    {
+      "id": "lyph_50010931_68141_50010931_69332",
+      "name": "Aorta -> Left first bronchial artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_68141_50010931_69332"
+    },
+    {
+      "id": "lyph_50010931_69332_50010931_69333",
+      "name": "Aorta -> Left second bronchial artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69332_50010931_69333"
+    },
+    {
+      "id": "lyph_50010931_69333_50010931_69342",
+      "name": "Aorta -> Right first posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69333_50010931_69342"
+    },
+    {
+      "id": "lyph_50010931_69342_50010931_69343",
+      "name": "Aorta -> Left first posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69342_50010931_69343"
+    },
+    {
+      "id": "lyph_50010931_69343_50010931_69345",
+      "name": "Aorta -> Right second posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69343_50010931_69345"
+    },
+    {
+      "id": "lyph_50010931_69345_50010931_69346",
+      "name": "Aorta -> Left second posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69345_50010931_69346"
+    },
+    {
+      "id": "lyph_50010931_69346_50010931_69348",
+      "name": "Aorta -> Right third posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69346_50010931_69348"
+    },
+    {
+      "id": "lyph_50010931_69348_50010931_69349",
+      "name": "Aorta -> Left third posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69348_50010931_69349"
+    },
+    {
+      "id": "lyph_50010931_69349_50010931_69351",
+      "name": "Aorta -> Right fourth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69349_50010931_69351"
+    },
+    {
+      "id": "lyph_50010931_69351_50010931_69352",
+      "name": "Aorta -> Left fourth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69351_50010931_69352"
+    },
+    {
+      "id": "lyph_50010931_69352_50010931_69354",
+      "name": "Aorta -> Right fifth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69352_50010931_69354"
+    },
+    {
+      "id": "lyph_50010931_69354_50010931_69355",
+      "name": "Aorta -> Left fifth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69354_50010931_69355"
+    },
+    {
+      "id": "lyph_50010931_69355_50010931_69357",
+      "name": "Aorta -> Right sixth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69355_50010931_69357"
+    },
+    {
+      "id": "lyph_50010931_69357_50010931_69358",
+      "name": "Aorta -> Left sixth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69357_50010931_69358"
+    },
+    {
+      "id": "lyph_50010931_69358_50010931_69360",
+      "name": "Aorta -> Right seventh posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69358_50010931_69360"
+    },
+    {
+      "id": "lyph_50010931_69360_50010931_69361",
+      "name": "Aorta -> Left seventh posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69360_50010931_69361"
+    },
+    {
+      "id": "lyph_50010931_69361_50010931_69363",
+      "name": "Aorta -> Right eighth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69361_50010931_69363"
+    },
+    {
+      "id": "lyph_50010931_69363_50010931_69364",
+      "name": "Aorta -> Left eighth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69363_50010931_69364"
+    },
+    {
+      "id": "lyph_50010931_69364_50010931_69339",
+      "name": "Aorta -> Esophageal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69364_50010931_69339"
+    },
+    {
+      "id": "lyph_50010931_69339_50010931_69338",
+      "name": "Aorta -> Mediastinal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69339_50010931_69338"
+    },
+    {
+      "id": "lyph_50010931_69338_50010931_69366",
+      "name": "Aorta -> Right ninth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69338_50010931_69366"
+    },
+    {
+      "id": "lyph_50010931_69366_50010931_69367",
+      "name": "Aorta -> Left ninth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69366_50010931_69367"
+    },
+    {
+      "id": "lyph_50010931_69367_50010931_69369",
+      "name": "Aorta -> Right tenth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69367_50010931_69369"
+    },
+    {
+      "id": "lyph_50010931_69369_50010931_69370",
+      "name": "Aorta -> Left tenth posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69369_50010931_69370"
+    },
+    {
+      "id": "lyph_50010931_69370_50010931_69372",
+      "name": "Aorta -> Right eleventh posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69370_50010931_69372"
+    },
+    {
+      "id": "lyph_50010931_69372_50010931_69373",
+      "name": "Aorta -> Left eleventh posterior intercostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69372_50010931_69373"
+    },
+    {
+      "id": "lyph_50010931_69373_50010931_69375",
+      "name": "Aorta -> Right subcostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69373_50010931_69375"
+    },
+    {
+      "id": "lyph_50010931_69375_50010931_69376",
+      "name": "Aorta -> Left subcostal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69375_50010931_69376"
+    },
+    {
+      "id": "lyph_50010931_69376_50010931_66484",
+      "name": "Aorta -> Right inferior phrenic artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_69376_50010931_66484"
+    },
+    {
+      "id": "lyph_50010931_66484_50010931_66485",
+      "name": "Aorta -> Left inferior phrenic artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_66484_50010931_66485"
+    },
+    {
+      "id": "lyph_50010931_66485_50010931_100000177",
+      "name": "Aorta -> Celiac artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_66485_50010931_100000177"
+    },
+    {
+      "id": "lyph_50010931_100000177_50010931_66358",
+      "name": "Aorta -> Superior mesenteric artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_100000177_50010931_66358"
+    },
+    {
+      "id": "lyph_50010931_66358_50010931_50011587",
+      "name": "Aorta -> Right middle suprarenal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_66358_50010931_50011587"
+    },
+    {
+      "id": "lyph_50010931_50011587_50010931_50013282",
+      "name": "Aorta -> Left middle suprarenal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_50011587_50010931_50013282"
+    },
+    {
+      "id": "lyph_50010931_50013282_50010931_66363",
+      "name": "Aorta -> Right renal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_50013282_50010931_66363"
+    },
+    {
+      "id": "lyph_50010931_66363_50010931_66364",
+      "name": "Aorta -> Left renal artery",
+      "supertype": "wbkg:lt-major-artery",
+      "conveys": "lnk_50010931_66363_50010931_66364"
+    },
+    {
+      "id": "lyph_7096_7096_100000226",
+      "name": "Right atrium -> Inferior vena cava",
+      "conveys": "lnk_7096_7096_100000226"
+    },
+    {
+      "id": "lyph_7096_100000226_100000226",
+      "name": "Inferior vena cava",
+      "supertype": "wbkg:lt-major-vein"
+    },
+    {
+      "id": "lyph_100000226_100000226_66736",
+      "name": "Inferior vena cava -> Right suprarenal vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_100000226_66736"
+    },
+    {
+      "id": "lyph_100000226_66736_100000226_82678",
+      "name": "Inferior vena cava -> Right hepatic vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_66736_100000226_82678"
+    },
+    {
+      "id": "lyph_100000226_82678_100000226_82680",
+      "name": "Inferior vena cava -> Middle hepatic vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_82678_100000226_82680"
+    },
+    {
+      "id": "lyph_100000226_82680_100000226_82679",
+      "name": "Inferior vena cava -> Left hepatic vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_82680_100000226_82679"
+    },
+    {
+      "id": "lyph_100000226_82679_100000226_68067",
+      "name": "Inferior vena cava -> Left inferior phrenic vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_82679_100000226_68067"
+    },
+    {
+      "id": "lyph_100000226_68067_100000226_66663",
+      "name": "Inferior vena cava -> Right renal vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_68067_100000226_66663"
+    },
+    {
+      "id": "lyph_100000226_66663_100000226_66664",
+      "name": "Inferior vena cava -> Left renal vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_66663_100000226_66664"
+    },
+    {
+      "id": "lyph_100000226_66664_100000226_66724",
+      "name": "Inferior vena cava -> Right testicular vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_66664_100000226_66724"
+    },
+    {
+      "id": "lyph_100000226_66724_100000226_100000230",
+      "name": "Inferior vena cava -> Right third lumbar vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_66724_100000226_100000230"
+    },
+    {
+      "id": "lyph_100000226_100000230_100000226_100000229",
+      "name": "Inferior vena cava -> Left third lumbar vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_100000230_100000226_100000229"
+    },
+    {
+      "id": "lyph_100000226_100000229_100000226_100000228",
+      "name": "Inferior vena cava -> Right fourth lumbar vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_100000229_100000226_100000228"
+    },
+    {
+      "id": "lyph_100000226_100000228_100000226_100000227",
+      "name": "Inferior vena cava -> Left fourth lumbar vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_100000228_100000226_100000227"
+    },
+    {
+      "id": "lyph_100000226_100000227_100000226_66669",
+      "name": "Inferior vena cava -> Right common iliac vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_100000227_100000226_66669"
+    },
+    {
+      "id": "lyph_100000226_66669_100000226_66670",
+      "name": "Inferior vena cava -> Left common iliac vein",
+      "supertype": "wbkg:lt-major-vein",
+      "conveys": "lnk_100000226_66669_100000226_66670"
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk_50010931_50010931_3855",
+      "target": "t_50010931_50010931_3855",
+      "length": 10,
+      "source": "root_chain_50010931_50010931_3855"
+    },
+    {
+      "id": "lnk_50010931_3855_50010931_3802",
+      "target": "t_50010931_3855_50010931_3802",
+      "length": 10,
+      "source": "t_50010931_50010931_3855"
+    },
+    {
+      "id": "lnk_50010931_3802_50010931_69316",
+      "target": "t_50010931_3802_50010931_69316",
+      "length": 10,
+      "source": "t_50010931_3855_50010931_3802"
+    },
+    {
+      "id": "lnk_50010931_69316_50010931_69326",
+      "target": "t_50010931_69316_50010931_69326",
+      "length": 10,
+      "source": "t_50010931_3802_50010931_69316"
+    },
+    {
+      "id": "lnk_50010931_69326_50010931_69319",
+      "target": "t_50010931_69326_50010931_69319",
+      "length": 10,
+      "source": "t_50010931_69316_50010931_69326"
+    },
+    {
+      "id": "lnk_50010931_69319_50010931_69334",
+      "target": "t_50010931_69319_50010931_69334",
+      "length": 10,
+      "source": "t_50010931_69326_50010931_69319"
+    },
+    {
+      "id": "lnk_50010931_69334_50010931_68141",
+      "target": "t_50010931_69334_50010931_68141",
+      "length": 10,
+      "source": "t_50010931_69319_50010931_69334"
+    },
+    {
+      "id": "lnk_50010931_68141_50010931_69332",
+      "target": "t_50010931_68141_50010931_69332",
+      "length": 10,
+      "source": "t_50010931_69334_50010931_68141"
+    },
+    {
+      "id": "lnk_50010931_69332_50010931_69333",
+      "target": "t_50010931_69332_50010931_69333",
+      "length": 10,
+      "source": "t_50010931_68141_50010931_69332"
+    },
+    {
+      "id": "lnk_50010931_69333_50010931_69342",
+      "target": "t_50010931_69333_50010931_69342",
+      "length": 10,
+      "source": "t_50010931_69332_50010931_69333"
+    },
+    {
+      "id": "lnk_50010931_69342_50010931_69343",
+      "target": "t_50010931_69342_50010931_69343",
+      "length": 10,
+      "source": "t_50010931_69333_50010931_69342"
+    },
+    {
+      "id": "lnk_50010931_69343_50010931_69345",
+      "target": "t_50010931_69343_50010931_69345",
+      "length": 10,
+      "source": "t_50010931_69342_50010931_69343"
+    },
+    {
+      "id": "lnk_50010931_69345_50010931_69346",
+      "target": "t_50010931_69345_50010931_69346",
+      "length": 10,
+      "source": "t_50010931_69343_50010931_69345"
+    },
+    {
+      "id": "lnk_50010931_69346_50010931_69348",
+      "target": "t_50010931_69346_50010931_69348",
+      "length": 10,
+      "source": "t_50010931_69345_50010931_69346"
+    },
+    {
+      "id": "lnk_50010931_69348_50010931_69349",
+      "target": "t_50010931_69348_50010931_69349",
+      "length": 10,
+      "source": "t_50010931_69346_50010931_69348"
+    },
+    {
+      "id": "lnk_50010931_69349_50010931_69351",
+      "target": "t_50010931_69349_50010931_69351",
+      "length": 10,
+      "source": "t_50010931_69348_50010931_69349"
+    },
+    {
+      "id": "lnk_50010931_69351_50010931_69352",
+      "target": "t_50010931_69351_50010931_69352",
+      "length": 10,
+      "source": "t_50010931_69349_50010931_69351"
+    },
+    {
+      "id": "lnk_50010931_69352_50010931_69354",
+      "target": "t_50010931_69352_50010931_69354",
+      "length": 10,
+      "source": "t_50010931_69351_50010931_69352"
+    },
+    {
+      "id": "lnk_50010931_69354_50010931_69355",
+      "target": "t_50010931_69354_50010931_69355",
+      "length": 10,
+      "source": "t_50010931_69352_50010931_69354"
+    },
+    {
+      "id": "lnk_50010931_69355_50010931_69357",
+      "target": "t_50010931_69355_50010931_69357",
+      "length": 10,
+      "source": "t_50010931_69354_50010931_69355"
+    },
+    {
+      "id": "lnk_50010931_69357_50010931_69358",
+      "target": "t_50010931_69357_50010931_69358",
+      "length": 10,
+      "source": "t_50010931_69355_50010931_69357"
+    },
+    {
+      "id": "lnk_50010931_69358_50010931_69360",
+      "target": "t_50010931_69358_50010931_69360",
+      "length": 10,
+      "source": "t_50010931_69357_50010931_69358"
+    },
+    {
+      "id": "lnk_50010931_69360_50010931_69361",
+      "target": "t_50010931_69360_50010931_69361",
+      "length": 10,
+      "source": "t_50010931_69358_50010931_69360"
+    },
+    {
+      "id": "lnk_50010931_69361_50010931_69363",
+      "target": "t_50010931_69361_50010931_69363",
+      "length": 10,
+      "source": "t_50010931_69360_50010931_69361"
+    },
+    {
+      "id": "lnk_50010931_69363_50010931_69364",
+      "target": "t_50010931_69363_50010931_69364",
+      "length": 10,
+      "source": "t_50010931_69361_50010931_69363"
+    },
+    {
+      "id": "lnk_50010931_69364_50010931_69339",
+      "target": "t_50010931_69364_50010931_69339",
+      "length": 10,
+      "source": "t_50010931_69363_50010931_69364"
+    },
+    {
+      "id": "lnk_50010931_69339_50010931_69338",
+      "target": "t_50010931_69339_50010931_69338",
+      "length": 10,
+      "source": "t_50010931_69364_50010931_69339"
+    },
+    {
+      "id": "lnk_50010931_69338_50010931_69366",
+      "target": "t_50010931_69338_50010931_69366",
+      "length": 10,
+      "source": "t_50010931_69339_50010931_69338"
+    },
+    {
+      "id": "lnk_50010931_69366_50010931_69367",
+      "target": "t_50010931_69366_50010931_69367",
+      "length": 10,
+      "source": "t_50010931_69338_50010931_69366"
+    },
+    {
+      "id": "lnk_50010931_69367_50010931_69369",
+      "target": "t_50010931_69367_50010931_69369",
+      "length": 10,
+      "source": "t_50010931_69366_50010931_69367"
+    },
+    {
+      "id": "lnk_50010931_69369_50010931_69370",
+      "target": "t_50010931_69369_50010931_69370",
+      "length": 10,
+      "source": "t_50010931_69367_50010931_69369"
+    },
+    {
+      "id": "lnk_50010931_69370_50010931_69372",
+      "target": "t_50010931_69370_50010931_69372",
+      "length": 10,
+      "source": "t_50010931_69369_50010931_69370"
+    },
+    {
+      "id": "lnk_50010931_69372_50010931_69373",
+      "target": "t_50010931_69372_50010931_69373",
+      "length": 10,
+      "source": "t_50010931_69370_50010931_69372"
+    },
+    {
+      "id": "lnk_50010931_69373_50010931_69375",
+      "target": "t_50010931_69373_50010931_69375",
+      "length": 10,
+      "source": "t_50010931_69372_50010931_69373"
+    },
+    {
+      "id": "lnk_50010931_69375_50010931_69376",
+      "target": "t_50010931_69375_50010931_69376",
+      "length": 10,
+      "source": "t_50010931_69373_50010931_69375"
+    },
+    {
+      "id": "lnk_50010931_69376_50010931_66484",
+      "target": "t_50010931_69376_50010931_66484",
+      "length": 10,
+      "source": "t_50010931_69375_50010931_69376"
+    },
+    {
+      "id": "lnk_50010931_66484_50010931_66485",
+      "target": "t_50010931_66484_50010931_66485",
+      "length": 10,
+      "source": "t_50010931_69376_50010931_66484"
+    },
+    {
+      "id": "lnk_50010931_66485_50010931_100000177",
+      "target": "t_50010931_66485_50010931_100000177",
+      "length": 10,
+      "source": "t_50010931_66484_50010931_66485"
+    },
+    {
+      "id": "lnk_50010931_100000177_50010931_66358",
+      "target": "t_50010931_100000177_50010931_66358",
+      "length": 10,
+      "source": "t_50010931_66485_50010931_100000177"
+    },
+    {
+      "id": "lnk_50010931_66358_50010931_50011587",
+      "target": "t_50010931_66358_50010931_50011587",
+      "length": 10,
+      "source": "t_50010931_100000177_50010931_66358"
+    },
+    {
+      "id": "lnk_50010931_50011587_50010931_50013282",
+      "target": "t_50010931_50011587_50010931_50013282",
+      "length": 10,
+      "source": "t_50010931_66358_50010931_50011587"
+    },
+    {
+      "id": "lnk_50010931_50013282_50010931_66363",
+      "target": "t_50010931_50013282_50010931_66363",
+      "length": 10,
+      "source": "t_50010931_50011587_50010931_50013282"
+    },
+    {
+      "id": "lnk_50010931_66363_50010931_66364",
+      "target": "t_50010931_66363_50010931_66364",
+      "length": 10,
+      "source": "t_50010931_50013282_50010931_66363"
+    },
+    {
+      "id": "lnk_7096_7096_100000226",
+      "target": "t_7096_7096_100000226",
+      "length": 10,
+      "source": "root_chain_7096_7096_100000226"
+    },
+    {
+      "id": "lnk_100000226_100000226_66736",
+      "target": "t_100000226_100000226_66736",
+      "length": 10,
+      "source": "t_7096_100000226_100000226"
+    },
+    {
+      "id": "lnk_100000226_66736_100000226_82678",
+      "target": "t_100000226_66736_100000226_82678",
+      "length": 10,
+      "source": "t_100000226_100000226_66736"
+    },
+    {
+      "id": "lnk_100000226_82678_100000226_82680",
+      "target": "t_100000226_82678_100000226_82680",
+      "length": 10,
+      "source": "t_100000226_66736_100000226_82678"
+    },
+    {
+      "id": "lnk_100000226_82680_100000226_82679",
+      "target": "t_100000226_82680_100000226_82679",
+      "length": 10,
+      "source": "t_100000226_82678_100000226_82680"
+    },
+    {
+      "id": "lnk_100000226_82679_100000226_68067",
+      "target": "t_100000226_82679_100000226_68067",
+      "length": 10,
+      "source": "t_100000226_82680_100000226_82679"
+    },
+    {
+      "id": "lnk_100000226_68067_100000226_66663",
+      "target": "t_100000226_68067_100000226_66663",
+      "length": 10,
+      "source": "t_100000226_82679_100000226_68067"
+    },
+    {
+      "id": "lnk_100000226_66663_100000226_66664",
+      "target": "t_100000226_66663_100000226_66664",
+      "length": 10,
+      "source": "t_100000226_68067_100000226_66663"
+    },
+    {
+      "id": "lnk_100000226_66664_100000226_66724",
+      "target": "t_100000226_66664_100000226_66724",
+      "length": 10,
+      "source": "t_100000226_66663_100000226_66664"
+    },
+    {
+      "id": "lnk_100000226_66724_100000226_100000230",
+      "target": "t_100000226_66724_100000226_100000230",
+      "length": 10,
+      "source": "t_100000226_66664_100000226_66724"
+    },
+    {
+      "id": "lnk_100000226_100000230_100000226_100000229",
+      "target": "t_100000226_100000230_100000226_100000229",
+      "length": 10,
+      "source": "t_100000226_66724_100000226_100000230"
+    },
+    {
+      "id": "lnk_100000226_100000229_100000226_100000228",
+      "target": "t_100000226_100000229_100000226_100000228",
+      "length": 10,
+      "source": "t_100000226_100000230_100000226_100000229"
+    },
+    {
+      "id": "lnk_100000226_100000228_100000226_100000227",
+      "target": "t_100000226_100000228_100000226_100000227",
+      "length": 10,
+      "source": "t_100000226_100000229_100000226_100000228"
+    },
+    {
+      "id": "lnk_100000226_100000227_100000226_66669",
+      "target": "t_100000226_100000227_100000226_66669",
+      "length": 10,
+      "source": "t_100000226_100000228_100000226_100000227"
+    },
+    {
+      "id": "lnk_100000226_66669_100000226_66670",
+      "target": "t_100000226_66669_100000226_66670",
+      "length": 10,
+      "source": "t_100000226_100000227_100000226_66669"
+    }
+  ],
+  "chains": [
+    {
+      "id": "chain_branch_50010931_50010931_3855",
+      "name": "Branch Aorta -> Left coronary artery",
+      "root": "t_50010931_50010931_3855",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-major-artery",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_50010931_3855_50010931_3802",
+      "name": "Branch Aorta -> Right coronary artery",
+      "root": "t_50010931_3855_50010931_3802",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-major-artery",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_50010931_3802_50010931_69316",
+      "name": "Branch Aorta -> Brachiocephalic artery",
+      "root": "t_50010931_3802_50010931_69316",
+      "length": 20,
+      "lyphs": [
+        "lyph-69316"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69316_50010931_69326",
+      "name": "Branch Aorta -> Left common carotid artery",
+      "root": "t_50010931_69316_50010931_69326",
+      "length": 20,
+      "lyphs": [
+        "lyph-69326"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69326_50010931_69319",
+      "name": "Branch Aorta -> Left subclavian artery",
+      "root": "t_50010931_69326_50010931_69319",
+      "length": 20,
+      "lyphs": [
+        "lyph-69319"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69319_50010931_69334",
+      "name": "Branch Aorta -> Pericardial artery",
+      "root": "t_50010931_69319_50010931_69334",
+      "length": 20,
+      "lyphs": [
+        "lyph-69334"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69334_50010931_68141",
+      "name": "Branch Aorta -> Right bronchial artery",
+      "root": "t_50010931_69334_50010931_68141",
+      "length": 20,
+      "lyphs": [
+        "lyph-68141"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_68141_50010931_69332",
+      "name": "Branch Aorta -> Left first bronchial artery",
+      "root": "t_50010931_68141_50010931_69332",
+      "length": 20,
+      "lyphs": [
+        "lyph-69332"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69332_50010931_69333",
+      "name": "Branch Aorta -> Left second bronchial artery",
+      "root": "t_50010931_69332_50010931_69333",
+      "length": 20,
+      "lyphs": [
+        "lyph-69333"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69333_50010931_69342",
+      "name": "Branch Aorta -> Right first posterior intercostal artery",
+      "root": "t_50010931_69333_50010931_69342",
+      "length": 20,
+      "lyphs": [
+        "lyph-69342"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69342_50010931_69343",
+      "name": "Branch Aorta -> Left first posterior intercostal artery",
+      "root": "t_50010931_69342_50010931_69343",
+      "length": 20,
+      "lyphs": [
+        "lyph-69343"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69343_50010931_69345",
+      "name": "Branch Aorta -> Right second posterior intercostal artery",
+      "root": "t_50010931_69343_50010931_69345",
+      "length": 20,
+      "lyphs": [
+        "lyph-69345"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69345_50010931_69346",
+      "name": "Branch Aorta -> Left second posterior intercostal artery",
+      "root": "t_50010931_69345_50010931_69346",
+      "length": 20,
+      "lyphs": [
+        "lyph-69346"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69346_50010931_69348",
+      "name": "Branch Aorta -> Right third posterior intercostal artery",
+      "root": "t_50010931_69346_50010931_69348",
+      "length": 20,
+      "lyphs": [
+        "lyph-69348"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69348_50010931_69349",
+      "name": "Branch Aorta -> Left third posterior intercostal artery",
+      "root": "t_50010931_69348_50010931_69349",
+      "length": 20,
+      "lyphs": [
+        "lyph-69349"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69349_50010931_69351",
+      "name": "Branch Aorta -> Right fourth posterior intercostal artery",
+      "root": "t_50010931_69349_50010931_69351",
+      "length": 20,
+      "lyphs": [
+        "lyph-69351"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69351_50010931_69352",
+      "name": "Branch Aorta -> Left fourth posterior intercostal artery",
+      "root": "t_50010931_69351_50010931_69352",
+      "length": 20,
+      "lyphs": [
+        "lyph-69352"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69352_50010931_69354",
+      "name": "Branch Aorta -> Right fifth posterior intercostal artery",
+      "root": "t_50010931_69352_50010931_69354",
+      "length": 20,
+      "lyphs": [
+        "lyph-69354"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69354_50010931_69355",
+      "name": "Branch Aorta -> Left fifth posterior intercostal artery",
+      "root": "t_50010931_69354_50010931_69355",
+      "length": 20,
+      "lyphs": [
+        "lyph-69355"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69355_50010931_69357",
+      "name": "Branch Aorta -> Right sixth posterior intercostal artery",
+      "root": "t_50010931_69355_50010931_69357",
+      "length": 20,
+      "lyphs": [
+        "lyph-69357"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69357_50010931_69358",
+      "name": "Branch Aorta -> Left sixth posterior intercostal artery",
+      "root": "t_50010931_69357_50010931_69358",
+      "length": 20,
+      "lyphs": [
+        "lyph-69358"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69358_50010931_69360",
+      "name": "Branch Aorta -> Right seventh posterior intercostal artery",
+      "root": "t_50010931_69358_50010931_69360",
+      "length": 20,
+      "lyphs": [
+        "lyph-69360"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69360_50010931_69361",
+      "name": "Branch Aorta -> Left seventh posterior intercostal artery",
+      "root": "t_50010931_69360_50010931_69361",
+      "length": 20,
+      "lyphs": [
+        "lyph-69361"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69361_50010931_69363",
+      "name": "Branch Aorta -> Right eighth posterior intercostal artery",
+      "root": "t_50010931_69361_50010931_69363",
+      "length": 20,
+      "lyphs": [
+        "lyph-69363"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69363_50010931_69364",
+      "name": "Branch Aorta -> Left eighth posterior intercostal artery",
+      "root": "t_50010931_69363_50010931_69364",
+      "length": 20,
+      "lyphs": [
+        "lyph-69364"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69364_50010931_69339",
+      "name": "Branch Aorta -> Esophageal artery",
+      "root": "t_50010931_69364_50010931_69339",
+      "length": 20,
+      "lyphs": [
+        "lyph-69339"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69339_50010931_69338",
+      "name": "Branch Aorta -> Mediastinal artery",
+      "root": "t_50010931_69339_50010931_69338",
+      "length": 20,
+      "lyphs": [
+        "lyph-69338"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69338_50010931_69366",
+      "name": "Branch Aorta -> Right ninth posterior intercostal artery",
+      "root": "t_50010931_69338_50010931_69366",
+      "length": 20,
+      "lyphs": [
+        "lyph-69366"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69366_50010931_69367",
+      "name": "Branch Aorta -> Left ninth posterior intercostal artery",
+      "root": "t_50010931_69366_50010931_69367",
+      "length": 20,
+      "lyphs": [
+        "lyph-69367"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69367_50010931_69369",
+      "name": "Branch Aorta -> Right tenth posterior intercostal artery",
+      "root": "t_50010931_69367_50010931_69369",
+      "length": 20,
+      "lyphs": [
+        "lyph-69369"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69369_50010931_69370",
+      "name": "Branch Aorta -> Left tenth posterior intercostal artery",
+      "root": "t_50010931_69369_50010931_69370",
+      "length": 20,
+      "lyphs": [
+        "lyph-69370"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69370_50010931_69372",
+      "name": "Branch Aorta -> Right eleventh posterior intercostal artery",
+      "root": "t_50010931_69370_50010931_69372",
+      "length": 20,
+      "lyphs": [
+        "lyph-69372"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69372_50010931_69373",
+      "name": "Branch Aorta -> Left eleventh posterior intercostal artery",
+      "root": "t_50010931_69372_50010931_69373",
+      "length": 20,
+      "lyphs": [
+        "lyph-69373"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69373_50010931_69375",
+      "name": "Branch Aorta -> Right subcostal artery",
+      "root": "t_50010931_69373_50010931_69375",
+      "length": 20,
+      "lyphs": [
+        "lyph-69375"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69375_50010931_69376",
+      "name": "Branch Aorta -> Left subcostal artery",
+      "root": "t_50010931_69375_50010931_69376",
+      "length": 20,
+      "lyphs": [
+        "lyph-69376"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_69376_50010931_66484",
+      "name": "Branch Aorta -> Right inferior phrenic artery",
+      "root": "t_50010931_69376_50010931_66484",
+      "length": 20,
+      "lyphs": [
+        "lyph-66484"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_66484_50010931_66485",
+      "name": "Branch Aorta -> Left inferior phrenic artery",
+      "root": "t_50010931_66484_50010931_66485",
+      "length": 20,
+      "lyphs": [
+        "lyph-66485"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_66485_50010931_100000177",
+      "name": "Branch Aorta -> Celiac artery",
+      "root": "t_50010931_66485_50010931_100000177",
+      "length": 20,
+      "lyphs": [
+        "lyph-100000177"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_100000177_50010931_66358",
+      "name": "Branch Aorta -> Superior mesenteric artery",
+      "root": "t_50010931_100000177_50010931_66358",
+      "length": 20,
+      "lyphs": [
+        "lyph-66358"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_66358_50010931_50011587",
+      "name": "Branch Aorta -> Right middle suprarenal artery",
+      "root": "t_50010931_66358_50010931_50011587",
+      "length": 20,
+      "lyphs": [
+        "lyph-50011587"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_50011587_50010931_50013282",
+      "name": "Branch Aorta -> Left middle suprarenal artery",
+      "root": "t_50010931_50011587_50010931_50013282",
+      "length": 20,
+      "lyphs": [
+        "lyph-50013282"
+      ]
+    },
+    {
+      "id": "chain_branch_50010931_50013282_50010931_66363",
+      "name": "Branch Aorta -> Right renal artery",
+      "root": "t_50010931_50013282_50010931_66363",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-muscular-artery",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_50010931_66363_50010931_66364",
+      "name": "Branch Aorta -> Left renal artery",
+      "root": "t_50010931_66363_50010931_66364",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-muscular-artery",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_7096_7096_100000226",
+      "name": "Branch Right atrium -> Inferior vena cava",
+      "root": "t_7096_7096_100000226",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-major-vein",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_100000226_100000226_66736",
+      "name": "Branch Inferior vena cava -> Right suprarenal vein",
+      "root": "t_100000226_100000226_66736",
+      "length": 20,
+      "lyphs": [
+        "lyph-66736"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_66736_100000226_82678",
+      "name": "Branch Inferior vena cava -> Right hepatic vein",
+      "root": "t_100000226_66736_100000226_82678",
+      "length": 20,
+      "lyphs": [
+        "lyph-82678"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_82678_100000226_82680",
+      "name": "Branch Inferior vena cava -> Middle hepatic vein",
+      "root": "t_100000226_82678_100000226_82680",
+      "length": 20,
+      "lyphs": [
+        "lyph-82680"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_82680_100000226_82679",
+      "name": "Branch Inferior vena cava -> Left hepatic vein",
+      "root": "t_100000226_82680_100000226_82679",
+      "length": 20,
+      "lyphs": [
+        "lyph-82679"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_82679_100000226_68067",
+      "name": "Branch Inferior vena cava -> Left inferior phrenic vein",
+      "root": "t_100000226_82679_100000226_68067",
+      "length": 20,
+      "lyphs": [
+        "lyph-68067"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_68067_100000226_66663",
+      "name": "Branch Inferior vena cava -> Right renal vein",
+      "root": "t_100000226_68067_100000226_66663",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-medium-vein",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_100000226_66663_100000226_66664",
+      "name": "Branch Inferior vena cava -> Left renal vein",
+      "root": "t_100000226_66663_100000226_66664",
+      "length": 20,
+      "lyphTemplate": "wbkg:lt-medium-vein",
+      "numLevels": 1
+    },
+    {
+      "id": "chain_branch_100000226_66664_100000226_66724",
+      "name": "Branch Inferior vena cava -> Right testicular vein",
+      "root": "t_100000226_66664_100000226_66724",
+      "length": 20,
+      "lyphs": [
+        "lyph-66724"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_66724_100000226_100000230",
+      "name": "Branch Inferior vena cava -> Right third lumbar vein",
+      "root": "t_100000226_66724_100000226_100000230",
+      "length": 20,
+      "lyphs": [
+        "lyph-100000230"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_100000230_100000226_100000229",
+      "name": "Branch Inferior vena cava -> Left third lumbar vein",
+      "root": "t_100000226_100000230_100000226_100000229",
+      "length": 20,
+      "lyphs": [
+        "lyph-100000229"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_100000229_100000226_100000228",
+      "name": "Branch Inferior vena cava -> Right fourth lumbar vein",
+      "root": "t_100000226_100000229_100000226_100000228",
+      "length": 20,
+      "lyphs": [
+        "lyph-100000228"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_100000228_100000226_100000227",
+      "name": "Branch Inferior vena cava -> Left fourth lumbar vein",
+      "root": "t_100000226_100000228_100000226_100000227",
+      "length": 20,
+      "lyphs": [
+        "lyph-100000227"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_100000227_100000226_66669",
+      "name": "Branch Inferior vena cava -> Right common iliac vein",
+      "root": "t_100000226_100000227_100000226_66669",
+      "length": 20,
+      "lyphs": [
+        "lyph-66669"
+      ]
+    },
+    {
+      "id": "chain_branch_100000226_66669_100000226_66670",
+      "name": "Branch Inferior vena cava -> Left common iliac vein",
+      "root": "t_100000226_66669_100000226_66670",
+      "length": 20,
+      "lyphs": [
+        "lyph-66670"
+      ]
+    },
+    {
+      "id": "chain_50010931_66363_50010931_66364",
+      "name": "Chain Aorta -> Left renal artery",
+      "lyphs": [
+        "lyph_50010931_50010931_3855",
+        "lyph_50010931_3855_50010931_3802",
+        "lyph_50010931_3802_50010931_69316",
+        "lyph_50010931_69316_50010931_69326",
+        "lyph_50010931_69326_50010931_69319",
+        "lyph_50010931_69319_50010931_69334",
+        "lyph_50010931_69334_50010931_68141",
+        "lyph_50010931_68141_50010931_69332",
+        "lyph_50010931_69332_50010931_69333",
+        "lyph_50010931_69333_50010931_69342",
+        "lyph_50010931_69342_50010931_69343",
+        "lyph_50010931_69343_50010931_69345",
+        "lyph_50010931_69345_50010931_69346",
+        "lyph_50010931_69346_50010931_69348",
+        "lyph_50010931_69348_50010931_69349",
+        "lyph_50010931_69349_50010931_69351",
+        "lyph_50010931_69351_50010931_69352",
+        "lyph_50010931_69352_50010931_69354",
+        "lyph_50010931_69354_50010931_69355",
+        "lyph_50010931_69355_50010931_69357",
+        "lyph_50010931_69357_50010931_69358",
+        "lyph_50010931_69358_50010931_69360",
+        "lyph_50010931_69360_50010931_69361",
+        "lyph_50010931_69361_50010931_69363",
+        "lyph_50010931_69363_50010931_69364",
+        "lyph_50010931_69364_50010931_69339",
+        "lyph_50010931_69339_50010931_69338",
+        "lyph_50010931_69338_50010931_69366",
+        "lyph_50010931_69366_50010931_69367",
+        "lyph_50010931_69367_50010931_69369",
+        "lyph_50010931_69369_50010931_69370",
+        "lyph_50010931_69370_50010931_69372",
+        "lyph_50010931_69372_50010931_69373",
+        "lyph_50010931_69373_50010931_69375",
+        "lyph_50010931_69375_50010931_69376",
+        "lyph_50010931_69376_50010931_66484",
+        "lyph_50010931_66484_50010931_66485",
+        "lyph_50010931_66485_50010931_100000177",
+        "lyph_50010931_100000177_50010931_66358",
+        "lyph_50010931_66358_50010931_50011587",
+        "lyph_50010931_50011587_50010931_50013282",
+        "lyph_50010931_50013282_50010931_66363",
+        "lyph_50010931_66363_50010931_66364"
+      ]
+    },
+    {
+      "id": "chain_100000226_66669_100000226_66670",
+      "name": "Chain Inferior vena cava -> Left common iliac vein",
+      "lyphs": [
+        "lyph_7096_7096_100000226",
+        "lyph_7096_100000226_100000226",
+        "lyph_100000226_100000226_66736",
+        "lyph_100000226_66736_100000226_82678",
+        "lyph_100000226_82678_100000226_82680",
+        "lyph_100000226_82680_100000226_82679",
+        "lyph_100000226_82679_100000226_68067",
+        "lyph_100000226_68067_100000226_66663",
+        "lyph_100000226_66663_100000226_66664",
+        "lyph_100000226_66664_100000226_66724",
+        "lyph_100000226_66724_100000226_100000230",
+        "lyph_100000226_100000230_100000226_100000229",
+        "lyph_100000226_100000229_100000226_100000228",
+        "lyph_100000226_100000228_100000226_100000227",
+        "lyph_100000226_100000227_100000226_66669",
+        "lyph_100000226_66669_100000226_66670"
+      ]
+    }
+  ]
+}

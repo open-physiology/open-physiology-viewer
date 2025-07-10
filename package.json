@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "mochapack --opts mocha-webpack.opts --timeout 50000 test/**/*.spec.js",
-    "build": "cross-env BABEL_ENV=production webpack",
+    "build": "node src/version/update-version.js && cross-env BABEL_ENV=production webpack",
     "watch": "webpack --progress --watch",
     "dev-server": "webpack-dev-server --open --hot --config webpack.config-dev.js",
     "esdoc": "./node_modules/.bin/esdoc",
@@ -85,6 +85,7 @@
     "@types/three": "^0.89.12",
     "ace-builds": "1.4.12",
     "angular2-hotkeys": "^13.1.0",
+    "animejs": "^4.0.2",
     "d3": "^5.9.2",
     "d3-drag": "^2.0.0",
     "d3-force-3d": "^1.1.2",

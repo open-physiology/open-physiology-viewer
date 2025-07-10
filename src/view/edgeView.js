@@ -114,26 +114,24 @@ Link.prototype.createViewObjects = function(state){
     this.createLabels();
 
     //Icon (lyph)
-    if (this.conveyingLyph) {
-        this.conveyingLyph.createViewObjects(state);
+    //this.conveyingLyph?.createViewObjects(state);
 
-        // Note: we do not make conveying lyphs children of links to include them to the scene
-        // because we want to have them in the main scene for highlighting
-        this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
-        this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+    // Note: we do not make conveying lyphs children of links to include them to the scene
+    // because we want to have them in the main scene for highlighting
+    // this.viewObjects['icon']      = this.conveyingLyph.viewObjects['main'];
+    // this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 
-        //TODO create Process resource?
-        // if (this.conveyingType){
-        //     // Draw process edge - line between lyph points p0, p1
-        //     let edgeMaterial = MaterialFactory.createLineBasicMaterial({
-        //         color: this.conveyingType === (PROCESS_TYPE.ADVECTIVE)? "#CCC": "#000",
-        //         polygonOffsetFactor: this.polygonOffsetFactor
-        //     });
-        //     let edgeGeometry = new THREE.BufferGeometry();
-        //     edgeGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
-        //     this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
-        // }
-    }
+    //TODO create Process resource?
+    // if (this.conveyingType){
+    //     // Draw process edge - line between lyph points p0, p1
+    //     let edgeMaterial = MaterialFactory.createLineBasicMaterial({
+    //         color: this.conveyingType === (PROCESS_TYPE.ADVECTIVE)? "#CCC": "#000",
+    //         polygonOffsetFactor: this.polygonOffsetFactor
+    //     });
+    //     let edgeGeometry = new THREE.BufferGeometry();
+    //     edgeGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(2 * 3), 3));
+    //     this.viewObjects["edge"] = new SpriteText2D("X", state.fontParams);
+    // }
 };
 
 Link.prototype.getCurve = function(start, end){
@@ -192,16 +190,16 @@ Link.prototype.updateViewObjects = function(state) {
 
     this.updateLabels( this.center.clone().addScalar(this.state.labelOffset.Edge));
 
-    if (this.conveyingLyph){
-        this.conveyingLyph.updateViewObjects(state);
-        this.viewObjects['icon']      = this.conveyingLyph.viewObjects["main"];
-        this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
+    // Lyphs are now created on first update - to have a correct size for wired/anchored chains
+    this.conveyingLyph?.updateViewObjects(state);
+    this.viewObjects['icon']      = this.conveyingLyph?.viewObjects["main"];
+    this.viewObjects['iconLabel'] = this.conveyingLyph?.viewObjects["label"];
 
-        let edgeObj = this.viewObjects["edge"];
-        if (edgeObj){
-            copyCoords(edgeObj.position, this.conveyingLyph.center);
-        }
-    }
+    // let edgeObj = this.viewObjects["edge"];
+    // if (edgeObj){
+    //     copyCoords(edgeObj.position, this.conveyingLyph.center);
+    // }
+
 
     //Update buffered geometries
     //Do not update links with fixed node positions

@@ -43,7 +43,6 @@ export class Coalescence extends Resource {
                 //TODO find derived lyph instances recursively?
                 //TODO do not define coalescences for layers of abstract lyphs?
                 lyphMap[lyphOrMat.id] = lyphOrMat.subtypes || [];
-                // let subtypes = findAllDerived(lyphOrMat.id,)
             } else {
                 if (lyphOrMat.class === $SchemaClass.Material) {
                     lyphMap[lyphOrMat.id] = (inputModel.lyphs || []).filter(e => e.generatedFrom === lyphOrMat);
@@ -53,7 +52,9 @@ export class Coalescence extends Resource {
         if (lyphMap::keys().length > 0) {
             //coalescence was defined on abstract lyphs - generate coalescence instances
             this.lyphs.forEach(lyph => {
-                lyphMap[lyph.id] = lyphMap[lyph.id] || [lyph];
+                if (!(lyph.id in lyphMap)) {
+                    lyphMap[lyph.id] = [lyph];
+                }
             });
 
             let lyphInstances = lyphMap::values();

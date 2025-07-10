@@ -10,16 +10,17 @@ import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
-import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
+import {LogInfoModule, LogInfoDialog} from "./dialogs/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {$Field, $SchemaClass} from "../model";
-import {QuerySelectModule, QuerySelectDialog} from "./gui/querySelectDialog";
+import {QuerySelectModule, QuerySelectDialog} from "./dialogs/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
 import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
+import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
 
 const WindowResize = require('three-window-resize');
 
@@ -458,11 +459,11 @@ export class WebGLSceneComponent {
     }
 
     processQuery(){
-        let config = {
+        const config = {
             parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
             baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
         };
-        let dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
+        const dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
         dialogRef.afterClosed().subscribe(result => {
             if (result && result.response){
                 this.queryCounter++;
@@ -786,6 +787,14 @@ export class WebGLSceneComponent {
 
     onDblClick() {
         this.selected = this.getMouseOverEntity();
+        if (this.selected?.representsCoalescence){
+            //Show coalescence dialog
+            const dialogRef = this.dialog.open(CoalescenceDialog, {
+                width: '50%', height: '40%', data: {
+                    coalescence: this.selected.representsCoalescence
+                }
+            });
+        }
     }
 
     createEventListeners() {
@@ -898,7 +907,7 @@ export class WebGLSceneComponent {
 @NgModule({
     imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
-    entryComponents: [LogInfoDialog, QuerySelectDialog],
+    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

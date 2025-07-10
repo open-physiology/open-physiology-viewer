@@ -30,20 +30,6 @@ import {References} from "../utils/references";
         <section #chainEditor id="chainEditor" class="w3-row w3-padding-16">
             <section #chainView id="chainView" [class.w3-threequarter]="showPanel">
                 <section class="w3-col">
-                    <!-- Chain list-->
-                    <!--                    <resourceListView-->
-                    <!--                            title="Chains"-->
-                    <!--                            expectedClass="Chain"-->
-                    <!--                            [listData]="chainList"-->
-                    <!--                            [selectedNode]="selectedNode"-->
-                    <!--                            [linkedNode]="chainToLink"-->
-                    <!--                            [showColor]=true-->
-                    <!--                            (onNodeClick)="selectChain($event)"-->
-                    <!--                            (onChange)="processChainChange($event)"-->
-                    <!--                            (onColorUpdate)="updateColor($event)"-->
-                    <!--                    >-->
-                    <!--                    </resourceListView>-->
-
                     <resourceTreeView
                             listTitle="Chains"
                             [active]=true
@@ -288,7 +274,7 @@ export class ChainEditorComponent extends ResourceEditor {
         super(snackBar, dialog);
     }
 
-    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex'];
+    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex', '_cloning'];
 
     _extraLyphActions = [
         {
@@ -344,7 +330,7 @@ export class ChainEditorComponent extends ResourceEditor {
         });
 
         this.updateSearchOptions();
-        this.updateWireOptions();
+        this.updateScaffoldSearchOptions();
         this.updateView((this._model?.chains || [])[0]);
         this.saveStep('Initial model');
     };
@@ -618,17 +604,12 @@ export class ChainEditorComponent extends ResourceEditor {
         this.templateSearchOptions = SearchOptions.lyphTemplates(this._model);
     }
 
-    updateWireOptions() {
+    updateScaffoldSearchOptions() {
         this.wireOptions = [];
+        this.anchorOptions = [];
         (this._model?.scaffolds || []).forEach(scaffold => {
-            let nm = scaffold.namespace ? scaffold.namespace + ":" : "";
-            (scaffold.wires || []).forEach(e => {
-                this.wireOptions.push({
-                    id: nm + e.id,
-                    label: (e.name || '?') + ' (' + nm + e.id + ')',
-                    type: $SchemaClass.Wire
-                });
-            })
+            SearchOptions.wires(scaffold, this.wireOptions);
+            SearchOptions.anchors(scaffold, this.anchorOptions);
         });
     }
 
@@ -867,6 +848,9 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
+    /*
+    Connects a chain to lyph by assigning the auto-generated target node to the chain as root or leaf
+    */
     connectChain(prop, node) {
         if (!this.chainToLink) {
             this.showWarning("Chain to link is not selected!");

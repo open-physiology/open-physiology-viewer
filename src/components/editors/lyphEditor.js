@@ -484,16 +484,7 @@ export class LyphEditorComponent extends ResourceEditor {
      */
     updateRegionOptions() {
         this.regionOptions = [];
-        (this._model?.scaffolds || []).forEach(scaffold => {
-            let nm = scaffold.namespace ? scaffold.namespace + ":" : "";
-            (scaffold.regions || []).forEach(e => {
-                this.regionOptions.push({
-                    id: nm + e.id,
-                    label: (e.name || '?') + ' (' + nm + e.id + ')',
-                    type: $SchemaClass.Region
-                });
-            })
-        });
+        (this._model?.scaffolds || []).forEach(scaffold => SearchOptions.regions(scaffold, this.regionOptions));
     }
 
     /**

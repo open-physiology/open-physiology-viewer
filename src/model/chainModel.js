@@ -38,6 +38,8 @@ import {defaults, isObject, flatten, isString, values, merge, clone} from 'lodas
  * @property {Object} housingRange
  * @property housingLayers
  * @property {Wire} wiredTo
+ * @property {number} wireStart
+ * @property {number} wireEnd
  * @property {boolean} startFromLeaf
  * @property {Shape} hostedBy
  * @property {Node} root
@@ -180,6 +182,7 @@ export class Chain extends GroupTemplate {
                         chain.levels[i] = {
                             [$Field.id]: chain.levels[i]
                         };
+                        mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
                     }
                 } else {
                     chain.levels[i] = {};
@@ -511,7 +514,6 @@ export class Chain extends GroupTemplate {
         }
 
         let N = Math.min(chain.housingLyphs.length, chain.levels.length);
-        parentGroup.coalescences = parentGroup.coalescences || [];
 
         for (let i = 0; i < N; i++) {
             let housingLyph = refToResource(chain.housingLyphs[i], parentGroup, $Field.lyphs);
@@ -592,6 +594,7 @@ export class Chain extends GroupTemplate {
                     [$Field.topology]: Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING,
                     [$Field.lyphs]: [housingLyph.fullID, level.conveyingLyph]
                 }, "chainModel.embedToHousingLyphs (Coalescence)");
+                parentGroup.coalescences = parentGroup.coalescences || [];
                 parentGroup.coalescences.push(lyphCoalescence);
             } else {
                 logger.warn($LogMsg.CHAIN_NO_COALESCENCE, housingLyph.fullID, level.id);

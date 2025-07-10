@@ -187,7 +187,7 @@ export class Lyph extends Shape {
         }
 
         targetLyph::mergeWith(sourceLyph::pick([$Field.color, $Field.scale, $Field.height, $Field.width, $Field.length,
-            $Field.thickness, $Field.scale, $Field.description, $Field.create3d, $Field.namespace, $Field.topology,
+            $Field.thickness, $Field.description, $Field.create3d, $Field.namespace, $Field.topology,
             $Field.materials, $Field.channels, $Field.bundlesChains, $Field.internalLyphsInLayers
         ]), mergeResources);
         //If targetLyph is from different namespace, add namespace to default materials
@@ -454,7 +454,7 @@ export class Lyph extends Shape {
      * @returns {{height: number, width: number}}
      */
     get sizeFromAxis() {
-        const length = this.axis && this.axis.length || $Default.EDGE_LENGTH;
+        const length = this.axis?.length || $Default.EDGE_LENGTH;
         let res = {width: length, height: length};
         this.scale = this.scale || {
             [$Field.width] : 40,

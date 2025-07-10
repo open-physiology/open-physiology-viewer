@@ -9,6 +9,21 @@ export class SearchOptions {
         }));
     }
 
+    static wires(scaffold, searchOptions) {
+        let prefix = scaffold.namespace ? scaffold.namespace + ":" : "";
+        this.addOptions(scaffold.wires, searchOptions, $SchemaClass.Wire, prefix);
+    }
+
+    static anchors(scaffold, searchOptions) {
+        let prefix = scaffold.namespace ? scaffold.namespace + ":" : "";
+        this.addOptions(scaffold.anchors, searchOptions, $SchemaClass.Anchor, prefix);
+    }
+
+    static regions(scaffold, searchOptions) {
+        let prefix = scaffold.namespace ? scaffold.namespace + ":" : "";
+        this.addOptions(scaffold.regions, searchOptions, $SchemaClass.Region, prefix);
+    }
+
     /**
      * Returns a list of lyph and material names joint with identifiers for search boxes in the GUI components
      * @param model

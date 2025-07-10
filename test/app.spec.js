@@ -21,12 +21,12 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
-import {LogInfoModule} from "../src/components/gui/logInfoDialog";
+import {LogInfoModule} from "../src/components/dialogs/logInfoDialog";
 import {SettingsPanelModule} from "../src/components/settingsPanel";
 //import {WebGLSceneComponent} from "../src/components/webGLScene";
 
-import {MainToolbar} from "../src/components/mainToolbar";
-import {ImportExcelModelDialog} from "../src/components/gui/importExcelModelDialog";
+import {MainToolbar} from "../src/components/toolbars/mainToolbar";
+import {ImportExcelModelDialog} from "../src/components/dialogs/importExcelModelDialog";
 import {HttpClientModule} from "@angular/common/http";
 import {HotkeyModule, HotkeysCheatsheetComponent} from 'angular2-hotkeys';
 

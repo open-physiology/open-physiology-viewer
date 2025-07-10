@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter, Input, NgModule, ChangeDetectionStrategy} from '@angular/core';
 
-import {loadModel} from '../model';
-import {ImportExcelModelDialog} from "./gui/importExcelModelDialog";
+import {loadModel} from '../../model';
+import {ImportExcelModelDialog} from "../dialogs/importExcelModelDialog";
 import {MatDialog,MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';

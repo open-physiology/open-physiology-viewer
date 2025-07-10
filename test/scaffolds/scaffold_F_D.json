@@ -1,0 +1,289 @@
+{
+  "anchors": [
+    {
+      "id": "Fc",
+      "name": "Fc",
+      "layout": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "green"
+    },
+    {
+      "id": "Fr",
+      "name": "Fr",
+      "color": "green",
+      "hostedBy": "w-outer-ring",
+      "offset": 0
+    },
+    {
+      "id": "Fgo",
+      "name": "Fgo",
+      "color": "green",
+      "hostedBy": "w-outer-ring",
+      "offset": 0.25
+    },
+    {
+      "id": "Fo",
+      "name": "Fo",
+      "color": "green",
+      "hostedBy": "w-outer-ring",
+      "offset": 0.5
+    },
+    {
+      "id": "Fdo",
+      "name": "Fdo",
+      "color": "green",
+      "hostedBy": "w-outer-ring",
+      "offset": 0.75
+    },
+    {
+      "id": "Ds",
+      "name": "Ds",
+      "color": "grey",
+      "hostedBy": "w-inner-ring",
+      "offset": 0
+    },
+    {
+      "id": "Fgi",
+      "name": "Fgi",
+      "color": "grey",
+      "hostedBy": "w-inner-ring",
+      "offset": 0.25
+    },
+    {
+      "id": "Dp",
+      "name": "Dp",
+      "color": "grey",
+      "hostedBy": "w-inner-ring",
+      "offset": 0.5
+    },
+    {
+      "id": "Fdi",
+      "name": "Fdi",
+      "color": "grey",
+      "hostedBy": "w-inner-ring",
+      "offset": 0.75
+    },
+    {
+      "id": "aV",
+      "name": "Vascular anchor",
+      "color": "purple",
+      "layout": {
+        "x": 30,
+        "y": 30
+      }
+    },
+    {
+      "id": "aW",
+      "name": "WBKG anchor",
+      "color": "red",
+      "layout": {
+        "x": 30,
+        "y": -30
+      }
+    },
+    {
+      "id": "sV",
+      "layout": {
+        "x": -60,
+        "y": 6
+      },
+      "invisible": true
+    },
+    {
+      "id": "tV",
+      "layout": {
+        "x": -10,
+        "y": 6
+      },
+      "invisible": true
+    },
+    {
+      "id": "sW",
+      "layout": {
+        "x": -60,
+        "y": -6
+      },
+      "invisible": true
+    },
+    {
+      "id": "tW",
+      "layout": {
+        "x": -10,
+        "y": -6
+      },
+      "invisible": true
+    },
+    {
+      "id": "U",
+      "name": "Urethral meatus",
+      "color": "#006400",
+      "hostedBy": "w-outer-ring",
+      "offset": -0.4
+    },
+    {
+      "id": "f3K",
+      "name": "Bowman's capsule end of urinary tract",
+      "hostedBy": "w-inner-ring",
+      "offset": -0.4
+    }
+  ],
+  "wires": [
+    {
+      "id": "w-outer-ring",
+      "geometry": "ellipse",
+      "arcCenter": "Fc",
+      "radius": {
+        "x": 90,
+        "y": 70
+      },
+      "stroke": "thick"
+    },
+    {
+      "id": "w-inner-ring",
+      "geometry": "ellipse",
+      "arcCenter": "N",
+      "radius": {
+        "x": 80,
+        "y": 60
+      },
+      "stroke": "dashed"
+    },
+    {
+      "id": "w-Fr-Fo",
+      "source": "Fr",
+      "target": "Fo",
+      "stroke": "dashed"
+    },
+    {
+      "id": "w-Fgo-Fdo",
+      "source": "Fgo",
+      "target": "Fdo",
+      "stroke": "dashed"
+    },
+    {
+      "id": "w-V-rail",
+      "source": "sV",
+      "target": "tV",
+      "geometry": "invisible"
+    },
+    {
+      "id": "w-W-rail",
+      "source": "sW",
+      "target": "tW",
+      "geometry": "invisible"
+    },
+    {
+      "id": "w-U-f3K",
+      "name": "Urinary Tract",
+      "source": "U",
+      "target": "f3K",
+      "geometry": "spline",
+      "color": "#006400",
+      "ontologyTerms": [
+        "UBERON:0001556",
+        "UBERON:0011143"
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "id": "rV",
+      "name": "Vascular",
+      "color": "purple",
+      "points": [
+        {
+          "x": -60,
+          "y": 5
+        },
+        {
+          "x": -60,
+          "y": 7
+        },
+        {
+          "x": -10,
+          "y": 7
+        },
+        {
+          "x": -10,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "rW",
+      "name": "WBKG",
+      "color": "red",
+      "points": [
+        {
+          "x": -60,
+          "y": -7
+        },
+        {
+          "x": -60,
+          "y": -5
+        },
+        {
+          "x": -10,
+          "y": -5
+        },
+        {
+          "x": -10,
+          "y": -7
+        }
+      ]
+    },
+    {
+      "id": "rVr",
+      "name": "Vascular right",
+      "color": "purple",
+      "points": [
+        {
+          "x": 50,
+          "y": 5
+        },
+        {
+          "x": 50,
+          "y": 7
+        },
+        {
+          "x": 60,
+          "y": 7
+        },
+        {
+          "x": 60,
+          "y": 5
+        }
+      ]
+    },
+    {
+      "id": "rWr",
+      "name": "WBKG right",
+      "color": "red",
+      "points": [
+        {
+          "x": 50,
+          "y": -7
+        },
+        {
+          "x": 50,
+          "y": -5
+        },
+        {
+          "x": 60,
+          "y": -5
+        },
+        {
+          "x": 60,
+          "y": -7
+        }
+      ]
+    }
+  ],
+  "id": "fd-map",
+  "name": "Vascular model scaffold",
+  "author": "B. de Bono, N. Kokash",
+  "namespace": "fd",
+  "description": "Scaffold for vascular model"
+}

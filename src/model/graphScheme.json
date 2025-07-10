@@ -436,6 +436,16 @@
           "description": "When set to true, it connects chain's root to wire's target and its leaf to the wire's source",
           "type": "boolean"
         },
+        "wireStart": {
+          "description": "Level index from which the chain starts following the wire in a graphical layout",
+          "type": "number",
+          "default": 0
+        },
+        "wireEnd": {
+          "description": "Level index the chain ends following the wire in a graphical layout. Negative numbers point to the level index from the chain's end.",
+          "type": "number",
+          "default": 0
+        },
         "hostedBy": {
           "description": "ID or reference of the lyph which this lyph must be projected to",
           "anyOf": [
@@ -949,6 +959,19 @@
       "description": "The ApiNATOMY connectivity model is a complex graph that combines semantic resources and visual annotations. The graph nodes are arranged by the force-directed graph layout that respects constrains on relative positioning of the model elements, specified in the input data by the modeller.",
       "$ref": "#/definitions/Group",
       "properties": {
+      }
+    },
+    "Group": {
+      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Resource"
+        },
+        {
+          "$ref": "#/definitions/AnnotationSchema"
+        }
+      ],
+      "properties": {
         "abbrev": {
           "description": "Short graph identifier for the use in rdfs:labels",
           "$ref": "#/definitions/IdentifierScheme"
@@ -976,20 +999,7 @@
         "variance": {
           "description": "Variance for which model was generated",
           "$ref": "#/definitions/VarianceSpec"
-        }
-      }
-    },
-    "Group": {
-      "description": "An ApiNATOMY model consists of an extended graph with nested subgraphs, called also groups, which define the structural composition of human body organs and/or subsystems, with related measurements and annotations.",
-      "allOf": [
-        {
-          "$ref": "#/definitions/Resource"
         },
-        {
-          "$ref": "#/definitions/AnnotationSchema"
-        }
-      ],
-      "properties": {
         "inactive": {
           "description": "A boolean flag to indicate that this group should not appear in the view panel",
           "type": "boolean"
@@ -1163,8 +1173,7 @@
                 "$ref": "#/definitions/Group"
               }
             ]
-          },
-          "default": []
+          }
         },
         "scaffolds": {
           "description": "Layout scaffolds that define connectivity graph layout",
@@ -1253,6 +1262,10 @@
         "length": {
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
           "type": "number"
+        },
+        "fixed": {
+          "description": "A flag that excludes the path length from rescaling (currently not respected by the viewer)",
+          "type": "boolean"
         },
         "conveyingType": {
           "description": "Process type associated with links in the group derived from the template",
@@ -1903,8 +1916,7 @@
               }
             ]
           },
-          "relatedTo": "lyphs",
-          "default": []
+          "relatedTo": "lyphs"
         },
         "inChains": {
           "description": "Shows chains in which the given lyph is used as level",
@@ -2208,6 +2220,18 @@
             }
           ],
           "relatedTo": "anchoredNode"
+        },
+        "representsCoalescence": {
+          "description": "This node represents a coalescence",
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Coalescence"
+              }
+            ],
+            "readOnly": true
         }
       }
     },
@@ -2811,7 +2835,7 @@
         "offset": {
           "description": "Defines position of the vertice on its host edge, i.e, fraction of the edge's length starting from the source vertice.",
           "type": "number",
-          "minimum": 0,
+          "minimum": -1,
           "maximum": 1
         }
       }

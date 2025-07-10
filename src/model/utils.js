@@ -93,7 +93,8 @@ export const $Color = {
     Link: "#000",
     Node: "#000",
     Region: "#c0c0c0",
-    InternalNode: "#ccc"
+    InternalNode: "#ccc",
+    Coalescence: "#ff8844"
 };
 
 export const $Prefix = {
@@ -116,7 +117,7 @@ export const $Prefix = {
     material: "mat",    //from material reference
     clone: "clone",  //node clone
     join: "join",   //joint node
-    anchor: "p",      //anchor point
+    anchor: "a",    //anchor point
     wire: "wire",   //wire
     query: "query",  //dynamic query
     default: "default", //default group ID

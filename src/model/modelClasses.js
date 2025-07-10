@@ -101,7 +101,7 @@ export function loadModel(content, name, extension, isBinary = true){
             }
         }
     }
-    newModel[$Field.name] = newModel[$Field.name] || name;
+    newModel.name = newModel.name || name;
     return newModel;
 }
 

@@ -57,5 +57,11 @@ export class MaterialFactory {
         p.color = colorStr2Hex(p.color);
         return new THREE.MeshLambertMaterial(p);
     }
+
+    static createPointMaterial(params = {}){
+        let p   = defaultParams::clone()::merge(params);
+        p.color = colorStr2Hex(p.color);
+        return new THREE.PointsMaterial(p);
+    }
 }
 

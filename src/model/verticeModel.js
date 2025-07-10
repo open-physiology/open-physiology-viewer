@@ -16,7 +16,7 @@ import {
 import {keys, merge, pick, isString, isArray, flatten} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
 
-export class Vertice extends VisualResource{
+export class Vertice extends VisualResource {
     /**
      * Determines whether the anchor's position is constrained in the model
      */
@@ -34,11 +34,12 @@ export class Vertice extends VisualResource{
 export class Anchor extends Vertice {
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-          json.class = json.class || $SchemaClass.Anchor;
-          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+        json.class = json.class || $SchemaClass.Anchor;
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
-    includeRelated(group){}
+    includeRelated(group) {
+    }
 }
 
 /**
@@ -64,16 +65,19 @@ export class Anchor extends Vertice {
  * @property {Anchor} anchoredTo
  * @property {Chain} rootOf
  * @property {Chain} leafOf
+ * @property {Coalescence} representsCoalescence
  */
 export class Node extends Vertice {
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
-          json.class = json.class || $SchemaClass.Node;
-          return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+        json.class = json.class || $SchemaClass.Node;
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
-    static clone(sourceNode, targetNode){
-        if (!sourceNode) { return; }
+    static clone(sourceNode, targetNode) {
+        if (!sourceNode) {
+            return;
+        }
         //One node can be cloned multiple times, hence we add a counter to it's generated ID
         sourceNode.clones = sourceNode.clones || [];
         let ext = sourceNode.clones.length;
@@ -99,27 +103,29 @@ export class Node extends Vertice {
      * @param parentGroup
      * @param modelClasses
      */
-    static replicateBorderNodes(parentGroup, modelClasses){
+    static replicateBorderNodes(parentGroup, modelClasses) {
         let borderNodesByID = {};
         //NK TODO housing lyphs can be from other groups/namespaces?
-        (parentGroup.lyphs||[]).forEach(lyph => {
+        (parentGroup.lyphs || []).forEach(lyph => {
             if (lyph.border && lyph.border.borders) {
                 lyph.border.borders.forEach(b =>
                     this.addLyphToHostMap(lyph, b.hostedNodes, borderNodesByID, parentGroup.namespace))
             }
         });
 
-        const nodeOnBorder = (node, lyphID) => (borderNodesByID[getID(node)]||[]).find(e => e.id === lyphID);
+        const nodeOnBorder = (node, lyphID) => (borderNodesByID[getID(node)] || []).find(e => e.id === lyphID);
 
         borderNodesByID::keys().forEach(nodeFullID => {
             let hostLyphs = borderNodesByID[nodeFullID];
 
-            if (hostLyphs.length > 1){
+            if (hostLyphs.length > 1) {
                 const nodeID = getRefID(nodeFullID);
-                let node  = refToResource(nodeFullID, parentGroup, $Field.nodes, true);
+                let node = refToResource(nodeFullID, parentGroup, $Field.nodes, true);
                 let prev = node;
                 hostLyphs.forEach((hostLyph, i) => {
-                    if (i < 1) { return; }
+                    if (i < 1) {
+                        return;
+                    }
                     let nodeClone = genResource({
                         [$Field.id]: getGenID(nodeID, $Prefix.clone, i),
                         [$Field.skipLabel]: true,
@@ -128,16 +134,16 @@ export class Node extends Vertice {
                     modelClasses.Node.clone(node, nodeClone);
                     mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
 
-                    let targetOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
-                    let sourceOfLinks = (parentGroup.links||[]).filter(e => getRefID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
+                    let targetOfLinks = (parentGroup.links || []).filter(e => getRefID(e.target) === nodeID && nodeOnBorder(e.source, hostLyph.id));
+                    let sourceOfLinks = (parentGroup.links || []).filter(e => getRefID(e.source) === nodeID && nodeOnBorder(e.target, hostLyph.id));
                     //These arrays may miss links from other namespaces, try to discover them in another way
-                    (hostLyph.bundles||[]).forEach(lnkRef => {
+                    (hostLyph.bundles || []).forEach(lnkRef => {
                         let lnk = refToResource(lnkRef, parentGroup, $Field.links);
-                        if (lnk){
-                            if (lnk.source === nodeID && !findResourceByID(sourceOfLinks, lnk.id)){
+                        if (lnk) {
+                            if (lnk.source === nodeID && !findResourceByID(sourceOfLinks, lnk.id)) {
                                 sourceOfLinks.push(lnk);
                             }
-                            if (lnk.target === nodeID && !findResourceByID(targetOfLinks, lnk.id)){
+                            if (lnk.target === nodeID && !findResourceByID(targetOfLinks, lnk.id)) {
                                 targetOfLinks.push(lnk);
                             }
                         }
@@ -148,7 +154,7 @@ export class Node extends Vertice {
 
                     hostLyphs[i].border.borders.forEach(b => {
                         let k = findIndex(b.hostedNodes, nodeFullID, parentGroup.namespace);
-                        if (k > -1){
+                        if (k > -1) {
                             b.hostedNodes[k] = nodeClone.fullID;
                         }
                     });
@@ -160,13 +166,13 @@ export class Node extends Vertice {
         });
     }
 
-    static replicateInternalNodes(parentGroup, modelClasses){
+    static replicateInternalNodes(parentGroup, modelClasses) {
         let internalNodesByID = {};
-        (parentGroup.lyphs||[]).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID, parentGroup.namespace));
+        (parentGroup.lyphs || []).forEach(lyph => this.addLyphToHostMap(lyph, lyph.internalNodes, internalNodesByID, parentGroup.namespace));
 
         internalNodesByID::keys().forEach(nodeFullID => {
             let hostLyphs = internalNodesByID[nodeFullID];
-            if (hostLyphs.length > 1){
+            if (hostLyphs.length > 1) {
                 const nodeID = getRefID(nodeFullID);
                 let node = refToResource(nodeFullID, parentGroup, $Field.nodes, true);
                 if (node.generated) {
@@ -179,15 +185,15 @@ export class Node extends Vertice {
 
                 hostLyphs.forEach((hostLyph, i) => {
                     let nodeClone = genResource({
-                        [$Field.id]        : getGenID(nodeID, $Prefix.join, i),
-                        [$Field.hidden]    : true,
-                        [$Field.skipLabel] : true
+                        [$Field.id]: getGenID(nodeID, $Prefix.join, i),
+                        [$Field.hidden]: true,
+                        [$Field.skipLabel]: true
                     }, "verticeModel.replicateInternalNodes (Node)");
                     modelClasses.Node.clone(node, nodeClone);
                     mergeGenResource(undefined, parentGroup, nodeClone, $Field.nodes);
 
                     let k = findIndex(hostLyph.internalNodes, nodeFullID, parentGroup.namespace);
-                    if (k > -1){
+                    if (k > -1) {
                         hostLyph.internalNodes[k] = nodeClone.fullID;
                     }
 
@@ -195,17 +201,17 @@ export class Node extends Vertice {
                     let sourceOfLinks = [];
                     //Note: this method won't rewire links with ends internal in several lyphs if they are not endBundled
                     //Property 'endBundles' is set for chain levels if the chain is housed
-                    (hostLyph.endBundles||[]).forEach(lnkRef => {
+                    (hostLyph.endBundles || []).forEach(lnkRef => {
                         let lnk = refToResource(lnkRef, parentGroup, $Field.links);
-                        if (lnk){
-                            if (lnk.source === nodeID){
+                        if (lnk) {
+                            if (lnk.source === nodeID) {
                                 sourceOfLinks.push(lnk);
                             }
-                            if (lnk.target === nodeID){
+                            if (lnk.target === nodeID) {
                                 targetOfLinks.push(lnk);
                             }
                         } else {
-                             logger.warn($LogMsg.LINK_REF_NOT_FOUND, lnkRef, parentGroup.id);
+                            logger.warn($LogMsg.LINK_REF_NOT_FOUND, lnkRef, parentGroup.id);
                         }
                     });
 
@@ -223,7 +229,7 @@ export class Node extends Vertice {
 
                     //Reset rootOf and leafOf and include generated node into relevant chain groups
                     const fixNodeChainRels = (chains, prop) => {
-                        if (chains.length > 0){
+                        if (chains.length > 0) {
                             nodeClone[prop] = chains;
                             if (node[prop]) {
                                 node[prop] = node[prop].filter(e => !chains.includes(e));
@@ -253,7 +259,7 @@ export class Node extends Vertice {
                     mergeGenResource(undefined, parentGroup, lnk, $Field.links);
                 });
 
-                if (allSourceLinks.length > 0){
+                if (allSourceLinks.length > 0) {
                     allTargetLinks.forEach(lnk => lnk.nextChainStartLevels = allSourceLinks.map(x => x.id));
                 }
                 if (allTargetLinks.length > 0) {
@@ -276,13 +282,13 @@ export class Node extends Vertice {
      * @param namespace
      * @returns {Object} Updated resource map
      */
-    static addLyphToHostMap(hostLyph, nodes, resMap, namespace){
-        if (nodes && !nodes::isArray()){
+    static addLyphToHostMap(hostLyph, nodes, resMap, namespace) {
+        if (nodes && !nodes::isArray()) {
             logger.warn($LogMsg.RESOURCE_ARRAY_EXPECTED, hostLyph.id,
                 $Field.hostedNodes + " or " + $Field.internalNodes, nodes);
             return;
         }
-        (nodes||[]).forEach(e => {
+        (nodes || []).forEach(e => {
             let nodeFullID = getFullID(getRefNamespace(e, namespace), e);
             if (!nodeFullID || !nodeFullID::isString()) {
                 logger.warn($LogMsg.RESOURCE_NO_ID, nodeFullID);
@@ -296,11 +302,11 @@ export class Node extends Vertice {
         return resMap;
     }
 
-    includeRelated(group){
-        (this.clones||[]).forEach(clone => {
-            let spacerLinks = (clone.sourceOf||[]).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
+    includeRelated(group) {
+        (this.clones || []).forEach(clone => {
+            let spacerLinks = (clone.sourceOf || []).concat(clone.targetOf).filter(lnk => lnk && lnk.collapsible);
             spacerLinks.forEach(lnk => !group.contains(lnk) && group.links.push(lnk));
-            if (spacerLinks.length > 0 && !group.contains(clone)){
+            if (spacerLinks.length > 0 && !group.contains(clone)) {
                 group.nodes.push(clone);
             }
             if (clone.hostedBy) {

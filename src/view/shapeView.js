@@ -136,7 +136,7 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
     if (this.viewObjects["2d"]) {
         this.viewObjects["2d"].material.visible = isVisible;
         let children = this.viewObjects["2d"].children;
-        if (children && children.length > 0){
+        if (children?.length > 0){
             children[0].material.visible = isVisible;
         }
     }
@@ -169,13 +169,13 @@ Lyph.prototype.createViewObjects = function(state) {
     }
     Shape.prototype.createViewObjects.call(this, state);
 
-    for (let i = 1; i < (this.layers || []).length; i++) {
-        this.layers[i].prev = this.layers[i - 1];
-        this.layers[i].prev.next = this.layers[i];
-    }
 
     //Create a lyph object
     if (!this.viewObjects["2d"]) {
+        for (let i = 1; i < (this.layers || []).length; i++) {
+            this.layers[i].prev = this.layers[i - 1];
+            this.layers[i].prev.next = this.layers[i];
+        }
         //Either use given dimensions or compute based on axis length
         this.updateSize();
         let params = {
@@ -250,6 +250,7 @@ Lyph.prototype.createViewObjects = function(state) {
             }
         });
     }
+
     //Do not create labels for layers and nested lyphs
     if (this.layerIn || this.internalIn) { return; }
     this.createLabels();
@@ -263,6 +264,8 @@ Lyph.prototype.updateViewObjects = function(state) {
     Shape.prototype.updateViewObjects.call(this, state);
 
     if (!this.axis) { return; }
+
+    this.createViewObjects(state);
 
     let obj = this.viewObjects["main"] = this.viewObjects["2d"];
 
@@ -292,9 +295,9 @@ Lyph.prototype.updateViewObjects = function(state) {
         //preventing this
         if (!obj.userData.hostedBy)
           align(this.axis, obj, this.axis.reversed);
-        // if (this.angle){
-        //     this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
-        // }
+        if (this.angle){
+            this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180); //TODO test
+        }
     } else {
         obj.visible = this.state.showLayers;
     }

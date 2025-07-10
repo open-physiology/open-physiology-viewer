@@ -16,8 +16,8 @@ Chain.prototype.update = function () {
     //Resize chain lyphs to match the estimated level length
     const resizeLevels = () => {
         let min = {
-            width: Number.MAX_VALUE,
-            height: Number.MAX_VALUE
+            width: 40,
+            height: 80
         };
         for (let i = 0; i < this.levels?.length; i++) {
             const lyph = this.levels[i].conveyingLyph;
@@ -30,8 +30,8 @@ Chain.prototype.update = function () {
                         [lyph.housingLyph.width, lyph.housingLyph.height] = lyph.housingLyph.sizeFromAxis::values();
                     }
                     this.levels[i].length =
-                          this.radial ? Math.min(this.levels[i].length, lyph.housingLyph.width)
-                        : this.levels[i].length = Math.min(this.levels[i].length, lyph.housingLyph.height);
+                        this.radial ? Math.min(this.levels[i].length, lyph.housingLyph.width)
+                            : this.levels[i].length = Math.min(this.levels[i].length, lyph.housingLyph.height);
                 }
                 [lyph.width, lyph.height] = lyph.sizeFromAxis::values();
                 min.width = Math.min(lyph.width, min.width);
@@ -47,8 +47,7 @@ Chain.prototype.update = function () {
         }
     }
 
-    resizeLevels();
-    if (!this.root || !this.leaf) {
+    if (!this.root || !this.leaf || !this.levels) {
         return;
     }
     // Update anchored or wired chain
@@ -65,27 +64,45 @@ Chain.prototype.update = function () {
         if (length < delta || (this.length && Math.abs(this.length - length) < delta)) {
             return;
         }
-        this.length = length;
-        copyCoords(this.root.layout, start);
-        this.root.fixed = true;
-        resizeLevels();
-        //Interpolate node positions for quicker layout of a chain with anchored nodes
-        if (this.levels) {
-            for (let i = 0; i < this.levels.length - 1; i++) {
-                let node = this.levels[i].target;
-                if (node && !node.anchoredTo) {
-                    let p = this.startFromLeaf ?
-                        getPoint(curve, end, start, (this.levels.length - i - 1) / this.levels.length)
-                        : getPoint(curve, start, end, (i + 1) / this.levels.length);
-                    copyCoords(node.layout, p);
-                    if (this.wiredTo) {
-                        node.fixed = true;
-                    }
-                }
+
+        let N = this.levels.length;
+
+        // Adjust to recognize wireStart and wireEnd properties
+        const from = this.wireStart ? this.wireStart : 0;
+        const to = this.wireEnd ? (this.wireEnd < 0 ? N + this.wireEnd : this.wireEnd) : N;
+        if (to - from === 0) {
+            return;
+        } else {
+            if (to - from < 0) {
+                this.startFromLeaf = true;
             }
         }
-        copyCoords(this.leaf.layout, end);
-        this.leaf.fixed = true;
+        //NK why excluding fixed links breaks the layout???
+        this.length = length * N / (to - from);
+
+        resizeLevels();
+
+        N = to - from;
+        let wiredRoot = from > 0 ? this.levels[from].source : this.root;
+        copyCoords(wiredRoot.layout, start);
+        wiredRoot.fixed = true;
+        //Interpolate node positions for quicker layout of a chain with anchored nodes
+        for (let i = from; i < to - 1; i++) {
+            let node = this.levels[i].target;
+            if (!node?.anchoredTo) {
+                let p = this.startFromLeaf ?
+                    getPoint(curve, end, start, (to - 1 - i) / N)
+                    : getPoint(curve, start, end, (i + 1) / N);
+                copyCoords(node.layout, p);
+                //Leave nodes unfixed if we want them to be stretched by the force-directed layout instead
+                node.fixed = true;
+            }
+        }
+        let wiredLeaf = to < N ? this.levels[to].target : this.leaf;
+        copyCoords(wiredLeaf.layout, end);
+        wiredLeaf.fixed = true;
+    } else {
+        resizeLevels();
     }
 }
 
@@ -145,8 +162,9 @@ Group.prototype.updateViewObjects = function (state) {
                 target: this.nodes.indexOf(edge.target)
             };
         }));
-    let res = fBundling();
-    (res || []).forEach(path => {
+    const paths = fBundling();
+
+    (paths || []).forEach(path => {
         let lnk = this.links.find(e => e.source.id === path[0].id && e.target.id === path[path.length - 1].id);
         if (lnk) {
             let dz = (path[path.length - 1].z - path[0].z) / path.length;
@@ -160,13 +178,9 @@ Group.prototype.updateViewObjects = function (state) {
     this.visibleLinks.forEach(link => link.updateViewObjects(state));
 
     (this.coalescences || []).forEach(coalescence => {
-        if (coalescence.abstract || !coalescence.lyphs) {
-            return
-        }
+        if (coalescence.abstract || !coalescence.lyphs) return;
         let lyph = coalescence.lyphs[0];
-        if (!lyph || lyph.isTemplate) {
-            return;
-        }
+        if (!lyph || lyph.isTemplate) return;
         for (let i = 1; i < coalescence.lyphs.length; i++) {
             let lyph2 = coalescence.lyphs[i];
             if (lyph2.isTemplate) {

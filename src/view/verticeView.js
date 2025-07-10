@@ -16,10 +16,10 @@ Vertice.prototype.createViewObjects = function (state) {
         const size = this.val * state.verticeRelSize;
         let obj;
         if (!this.generated) {
-            let material = new THREE.PointsMaterial({
+            let material = MaterialFactory.createPointMaterial({
                 color: this.color,
                 size: size
-              });
+            });
             //Nodes as spheres
             const geometry = new THREE.SphereGeometry(size, state.verticeResolution, state.verticeResolution);
             obj = new THREE.Mesh(geometry, material);
@@ -63,6 +63,7 @@ Node.prototype.createViewObjects = function (state) {
  * Update visual objects for a node
  */
 Node.prototype.updateViewObjects = function (state) {
+
     if (this.anchoredTo) {
         copyCoords(this, this.anchoredTo);
     } else {
@@ -76,8 +77,9 @@ Node.prototype.updateViewObjects = function (state) {
             copyCoords(this, getCenterOfMass(this.controlNodes));
         }
     }
+
     Vertice.prototype.updateViewObjects.call(this, state);
-};
+}
 
 Object.defineProperty(Node.prototype, "polygonOffsetFactor", {
     get: function () {

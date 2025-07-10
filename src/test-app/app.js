@@ -11,10 +11,11 @@ import {HttpClient} from '@angular/common/http';
 
 import FileSaver from 'file-saver';
 import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
+import {environment} from '../version/environment.js';
 
-import {MainToolbarModule} from "../components/mainToolbar";
-import {SnapshotToolbarModule} from "../components/snapshotToolbar";
-import {StateToolbarModule} from "../components/stateToolbar";
+import {MainToolbarModule} from "../components/toolbars/mainToolbar";
+import {SnapshotToolbarModule} from "../components/toolbars/snapshotToolbar";
+import {StateToolbarModule} from "../components/toolbars/stateToolbar";
 import {LayoutEditorModule} from "../components/layoutEditor";
 import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
@@ -46,7 +47,7 @@ import "@fortawesome/fontawesome-free/css/v4-shims.css";
 import {$Field, findResourceByID, getGenID, getGenName, mergeResources} from "../model/utils";
 import {$LogMsg, logger} from "../model/logger";
 import {MatSnackBar, MatSnackBarConfig, MatSnackBarModule} from "@angular/material/snack-bar";
-import {ImportDialog} from "../components/gui/importDialog";
+import {ImportDialog} from "../components/dialogs/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
 
@@ -55,8 +56,9 @@ import {MaterialEditorModule} from "../components/editors/materialEditor";
 import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
-import {HubMapModule} from "../components/editors/hubmapViewer";
+//import {HubMapModule} from "../components/editors/hubmapViewer";
 import config from "../data/config.json";
+import {layoutConfigs, layouts} from "../layouts/layouts";
 
 enableProdMode();
 
@@ -91,6 +93,7 @@ const TAB_INDEX = {
             <span class="w3-bar-item" title="Source code">
 				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"> </i></a>
 			</span>
+            <span *ngIf="version" class="w3-bar-item w3-right">{{version}}</span>
             <span class="w3-bar-item">
                 Model: {{_modelName}}
             </span>
@@ -114,8 +117,8 @@ const TAB_INDEX = {
                            (onHomeState)="homeState()"
             >
             </state-toolbar>
-            <span class="w3-bar-item w3-right" title="NIH-SPARC MAP-CORE Project">
-				<a href="https://projectreporter.nih.gov/project_info_description.cfm?aid=9538432">
+            <span class="w3-bar-item w3-right" title="ApiNATOMY">
+				<a href="https://apinatomy.net/">
 					<i class="fa fa-external-link"> </i>
 				</a>  
 			</span>
@@ -263,11 +266,11 @@ const TAB_INDEX = {
                 </mat-tab>
 
                 <!--HubMap Viewer-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #hubMapTab>
-                    <ng-template mat-tab-label><i class="fa fa-map"></i> HubMap Viewer</ng-template>
-                    <hubmapViewer>
-                    </hubmapViewer>
-                </mat-tab>
+<!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #hubMapTab>-->
+<!--                    <ng-template mat-tab-label><i class="fa fa-map"></i> HubMap Viewer</ng-template>-->
+<!--                    <hubmapViewer>-->
+<!--                    </hubmapViewer>-->
+<!--                </mat-tab>-->
 
             </mat-tab-group>
         </section>
@@ -350,6 +353,8 @@ export class TestApp {
     @ViewChild('jsonEditor') _container: ElementRef;
     @ViewChild('tabGroup') _tabGroup: ElementRef;
 
+    version = environment.version;
+
     constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
         this._dialog = dialog;
         this._flattenGroups = false;
@@ -361,11 +366,11 @@ export class TestApp {
         };
 
         // Uncomment to load a default test model (WBKG) instead of an empty new model
-        // this.model = defaultTestModel;
-        this.create();
+        this.model = defaultTestModel;
+        // this.create();
 
         // Uncomment to load by default a Git version of WBKG
-        const url = config.initModel;
+        // const url = config.initModel;
         // http.get(url).subscribe(
         //     res => {
         //         this.model = res;
@@ -430,7 +435,7 @@ export class TestApp {
     importExternal() {
         if (this._model.imports && this._model.imports.length > 0) {
             //Model contains external inputs
-            let dialogRef = this._dialog.open(ImportDialog, {
+            const dialogRef = this._dialog.open(ImportDialog, {
                 width: '75%', data: {
                     imports: this._model.imports || []
                 }
@@ -616,7 +621,7 @@ export class TestApp {
             this._graphData = generateFromJSON({"id": "Empty"});
             this._graphData.logger.clear();
             this.model = this._editor.get()::merge({[$Field.lastUpdated]: this.currentDate});
-            this.codeChanged  = false;
+            this.codeChanged = false;
         }
     }
 
@@ -634,12 +639,23 @@ export class TestApp {
 
     set model(model) {
         this._model = model;
+
+        //Call dynamic layout
+        const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
+        if (scaffold?.id in layouts) {
+            layouts[scaffold.id](this._model);
+        }
+
         //try{
         this._modelName = this._model.name || this._model.id || "?";
         this._graphData = generateFromJSON(this._model);
         // } catch(err){
         //    throw new Error(err);
         // }
+        if (scaffold?.id in layoutConfigs) {
+            layoutConfigs[scaffold.id](this._graphData, this._config);
+        }
+
         this._snapshot = undefined;
         if (this._editor) {
             this._editor.set(this._model);
@@ -823,9 +839,9 @@ export class TestApp {
         }
     }
 
-    showSelectedChain(node){
-        let chain = (this._model?.chains||[]).find(x => x.id === node.id);
-        if (chain){
+    showSelectedChain(node) {
+        let chain = (this._model?.chains || []).find(x => x.id === node.id);
+        if (chain) {
             this._tabGroup.selectedIndex = TAB_INDEX["viewer"];
             this._showChain = chain;
         }
@@ -840,7 +856,8 @@ export class TestApp {
         RelGraphModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, HubMapModule],
+        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule],
+    //, HubMapModule],
     declarations: [TestApp, ImportDialog],
     bootstrap: [TestApp],
     entryComponents: [ImportDialog],

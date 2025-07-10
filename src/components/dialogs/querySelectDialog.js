@@ -7,7 +7,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatDialogRef,MAT_DIALOG_DATA,MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
 
-import querySpec from "../../data/queries";
+import querySpec from "../../data/queries.json";
 import {keys} from 'lodash-bound';
 
 const QUERY_PREFIX = "/dynamic/demos/apinat/";

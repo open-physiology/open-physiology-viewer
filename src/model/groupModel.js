@@ -120,8 +120,7 @@ export class Group extends Resource {
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.lyphs, $Field.nodes, $Field.links].forEach(prop => {
-            this[prop].forEach(res => res.includeRelated && res.includeRelated(this));
-            this[prop].hidden = this.hidden;
+            (this[prop]||[]).forEach(res => res.includeRelated && res.includeRelated(this));
         });
 
         //If a group is hosted by a region, each its lyph is hosted by the region
@@ -412,16 +411,16 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static embedChainsToHousingLyphs(parentGroup, modelClasses) {
-        (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
-        (parentGroup.chains || []).forEach(chain => {
-            if (chain.housingLyphTemplates) {
-                modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
-            } else {
-                if (chain.isTemplate) {
-                    logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
-                }
-            }
-        });
+        // (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
+        // (parentGroup.chains || []).forEach(chain => {
+        //     if (chain.housingLyphTemplates) {
+        //         modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
+        //     } else {
+        //         if (chain.isTemplate) {
+        //             logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
+        //         }
+        //     }
+        // });
     }
 
     assignHousingLyphs(){

@@ -143,6 +143,8 @@ export const $LogMsg = {
     RESOURCE_TYPE_MISMATCH      : "Expected resource class does not match the actual class",
 
     SCAFFOLD_RESOURCE_NUM       : "Number of resources in the generated scaffold",
+    SCAFFOLD_CUSTOM             : "Custom scaffold layout is applied",
+    SCAFFOLD_NOT_APPLICABLE     : "Custom layout is not applicable to the model scaffold",
 
     SCHEMA_GRAPH_ERROR          : "Connectivity model does not conform to schema",
     SCHEMA_SCAFFOLD_ERROR       : "Scaffold model does not conform to schema",

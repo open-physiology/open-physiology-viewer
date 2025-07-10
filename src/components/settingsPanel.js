@@ -7,7 +7,7 @@ import {MatRadioModule} from '@angular/material/radio'
 import {keys} from 'lodash-bound';
 import {SearchBarModule} from './gui/searchBar';
 import {ResourceInfoModule} from './gui/resourceInfo';
-import {LogInfoModule, LogInfoDialog} from "./gui/logInfoDialog";
+import {LogInfoModule, LogInfoDialog} from "./dialogs/logInfoDialog";
 import {ExternalSearchModule} from "./gui/externalSearchBar";
 import {$Field, $SchemaClass} from "../model";
 import {StopPropagation} from "./gui/stopPropagation";
