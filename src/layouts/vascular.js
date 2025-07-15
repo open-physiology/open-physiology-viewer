@@ -1,6 +1,6 @@
 import {getGenID, $Prefix, $Field, generateFromJSON, getGenName} from "../model";
-import {getFullID, findResourceByID, $Color, mergeGenResource} from "../model/utils";
-import {cloneDeep, values} from 'lodash-bound';
+import {getFullID, findResourceByID, $Color, mergeGenResource, isIncluded, includeRef} from "../model/utils";
+import {cloneDeep} from 'lodash-bound';
 import {$LogMsg, logger} from "../model/logger";
 
 const aV = "aV", aW = "aW", rV = "rV", rW = "rW";
@@ -22,7 +22,7 @@ class VascularLayout {
     }
 
     createRailV0() {
-        if (findResourceByID(this.scaffold.wires, "w-V-rail_0")) return;
+        if (isIncluded(this.scaffold.wires, "w-V-rail_0")) return;
         let sV_0 = {
             [$Field.id]: "sV_0",
             [$Field.layout]: {
@@ -298,7 +298,7 @@ export function createVascularLayout(model) {
         const anchorPaths = (chains, anchorHandler, wireHandler, chainWire) => {
             const railLinks = {};
             chains.forEach((chain, i) => {
-                let paths = findAllPaths(genModel.links, chain.levels[0]);
+                const paths = findAllPaths(genModel.links, chain.levels[0]);
                 console.info("Found paths for chain ", chain.id, paths.length);
                 paths.forEach((path, j) => {
                     if (!(chain.id in coalescenceLyphDict)) {
@@ -309,48 +309,41 @@ export function createVascularLayout(model) {
                         coalescenceLyphDict[chain.id].push(lastLyph);
                     }
                 });
-                let exitLevels = paths.map(path => findExitLevel(path));
 
+                const exitLevels = paths.map(path => findExitLevel(path));
                 sortLinkedArraysDescending(exitLevels, paths);
 
-                let anchorX = anchorHandler(i, chainWire);
+                const anchorX = anchorHandler(i, chainWire);
                 if (chain.name) {
                     anchorX.name = chain.name;
                 }
                 wireHandler(chainMap[chain.id], anchorX.id);
+
                 railLinks[chain.id] = new Set();
+                //let railMaxIdx = 0;
+
+
+                model.groups = model.groups || [];
+                let chainGroup = {
+                    [$Field.id]: getGenID($Prefix.group, "paths", chain.id),
+                    [$Field.name]: getGenName("Paths", chain.name || chain.id),
+                    [$Field.hidden]: false,
+                    [$Field.links]: []
+                }
+                model.groups.unshift(chainGroup);
 
                 paths.forEach((path, j) => {
                     railLinks[chain.id].add(path[exitLevels[j]]);
+                    path.forEach(edge => {
+                        includeRef(chainGroup.links, edge.fullID, edge.namespace);
+                    });
                 });
                 Array.from(railLinks[chain.id]).forEach((edge, j) => {
                     if (!edge) return;
                     let anchorX = anchorHandler(i + "&" + j);
                     anchorX.name = edge.conveyingLyph?.name || edge.id;
                     anchorX.anchoredNode = edge.target?.fullID;
-
-                    // Show chains on the path as visible
-                    (edge.levelIn || []).forEach(c => {
-                        if (c.id in chainMap) {
-                            chainMap[c.id].hidden = false;
-                        }
-                    });
-
-                    // Find WBKG chain in the input model
-                    (edge.nextChainStartLevels || []).forEach(level => {
-                        (level.levelIn || []).forEach(c => {
-                            if (wbkg) {
-                                let wbkgChain = findResourceByID(wbkg.chains, c.id);
-                                if (wbkgChain) {
-                                    wbkgChain.hidden = false;
-                                }
-                            }
-                        });
-                    });
                 });
-                if (chain.id in chainMap) {
-                    chainMap[chain.id].hidden = false;
-                }
             });
             return railLinks;
         }
@@ -382,7 +375,7 @@ export function createVascularLayout(model) {
             function createCoalescenceNode(cls, i, clsGroup) {
                 let clsNodeID = getGenID($Prefix.node, cls.id);
                 //If coalescence node exists, do nothing
-                if (findResourceByID(model.nodes, clsNodeID)) return;
+                if (isIncluded(model.nodes, clsNodeID)) return;
 
                 let clsNode = {
                     [$Field.id]: clsNodeID,
@@ -414,7 +407,7 @@ export function createVascularLayout(model) {
                         [$Field.target]: clsLyphNode.id
                     }
                     mergeGenResource(clsGroup, model, clsLnk, $Field.links);
-                    clsGroup.lyphs.push(lyphRef);
+                    includeRef(clsGroup.lyphs, lyphRef);
                 });
             }
 
@@ -429,7 +422,7 @@ export function createVascularLayout(model) {
                 [$Field.links]: [],
                 [$Field.lyphs]: [],
             }
-            model.groups.push(clsGroup);
+            model.groups.unshift(clsGroup);
             Array.from(coalescenceSet).forEach((cls, i) => {
                 createCoalescenceNode(cls, i, clsGroup);
             });

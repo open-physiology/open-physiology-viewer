@@ -19,7 +19,7 @@ import {
     refToResource,
     mergeGenResource,
     genResource,
-    mergeRecursively, VARIANCE_PRESENCE
+    mergeRecursively, isIncluded, includeRef
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -83,17 +83,21 @@ export class Group extends Resource {
 
     }
 
-    contains(resource) {
+    contains(resource, recursive = false) {
+        let res = false;
         if (resource instanceof Node) {
-            return findResourceByID(this.nodes, resource.id);
+            res = isIncluded(this.nodes, resource.id);
         }
         if (resource instanceof Lyph) {
-            return findResourceByID(this.lyphs, resource.id);
+            res = res || isIncluded(this.lyphs, resource.id);
         }
         if (resource instanceof Link) {
-            return findResourceByID(this.links, resource.id);
+            res = res || isIncluded(this.links, resource.id);
         }
-        return false;
+        if (recursive) {
+            (this.groups || []).forEach(g => res = res || (g.contains && g.contains(resource)));
+        }
+        return res;
     }
 
     deleteFromGroup(lyph) {
@@ -120,7 +124,7 @@ export class Group extends Resource {
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.lyphs, $Field.nodes, $Field.links].forEach(prop => {
-            (this[prop]||[]).forEach(res => res.includeRelated && res.includeRelated(this));
+            (this[prop] || []).forEach(res => res.includeRelated && res.includeRelated(this));
         });
 
         //If a group is hosted by a region, each its lyph is hosted by the region
@@ -129,11 +133,14 @@ export class Group extends Resource {
             host.hostedLyphs = host.hostedLyphs || [];
             (this.links || []).filter(link => link.conveyingLyph && !link.conveyingLyph.internalIn).forEach(link => {
                 link.conveyingLyph.hostedBy = host;
-                if (!host.hostedLyphs.find(e => e.id === link.conveyingLyph.id)) {
-                    host.hostedLyphs.push(link.conveyingLyph);
-                }
+                includeRef(host.hostedLyphs, link.conveyingLyph.id);
             });
             (this.nodes || []).forEach(node => node.charge = 20);
+        }
+        if (this.hidden){
+            this.hide();
+        } else {
+            this.show();
         }
     }
 
@@ -153,7 +160,7 @@ export class Group extends Resource {
             [$Field.links]: links,
             [$Field.lyphs]: lyphs
         }
-        let group = (this.groups || []).find(g => g.id === id);
+        let group = findResourceByID(this.groups, id);
         let json = group || genResource({
             [$Field.id]: id,
             [$Field.name]: name
@@ -176,7 +183,7 @@ export class Group extends Resource {
         links = links || [];
         (lyphs || []).forEach(lyph => {
             if (lyph.conveys) {
-                if (!findResourceByID(links, lyph.conveys.id)) {
+                if (!isIncluded(links, lyph.conveys.id)) {
                     links.push(lyph.conveys);
                 }
             }
@@ -184,32 +191,19 @@ export class Group extends Resource {
     };
 
     includeLinkEnds(links, nodes) {
-        nodes = nodes || [];
         (links || []).forEach(lnk => {
-            if (!findResourceByID(nodes, lnk.source.id)) {
-                nodes.push(lnk.source);
-            }
-            if (!findResourceByID(nodes, lnk.target.id)) {
-                nodes.push(lnk.target);
-            }
+            includeRef(nodes, lnk.source);
+            includeRef(nodes, lnk.target);
         });
         (this.links || []).forEach(lnk => {
-            if (lnk.collapsible &&
-                findResourceByID(nodes, lnk.source.id) && findResourceByID(nodes, lnk.target.id)) {
+            if (lnk.collapsible && isIncluded(nodes, lnk.source.id) && isIncluded(nodes, lnk.target.id)) {
                 links.push(lnk);
             }
         });
     };
 
     includeConveyingLyphs(links, lyphs) {
-        lyphs = lyphs || [];
-        (links || []).forEach(lnk => {
-            if (lnk.conveyingLyph) {
-                if (!findResourceByID(lyphs, lnk.conveyingLyph.id)) {
-                    lyphs.push(lnk.conveyingLyph);
-                }
-            }
-        });
+        (links || []).forEach(lnk => includeRef(lyphs, lnk.conveyingLyph));
     };
 
     /**
@@ -411,19 +405,19 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static embedChainsToHousingLyphs(parentGroup, modelClasses) {
-        // (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
-        // (parentGroup.chains || []).forEach(chain => {
-        //     if (chain.housingLyphTemplates) {
-        //         modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
-        //     } else {
-        //         if (chain.isTemplate) {
-        //             logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
-        //         }
-        //     }
-        // });
+        (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
+        (parentGroup.chains || []).forEach(chain => {
+            if (chain.housingLyphTemplates) {
+                modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
+            } else {
+                if (chain.isTemplate) {
+                    logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
+                }
+            }
+        });
     }
 
-    assignHousingLyphs(){
+    assignHousingLyphs() {
         (this.lyphs || []).forEach(lyph => {
             let axis = lyph.axis;
             let housingLyph = axis && (axis.fasciculatesIn || axis.endsIn);
@@ -545,5 +539,7 @@ export class Group extends Resource {
     get create3d() {
         return (this.lyphs || []).find(e => e.create3d);
     }
+
+
 }
 

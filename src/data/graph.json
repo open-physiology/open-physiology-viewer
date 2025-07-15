@@ -11377,7 +11377,7 @@
         },
         {
           "id": "aV",
-          "name": "Vascular anchor",
+          "name": "Tricuspid valve",
           "color": "purple",
           "layout": {
             "x": 30,
@@ -11386,7 +11386,7 @@
         },
         {
           "id": "aW",
-          "name": "WBKG anchor",
+          "name": "Mitral valve",
           "color": "red",
           "layout": {
             "x": 30,
@@ -11436,13 +11436,13 @@
           "id": "f3K-left",
           "name": "Bowman's capsule end of left urinary tract",
           "hostedBy": "w-inner-ring",
-          "offset": -0.35
+          "offset": -0.36
         },
         {
           "id": "f3K-right",
           "name": "Bowman's capsule end of right urinary tract",
           "hostedBy": "w-inner-ring",
-          "offset": -0.38
+          "offset": -0.32
         }
       ],
       "wires": [
@@ -11459,7 +11459,7 @@
         {
           "id": "w-inner-ring",
           "geometry": "ellipse",
-          "arcCenter": "N",
+          "arcCenter": "Fc",
           "radius": {
             "x": 80,
             "y": 60

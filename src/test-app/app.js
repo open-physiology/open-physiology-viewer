@@ -367,7 +367,7 @@ export class TestApp {
 
         // Uncomment to load a default test model (WBKG) instead of an empty new model
         this.model = defaultTestModel;
-        // this.create();
+        //this.create();
 
         // Uncomment to load by default a Git version of WBKG
         // const url = config.initModel;

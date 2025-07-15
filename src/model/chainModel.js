@@ -22,7 +22,7 @@ import {
     $Field,
     $Color,
     $Prefix,
-    $SchemaClass
+    $SchemaClass, isIncluded, includeRef
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {defaults, isObject, flatten, isString, values, merge, clone} from 'lodash-bound';
@@ -134,7 +134,6 @@ export class Chain extends GroupTemplate {
                     if (!template.id) {
                         template.id = getGenID($Prefix.template, chain.id);
                     }
-                    mergeGenResource(chain.group, parentGroup, template, $Field.lyphs);
                     chain.lyphTemplate = template.id;
                 } else {
                     //find lyph template to establish chain topology
@@ -143,6 +142,7 @@ export class Chain extends GroupTemplate {
                         logger.error($LogMsg.CHAIN_LYPH_TEMPLATE_MISSING, chain.lyphTemplate);
                     }
                 }
+                mergeGenResource(chain.group, parentGroup, template, $Field.lyphs);
             }
             return template;
         }
@@ -182,7 +182,6 @@ export class Chain extends GroupTemplate {
                         chain.levels[i] = {
                             [$Field.id]: chain.levels[i]
                         };
-                        mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
                     }
                 } else {
                     chain.levels[i] = {};
@@ -308,8 +307,9 @@ export class Chain extends GroupTemplate {
                         [$Field.color]: chain.color || $Color.Link,
                         [$Field.skipLabel]: true
                     }, "chainModel.deriveFromLyphs (Link)"));
-                    mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
                 }
+                mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
+                includeRef(chain.group.lyphs,lyphs[i].fullID);
                 lyphs[i].conveys = lyphs[i].conveys || chain.levels[i].fullID;
                 prevLink = setLinkProps(chain.levels[i], prevLink, N);
                 chain.levels[i] = chain.levels[i].fullID || chain.levels[i].id;
@@ -425,10 +425,7 @@ export class Chain extends GroupTemplate {
                     }, "chainModel.deriveFromLevels (Lyph)");
 
                     if (chain.levelOntologyTerms?.length > i) {
-                        lyph.ontologyTerms = lyph.ontologyTerms || [];
-                        if (!(lyph.ontologyTerms.find(x => x.id === chain.levelOntologyTerms[i]))) {
-                            lyph.ontologyTerms.push(chain.levelOntologyTerms[i]);
-                        }
+                        includeRef(lyph.ontologyTerms, chain.levelOntologyTerms[i]);
                     }
 
                     //NK: mergeGenResource assigns namespace and fullID
@@ -438,11 +435,13 @@ export class Chain extends GroupTemplate {
                 }
                 mergeGenResource(chain.group, parentGroup, chain.levels[i].conveyingLyph, $Field.lyphs);
                 mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
+                includeRef(chain.group.lyphs, chain.levels[i].conveyingLyph);
 
                 chain.lyphs[i] = chain.levels[i].conveyingLyph;
                 chain.levels[i] = chain.levels[i].id; //Replace with ID to avoid resource definition duplication
             }
         }
+
         if (isDefined(chain.lyphs)) {
             if (isDefined(chain.levels)) {
                 logger.warn($LogMsg.CHAIN_CONFLICT2, chain.fullID);
@@ -468,8 +467,10 @@ export class Chain extends GroupTemplate {
             }
             //NK FIXME another namespace lyph can bundle the chain, consider more cases
             let nm = chain.namespace || parentGroup.namespace;
-            bundlingLayer = layers.find(e => (e.bundlesChains || []).find(t => t === chain.id ||
-                (nm && t === getFullID(nm, chain.id))));
+            // bundlingLayer = layers.find(e => (e.bundlesChains || []).find(t => t === chain.id ||
+            //     (nm && t === getFullID(nm, chain.id))));
+            //NK test
+            bundlingLayer = layers.find(e => isIncluded(e.bundlesChains, chain.id, nm));
             let hostLayer = null;
             if (chain.housingLayers && chain.housingLayers.length > i) {
                 if (chain.housingLayers[i] >= 0) {
@@ -616,8 +617,8 @@ export class Chain extends GroupTemplate {
             }
             const genChains = [];
             //All descendant specific lyphs
-             let subtypes = findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID);
-             subtypes.forEach(lyph => {
+            let subtypes = findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID);
+            subtypes.forEach(lyph => {
                 const genChainID = getGenID(chain.id, $Prefix.clone, lyph.id);
                 let genChain = {
                     [$Field.id]: genChainID,
@@ -704,7 +705,7 @@ export class Chain extends GroupTemplate {
      */
     connect() {
         if ((this.levels || []).length === 0) {
-            if (this.housingLyphTemplates){
+            if (this.housingLyphTemplates) {
                 logger.info($LogMsg.CHAIN_TEMPLATE_SKIPPED, this.id);
             } else {
                 logger.error($LogMsg.CHAIN_NO_LEVELS, this.id);
@@ -712,16 +713,12 @@ export class Chain extends GroupTemplate {
             return;
         }
 
-        function connectNeighbor(host, neighbor, prop) {
-            host[prop] = host[prop] || [];
-            if (!host[prop].find(e => e.fullID === neighbor.fullID)) {
-                host[prop].push(neighbor);
-            }
-        }
+        const connectNeighbor = (host, neighbor, prop) => includeRef(host[prop], neighbor.id, neighbor.namespace);
 
         if (this.root) {
             (this.root.leafOf || []).forEach(prevChain => prevChain.levels &&
                 connectNeighbor(this.levels[0], prevChain.levels[prevChain.levels.length - 1], $Field.prevChainEndLevels));
+
         } else {
             logger.warn($LogMsg.CHAIN_NO_ROOT, this.id)
         }

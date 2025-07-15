@@ -253,7 +253,8 @@ export function mergeResources(a, b) {
         if (b::isArray()) {
             let ab = [];
             a.forEach(aEl => aEl && ab.push(aEl));
-            b.forEach(bEl => bEl && !ab.find(x => getRefID(x) === getRefID(bEl)) && ab.push(bEl));
+            //b.forEach(bEl => bEl && !ab.find(x => getRefID(x) === getRefID(bEl)) && ab.push(bEl));
+            b.forEach(bEl => bEl && !isIncluded(ab, bEl) && ab.push(bEl));
             return ab;
         } else {
             return a.push(b);
@@ -296,7 +297,7 @@ export function mergeWithModel(resource, clsName, parentGroup) {
     let prop = clsToProp[clsName];
     if (prop) {
         parentGroup[prop] = parentGroup[prop] || [];
-        if (!parentGroup[prop].find(x => x && resource && x.id === resource.id)) {
+        if (!isIncluded(parentGroup[prop], resource.id)) {
             parentGroup[prop].push(resource);
         }
     }
@@ -351,20 +352,16 @@ export const addBorderNode = (border, nodeID) => {
         return;
     }
     border.hostedNodes = border.hostedNodes || [];
-    if (!border.hostedNodes.find(n => n === nodeID || (n && n.id === nodeID))) {
+    if (!isIncluded(border.hostedNodes, nodeID)) {
         border.hostedNodes.push(nodeID);
     }
 };
 
-/**
- * Find resource in a list with a given id. If the reference is a resource, it is returned straightaway.
- * @param eArray - list of resources
- * @param ref - resource or resource identifier to look for
- * @param namespace - namespace
- * @returns {*|void}
- */
-export const findResourceByID = (eArray, ref, namespace = undefined) => {
-    return ref::isObject() ? ref : (eArray || []).find(x => ref && x?.id === getRefID(ref) && (!namespace || !x.namespace || x.namespace === namespace));
+export const includeRef = (eArray, ref, namespace = undefined)  => {
+    if (!isIncluded(eArray, ref, namespace)){
+        eArray = eArray || [];
+        ref && eArray.push(ref);
+    }
 }
 
 /**
@@ -374,7 +371,18 @@ export const findResourceByID = (eArray, ref, namespace = undefined) => {
  * @param namespace
  */
 export const isIncluded = (eArray, ref, namespace = undefined) =>
-    eArray.find(x => getFullID(namespace, x) === getFullID(namespace, ref));
+    (eArray || []).find(x => x && ref && getRefID(x) === getRefID(ref) && (!namespace || !x.namespace || x.namespace === namespace));
+
+/**
+ * Find resource in a list with a given id. If the reference is a resource, it is returned straightaway.
+ * @param eArray - list of resources
+ * @param ref - resource or resource identifier to look for
+ * @param namespace - namespace
+ * @returns {*|void}
+ */
+export const findResourceByID = (eArray, ref, namespace = undefined) => {
+    return ref::isObject()? ref: isIncluded(eArray, ref, namespace);
+}
 
 /**
  * Find resource index in a list, accounting for namespace
@@ -471,9 +479,7 @@ export const genResource = (json, caller) => {
  * @param prop - property in the group
  */
 export const mergeGenResource = (group, parentGroup, resource, prop) => {
-    if (!resource) {
-        return;
-    }
+    if (!resource) return;
 
     let nm = getRefNamespace(resource, parentGroup?.namespace);
 
@@ -489,7 +495,6 @@ export const mergeGenResource = (group, parentGroup, resource, prop) => {
             if (!isIncluded(group[prop], resource.id, nm)) {
                 group[prop].push(resource.fullID);
             }
-            resource.hidden = group.hidden;
         } else {
             if (!isIncluded(group[prop], resource, nm)) {
                 group[prop].push(getFullID(nm, resource));
@@ -525,9 +530,7 @@ export const mergeGenResources = (group, parentGroup, edge) => {
  * @param ids
  */
 export const showGroups = (groups, ids) => {
-    if (!ids) {
-        return;
-    }
+    if (!ids) return;
     let groupsToShow = new Set();
     (groups || []).forEach(g => {
         g.hide();
@@ -933,7 +936,7 @@ export const replaceIDs = (modelClasses, entitiesByID, res) => {
                 if (value !== entitiesByID[value.fullID]) {
                     //FIXME the condition hides warning for generated resources as it is often erroneously triggered by node clones in multi-namespace models
                     if (!value.generated || !entitiesByID[value.fullID].generated) {
-                        logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value, entitiesByID[value.fullID]);
+                        logger.warn($LogMsg.RESOURCE_DUPLICATE, res.fullID, key, value.fullID);
                     }
                 }
                 return entitiesByID[value.fullID];

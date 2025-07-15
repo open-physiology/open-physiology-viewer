@@ -18,7 +18,7 @@ import {
     refToResource,
     getFullID,
     mergeGenResource,
-    genResource
+    genResource, isIncluded
 } from './utils';
 import tinycolor from "tinycolor2";
 
@@ -288,7 +288,7 @@ export class Lyph extends Shape {
                 }
                 if (layer){
                     layer[prop] = layer[prop] || [];
-                    if (internalID && !layer[prop].find(x => x === internalID)){
+                    if (internalID && !isIncluded(layer[prop], internalID)){
                         layer[prop].push(getFullID(parentGroup.namespace, internalID));
                         if (resource::isObject()){
                             resource.internalIn = layerRef;
@@ -508,10 +508,8 @@ export class Lyph extends Shape {
         (this.internalLyphs||[]).forEach(internal => {
             if (internal::isObject() && !group.contains(internal)){
                 group.lyphs.push(internal);
-                internal.hidden = group.hidden;
                 if (internal.conveys &&! group.contains(internal.conveys)){
                     group.links.push(internal.conveys);
-                    internal.conveys.hidden = group.hidden;
                     internal.conveys.includeRelated && internal.conveys.includeRelated(group);
                 }
                 internal.includeRelated && internal.includeRelated(group);
@@ -520,7 +518,6 @@ export class Lyph extends Shape {
         (this.internalNodes||[]).forEach(internal => {
             if (internal::isObject() && !group.contains(internal)){
                 group.nodes.push(internal);
-                internal.hidden = group.hidden;
                 (internal.clones||[]).forEach(clone => {
                     if (!group.contains(clone)) {
                         group.nodes.push(clone);
@@ -534,7 +531,6 @@ export class Lyph extends Shape {
             group.links = group.links || [];
             if (!group.contains(this.conveys)){
                 group.links.push(this.conveys);
-                this.conveys.hidden = group.hidden;
             }
         }
     }
@@ -809,14 +805,14 @@ export class Region extends Shape {
     includeRelated(component){
         (this.facets||[]).forEach(facet => {
             if (!facet || facet.class !== $SchemaClass.Wire){ return; }
-            if (!(component.wires||[]).find(e => e.id === facet.id)){
+            if (!isIncluded(component.wires, facet.id)){
                 component.wires.push(facet);
                 facet.includeRelated && facet.includeRelated(component);
             }
         });
         (this.internalAnchors||[]).forEach(internal => {
             if (!internal || internal.class !== $SchemaClass.Anchor){ return; }
-            if (!(component.anchors||[]).find(e => e.id === internal.id)){
+            if (!isIncluded(component.anchors, internal.id)){
                 component.anchors.push(internal);
             }
         });

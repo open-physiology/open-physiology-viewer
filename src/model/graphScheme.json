@@ -359,7 +359,8 @@
           }
         },
         "housingLyphTemplates": {
-          "description": "A lyph template who's layers are going to house the chain",
+          "description": "Lyph templates who's layers are going to house the chain",
+          "type": "array",
           "items": {
             "anyOf": [
               {
@@ -1276,7 +1277,7 @@
     "IdentifierScheme": {
       "description": "Resource reference: optional namespace with identifier",
       "type": "string",
-      "pattern": "^[a-zA-Z0-9:_./@?#\\-=']{1,200}$"
+      "pattern": "^[a-zA-Z0-9:_./@?#&\\-=']{1,200}$"
     },
     "JSONPathScheme": {
       "description": "JSONPath query to select resources",

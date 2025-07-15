@@ -19,7 +19,7 @@ import {
     schemaClassModels,
     refToResource,
     collectNestedResources,
-    deleteRecursively
+    deleteRecursively, findResourceByID
 } from "./utils";
 import {extractLocalConventions, extractModelAnnotation,
     convertValue, validateValue, replaceReferencesToExternal} from './utilsParser';
@@ -285,7 +285,7 @@ export class Scaffold extends Component {
     loadState(scaffold){
         this.hidden = scaffold.hidden;
         (scaffold.anchors || []).forEach(anchor => {
-            const modelAnchor = (this.anchors||[]).find(a => a.id === anchor.id);
+            const modelAnchor = findResourceByID(this.anchors, anchor.id);
             if (modelAnchor){
                 if (anchor.layout) {
                     modelAnchor.layout = {

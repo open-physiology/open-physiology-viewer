@@ -1,6 +1,15 @@
 import {Resource} from "./resourceModel";
 import {isArray, isObject, unionBy} from "lodash-bound";
-import {$Color, $Field, $SchemaClass, addColor, mergeRecursively, schemaClassModels, showGroups} from "./utils";
+import {
+    $Color,
+    $Field,
+    $SchemaClass,
+    addColor,
+    isIncluded,
+    mergeRecursively,
+    schemaClassModels,
+    showGroups
+} from "./utils";
 import {logger, $LogMsg} from "./logger";
 import {Anchor} from './verticeModel';
 import {Wire} from './edgeModel';
@@ -92,13 +101,13 @@ export class Component extends Resource {
 
     contains(resource){
         if (resource instanceof Anchor){
-            return this.anchors.find(e => e.id === resource.id);
+            return isIncluded(this.anchors, resource.id);
         }
         if (resource instanceof Wire){
-            return this.wires.find(e => e.id === resource.id);
+            return isIncluded(this.wires, resource.id);
         }
         if (resource instanceof Region){
-            return this.regions.find(e => e.id === resource.id);
+            return isIncluded(this.regions, resource.id);
         }
         return false;
     }
@@ -146,5 +155,10 @@ export class Component extends Resource {
         [$Field.anchors, $Field.wires, $Field.regions].forEach(prop =>
             (this[prop]||[]).forEach(res => res.includeRelated && res.includeRelated(this))
         );
+       if (this.hidden){
+            this.hide();
+        } else {
+            this.show();
+        }
     }
 }

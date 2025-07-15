@@ -25,7 +25,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                    (change)="load(fileInput1, onJoinModel)"/>
            <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="load(fileInput2, onMergeModel)"/>
-           <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="create()" title="Create model">
+           <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="onCreateModel.emit()" title="Create model">
                 <i class="fa fa-plus"> </i>
            </button>
            <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
@@ -38,23 +38,23 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 <i class="fa fa-object-group"> </i>
            </button>
            <button id="showRepoBtn" *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
-                    (click)="toggleRepoPanel()" title="Show model repository">
+                    (click)="onToggleRepoPanel.emit()" title="Show model repository">
                 <i class="fa fa-database"> </i>
            </button>
            <button id="hideRepoBtn" *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
-                    (click)="toggleRepoPanel()" title="Hide model repository">
+                    (click)="onToggleRepoPanel.emit()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
            </button> 
-           <button id="commitBtn" class="w3-bar-item w3-hover-light-grey" (click)="commit()" title="Commit changes">
+           <button id="commitBtn" class="w3-bar-item w3-hover-light-grey" (click)="onModelCommit.emit()" title="Commit changes">
                <i class="fa fa-code-commit"> </i>
            </button>
            <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
                <i class="fa fa-file-excel-o"> </i>
            </button>
-           <button id="exportExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="exportExcel()" title="Export Excel model">
+           <button id="exportExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('excel')" title="Export Excel model">
                 <i class="fa fa-table"> </i> 
            </button>
-           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Save model">
+           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json')" title="Save model">
                 <i class="fa fa-save"> </i> 
            </button>
         </section>
@@ -81,10 +81,6 @@ export class MainToolbar {
         this._dialog = dialog;
     }
 
-    toggleRepoPanel(){
-        this.onToggleRepoPanel.emit();
-    }
-
     importExcel(){
         const dialogRef = this._dialog.open(ImportExcelModelDialog, {width: '75%'});
 
@@ -103,10 +99,6 @@ export class MainToolbar {
                 );
             }
         });
-    }
-
-    create(){
-        this.onCreateModel.emit();
     }
 
     load(fileInput, event) {
@@ -135,17 +127,6 @@ export class MainToolbar {
         fileInput.value = '';
     }
 
-    commit(){
-        this.onModelCommit.emit();
-    }
-
-    save(){
-        this.onExportModel.emit("json");
-    }
-
-    exportExcel(){
-        this.onExportModel.emit("excel");
-    }
 }
 @NgModule({
     imports: [CommonModule, FormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatListModule, MatSelectModule],

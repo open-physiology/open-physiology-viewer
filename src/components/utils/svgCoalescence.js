@@ -3,18 +3,6 @@ import * as d3 from "d3";
 
 export function drawSvgCoalescence(cls, svg, tooltip = null) {
 
-    function drawLayers(layers, x, y, layerWidth, layerHeight) {
-        const spacing = 1;
-        let dx = x;
-        let dy = y;
-        let group = svg.append('g');
-        (layers || []).forEach((layer, i) => {
-            createRectangle(dx, dy, layerWidth, layerHeight, layer.color, layer.name, group);
-            dx += layerWidth + spacing;
-        });
-        return group;
-    }
-
     function createRectangle(x, y, width, height, color, text, group) {
         group.append("rect")
             .attr("x", x)
@@ -66,27 +54,48 @@ export function drawSvgCoalescence(cls, svg, tooltip = null) {
     }
 
     function drawClsLyphs(lyph1, lyph2, i) {
-        const layerWidth = 40;
-        const layerHeight = 60;
-        const spacing = 1;
-
+        const layerWidth = 40, layerHeight = 60;
+        const labelHeight = 15, clsSpacing = 40;
+        const layerSpacing = 1, dBorder = 5;
         let width = svg.attr("width") || 800;
 
-        let xOffset = width - (layerWidth + spacing) * (lyph2.layers.length);
-        let yOffset = 10 + i * (layerHeight + 10);
+        let dx = width - (layerWidth + layerSpacing) * (lyph2.layers.length);
+        let dy = clsSpacing + i * (layerHeight + clsSpacing + labelHeight);
 
-        const groupA = drawLayers(lyph1.layers, 0, yOffset, layerWidth, layerHeight);
-        const groupB = drawLayers(lyph2.layers.reverse(), xOffset, yOffset, layerWidth, layerHeight);
+        function drawLyph(lyph, x, y, reversed = false) {
+            let layers = (lyph.layers || []);
+            if (reversed) layers = layers.reverse();
+            const lyphWidth = (layerWidth + layerSpacing) * (layers||[]).length;
 
-        if (svg.attr("height") < yOffset + layerHeight + 10){
-            svg.attr("height", yOffset + layerHeight + 10);
+            let group = svg.append('g');
+            group.append("text")
+               .attr("x", x)
+               .attr("y", y)
+               .style("font-family", "sans-serif")
+               .style("font-size", "12px")
+               .text(lyph.name||lyph.id);
+
+            let dx = x;
+            let dy = y + labelHeight;
+
+            if (reversed){
+                createRectangle(x, dy+dBorder, lyphWidth+dBorder, layerHeight, "#ccc", lyph.name||lyph.id, group);
+            } else {
+                createRectangle(x-dBorder, dy-dBorder, lyphWidth+dBorder, layerHeight, "#ccc", lyph.name||lyph.id, group);
+            }
+            layers.forEach((layer, i) => {
+                createRectangle(dx, dy, layerWidth, layerHeight, layer.color, layer.name, group);
+                dx += layerWidth + layerSpacing;
+            });
+            return group;
         }
 
-        // Move to the center
-        // xOffset = (layerWidth + spacing) * (lyph1.layers.length + lyph2.layers.length - 1);
-        // const transformX = (width - xOffset) / 2;
-        // groupA.attr("transform", `translate(${transformX},${0})`);
-        // groupB.attr("transform", `translate(${transformX},${0})`);
+        const groupA = drawLyph(lyph1, 0, dy);
+        const groupB = drawLyph(lyph2, dx, dy, true);
+
+        if (svg.attr("height") < dy + layerHeight + clsSpacing){
+            svg.attr("height", dy + layerHeight + clsSpacing);
+        }
 
         animateCls(groupA, groupB, layerWidth, layerHeight, width / 2);
     }

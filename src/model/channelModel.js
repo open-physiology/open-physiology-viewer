@@ -14,7 +14,7 @@ import {
     addBorderNode,
     refToResource,
     getNewID,
-    genResource
+    genResource, includeRef
 } from "./utils";
 import {logger, $LogMsg} from './logger';
 import {isObject, values} from "lodash-bound";
@@ -160,10 +160,7 @@ export class Channel extends GroupTemplate {
                 logger.warn($LogMsg.CHANNEL_NO_HOUSING_LYPH, lyphRef, channel.id);
                 return;
             }
-            lyph.channels = lyph.channels || [];
-            if (!lyph.channels.find(x => x === channel.id || x.id === channel.id)) {
-                lyph.channels.push(channel.id);
-            }
+            includeRef(lyph.channels, channel.id);
         });
     }
 

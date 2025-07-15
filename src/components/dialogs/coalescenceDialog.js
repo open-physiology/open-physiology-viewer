@@ -11,6 +11,9 @@ window.d3 = d3;
 @Component({
     selector: 'importDialog',
     template: `
+        <button class="w3-bar-item w3-hover-light-grey w3-right" (click)="draw()" title="Refresh">
+            <i class="fa fa-refresh"> </i>
+        </button>
         <b mat-dialog-title>Coalescence {{coalescence?.name || coalescence?.id}}</b>
         <div mat-dialog-content #svgClsContainer id="svgClsContainer">
             <svg #svg></svg>
@@ -33,7 +36,7 @@ window.d3 = d3;
             border: 1px solid #666;
             pointer-events: none;
         }
-        
+
         #svgClsContainer {
             height: 80%;
         }
@@ -60,7 +63,7 @@ export class CoalescenceDialog {
     draw() {
         let svg = d3.select(this.svgRef.nativeElement).attr("width", this.width).attr("height", this.height);
         //Clean the view
-        svg.innerHTML = "";
+        svg.selectAll('g').remove();
         let tooltip = d3.select(this.tooltipRef.nativeElement).style("opacity", 0);
         drawSvgCoalescence(this.coalescence, svg, tooltip);
     }

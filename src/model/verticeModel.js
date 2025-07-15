@@ -11,7 +11,7 @@ import {
     mergeGenResource,
     refToResource,
     genResource,
-    findIndex
+    findIndex, isIncluded, includeRef
 } from "./utils";
 import {keys, merge, pick, isString, isArray, flatten} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -36,9 +36,6 @@ export class Anchor extends Vertice {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.class = json.class || $SchemaClass.Anchor;
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
-    }
-
-    includeRelated(group) {
     }
 }
 
@@ -113,7 +110,7 @@ export class Node extends Vertice {
             }
         });
 
-        const nodeOnBorder = (node, lyphID) => (borderNodesByID[getID(node)] || []).find(e => e.id === lyphID);
+        const nodeOnBorder = (node, lyphID) => findResourceByID(borderNodesByID[getID(node)], lyphID);
 
         borderNodesByID::keys().forEach(nodeFullID => {
             let hostLyphs = borderNodesByID[nodeFullID];
@@ -140,10 +137,10 @@ export class Node extends Vertice {
                     (hostLyph.bundles || []).forEach(lnkRef => {
                         let lnk = refToResource(lnkRef, parentGroup, $Field.links);
                         if (lnk) {
-                            if (lnk.source === nodeID && !findResourceByID(sourceOfLinks, lnk.id)) {
+                            if (lnk.source === nodeID && !isIncluded(sourceOfLinks, lnk.id)) {
                                 sourceOfLinks.push(lnk);
                             }
-                            if (lnk.target === nodeID && !findResourceByID(targetOfLinks, lnk.id)) {
+                            if (lnk.target === nodeID && !isIncluded(targetOfLinks, lnk.id)) {
                                 targetOfLinks.push(lnk);
                             }
                         }
@@ -293,8 +290,9 @@ export class Node extends Vertice {
             if (!nodeFullID || !nodeFullID::isString()) {
                 logger.warn($LogMsg.RESOURCE_NO_ID, nodeFullID);
             } else {
+                //NK can replace with includeRef( resMap[nodeFullID], hostLyph)??
                 resMap[nodeFullID] = resMap[nodeFullID] || [];
-                if (!findResourceByID(resMap[nodeFullID], hostLyph.id)) {
+                if (!isIncluded(resMap[nodeFullID], hostLyph.id)) {
                     resMap[nodeFullID].push(hostLyph);
                 }
             }
@@ -310,10 +308,7 @@ export class Node extends Vertice {
                 group.nodes.push(clone);
             }
             if (clone.hostedBy) {
-                clone.hostedBy.hostedNodes = clone.hostedBy.hostedNodes || [];
-                if (!findResourceByID(clone.hostedBy.hostedNodes, clone.id, clone.namespace)) {
-                    clone.hostedBy.hostedNodes.push(clone);
-                }
+                includeRef(clone.hostedBy.hostedNodes, clone.id, clone.namespace);
             }
         });
     }

@@ -1,10 +1,19 @@
-import {NgModule, Component, ViewChild, ElementRef, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {
+    NgModule,
+    Component,
+    ViewChild,
+    ElementRef,
+    Input,
+    Output,
+    EventEmitter,
+    ChangeDetectionStrategy
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
-import FileSaver  from 'file-saver';
+import FileSaver from 'file-saver';
 import {keys, values, isObject, cloneDeep, defaults, union} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
@@ -21,6 +30,9 @@ import {$LogMsg} from "../model/logger";
 import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
+import {ModelToolbarModule} from "./toolbars/modelToolbar";
+import call from "d3-selection/src/selection/call";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 const WindowResize = require('three-window-resize');
 
@@ -32,88 +44,36 @@ const WindowResize = require('three-window-resize');
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <hotkeys-cheatsheet></hotkeys-cheatsheet>
-        <section id="apiLayoutPanel" class="w3-row">            
+        <section id="apiLayoutPanel" class="w3-row">
             <section id="apiLayoutContainer" [class.w3-threequarter]="showPanel">
                 <section class="w3-padding-right" style="position:relative;">
-                    <section class="w3-bar-block w3-right" style="position:absolute; right:0">
-                        <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleLockControls()" title="Lock controls">
-                            <i class="fa fa-lock"> </i>
-                        </button>
-                        <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleLockControls()" title="Unlock controls">
-                            <i class="fa fa-unlock"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="resetCamera()" title="Reset controls">
-                            <i class="fa fa-compass"> </i>
-                        </button>
-                        <button *ngIf="!antialias" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleAntialias()" title="Enable antialiasing">
-                            <i class="fa fa-paper-plane-o"> </i>
-                        </button>
-                        <button *ngIf="antialias" class="w3-bar-item w3-hover-light-grey"
-                                (click)="toggleAntialias()" title="Disable antialiasing">
-                            <i class="fa fa-paper-plane"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="graph?.graphData(graphData)"
-                                title="Update layout">
-                            <i class="fa fa-refresh"> </i>
-                        </button>
-                        <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="showPanel = !showPanel" title="Show settings">
-                            <i class="fa fa-cog"> </i>
-                        </button>
-                        <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
-                                (click)="showPanel = !showPanel" title="Hide settings">
-                            <i class="fa fa-window-close"> </i>
-                        </button>
-                        <button id="importBtn" class="w3-bar-item w3-hover-light-grey" 
-                                *ngIf ="graphData?.imports"
-                                (click)="onImportExternal.emit()" title="Download external models">
-                            <i class="fa fa-download"> </i>
-                        </button>
+                    <section style="position:absolute; right:0;">
+                        <model-toolbar
+                                [showPanel]="showPanel"
+                                [showImports]="graphData?.imports"
+                                [lockControls]="lockControls"
+                                [antialias]=antialias
+                                [loggerColor]="loggerColor"
+                                (onToggleControls)="toggleLockControls()"
+                                (onToggleAntialias)="toggleAntialias()"
+                                (onToggleShowPanel)="showPanel = !showPanel"
+                                (onResetCamera)="resetCamera()"
+                                (onUpdateGraph)="graph?.graphData(graphData)"
+                                (onImportExternal)="onImportExternal.emit()"
+                                (onProcessQuery)="processQuery()"
+                                (onExportResource)="exportResource($event)"
+                                (onShowReport)="showReport()"
+                        >
+                        </model-toolbar>
                         <mat-slider vertical class="w3-grey"
                                     [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
                                     [step]="0.05 * scaleFactor" tickInterval="1"
                                     [value]="labelRelSize" title="Label size"
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="processQuery()" title="Show query result as group">
-                            <i class="fa fa-question-circle-o"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportJSON()" title="Export json">
-                            <i class="fa fa-file-code-o"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportResourceMapLD()" title="Export json-ld resource map">
-                            <i class="fa fa-file-text"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportResourceMapLDFlat()" title="Export flattened json-ld resource map">
-                            <i class="fa fa-file-text-o"> </i>
-                        </button>
-                        <button class="w3-bar-item w3-hover-light-grey"
-                                (click)="exportBondGraph()" title="Export Bond Graph for visible network">
-                            <i>bg</i>
-                        </button>
-                        <button *ngIf="graphData?.logger.status === graphData.logger.statusOptions.ERROR" class="w3-bar-item w3-hover-light-grey"
-                                (click)="showReport()" title="Show logs">
-                            <i class="fa fa-exclamation-triangle" style="color:red"> </i>
-                        </button>
-                        <button *ngIf="graphData?.logger.status === graphData.logger.statusOptions.WARNING" class="w3-bar-item w3-hover-light-grey"
-                                (click)="showReport()" title="Show logs">
-                            <i class="fa fa-exclamation-triangle" style="color:yellow"> </i>
-                        </button>
-                        <button *ngIf="graphData?.logger.status === graphData.logger.statusOptions.OK" class="w3-bar-item w3-hover-light-grey"
-                                (click)="showReport()" title="Show logs">
-                            <i class="fa fa-check-circle" style="color:green"> </i>
-                        </button>
                     </section>
                 </section>
-                <canvas #canvas> </canvas>
+                <canvas #canvas></canvas>
             </section>
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
                 <settingsPanel
@@ -140,22 +100,21 @@ const WindowResize = require('three-window-resize');
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
                         (onEditResource)="editResource.emit($event)"
-                > </settingsPanel>
+                ></settingsPanel>
             </section>
-        </section> 
+        </section>
     `,
-    styles: [` 
-
+    styles: [`
         #apiLayoutPanel {
             height: 85vh;
         }
-        
-        #apiLayoutSettingsPanel{
-          height: 100%;
-          overflow-y: scroll;
-          overflow-x: auto;
+
+        #apiLayoutSettingsPanel {
+            height: 100%;
+            overflow-y: scroll;
+            overflow-x: auto;
         }
-        
+
         :host >>> fieldset {
             border: 1px solid grey;
             margin: 2px;
@@ -190,19 +149,19 @@ export class WebGLSceneComponent {
     antialias = true;
 
     _highlighted = null;
-    _selected    = null;
+    _selected = null;
 
     _helperKeys = [];
 
     searchOptions;
     graph;
-    helpers   = {};
+    helpers = {};
     highlightColor = 0xff0000;
-    selectColor    = 0x00ff00;
-    defaultColor   = 0x000000;
-    scaleFactor    = 10;
-    labelRelSize   = 0.1 * this.scaleFactor;
-    lockControls   = false;
+    selectColor = 0x00ff00;
+    defaultColor = 0x000000;
+    scaleFactor = 10;
+    labelRelSize = 0.1 * this.scaleFactor;
+    lockControls = false;
     isConnectivity = true;
 
     queryCounter = 0;
@@ -221,24 +180,21 @@ export class WebGLSceneComponent {
             if (this._graphData.neurulator) {
                 this._graphData.neurulator();
             }
-            if (this.graph) {
-                this.graph.graphData(this._graphData);
-            }
-        }
+            this.updateGraph();
+            this.loggerColor = this._graphData.logger?.color;
+          }
     }
 
     @Input('config') set config(newConfig) {
         this._config = newConfig::defaults(this.defaultConfig);
-        if (this.graph){
-            this.graph.showLabels(this._config.showLabels);
-            this.graph.labels(this._config.labels);
-            this._config.layout::keys().forEach(prop => this.graph[prop](this._config.layout[prop]))
-        }
+        this.updateSettings();
     }
 
     @Input('highlighted') set highlighted(entity) {
-        if (this._highlighted === entity){ return; }
-        if (this._highlighted !== this._selected){
+        if (this._highlighted === entity) {
+            return;
+        }
+        if (this._highlighted !== this._selected) {
             this.unhighlight(this._highlighted);
         } else {
             this.highlight(this._selected, this.selectColor, false);
@@ -248,39 +204,39 @@ export class WebGLSceneComponent {
         this.highlightedItemChange.emit(entity);
 
         if (this.graph) {
-            const obj = entity && entity.viewObjects? entity.viewObjects["main"]: null;
+            const obj = entity && entity.viewObjects ? entity.viewObjects["main"] : null;
             this.graph.enableDrag = this.lockControls;
             this.graph.select(obj);
         }
     }
 
-    @Input('selected') set selected(entity){
-        if (this.selected === entity){ return; }
+    @Input('selected') set selected(entity) {
+        if (this.selected === entity) {
+            return;
+        }
         this.unhighlight(this._selected);
         this.highlight(entity, this.selectColor, entity !== this.highlighted);
         this._selected = entity;
         this.selectedItemChange.emit(entity);
     }
 
-    @Input('showChain') set showChain(obj){
+    @Input('showChain') set showChain(obj) {
         if (!obj || !obj.id) return;
-        if (this._graphData){
+        if (this._graphData) {
             let chain = obj;
-            if (!obj.class){
+            if (!obj.class) {
                 const fullID = getFullID(this._graphData.namespace, obj.id);
                 chain = this._graphData.entitiesByID[fullID];
             }
-            (this._graphData.groups||[]).forEach(g => g.hide());
+            (this._graphData.groups || []).forEach(g => g.hide());
             if (chain?.group) {
                 chain.group.show();
-                (chain.generatedChains||[]).forEach(c => {
-                    if (c?.group){
+                (chain.generatedChains || []).forEach(c => {
+                    if (c?.group) {
                         c.group.show();
                     }
                 });
-                if (this.graph) {
-                    this.graph.graphData(this._graphData);
-                }
+                this.updateGraph();
             }
         }
     }
@@ -325,87 +281,106 @@ export class WebGLSceneComponent {
      */
     @Output() onImportExternal = new EventEmitter();
 
-    constructor(dialog: MatDialog, hotkeysService: HotkeysService) {
+    constructor(dialog: MatDialog, hotkeysService: HotkeysService, snackBar: MatSnackBar) {
         this.dialog = dialog;
-        this.hotkeysService = hotkeysService ;
+        this.hotkeysService = hotkeysService;
         this.defaultConfig = {
             layout: {
-                showLyphs       : true,
-                showLayers      : true,
-                showLyphs3d     : false,
+                showLyphs: true,
+                showLayers: true,
+                showLyphs3d: false,
                 showCoalescences: false,
-                numDimensions   : 3
+                numDimensions: 3
             },
             showLabels: {
-                [$SchemaClass.Wire]  : false,
+                [$SchemaClass.Wire]: false,
                 [$SchemaClass.Anchor]: true,
-                [$SchemaClass.Node]  : false,
-                [$SchemaClass.Link]  : false,
-                [$SchemaClass.Lyph]  : false,
+                [$SchemaClass.Node]: false,
+                [$SchemaClass.Link]: false,
+                [$SchemaClass.Lyph]: false,
                 [$SchemaClass.Region]: false
             },
-            labels:{
-                [$SchemaClass.Wire]  : $Field.id,
+            labels: {
+                [$SchemaClass.Wire]: $Field.id,
                 [$SchemaClass.Anchor]: $Field.id,
-                [$SchemaClass.Node]  : $Field.id,
-                [$SchemaClass.Link]  : $Field.id,
-                [$SchemaClass.Lyph]  : $Field.id,
+                [$SchemaClass.Node]: $Field.id,
+                [$SchemaClass.Link]: $Field.id,
+                [$SchemaClass.Lyph]: $Field.id,
                 [$SchemaClass.Region]: $Field.id
             },
-            groups      : true,
-            highlighted : true,
-            selected    : true
+            groups: true,
+            highlighted: true,
+            selected: true
         };
         this._config = this.defaultConfig::cloneDeep();
         this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
-          this.resetCamera();
-          return false; // Prevent bubbling
+            this.resetCamera();
+            return false; // Prevent bubbling
         }, undefined, 'Reset camera'));
         this.hotkeysService.add(new Hotkey('shift+meta+u', (event: KeyboardEvent): boolean => {
-          this.updateGraph();
-          return false; // Prevent bubbling
+            this.updateGraph();
+            return false; // Prevent bubbling
         }, undefined, 'Update graph'));
         this.hotkeysService.add(new Hotkey('shift+meta+t', (event: KeyboardEvent): boolean => {
-          this.toggleLockControls();
-          return false; // Prevent bubbling
+            this.toggleLockControls();
+            return false; // Prevent bubbling
         }, undefined, 'Toggle Lock controls'));
         this.hotkeysService.add(new Hotkey('shift+meta+a', (event: KeyboardEvent): boolean => {
-          this.toggleAntialias();
-          return false; // Prevent bubbling
+            this.toggleAntialias();
+            return false; // Prevent bubbling
         }, undefined, 'Toggle Anti Alias'));
         this.hotkeysService.add(new Hotkey('shift+meta+l', (event: KeyboardEvent): boolean => {
-          this.togglelayout();
-          return false; // Prevent bubbling
+            this.togglelayout();
+            return false; // Prevent bubbling
         }, undefined, 'Toggle Layout'));
         this.hotkeysService.add(new Hotkey('shift+meta+p', (event: KeyboardEvent): boolean => {
-          this.showReport();
-          return false; // Prevent bubbling
+            this.showReport();
+            return false; // Prevent bubbling
         }, undefined, 'Show Report'));
         this.hotkeysService.add(new Hotkey('shift+meta+d', (event: KeyboardEvent): boolean => {
-          this.resizeToDisplaySize();
-          return false; // Prevent bubbling
+            this.resizeToDisplaySize();
+            return false; // Prevent bubbling
         }, undefined, 'Resize to Display Size'));
         this.hotkeysService.add(new Hotkey('shift+meta+up', (event: KeyboardEvent): boolean => {
-          this.moveCamera('up');
-          return false; // Prevent bubbling
+            this.moveCamera('up');
+            return false; // Prevent bubbling
         }, undefined, 'Rotate camera up'));
         this.hotkeysService.add(new Hotkey('shift+meta+down', (event: KeyboardEvent): boolean => {
-          this.moveCamera('down');
-          return false; // Prevent bubbling
+            this.moveCamera('down');
+            return false; // Prevent bubbling
         }, undefined, 'Rotate camera down'));
         this.hotkeysService.add(new Hotkey('shift+meta+left', (event: KeyboardEvent): boolean => {
-          this.moveCamera('left');
-          return false; // Prevent bubbling
+            this.moveCamera('left');
+            return false; // Prevent bubbling
         }, undefined, 'Rotate camera left'));
         this.hotkeysService.add(new Hotkey('shift+meta+right', (event: KeyboardEvent): boolean => {
-          this.moveCamera('right');
-          return false; // Prevent bubbling
+            this.moveCamera('right');
+            return false; // Prevent bubbling
         }, undefined, 'Rotate camera right'));
+        this._snackBar = snackBar;
     }
 
-    onScaleChange(newLabelScale){
+    showError(message) {
+        this._snackBar.open(message, "OK", {
+            panelClass: ['w3-panel', 'w3-red'],
+            duration: 2000
+        });
+    }
+
+    updateSettings() {
+        if (this.graph) {
+            this.graph.showLabels(this._config.showLabels);
+            this.graph.labels(this._config.labels);
+            this._config.layout::keys().forEach(prop => this.graph[prop](this._config.layout[prop]));
+            this.graphData.showGroups(this._graphData.visibleGroups.map(g => g.id));
+        }
+    }
+
+    onScaleChange(newLabelScale) {
         this.labelRelSize = newLabelScale;
-        if (this.graph){ this.graph.labelRelSize(this.labelRelSize); }
+        if (this.graph) {
+            this.graph.labelRelSize(this.labelRelSize);
+        }
     }
 
     get graphData() {
@@ -413,9 +388,15 @@ export class WebGLSceneComponent {
     }
 
     ngAfterViewInit() {
-        if (this.renderer) {  return; }
+        if (this.renderer) {
+            return;
+        }
 
-        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas.nativeElement, antialias: this.antialias, alpha: true});
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas.nativeElement,
+            antialias: this.antialias,
+            alpha: true
+        });
         this.renderer.setClearColor(0xffffff, 0.5);
 
         this.container = document.getElementById('apiLayoutContainer');
@@ -439,7 +420,7 @@ export class WebGLSceneComponent {
 
         this.controls.enablePan = true;
         this.controls.minPolparAngle = 0;
-        this.controls.maxPolarAngle = Math.PI/2;
+        this.controls.maxPolarAngle = Math.PI / 2;
         this.controls.enabled = !this.lockControls;
 
         // Lights
@@ -458,22 +439,26 @@ export class WebGLSceneComponent {
         this.animate();
     }
 
-    processQuery(){
+    processQuery() {
         const config = {
-            parameterValues: [this.selected? (this.selected.externals||[""])[0]: "UBERON:0005453"],
-            baseURL : "http://sparc-data.scicrunch.io:9000/scigraph"
+            parameterValues: [this.selected ? (this.selected.externals || [""])[0] : "UBERON:0005453"],
+            baseURL: "http://sparc-data.scicrunch.io:9000/scigraph"
         };
-        const dialogRef = this.dialog.open(QuerySelectDialog, { width: '60%', data: config });
+        const dialogRef = this.dialog.open(QuerySelectDialog, {width: '60%', data: config});
         dialogRef.afterClosed().subscribe(result => {
-            if (result && result.response){
+            if (result && result.response) {
                 this.queryCounter++;
-                const nodeIDs  = (result.response.nodes||[]).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id||"").substr(r.id.lastIndexOf("/") + 1));
-                const edgeIDs =  (result.response.edges||[]).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub||"").substr(r.sub.lastIndexOf("/") + 1));
-                const nodes = (this.graphData.nodes||[]).filter(e => nodeIDs.includes(e.id));
-                const links = (this.graphData.links||[]).filter(e => edgeIDs.includes(e.id));
-                const lyphs = (this.graphData.lyphs||[]).filter(e => edgeIDs.includes(e.id));
+                const nodeIDs = (result.response.nodes || []).filter(e => (e.id.indexOf(this.graphData.id) > -1)).map(r => (r.id || "").substr(r.id.lastIndexOf("/") + 1));
+                const edgeIDs = (result.response.edges || []).filter(e => (e.sub.indexOf(this.graphData.id) > -1)).map(r => (r.sub || "").substr(r.sub.lastIndexOf("/") + 1));
+                const nodes = (this.graphData.nodes || []).filter(e => nodeIDs.includes(e.id));
+                const links = (this.graphData.links || []).filter(e => edgeIDs.includes(e.id));
+                const lyphs = (this.graphData.lyphs || []).filter(e => edgeIDs.includes(e.id));
                 if (nodes.length || links.length || lyphs.length) {
-                    this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {nodes, links, lyphs}, this.modelClasses);
+                    this.graphData.createDynamicGroup(this.queryCounter, result.query || "?", {
+                        nodes,
+                        links,
+                        lyphs
+                    }, this.modelClasses);
                 } else {
                     this.graphData.logger.error($LogMsg.GRAPH_QUERY_EMPTY_RES, nodeIDs, edgeIDs);
                 }
@@ -481,12 +466,29 @@ export class WebGLSceneComponent {
         })
     }
 
-    exportJSON(){
-        if (this._graphData){
+    exportResource(target) {
+        switch (target) {
+            case 'json':
+                this.exportJSON();
+                break;
+            case 'mapLD':
+                this.exportResourceMapLD();
+                break;
+            case 'mapLDFlat':
+                this.exportResourceMapLDFlat();
+                break;
+            case 'bond':
+                this.exportBondGraph();
+                break;
+        }
+    }
+
+    exportJSON() {
+        if (this._graphData) {
             let result = JSON.stringify(this._graphData.toJSON(3, {
-                [$Field.border]   : 3,
-                [$Field.borders]  : 3,
-                [$Field.villus]   : 3,
+                [$Field.border]: 3,
+                [$Field.borders]: 3,
+                [$Field.villus]: 3,
                 [$Field.scaffolds]: 5
             }), null, 2);
             const blob = new Blob([result], {type: 'application/json'});
@@ -494,28 +496,34 @@ export class WebGLSceneComponent {
         }
     }
 
-    exportResourceMapLD(){
-        if (this._graphData){
-            let result = JSON.stringify(this._graphData.entitiesToJSONLD(), null, 2);
+    exportResourceMapLD() {
+        if (this._graphData) {
+            const filename = this._graphData.id + '-resourceMap-' + this._graphData.uuid + '.jsonld';
+            const result = JSON.stringify(this._graphData.entitiesToJSONLD(), null, 2);
             const blob = new Blob([result], {type: 'application/ld+json'});
-            FileSaver.saveAs(blob, this._graphData.id + '-resourceMap-' + this._graphData.uuid + '.jsonld');
+            FileSaver.saveAs(blob, filename);
         }
     }
 
-    exportResourceMapLDFlat(){
-        if (this._graphData){
-            let filename = this._graphData.id + '-resourceMap-flattened-'  + this._graphData.uuid + '.jsonld';
+    exportResourceMapLDFlat() {
+        if (this._graphData) {
+            const filename = this._graphData.id + '-resourceMap-flattened-' + this._graphData.uuid + '.jsonld';
             const callback = res => {
                 let result = JSON.stringify(res, null, 2);
                 const blob = new Blob([result], {type: 'application/ld+json'});
                 FileSaver.saveAs(blob, filename);
-            };
-            this._graphData.modelClasses.Graph.entitiesToJSONLDFlat(this._graphData.entitiesToJSONLD(), callback);
+
+            }
+            const errorCallBack = err => {
+                this.showError("Failed to export flattened JSON-LD!");
+            }
+            const result = this._graphData.entitiesToJSONLD();
+            this._graphData.modelClasses.Graph.entitiesToJSONLDFlat(result, callback, errorCallBack);
         }
     }
 
-    exportBondGraph(){
-        if (this._graphData){
+    exportBondGraph() {
+        if (this._graphData) {
             const structure = this._graphData.generateBondGraph();
             let blob = new Blob([structure], {type: 'text/turtle'});
             // FileSaver.saveAs(blob, this._graphData.id + '-bg-components-' + this._graphData.uuid + '.ttl');
@@ -523,14 +531,14 @@ export class WebGLSceneComponent {
         }
     }
 
-    showReport(){
+    showReport() {
         const dialogRef = this.dialog.open(LogInfoDialog, {
-            width : '75%',
-            data  : this.graphData.logger.print()
+            width: '75%',
+            data: this.graphData.logger.print()
         });
 
         dialogRef.afterClosed().subscribe(res => {
-            if (res !== undefined){
+            if (res !== undefined) {
                 let result = JSON.stringify(res, null, 2);
                 const blob = new Blob([result], {type: 'application/txt'});
                 FileSaver.saveAs(blob, this._graphData.id + '-log-' + this._graphData.uuid + '.json');
@@ -540,11 +548,13 @@ export class WebGLSceneComponent {
 
     resizeToDisplaySize() {
         const delta = 5;
-        const width  = this.container.clientWidth;
+        const width = this.container.clientWidth;
         const height = this.container.clientHeight;
         if (Math.abs(this.renderer.domElement.width - width) > delta
             || Math.abs(this.renderer.domElement.height - height) > delta) {
-            const dimensions = function(){ return { width, height } };
+            const dimensions = function () {
+                return {width, height}
+            };
             this.windowResize = new WindowResize(this.renderer, this.camera, dimensions);
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
@@ -608,7 +618,7 @@ export class WebGLSceneComponent {
             .graphData(this.graphData);
 
         const isLayoutDimValid = (layout, key) => layout::isObject() && (key in layout) && (typeof layout[key] !== 'undefined');
-        const forceVal = (d, key) => isLayoutDimValid(d.layout, key)? d.layout[key] : 0;
+        const forceVal = (d, key) => isLayoutDimValid(d.layout, key) ? d.layout[key] : 0;
         const forceStrength = (d, key) => isLayoutDimValid(d.layout, key) ? 1 : 0;
 
         this.graph.d3Force("x", forceX().x(d => forceVal(d, "x")).strength(d => forceStrength(d, "x")));
@@ -616,7 +626,7 @@ export class WebGLSceneComponent {
         this.graph.d3Force("z", forceZ().z(d => forceVal(d, "z")).strength(d => forceStrength(d, "z")));
 
         this.graph.d3Force("link")
-            .distance(d => d.length )
+            .distance(d => d.length)
             .strength(d => (d.strength ? d.strength :
                 (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
 
@@ -624,34 +634,34 @@ export class WebGLSceneComponent {
         this.graph.showLabels(this._config.showLabels);
         this.graph.labels(this._config.labels);
         this.scene.add(this.graph);
+        this.updateSettings();
     }
 
-    moveCamera(direction){
-      const delta = 10 ;
-      switch(direction)
-      {
-        case 'left': 
-          this.camera.position.x = this.camera.position.x - delta;
-          this.camera.updateProjectionMatrix();
-        break;
-        case 'up' : 
-          this.camera.position.z = this.camera.position.z - delta;
-          this.camera.updateProjectionMatrix();
-        break;
-        case 'right' : 
-          this.camera.position.x = this.camera.position.x + delta;
-          this.camera.updateProjectionMatrix();
-        break;
-        case 'down' : 
-          this.camera.position.z = this.camera.position.z + delta;
-          this.camera.updateProjectionMatrix();
-        break;
-      }
+    moveCamera(direction) {
+        const delta = 10;
+        switch (direction) {
+            case 'left':
+                this.camera.position.x = this.camera.position.x - delta;
+                this.camera.updateProjectionMatrix();
+                break;
+            case 'up' :
+                this.camera.position.z = this.camera.position.z - delta;
+                this.camera.updateProjectionMatrix();
+                break;
+            case 'right' :
+                this.camera.position.x = this.camera.position.x + delta;
+                this.camera.updateProjectionMatrix();
+                break;
+            case 'down' :
+                this.camera.position.z = this.camera.position.z + delta;
+                this.camera.updateProjectionMatrix();
+                break;
+        }
     }
 
     resetCamera(positionPoint, lookupPoint) {
         let position = [0, -100, 120 * this.scaleFactor];
-        let lookup =  [0, 0, 1];
+        let lookup = [0, 0, 1];
         ["x", "y", "z"].forEach((dim, i) => {
             if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
                 lookup[i] = lookupPoint[dim];
@@ -665,17 +675,17 @@ export class WebGLSceneComponent {
         this.camera.updateProjectionMatrix();
     }
 
-    updateGraph(){
+    updateGraph() {
         if (this.graph) {
             this.graph.graphData(this._graphData);
         }
     }
 
-    openExternal(resource){
-        if (!resource || !this._graphData.localConventions){
+    openExternal(resource) {
+        if (!resource || !this._graphData.localConventions) {
             return;
         }
-        (resource.external||[]).forEach(external => {
+        (resource.external || []).forEach(external => {
             if (external.fullID) {
                 let parts = external.fullID.split(":");
                 if (parts.length === 2) {
@@ -690,19 +700,21 @@ export class WebGLSceneComponent {
         })
     }
 
-    toggleLockControls(){
+    toggleLockControls() {
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
     }
 
-    toggleAntialias(){
+    toggleAntialias() {
         this.antialias = !this.antialias;
         this.renderer.antialias = this.antialias;
     }
 
     getMouseOverEntity() {
-        if (!this.graph) { return; }
-        this.ray.setFromCamera( this.mouse, this.camera );
+        if (!this.graph) {
+            return;
+        }
+        this.ray.setFromCamera(this.mouse, this.camera);
 
         const selectLayer = (entity) => {
             //Refine selection to layers
@@ -719,25 +731,29 @@ export class WebGLSceneComponent {
         let intersects = this.ray.intersectObjects(this.graph.children);
         if (intersects.length > 0) {
             let entity = intersects[0].object.userData;
-            if (!entity || entity.inactive) { return; }
+            if (!entity || entity.inactive) {
+                return;
+            }
             return selectLayer(entity);
         }
     }
 
-    get highlighted(){
+    get highlighted() {
         return this._highlighted;
     }
 
-    get selected(){
+    get selected() {
         return this._selected;
     }
 
-    highlight(entity, color, rememberColor = true){
-        if (!entity || !entity.viewObjects) { return; }
+    highlight(entity, color, rememberColor = true) {
+        if (!entity || !entity.viewObjects) {
+            return;
+        }
         let obj = entity.viewObjects["main"];
         if (obj && obj.material) {
             // store color of closest object (for later restoration)
-            if (rememberColor){
+            if (rememberColor) {
                 obj.currentHex = obj.material.color.getHex();
                 (obj.children || []).forEach(child => {
                     if (child.material) {
@@ -755,12 +771,14 @@ export class WebGLSceneComponent {
         }
     }
 
-    unhighlight(entity){
-        if (!entity || !entity.viewObjects) { return; }
+    unhighlight(entity) {
+        if (!entity || !entity.viewObjects) {
+            return;
+        }
         let obj = entity.viewObjects["main"];
-        if (obj){
-            if (obj.material){
-                obj.material.color.setHex( obj.currentHex || this.defaultColor);
+        if (obj) {
+            if (obj.material) {
+                obj.material.color.setHex(obj.currentHex || this.defaultColor);
             }
             (obj.children || []).forEach(child => {
                 if (child.material) {
@@ -771,15 +789,15 @@ export class WebGLSceneComponent {
     }
 
     selectByName(nodeLabel) {
-         if (!nodeLabel){
+        if (!nodeLabel) {
             return;
         }
         let nodeID = nodeLabel.substring(
-                nodeLabel.indexOf("(") + 1,
-                nodeLabel.lastIndexOf(")")
+            nodeLabel.indexOf("(") + 1,
+            nodeLabel.lastIndexOf(")")
         );
         if (this._graphData && (nodeID !== this.selected?.id)) {
-            this.selected = (this._graphData.resources||[]).find(e => e.id === nodeID);
+            this.selected = (this._graphData.resources || []).find(e => e.id === nodeID);
         } else {
             this.selected = undefined;
         }
@@ -787,10 +805,10 @@ export class WebGLSceneComponent {
 
     onDblClick() {
         this.selected = this.getMouseOverEntity();
-        if (this.selected?.representsCoalescence){
+        if (this.selected?.representsCoalescence) {
             //Show coalescence dialog
             const dialogRef = this.dialog.open(CoalescenceDialog, {
-                width: '50%', height: '40%', data: {
+                width: '50%', height: '50%', data: {
                     coalescence: this.selected.representsCoalescence
                 }
             });
@@ -799,45 +817,47 @@ export class WebGLSceneComponent {
 
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
-        window.addEventListener('dblclick', () => this.onDblClick(), false );
+        window.addEventListener('dblclick', () => this.onDblClick(), false);
     }
 
     onMouseMove(evt) {
         // calculate mouse position in normalized device coordinates
         let rect = this.renderer.domElement.getBoundingClientRect();
-        this.mouse.x =  ( ( evt.clientX - rect.left ) / rect.width  ) * 2 - 1;
-        this.mouse.y = -( ( evt.clientY - rect.top  ) / rect.height ) * 2 + 1;
+        this.mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
         this.highlighted = this.getMouseOverEntity();
     }
 
-    toggleLayout(prop){
-        if (this.graph){ this.graph[prop](this._config.layout[prop]); }
+    toggleLayout(prop) {
+        if (this.graph) {
+            this.graph[prop](this._config.layout[prop]);
+        }
     }
 
     toggleGroup(group) {
-        if (!this._graphData){ return; }
-        if (group.hidden){
+        if (!group) return;
+        if (group.hidden) {
             group.show();
         } else {
             group.hide();
         }
-        if (this.graph) { this.graph.graphData(this.graphData); }
+        this.updateGraph();
     }
 
-    resetVariance(){
+    resetVariance() {
         delete this._graphData.variance;
         delete this._graphData.clade;
         this.varianceReset.emit();
     }
 
-    updateVariance(clade){
+    updateVariance(clade) {
         //The current model is general, we can alter it without regeneration
-        if (this._graphData){
+        if (this._graphData) {
             //We find the first variance with given clade and presence set to 'absent'
-            let variance = (this._graphData.varianceSpecs||[]).find(vs =>
+            let variance = (this._graphData.varianceSpecs || []).find(vs =>
                 vs.presence && vs.presence === VARIANCE_PRESENCE.ABSENT
-                && (vs.clades||[]).find(c => c === clade || c.id && c.id === clade));
-            if (!variance){
+                && (vs.clades || []).find(c => c === clade || c.id && c.id === clade));
+            if (!variance) {
                 return;
             }
             this._graphData.variance = variance;
@@ -857,7 +877,7 @@ export class WebGLSceneComponent {
             let removed = [];
 
             relevantLyphs.forEach(lyph => {
-                if (lyph.isTemplate){
+                if (lyph.isTemplate) {
                     lyphsToRemove.templates.push(lyph);
                 } else {
                     if (lyph.layerIn) {
@@ -868,10 +888,10 @@ export class WebGLSceneComponent {
                 }
             });
 
-            if (lyphsToRemove.templates.length > 0){
+            if (lyphsToRemove.templates.length > 0) {
                 this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_TEMPLATES, lyphsToRemove.templates.map(e => e.fullID));
             }
-            if (lyphsToRemove.layers.length > 0){
+            if (lyphsToRemove.layers.length > 0) {
                 //There will be  problem as we do not update lyph visuals
                 this.graphData.logger.error($LogMsg.VARIANCE_REMOVED_LAYERS, lyphsToRemove.templates.map(e => e.fullID));
             }
@@ -882,10 +902,10 @@ export class WebGLSceneComponent {
             this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
             this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
 
-            if ((this.scene.children||[]).length > 0) {
+            if ((this.scene.children || []).length > 0) {
                 removed.forEach(lyph => {
-                    (lyph.viewObjects||{})::values().forEach(viewObj => {
-                        const object = this.scene.getObjectByProperty( 'uuid', viewObj.uuid);
+                    (lyph.viewObjects || {})::values().forEach(viewObj => {
+                        const object = this.scene.getObjectByProperty('uuid', viewObj.uuid);
                         if (object) {
                             object.visible = false;
                             object.geometry.dispose();
@@ -898,14 +918,15 @@ export class WebGLSceneComponent {
                 });
                 this.renderer.dispose();
             }
-            this.graph.graphData(this._graphData);
+            this.updateGraph();
             this.varianceUpdated.emit(clade, variance);
         }
     }
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule, HotkeyModule.forRoot()],
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule,
+        ModelToolbarModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog],
     exports: [WebGLSceneComponent]

@@ -162,13 +162,10 @@ Lyph.prototype.translate = function(p0) {
  */
 Lyph.prototype.createViewObjects = function(state) {
     //Cannot draw a lyph without axis
-    if (!this.axis) { return; }
-
-    if (this.isTemplate){
+    if (!this.axis || this.isTemplate){
         return;
     }
     Shape.prototype.createViewObjects.call(this, state);
-
 
     //Create a lyph object
     if (!this.viewObjects["2d"]) {
@@ -273,10 +270,8 @@ Lyph.prototype.updateViewObjects = function(state) {
         obj = this.viewObjects["main"] = this.viewObjects["3d"];
     }
 
-    if (!obj){
-        //Saves viewer from failing when trying to visualize a lyph template which was not replaced by an instance
-        return;
-    }
+    //Saves viewer from failing when trying to visualize a lyph template which was not replaced by an instance
+    if (!obj) return;
 
     if (!this.layerIn) {//update label
         if (!this.internalIn) {

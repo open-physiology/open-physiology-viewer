@@ -220,6 +220,14 @@ export class Logger {
         })
     }
 
+    get color(){
+        switch (this.status) {
+            case this.statusOptions.ERROR: return 'red';
+            case this.statusOptions.WARNING: return 'yellow';
+        }
+        return 'green';
+    }
+
     get status(){
         let count = this.entries.filter(msg => msg.level === this.levelOptions.ERROR).length;
         if (count) { return this.statusOptions.ERROR; }

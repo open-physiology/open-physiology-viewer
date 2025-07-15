@@ -28,14 +28,14 @@ import {MatTooltipModule} from "@angular/material/tooltip";
  */
 
 const COLORS = {
-  grey: 'grey',
-  white: '#FFFFFF',
-  inputBorderColor: '#E0E0E0',
-  inputTextColor: '#797979',
-  inputPlacholderColor: '#C0C0C0',
-  black: '#000000',
-  toggleActiveBg: '#613DB0',
-  headingBg: '#F1F1F1',
+    grey: 'grey',
+    white: '#FFFFFF',
+    inputBorderColor: '#E0E0E0',
+    inputTextColor: '#797979',
+    inputPlacholderColor: '#C0C0C0',
+    black: '#000000',
+    toggleActiveBg: '#613DB0',
+    headingBg: '#F1F1F1',
 };
 
 @Component({
@@ -49,28 +49,28 @@ const COLORS = {
                     <mat-expansion-panel-header>
                         <mat-panel-title>
                             <mat-checkbox *ngIf="varianceDisabled" matTooltip="Reset" class="w3-margin-right"
-                                              [checked] = "varianceDisabled"
-                                              (change)  = "onCladeReset.emit()">
+                                          [checked]="varianceDisabled"
+                                          (change)="onCladeReset.emit()">
                             </mat-checkbox>
                             Variance
                         </mat-panel-title>
-                    </mat-expansion-panel-header>                    
-                    <mat-form-field >
+                    </mat-expansion-panel-header>
+                    <mat-form-field>
                         <div class="default-box pb-0">
                             <mat-select *ngIf="!cladeDisabled" class="default-boxContent"
-                                    [disabled]="varianceDisabled" 
-                                    [placeholder]="Clade"
-                                    [matTooltip]="Clade"
-                                    [value]="clade"
-                                    (selectionChange)="onCladeChange.emit($event.value)">
+                                        [disabled]="varianceDisabled"
+                                        [placeholder]="Clade"
+                                        [matTooltip]="Clade"
+                                        [value]="clade"
+                                        (selectionChange)="onCladeChange.emit($event.value)">
                                 <mat-option *ngFor="let option of clades" [value]="option.id">
                                     {{option.id}}
                                 </mat-option>
                             </mat-select>
                         </div>
-                   </mat-form-field>
+                    </mat-form-field>
                 </mat-expansion-panel>
-            </mat-accordion>  
+            </mat-accordion>
             <!--Highlighted entity-->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -102,16 +102,17 @@ const COLORS = {
                         </searchBar>
                         <div *ngIf="config.selected" class="default-boxContent">
                             <button *ngIf="_selected && _selected.class === 'Lyph' " title="Edit"
-                                    class="w3-bar-item w3-right w3-hover-light-grey" (click)="onEditResource.emit(_selected)">
+                                    class="w3-bar-item w3-right w3-hover-light-grey"
+                                    (click)="onEditResource.emit(_selected)">
                                 <i class="fa fa-edit"> </i>
-                            </button> 
+                            </button>
                             <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
                             </resourceInfoPanel>
                             <sciGraphSearch [selected]="_selected">
                             </sciGraphSearch>
                         </div>
                     </div>
-                </mat-expansion-panel> 
+                </mat-expansion-panel>
             </mat-accordion>
 
             <!--Group controls-->
@@ -137,7 +138,8 @@ const COLORS = {
                             <button mat-raised-button (click)="toggleAllGroups()">Toggle all</button>
                         </div>
                         <div class="wrap" *ngFor="let group of filteredGroups">
-                            <mat-slide-toggle [checked]="!group.hidden" [matTooltip]="group.name + ' (' + group.id + ')'"
+                            <mat-slide-toggle [checked]="!group.hidden"
+                                              [matTooltip]="group.name + ' (' + group.id + ')'"
                                               (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}
                                 {{group.name || group.id}}</mat-slide-toggle>
                         </div>
@@ -168,10 +170,11 @@ const COLORS = {
                             <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
                         </div>
                         <div class="wrap" *ngFor="let group of filteredDynamicGroups">
-                            <mat-slide-toggle [checked]="!group.hidden" [matTooltip]="group.name + ' (' + group.id + ')'"
+                            <mat-slide-toggle [checked]="!group.hidden"
+                                              [matTooltip]="group.name + ' (' + group.id + ')'"
                                               (change)="onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
                         </div>
-                     </div>
+                    </div>
                 </mat-expansion-panel>
             </mat-accordion>
 
@@ -204,43 +207,44 @@ const COLORS = {
                     </div>
 
                     <!-- Component visibility -->
-                    <resourceVisibility 
-                            title = "Component visibility"
-                            [renderedResources] = "renderedComponents"                        
-                            [dependentProperties] = "['anchors', 'wires', 'regions']">                
+                    <resourceVisibility
+                            title="Component visibility"
+                            [renderedResources]="renderedComponents"
+                            [dependentProperties]="['anchors', 'wires', 'regions']">
                     </resourceVisibility>
 
                     <div class="default-box">
                         <div class="settings-wrap">
                             <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle scaffold resource visibility" (change)="toggleVisibility()"
+                                <mat-slide-toggle matTooltip="Toggle scaffold resource visibility"
+                                                  (change)="toggleVisibility()"
                                                   [checked]="scaffoldResourceVisibility">Show all resources
                                 </mat-slide-toggle>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Wire visibility -->
                     <resourceVisibility
-                            title = "Wire visibility"
-                            [renderedResources] = "renderedWires">                
+                            title="Wire visibility"
+                            [renderedResources]="renderedWires">
                     </resourceVisibility>
-                    
+
                     <!-- Regions visibility -->
                     <resourceVisibility
-                            title = "Region visibility"
-                            [renderedResources] = "renderedRegions"            
-                            [dependentProperties] = "['facets', 'borderAnchors']">                
+                            title="Region visibility"
+                            [renderedResources]="renderedRegions"
+                            [dependentProperties]="['facets', 'borderAnchors']">
                     </resourceVisibility>
-        
+
                     <!-- Anchor visibility -->
                     <resourceVisibility
-                            title = "Anchor visibility"
-                            [renderedResources] = "renderedAnchors">
+                            title="Anchor visibility"
+                            [renderedResources]="renderedAnchors">
                     </resourceVisibility>
                 </mat-expansion-panel>
             </mat-accordion>
-               
+
             <!-- Settings -->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -252,7 +256,7 @@ const COLORS = {
 
                     <div class="default-box">
                         <div class="settings-wrap">
-                            
+
                             <h5>Layout</h5>
 
                             <div class="wrap">
@@ -314,19 +318,19 @@ const COLORS = {
                         </div>
                     </div>
                 </mat-expansion-panel>
-            </mat-accordion>              
+            </mat-accordion>
         </section>
     `,
     styles: [`
-       
+
         .default-box .default-box-header {
-          padding: 0.625rem;
-          display: flex;
-          align-items: center;
+            padding: 0.625rem;
+            display: flex;
+            align-items: center;
         }
-       
+
         .mat-form-field {
-          width: 100%;
+            width: 100%;
         }
 
         .default-box .default-box-header .search-bar {
@@ -424,69 +428,79 @@ const COLORS = {
         }
 
         .default-box .default-boxContent {
-          padding: 0.625rem;
-          font-size: 0.75rem;
-          color: ${COLORS.inputTextColor};
-          font-weight: 500;
+            padding: 0.625rem;
+            font-size: 0.75rem;
+            color: ${COLORS.inputTextColor};
+            font-weight: 500;
         }
+
         .default-box .default-box-header ~ .default-boxContent {
-          padding-top: 0;
+            padding-top: 0;
         }
+
         :host >>> .default-box .default-boxFooter {
-          text-align: right;
+            text-align: right;
         }
+
         :host >>> .default-box .default-boxContent section section {
-          display: flex;
+            display: flex;
         }
+
         :host >>> .default-box .default-boxError {
-          min-height: 6.25rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color:  ${COLORS.inputTextColor};
-          font-size: 0.75rem;
-          font-weight: 500;
+            min-height: 6.25rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: ${COLORS.inputTextColor};
+            font-size: 0.75rem;
+            font-weight: 500;
         }
+
         :host >>> .default-box .default-boxContent ~ .default-boxError {
-          padding-bottom: 2rem;
+            padding-bottom: 2rem;
         }
+
         :host >>> .default-box .default-boxResult {
-          border-top:${COLORS.inputBorderColor} 1px solid;
-          margin: 1rem 0 0;
-          padding-top: 0.625rem;
+            border-top: ${COLORS.inputBorderColor} 1px solid;
+            margin: 1rem 0 0;
+            padding-top: 0.625rem;
         }
+
         :host >>> .default-box .default-boxResult {
-          display: flex;
+            display: flex;
         }
+
         :host >>> .default-box .default-boxResult label {
-          width: 6.25rem;
-          flex: none;
+            width: 6.25rem;
+            flex: none;
         }
+
         :host >>> .default-box .default-boxResult ~ .default-boxError {
-          display: none;
+            display: none;
         }
+
         :host >>> .default-box .default-boxContent button:hover {
-          background: transparent !important;
-          color:  ${COLORS.inputTextColor} !important;
+            background: transparent !important;
+            color: ${COLORS.inputTextColor} !important;
         }
 
         .default-box h4 {
-          background: ${COLORS.headingBg};
-          padding: 0.8rem 1.067rem;
-          font-weight: 500;
-          font-size: 0.8rem;
-          line-height: 0.934rem;
-          color: ${COLORS.black};
-          margin: 0;
+            background: ${COLORS.headingBg};
+            padding: 0.8rem 1.067rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+            line-height: 0.934rem;
+            color: ${COLORS.black};
+            margin: 0;
         }
-        
+
         .default-box {
             font-size: 0.75rem;
         }
 
         :host ::ng-deep .default-box .wrap {
-          padding: 0 1.067rem;
-        }        
+            padding: 0 1.067rem;
+        }
     `]
 })
 export class SettingsPanel {

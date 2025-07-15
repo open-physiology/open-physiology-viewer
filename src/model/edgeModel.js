@@ -10,7 +10,7 @@ import {
     PROCESS_TYPE,
     WIRE_GEOMETRY,
     LINK_GEOMETRY,
-    LYPH_TOPOLOGY
+    LYPH_TOPOLOGY, isIncluded
 } from "./utils";
 import {merge, pick, isObject} from "lodash-bound";
 import {$LogMsg, logger} from "./logger";
@@ -27,16 +27,16 @@ import {VisualResource} from "./visualResourceModel";
  * @property {Vertice} source
  * @property {Vertice} target
  */
-export class Edge extends VisualResource{
+export class Edge extends VisualResource {
 
     /**
      * @property THICK
      * @property DASHED
      */
-    static EDGE_STROKE   = EDGE_STROKE;
+    static EDGE_STROKE = EDGE_STROKE;
     static EDGE_GEOMETRY = EDGE_GEOMETRY;
 
-    get isVisible(){
+    get isVisible() {
         //Ellipse wires have no source and target!
         return super.isVisible && (!this.source || this.source.isVisible) && (!this.target || this.target.isVisible);
     }
@@ -67,9 +67,9 @@ export class Wire extends Edge {
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 
-    applyToEndAnchors(handler){
+    applyToEndAnchors(handler) {
         [$Field.source, $Field.target].forEach(prop => {
-            if (this[prop]){
+            if (this[prop]) {
                 handler(this[prop]);
             } else {
                 logger.error($LogMsg.WIRE_NO_END_ANCHOR, this);
@@ -77,14 +77,13 @@ export class Wire extends Edge {
         });
     }
 
-    includeRelated(component){
-        (this.hostedAnchors||[]).forEach(anchor => component.anchors.push(anchor));
+    includeRelated(component) {
+        (this.hostedAnchors || []).forEach(anchor => component.anchors.push(anchor));
         if (this.geometry !== WIRE_GEOMETRY.ELLIPSE) {
             this.applyToEndAnchors(
                 (end) => {
                     if (end.generated && !component.contains(end)) {
                         component.anchors.push(end);
-                        end.hidden = component.hidden;
                     }
                 }
             )
@@ -129,7 +128,7 @@ export class Link extends Edge {
      * @property ADVECTIVE
      * @property DIFFUSIVE
      */
-    static PROCESS_TYPE  = PROCESS_TYPE;
+    static PROCESS_TYPE = PROCESS_TYPE;
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
@@ -141,55 +140,57 @@ export class Link extends Edge {
         //If the end nodes are fixed, compute actual link's length
         const s = res.source && res.source.layout;
         const t = res.target && res.target.layout;
-        if (s && t && s.fixed && t.fixed){
+        if (s && t && s.fixed && t.fixed) {
             const d = {};
-            ["x", "y", "z"].forEach(dim => d[dim] =  (t[dim] || 0) - (s[dim] || 0));
+            ["x", "y", "z"].forEach(dim => d[dim] = (t[dim] || 0) - (s[dim] || 0));
             res.length = Math.sqrt(d.x * d.x + d.y * d.y + d.z * d.z);
         }
         return res;
     }
 
-    static clone(sourceLink, targetLink){
-        if (!sourceLink || !targetLink) { return; }
+    static clone(sourceLink, targetLink) {
+        if (!sourceLink || !targetLink) {
+            return;
+        }
         targetLink.cloneOf = sourceLink.fullID || sourceLink.id;
         targetLink::merge(sourceLink::pick([$Field.conveyingType, $Field.conveyingMaterials, $Field.color]));
         targetLink.skipLabel = true;
         targetLink.generated = true;
     }
 
-    static createCollapsibleLink(source, target, namespace = undefined){
+    static createCollapsibleLink(source, target, namespace = undefined) {
         return genResource({
-            [$Field.id]         : getGenID($Prefix.link, source.id, target.id),
-            [$Field.namespace]  : namespace || source.namespace || target.namespace,
-            [$Field.source]     : source.id,
-            [$Field.target]     : target.id,
-            [$Field.stroke]     : EDGE_STROKE.DASHED,
-            [$Field.length]     : 1,
-            [$Field.strength]   : 1,
+            [$Field.id]: getGenID($Prefix.link, source.id, target.id),
+            [$Field.namespace]: namespace || source.namespace || target.namespace,
+            [$Field.source]: source.id,
+            [$Field.target]: target.id,
+            [$Field.stroke]: EDGE_STROKE.DASHED,
+            [$Field.length]: 1,
+            [$Field.strength]: 1,
             [$Field.collapsible]: true,
-            [$Field.skipLabel]  : true
+            [$Field.skipLabel]: true
         }, "edgeModel.createCollapsibleLink (Link)");
     }
 
-    static createForceLink(sourceID, targetID){
+    static createForceLink(sourceID, targetID) {
         return genResource({
-            [$Field.id]         : getGenID($Prefix.force, sourceID, targetID),
+            [$Field.id]: getGenID($Prefix.force, sourceID, targetID),
             [$Field.description]: "force",
-            [$Field.source]     : sourceID,
-            [$Field.target]     : targetID,
-            [$Field.geometry]   : EDGE_GEOMETRY.INVISIBLE,
+            [$Field.source]: sourceID,
+            [$Field.target]: targetID,
+            [$Field.geometry]: EDGE_GEOMETRY.INVISIBLE,
             // Enable for testing
             // [$Field.geometry]   : EDGE_GEOMETRY.LINK,
             // [$Field.color]      : "#FF0000",
-            [$Field.length]     : 1,
-            [$Field.strength]   : 1,
-            [$Field.skipLabel]  : true
-        },"edgeModel.createForceLink (Link)");
+            [$Field.length]: 1,
+            [$Field.strength]: 1,
+            [$Field.skipLabel]: true
+        }, "edgeModel.createForceLink (Link)");
     }
 
-    createForceNodes(){
+    createForceNodes() {
         let nodes = [null, null];
-        if (this.collapsible){
+        if (this.collapsible) {
             let housingLyphs = [null, null];
             [$Field.source, $Field.target].forEach((prop, i) => {
                 let border = this[prop] && this[prop].hostedBy;
@@ -199,12 +200,12 @@ export class Link extends Edge {
                     housingLyphs[i] = this[prop] && this[prop].internalIn;
                 }
                 while (housingLyphs[i] && (housingLyphs[i].container || housingLyphs[i].host)) {
-                   housingLyphs[i] = housingLyphs[i].container || housingLyphs[i].host;
+                    housingLyphs[i] = housingLyphs[i].container || housingLyphs[i].host;
                 }
             });
             [$Field.source, $Field.target].forEach((prop, i) => {
                 nodes[i] = housingLyphs[i] && housingLyphs[i].conveys && housingLyphs[i].conveys[prop];
-                if (!nodes[i]){
+                if (!nodes[i]) {
                     //Create a tension link between lyph end and free floating end of collapsible link
                     nodes[i] = this[prop];
                 }
@@ -213,13 +214,13 @@ export class Link extends Edge {
         return nodes;
     }
 
-    get isVisible(){
-        return this.onBorder? this.onBorder.isVisible : super.isVisible;
+    get isVisible() {
+        return this.onBorder ? this.onBorder.isVisible : super.isVisible;
     }
 
-    applyToEndNodes(handler){
+    applyToEndNodes(handler) {
         [$Field.source, $Field.target].forEach(prop => {
-            if (this[prop]){
+            if (this[prop]) {
                 handler(this[prop]);
             } else {
                 logger.error($LogMsg.LINK_NO_END_NODE, this);
@@ -227,74 +228,71 @@ export class Link extends Edge {
         });
     }
 
-    includeRelated(group){
+    includeRelated(group) {
         if (this.conveyingLyph) {
-            if (!group.contains(this.conveyingLyph)){
+            if (!group.contains(this.conveyingLyph)) {
                 group.lyphs.push(this.conveyingLyph);
-                this.conveyingLyph.hidden = group.hidden;
             }
         }
-        (this.hostedNodes||[]).forEach(node => {
-           if (!group.contains(node)) {
-              group.nodes.push(node);
-              node.hidden = group.hidden;
-           }
+        (this.hostedNodes || []).forEach(node => {
+            if (!group.contains(node)) {
+                group.nodes.push(node);
+            }
         });
         //include generated source and target nodes to the same group
         this.applyToEndNodes(
-            (end) => {
-                if (end.generated && !group.contains(end)) {
+            end => {
+                if (!group.contains(end)) {
                     group.nodes.push(end);
-                    end.hidden = group.hidden;
                 }
             }
         )
     }
 
-    get conveyingTopology(){
+    get conveyingTopology() {
         let res = this.conveyingLyph && (this.conveyingLyph.topology || LYPH_TOPOLOGY.TUBE);
-        if (res === LYPH_TOPOLOGY["BAG-"]){
+        if (res === LYPH_TOPOLOGY["BAG-"]) {
             return LYPH_TOPOLOGY.BAG;
         }
-        if (res === LYPH_TOPOLOGY["BAG+"]){
+        if (res === LYPH_TOPOLOGY["BAG+"]) {
             return LYPH_TOPOLOGY.BAG2;
         }
         return res;
     }
 
-    validate(){
+    validate() {
         this.validateProcess();
-        if (!this.source.sourceOf){
+        if (!this.source.sourceOf) {
             logger.error($LogMsg.NODE_NO_LINK_REF, this);
             return;
         }
-        if (!this.target.targetOf){
+        if (!this.target.targetOf) {
             logger.error($LogMsg.NODE_NO_LINK_REF, this);
             return;
         }
-        if (this.source.sourceOf.length === 1 && this.target.targetOf === 1){
+        if (this.source.sourceOf.length === 1 && this.target.targetOf === 1) {
             this.geometry = LINK_GEOMETRY.INVISIBLE;
             this.source.invisible = true;
             this.target.invisible = true;
         }
     }
 
-    validateProcess(){
-        if (this.conveyingLyph){
+    validateProcess() {
+        if (this.conveyingLyph) {
             let layers = this.conveyingLyph.layers || [this.conveyingLyph];
-            if (layers[0] && layers[0].materials){
-                if (this.conveyingType === PROCESS_TYPE.ADVECTIVE){
-                    if (!this.conveyingMaterials || this.conveyingMaterials.length === 0){
+            if (layers[0] && layers[0].materials) {
+                if (this.conveyingType === PROCESS_TYPE.ADVECTIVE) {
+                    if (!this.conveyingMaterials || this.conveyingMaterials.length === 0) {
                         this.conveyingMaterials = layers[0].materials;
                     } else {
-                        let diff = (layers[0].materials || []).filter(x => !(this.conveyingMaterials||[]).find(e => e.id === x.id));
-                        if (diff.length > 0){
+                        let diff = (layers[0].materials || []).filter(x => !isIncluded(this.conveyingMaterials, x.id));
+                        if (diff.length > 0) {
                             logger.warn($LogMsg.PROCESS_NOT_ADVECTIVE, this.id, diff);
                         }
                     }
                 } else {
-                    let nonConveying = (this.conveyingMaterials||[]).filter(x => !(layers[0].materials || []).find(e => e.id === x.id));
-                    if (nonConveying.length > 0){
+                    let nonConveying = (this.conveyingMaterials || []).filter(x => !isIncluded(layers[0].materials, x.id));
+                    if (nonConveying.length > 0) {
                         logger.warn($LogMsg.PROCESS_NOT_DIFFUSIVE, this.id, nonConveying);
                     }
                 }
