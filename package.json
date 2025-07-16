@@ -6,6 +6,8 @@
   "scripts": {
     "test": "mochapack --opts mocha-webpack.opts --timeout 50000 test/**/*.spec.js",
     "build": "node src/version/update-version.js && cross-env BABEL_ENV=production webpack",
+    "build-demo": "node src/version/update-version.js && cross-env BABEL_ENV=production webpack --config webpack.config-demo.js",
+    "build-hubmap": "cross-env BABEL_ENV=production webpack --config webpack.config-hubmap.js",
     "watch": "webpack --progress --watch",
     "dev-server": "webpack-dev-server --open --hot --config webpack.config-dev.js",
     "esdoc": "./node_modules/.bin/esdoc",

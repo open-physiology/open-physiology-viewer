@@ -2,175 +2,14 @@ import {getGenID, $Prefix, $Field, generateFromJSON, getGenName} from "../model"
 import {getFullID, findResourceByID, $Color, mergeGenResource, isIncluded, includeRef} from "../model/utils";
 import {cloneDeep} from 'lodash-bound';
 import {$LogMsg, logger} from "../model/logger";
+import {VascularScaffold} from "./vascularScaffold";
 
 const aV = "aV", aW = "aW", rV = "rV", rW = "rW";
 const WIRE_CURVATURE = 15;
 const CLS_POS = {x: -50, y: -30};
 const CLS_DISTANCE = 5;
-const RAIL_DISTANCE = 10;
 
-class VascularLayout {
-    constructor(scaffold) {
-        this.scaffold = scaffold;
-        this.scaffold.namespace = scaffold.namespace || scaffold.id;
-        this.wireV = findResourceByID(scaffold.wires, "w-V-rail");
-        this.wireW = findResourceByID(scaffold.wires, "w-W-rail");
-        this.sV = findResourceByID(scaffold.anchors, "sV");
-        this.tV = findResourceByID(scaffold.anchors, "tV");
-        this.sW = findResourceByID(scaffold.anchors, "sW");
-        this.tW = findResourceByID(scaffold.anchors, "tW");
-    }
-
-    createRailV0() {
-        if (isIncluded(this.scaffold.wires, "w-V-rail_0")) return;
-        let sV_0 = {
-            [$Field.id]: "sV_0",
-            [$Field.layout]: {
-                x: this.sV.layout.x,
-                y: this.sV.layout.y + RAIL_DISTANCE
-            },
-            [$Field.invisible]: true,
-            [$Field.skipLabel]: true
-        }
-        let tV_0 = {
-            [$Field.id]: "tV_0",
-            [$Field.layout]: {
-                x: this.tV.layout.x,
-                y: this.tV.layout.y + RAIL_DISTANCE
-            },
-            [$Field.invisible]: true,
-            [$Field.skipLabel]: true
-        }
-        this.wireV_0 = {
-            [$Field.id]: "w-V-rail_0",
-            [$Field.source]: sV_0.id,
-            [$Field.target]: tV_0.id,
-            [$Field.geometry]: "invisible"
-        }
-        this.scaffold.anchors.push(sV_0);
-        this.scaffold.anchors.push(tV_0);
-        this.scaffold.wires.push(this.wireV_0);
-    }
-
-    createRailW0() {
-        if (findResourceByID(this.scaffold.wires, "w-W-rail_0")) return;
-        let sW_0 = {
-            [$Field.id]: "sW_0",
-            [$Field.layout]: {
-                x: this.sW.layout.x,
-                y: this.sW.layout.y - RAIL_DISTANCE
-            },
-            [$Field.invisible]: true,
-            [$Field.skipLabel]: true
-        }
-        let tW_0 = {
-            [$Field.id]: "tW_0",
-            [$Field.layout]: {
-                x: this.tW.layout.x,
-                y: this.tW.layout.y - RAIL_DISTANCE
-            },
-            [$Field.invisible]: true,
-            [$Field.skipLabel]: true
-        }
-        this.wireW_0 = {
-            [$Field.id]: "w-W-rail_0",
-            [$Field.source]: sW_0.id,
-            [$Field.target]: tW_0.id,
-            [$Field.geometry]: "invisible"
-        }
-        this.scaffold.anchors.push(sW_0);
-        this.scaffold.anchors.push(tW_0);
-        this.scaffold.wires.push(this.wireW_0);
-    }
-
-    computeDistance(coord1, coord2) {
-        if (!coord1 || !coord2) return;
-        const dx = coord1.x - coord2.x;
-        const dy = coord1.y - coord2.y;
-        return Math.sqrt(dx * dx + dy * dy);
-    }
-
-    scaleEllipse(ellipse, dx, dy) {
-        if (!ellipse?.radius) return;
-        ellipse.radius.x += dx;
-        ellipse.radius.y += dy;
-    }
-
-    updateRails(rail1, rail2, d) {
-        if (!rail1 || !rail2) return;
-        let s1 = findResourceByID(this.scaffold.anchors, rail1.source);
-        let s2 = findResourceByID(this.scaffold.anchors, rail2.source);
-        let t1 = findResourceByID(this.scaffold.anchors, rail1.target);
-        let t2 = findResourceByID(this.scaffold.anchors, rail2.target);
-        let d0 = this.computeDistance(s1, s2);
-        let delta = (d - d0) / 2;
-        s1.layout.y -= delta;
-        s2.layout.y += delta;
-        t1.layout.y -= delta;
-        t2.layout.y += delta;
-        return delta;
-    }
-
-    updateRegion(region, delta) {
-        if (!region?.points) return;
-        region.points.forEach(p => p.y += delta);
-    }
-
-    updateRailRegions(d) {
-        let delta = this.updateRails(d);
-        let rV = findResourceByID(this.scaffold.regions, rV);
-        let rW = findResourceByID(this.scaffold.regions, rW);
-        this.updateRegion(rV, -delta);
-        this.updateRegion(rW, delta);
-    }
-
-    assignWire(chain, anchorS, anchorT, curvature) {
-        let w = {
-            [$Field.id]: getGenID($Prefix.wire, chain.id),
-            [$Field.name]: getGenName("Wire for", chain.name),
-            [$Field.source]: anchorS,
-            [$Field.target]: anchorT,
-            [$Field.geometry]: "spline",
-            [$Field.stroke]: "dashed",
-            [$Field.curvature]: curvature
-        }
-        this.scaffold.wires.push(w);
-        chain.wiredTo = getFullID(this.scaffold.namespace, w.id);
-        return w;
-    }
-
-    getVChains(chains) {
-        return (chains || []).filter(c => c.root?.anchoredTo?.id === aV);
-    }
-
-    getWChains(chains) {
-        return (chains || []).filter(c => c.root?.anchoredTo?.id === aW && c.levels?.length > 1);
-    }
-
-    createAnchorRegionV(ext, wire = null) {
-        let anchorX = {
-            [$Field.id]: getGenID($Prefix.anchor, aV, rV, ext),
-            [$Field.hostedBy]: wire?.id || this.wireV.id,
-            [$Field.skipLabel]: true,
-            [$Field.invisible]: true
-        }
-        this.scaffold.anchors.push(anchorX);
-        return anchorX;
-    }
-
-    createAnchorRegionW(ext, wire = null) {
-        let anchorX = {
-            [$Field.id]: getGenID($Prefix.anchor, aW, rW, ext),
-            [$Field.hostedBy]: wire?.id || this.wireW.id,
-            [$Field.skipLabel]: true,
-            [$Field.invisible]: true
-        }
-        this.scaffold.anchors.push(anchorX);
-        return anchorX;
-    }
-}
-
-export function createVascularLayout(model) {
+export function createVascularLayout(model, modelClasses) {
 
     function findAllPaths(edges, startEdge) {
         const results = [];
@@ -244,7 +83,7 @@ export function createVascularLayout(model) {
         }
         logger.info($LogMsg.SCAFFOLD_CUSTOM, scaffold.id);
 
-        const scaffoldLayout = new VascularLayout(scaffold);
+        const scaffoldLayout = new VascularScaffold(scaffold);
         console.info("Generating model for connectivity analysis...");
         let genModel = generateFromJSON(model::cloneDeep());
         console.log("Preliminary model generated!");
@@ -320,8 +159,6 @@ export function createVascularLayout(model) {
                 wireHandler(chainMap[chain.id], anchorX.id);
 
                 railLinks[chain.id] = new Set();
-                //let railMaxIdx = 0;
-
 
                 model.groups = model.groups || [];
                 let chainGroup = {
@@ -371,60 +208,13 @@ export function createVascularLayout(model) {
                     (clsLyph.inCoalescences || []).forEach(cls => coalescenceSet.add(cls));
                 });
             }
-
-            function createCoalescenceNode(cls, i, clsGroup) {
-                let clsNodeID = getGenID($Prefix.node, cls.id);
-                //If coalescence node exists, do nothing
-                if (isIncluded(model.nodes, clsNodeID)) return;
-
-                let clsNode = {
-                    [$Field.id]: clsNodeID,
-                    [$Field.name]: cls.name,
-                    [$Field.layout]: {
-                        x: CLS_POS.x + CLS_DISTANCE * i,
-                        y: CLS_POS.y
-                    },
-                    [$Field.val]: 5,
-                    [$Field.fixed]: true,
-                    [$Field.color]: $Color.Coalescence,
-                    [$Field.representsCoalescence]: cls.fullID
-                }
-                mergeGenResource(clsGroup, model, clsNode, $Field.nodes);
-                (cls.lyphs || []).forEach((lyph, j) => {
-                    let lyphRef = getFullID(wbkg.namespace, lyph.id);
-                    let clsLyphNode = {
-                        [$Field.id]: getGenID(clsNodeID, j),
-                        [$Field.name]: cls.name,
-                        [$Field.invisible]: true,
-                        [$Field.internalIn]: lyphRef
-                    }
-                    mergeGenResource(clsGroup, model, clsLyphNode, $Field.nodes);
-                    let clsLnk = {
-                        [$Field.id]: getGenID($Prefix.link, cls.id, j),
-                        [$Field.name]: getGenName("Coalescing lyph", j, cls.name || cls.id),
-                        [$Field.stroke]: "dashed",
-                        [$Field.source]: clsNode.id,
-                        [$Field.target]: clsLyphNode.id
-                    }
-                    mergeGenResource(clsGroup, model, clsLnk, $Field.links);
-                    includeRef(clsGroup.lyphs, lyphRef);
-                });
-            }
-
-            model.nodes = model.nodes || [];
-            model.links = model.links || [];
-            model.groups = model.groups || [];
-            let clsGroup = {
-                [$Field.id]: getGenID($Prefix.group, "cls"),
-                [$Field.name]: "Coalescences",
-                [$Field.hidden]: false,
-                [$Field.nodes]: [],
-                [$Field.links]: [],
-                [$Field.lyphs]: [],
-            }
-            model.groups.unshift(clsGroup);
             Array.from(coalescenceSet).forEach((cls, i) => {
-                createCoalescenceNode(cls, i, clsGroup);
+                let group = cls.createNodeGroup(model);
+                let node = cls.createNodes(group, model);
+                node.layout = {
+                    "x": CLS_POS.x + i * CLS_DISTANCE,
+                    "y": CLS_POS.y
+                }
             });
         }
 
@@ -447,4 +237,9 @@ export function createVascularLayout(model) {
 export function configVascularLayout(genModel, config) {
     config.layout = config.layout || {};
     config.layout.showLayers = false;
+    genModel.groups.forEach(g => {
+        if (g.hidden){
+            g.inactive = true;
+        }
+    })
 }

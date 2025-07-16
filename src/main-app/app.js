@@ -7,6 +7,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatListModule} from '@angular/material/list'
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {HttpClient} from '@angular/common/http';
 
 import FileSaver from 'file-saver';
@@ -20,6 +21,7 @@ import {LayoutEditorModule} from "../components/layoutEditor";
 import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
+
 import {
     modelClasses,
     schema,
@@ -56,7 +58,6 @@ import {MaterialEditorModule} from "../components/editors/materialEditor";
 import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
-//import {HubMapModule} from "../components/editors/hubmapViewer";
 import config from "../data/config.json";
 import {layoutConfigs, layouts} from "../layouts/layouts";
 
@@ -73,12 +74,11 @@ const TAB_INDEX = {
     material: 3,
     lyph: 4,
     chain: 5,
-    coalescence: 6,
-    hubmap: 7
+    coalescence: 6
 }
 
 @Component({
-    selector: 'test-app',
+    selector: 'main-app',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
 
@@ -172,6 +172,17 @@ const TAB_INDEX = {
                                 (editResource)="onEditResource($event)"
                     >
                     </webGLScene>
+                    <!-- Model loading progress bar -->
+                    <div *ngIf="loading" class="loading-overlay">
+                        <div class="loading-content">
+                            <mat-progress-spinner
+                                    color="primary"
+                                    mode="indeterminate"
+                                    diameter="50">
+                            </mat-progress-spinner>
+                            <p class="loading-text">Please, wait! Model is loading...</p>
+                        </div>
+                    </div>
                 </mat-tab>
 
                 <!--Relationship graph-->
@@ -264,14 +275,6 @@ const TAB_INDEX = {
                             (onSwitchEditor)="switchEditor($event)">
                     </coalescenceEditor>
                 </mat-tab>
-
-                <!--HubMap Viewer-->
-<!--                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #hubMapTab>-->
-<!--                    <ng-template mat-tab-label><i class="fa fa-map"></i> HubMap Viewer</ng-template>-->
-<!--                    <hubmapViewer>-->
-<!--                    </hubmapViewer>-->
-<!--                </mat-tab>-->
-
             </mat-tab-group>
         </section>
 
@@ -320,6 +323,32 @@ const TAB_INDEX = {
         #repo-panel {
             height: 95vh;
         }
+        
+        .loading-overlay {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .loading-text {
+            margin-top: 16px;
+            font-size: 16px;
+            color: #333;
+            font-family: Arial, sans-serif;
+        }
 
         footer {
             position: absolute;
@@ -328,7 +357,7 @@ const TAB_INDEX = {
         }
     `]
 })
-export class TestApp {
+export class MainApp {
     modelClasses = modelClasses;
     showRepoPanel = false;
     _graphData;
@@ -365,28 +394,36 @@ export class TestApp {
             duration: 2000
         };
 
-        // Uncomment to load a default test model (WBKG) instead of an empty new model
-        this.model = defaultTestModel;
-        //this.create();
+        this.create();
+    }
 
-        // Uncomment to load by default a Git version of WBKG
-        // const url = config.initModel;
-        // http.get(url).subscribe(
-        //     res => {
-        //         this.model = res;
-        //         this.showMessage("Successfully loaded WBKG from GitHub!")
-        //     },
-        //     err => {
-        //         console.error(err);
-        //         this.showErrorMessage("Failed to load WBKG from GitHub!");
-        //     }
-        // );
+    set model(model) {
+        this._model = model;
+
+        //Call dynamic layout
+        const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
+        if (scaffold?.id in layouts) {
+            layouts[scaffold.id](this._model, this.modelClasses);
+        }
+
+        //try{
+        this._modelName = this._model.name || this._model.id || "?";
+        this._graphData = generateFromJSON(this._model);
+        // } catch(err){
+        //    throw new Error(err);
+        // }
+        if (scaffold?.id in layoutConfigs) {
+            layoutConfigs[scaffold.id](this._graphData, this._config);
+        }
+
+        this._snapshot = undefined;
+        if (this._editor) {
+            this._editor.set(this._model);
+        }
     }
 
     ngAfterViewInit() {
-        if (!this._container) {
-            return;
-        }
+        if (!this._container) return;
         this._editor = new JSONEditor(this._container.nativeElement, {
             mode: 'code',
             modes: ['code', 'tree', 'view'],
@@ -394,6 +431,26 @@ export class TestApp {
             schema: schema
         });
         this._editor.set(this._model);
+
+        this.loading = true;
+        setTimeout(() => {
+            this.model = defaultTestModel;
+
+            // Uncomment to load by default a Git version of WBKG
+            // const url = config.initModel;
+            // http.get(url).subscribe(
+            //     res => {
+            //         this.model = res;
+            //         this.showMessage("Successfully loaded WBKG from GitHub!")
+            //     },
+            //     err => {
+            //         console.error(err);
+            //         this.showErrorMessage("Failed to load WBKG from GitHub!");
+            //     }
+            // );
+            this.loading = false;
+        }, 0);
+
     }
 
     // noinspection JSMethodCanBeStatic
@@ -637,31 +694,6 @@ export class TestApp {
     onHighlightedItemChange(item) {
     }
 
-    set model(model) {
-        this._model = model;
-
-        //Call dynamic layout
-        const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
-        if (scaffold?.id in layouts) {
-            layouts[scaffold.id](this._model);
-        }
-
-        //try{
-        this._modelName = this._model.name || this._model.id || "?";
-        this._graphData = generateFromJSON(this._model);
-        // } catch(err){
-        //    throw new Error(err);
-        // }
-        if (scaffold?.id in layoutConfigs) {
-            layoutConfigs[scaffold.id](this._graphData, this._config);
-        }
-
-        this._snapshot = undefined;
-        if (this._editor) {
-            this._editor.set(this._model);
-        }
-    }
-
     get graphData() {
         return this._graphData;
     }
@@ -849,17 +881,15 @@ export class TestApp {
 }
 
 /**
- * The TestAppModule test module, which supplies the _excellent_ TestApp test application!
+ * The MainAppModule test module, which supplies the _excellent_ MainApp test application!
  */
 @NgModule({
-    imports: [BrowserModule, WebGLSceneModule, BrowserAnimationsModule, //ResourceEditorModule,
-        RelGraphModule,
-        ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
+    imports: [BrowserModule, WebGLSceneModule, BrowserAnimationsModule,
+        RelGraphModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule],
-    //, HubMapModule],
-    declarations: [TestApp, ImportDialog],
-    bootstrap: [TestApp],
+        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, MatProgressSpinnerModule],
+    declarations: [MainApp, ImportDialog],
+    bootstrap: [MainApp],
     entryComponents: [ImportDialog],
     providers: [
         {
@@ -872,5 +902,5 @@ export class TestApp {
         }
     ]
 })
-export class TestAppModule {
+export class MainAppModule {
 }

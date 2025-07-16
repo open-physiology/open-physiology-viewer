@@ -42,33 +42,79 @@ const COLORS = {
     selector: 'settingsPanel',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-        <section>
-            <!--Variance-->
-            <mat-accordion *ngIf="clades?.length > 0">
+        <section>   
+            <!-- Settings -->
+            <mat-accordion>
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            <mat-checkbox *ngIf="varianceDisabled" matTooltip="Reset" class="w3-margin-right"
-                                          [checked]="varianceDisabled"
-                                          (change)="onCladeReset.emit()">
-                            </mat-checkbox>
-                            Variance
+                            Settings
                         </mat-panel-title>
                     </mat-expansion-panel-header>
-                    <mat-form-field>
-                        <div class="default-box pb-0">
-                            <mat-select *ngIf="!cladeDisabled" class="default-boxContent"
-                                        [disabled]="varianceDisabled"
-                                        [placeholder]="Clade"
-                                        [matTooltip]="Clade"
-                                        [value]="clade"
-                                        (selectionChange)="onCladeChange.emit($event.value)">
-                                <mat-option *ngFor="let option of clades" [value]="option.id">
-                                    {{option.id}}
-                                </mat-option>
-                            </mat-select>
+
+                    <div class="default-box">
+                        <div class="settings-wrap">
+
+                            <h5>Layout</h5>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle view mode" (change)="toggleMode()"
+                                                  [checked]="config.layout.numDimensions === 2">2D mode
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle lyphs" (change)="toggleLayout('showLyphs')"
+                                                  [checked]="config.layout.showLyphs">Lyphs
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle layers" [disabled]="!config.layout.showLyphs"
+                                                  (change)="toggleLayout('showLayers')"
+                                                  [checked]="config.layout.showLayers">Layers
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle 3D lyphs" [disabled]="!config.layout.showLyphs"
+                                                  (change)="toggleLayout('showLyphs3d')"
+                                                  [checked]="config.layout.showLyphs3d">Lyphs 3D
+                                </mat-slide-toggle>
+                            </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle coalescences" [disabled]="!config.layout.showLyphs"
+                                                  (change)="toggleLayout('showCoalescences')"
+                                                  [checked]="config.layout.showCoalescences">Coalescences
+                                </mat-slide-toggle>
+                            </div>
                         </div>
-                    </mat-form-field>
+
+                        <div class="settings-wrap">
+                            <h5>Labels</h5>
+                            <div class="wrap" *ngFor="let labelClass of _labelClasses">
+                                <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]"
+                                                  (change)="updateShowLabels(labelClass)"><img
+                                        src="./styles/images/toggle-icon.svg"/>{{labelClass}}</mat-slide-toggle>
+                                <mat-radio-group [(ngModel)]="config.labels[labelClass]"
+                                                 *ngIf="config.showLabels[labelClass]">
+                                    <mat-radio-button *ngFor="let labelProp of _labelProps"
+                                                      [value]="labelProp"
+                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
+                                    </mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                        </div>
+
+                        <div class="settings-wrap">
+                            <h5>Helpers</h5>
+                            <div class="wrap" *ngFor="let helper of _helperKeys">
+                                <mat-slide-toggle matTooltip="Toggle planes" [checked]="_showHelpers.has(helper)"
+                                                  (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
+                            </div>
+                        </div>
+                    </div>
                 </mat-expansion-panel>
             </mat-accordion>
             <!--Highlighted entity-->
@@ -244,79 +290,32 @@ const COLORS = {
                     </resourceVisibility>
                 </mat-expansion-panel>
             </mat-accordion>
-
-            <!-- Settings -->
-            <mat-accordion>
+            <!--Variance-->
+            <mat-accordion *ngIf="clades?.length > 0">
                 <mat-expansion-panel>
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            Settings
+                            <mat-checkbox *ngIf="varianceDisabled" matTooltip="Reset" class="w3-margin-right"
+                                          [checked]="varianceDisabled"
+                                          (change)="onCladeReset.emit()">
+                            </mat-checkbox>
+                            Variance
                         </mat-panel-title>
                     </mat-expansion-panel-header>
-
-                    <div class="default-box">
-                        <div class="settings-wrap">
-
-                            <h5>Layout</h5>
-
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle view mode" (change)="toggleMode()"
-                                                  [checked]="config.layout.numDimensions === 2">2D mode
-                                </mat-slide-toggle>
-                            </div>
-
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle lyphs" (change)="toggleLayout('showLyphs')"
-                                                  [checked]="config.layout.showLyphs">Lyphs
-                                </mat-slide-toggle>
-                            </div>
-
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle layers" [disabled]="!config.layout.showLyphs"
-                                                  (change)="toggleLayout('showLayers')"
-                                                  [checked]="config.layout.showLayers">Layers
-                                </mat-slide-toggle>
-                            </div>
-
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle 3D lyphs" [disabled]="!config.layout.showLyphs"
-                                                  (change)="toggleLayout('showLyphs3d')"
-                                                  [checked]="config.layout.showLyphs3d">Lyphs 3D
-                                </mat-slide-toggle>
-                            </div>
-
-                            <div class="wrap">
-                                <mat-slide-toggle matTooltip="Toggle coalescences" [disabled]="!config.layout.showLyphs"
-                                                  (change)="toggleLayout('showCoalescences')"
-                                                  [checked]="config.layout.showCoalescences">Coalescences
-                                </mat-slide-toggle>
-                            </div>
+                    <mat-form-field>
+                        <div class="default-box pb-0">
+                            <mat-select *ngIf="!cladeDisabled" class="default-boxContent"
+                                        [disabled]="varianceDisabled"
+                                        [placeholder]="Clade"
+                                        [matTooltip]="Clade"
+                                        [value]="clade"
+                                        (selectionChange)="onCladeChange.emit($event.value)">
+                                <mat-option *ngFor="let option of clades" [value]="option.id">
+                                    {{option.id}}
+                                </mat-option>
+                            </mat-select>
                         </div>
-
-                        <div class="settings-wrap">
-                            <h5>Labels</h5>
-                            <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                                <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]"
-                                                  (change)="updateShowLabels(labelClass)"><img
-                                        src="./styles/images/toggle-icon.svg"/>{{labelClass}}</mat-slide-toggle>
-                                <mat-radio-group [(ngModel)]="config.labels[labelClass]"
-                                                 *ngIf="config.showLabels[labelClass]">
-                                    <mat-radio-button *ngFor="let labelProp of _labelProps"
-                                                      [value]="labelProp"
-                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
-                                    </mat-radio-button>
-                                </mat-radio-group>
-                            </div>
-                        </div>
-
-                        <div class="settings-wrap">
-                            <h5>Helpers</h5>
-                            <div class="wrap" *ngFor="let helper of _helperKeys">
-                                <mat-slide-toggle matTooltip="Toggle planes" [checked]="_showHelpers.has(helper)"
-                                                  (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
-                            </div>
-                        </div>
-                    </div>
+                    </mat-form-field>
                 </mat-expansion-panel>
             </mat-accordion>
         </section>

@@ -1,7 +1,15 @@
 import {Resource} from './resourceModel';
 import {logger, $LogMsg} from "./logger";
 import {keys, values, uniqBy} from 'lodash-bound';
-import {$Field, $SchemaClass, $Prefix, COALESCENCE_TOPOLOGY, getGenID, genResource, findAllDerived} from "./utils";
+import {
+    $Field,
+    $SchemaClass,
+    $Prefix,
+    COALESCENCE_TOPOLOGY,
+    getGenID,
+    genResource,
+    isIncluded, $Color, mergeGenResource, getGenName, includeRef
+} from "./utils";
 
 /**
  * Coalescence model
@@ -121,5 +129,56 @@ export class Coalescence extends Resource {
      */
     get isTemplate() {
         return !!(this.lyphs || []).find(lyphOrMat => lyphOrMat.isTemplate || lyphOrMat.class === $SchemaClass.Material);
+    }
+
+    createNodes(group, parentGroup) {
+        let nodeID = getGenID($Prefix.node, this.id);
+        //If coalescence node exists, do nothing
+        if (isIncluded(parentGroup.nodes, nodeID)) return;
+
+        let node = {
+            [$Field.id]: nodeID,
+            [$Field.name]: this.name,
+            [$Field.val]: 5,
+            [$Field.fixed]: true,
+            [$Field.color]: $Color.Coalescence,
+            [$Field.representsCoalescence]: this.fullID
+        }
+        mergeGenResource(group, parentGroup, node, $Field.nodes);
+        (this.lyphs || []).forEach((lyph, i) => {
+            let lyphNode = {
+                [$Field.id]: getGenID(nodeID, i),
+                [$Field.name]: this.name,
+                [$Field.invisible]: true,
+                [$Field.internalIn]: lyph.fullID
+            }
+            mergeGenResource(group, parentGroup, lyphNode, $Field.nodes);
+            let link = {
+                [$Field.id]: getGenID($Prefix.link, this.id, i),
+                [$Field.name]: getGenName("Coalescing lyph", i, this.name || this.id),
+                [$Field.stroke]: "dashed",
+                [$Field.source]: node.id,
+                [$Field.target]: lyphNode.id
+            }
+            mergeGenResource(group, parentGroup, link, $Field.links);
+            includeRef(group.lyphs, lyph.fullID);
+        });
+        return node;
+    }
+
+    createNodeGroup(parentGroup) {
+        parentGroup.nodes = parentGroup.nodes || [];
+        parentGroup.links = parentGroup.links || [];
+        parentGroup.groups = parentGroup.groups || [];
+        let group = {
+            [$Field.id]: getGenID($Prefix.group, "cls", this.id),
+            [$Field.name]: getGenName("Coalescence group", this.name || this.id),
+            [$Field.hidden]: false,
+            [$Field.nodes]: [],
+            [$Field.links]: [],
+            [$Field.lyphs]: [],
+        }
+        parentGroup.groups.push(group);
+        return group;
     }
 }

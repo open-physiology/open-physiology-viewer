@@ -7,7 +7,7 @@ module.exports = {
     devtool: 'eval-cheap-source-map',
 	context: path.resolve(__dirname, 'src/'),
 	entry  : {
-        'test-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './test-app/index.js']
+        'main-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './main-app/index.js']
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist/'),

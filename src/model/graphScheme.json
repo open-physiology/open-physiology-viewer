@@ -2944,6 +2944,21 @@
           },
           "relatedTo": "cloneOf",
           "readOnly": true
+        },
+        "inGroups": {
+         "description": "Groups to which this visual resource is included to",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/VisualResource"
+              }
+            ]
+          },
+          "readOnly": true
         }
       }
     },

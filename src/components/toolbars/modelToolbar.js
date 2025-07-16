@@ -24,14 +24,6 @@ import {MatSelectModule} from "@angular/material/select";
                     (click)="onResetCamera.emit()" title="Reset controls">
                 <i class="fa fa-compass"> </i>
             </button>
-            <button *ngIf="!antialias" class="w3-bar-item w3-hover-light-grey"
-                    (click)="onToggleAntialias.emit(true)" title="Enable antialiasing">
-                <i class="fa fa-paper-plane-o"> </i>
-            </button>
-            <button *ngIf="antialias" class="w3-bar-item w3-hover-light-grey"
-                    (click)="onToggleAntialias.emit(false)" title="Disable antialiasing">
-                <i class="fa fa-paper-plane"> </i>
-            </button>
             <button class="w3-bar-item w3-hover-light-grey" 
                     (click)="onUpdateGraph.emit()" title="Update layout">
                 <i class="fa fa-refresh"> </i>
@@ -93,11 +85,9 @@ export class ModelToolbar {
     @Input() showPanel;
     @Input() showImports;
     @Input() lockControls;
-    @Input() antialias;
     @Input() loggerColor;
 
     @Output() onToggleControls = new EventEmitter();
-    @Output() onToggleAntialias = new EventEmitter();
     @Output() onToggleShowPanel = new EventEmitter();
     @Output() onResetCamera = new EventEmitter();
     @Output() onUpdateGraph = new EventEmitter();

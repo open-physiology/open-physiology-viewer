@@ -9,6 +9,7 @@ import {$SchemaClass} from "./utils";
  * @property {boolean} skipLabel - excludes resource labels from the view
  * @property {Object} cloneOf    - points to other instances of the same conceptual resource
  * @property {Object} viewObjects - WebGL objects corresponding to the visual resource
+ * @property {Array<Group>} inGroups - list of groups that include the resource
  */
 export class VisualResource extends Resource{
 

@@ -8,13 +8,12 @@ module.exports = {
     devtool: 'source-map',
   	context: path.resolve(__dirname, 'src/'),
     entry: {
-        'main-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './main-app/index.js'],
+        'demo-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './demo-app/index.js'],
         'open-physiology-viewer': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './index.js' ],
-        'open-physiology-viewer-minimal':                                                        [ './index.js' ],
-	    'converter': ['@babel/polyfill', 'reflect-metadata', './converter/converter.js']
+        'open-physiology-viewer-minimal': [ './index.js' ]
     },
 	output: {
-		path: __dirname + '/dist',
+		path: __dirname + '/demo',
         publicPath: '',
 		filename: '[name].js',
 		sourceMapFilename: '[file].map',
@@ -27,10 +26,10 @@ module.exports = {
 	plugins: plugins.concat([
         new CopyWebpackPlugin({
             "patterns": [
-                { from: 'main-app/index.html',  to: 'main-app/index.html' },
-                { from: 'main-app/favicon.ico', to: 'main-app/favicon.ico' },
-                { from: 'main-app/styles',      to: 'main-app/styles'},
-                { from: 'main-app/styles/images', to: 'main-app/styles/images'}
+                { from: 'demo-app/index.html',  to: 'demo-app/index.html' },
+                { from: 'demo-app/favicon.ico', to: 'demo-app/favicon.ico' },
+                { from: 'demo-app/styles',      to: 'demo-app/styles'},
+                { from: 'demo-app/styles/images', to: 'demo-app/styles/images'}
             ]
         })
     ])

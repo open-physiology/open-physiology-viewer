@@ -11397,7 +11397,7 @@
           "id": "sV",
           "layout": {
             "x": -60,
-            "y": 6
+            "y": 11
           },
           "invisible": true
         },
@@ -11405,7 +11405,7 @@
           "id": "tV",
           "layout": {
             "x": -10,
-            "y": 6
+            "y": 11
           },
           "invisible": true
         },
@@ -11413,7 +11413,7 @@
           "id": "sW",
           "layout": {
             "x": -60,
-            "y": -6
+            "y": -11
           },
           "invisible": true
         },
@@ -11421,7 +11421,7 @@
           "id": "tW",
           "layout": {
             "x": -10,
-            "y": -6
+            "y": -11
           },
           "invisible": true
         },
@@ -11436,7 +11436,7 @@
           "id": "f3K-left",
           "name": "Bowman's capsule end of left urinary tract",
           "hostedBy": "w-inner-ring",
-          "offset": -0.36
+          "offset": -0.38
         },
         {
           "id": "f3K-right",
@@ -11461,8 +11461,8 @@
           "geometry": "ellipse",
           "arcCenter": "Fc",
           "radius": {
-            "x": 80,
-            "y": 60
+            "x": 70,
+            "y": 50
           },
           "stroke": "dashed"
         },
@@ -11515,19 +11515,19 @@
           "points": [
             {
               "x": -60,
-              "y": 5
+              "y": 10
             },
             {
               "x": -60,
-              "y": 7
+              "y": 12
             },
             {
               "x": -10,
-              "y": 7
+              "y": 12
             },
             {
               "x": -10,
-              "y": 5
+              "y": 10
             }
           ]
         },
@@ -11538,19 +11538,19 @@
           "points": [
             {
               "x": -60,
-              "y": -7
+              "y": -12
             },
             {
               "x": -60,
-              "y": -5
+              "y": -10
             },
             {
               "x": -10,
-              "y": -5
+              "y": -10
             },
             {
               "x": -10,
-              "y": -7
+              "y": -12
             }
           ]
         },

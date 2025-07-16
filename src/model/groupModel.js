@@ -124,7 +124,11 @@ export class Group extends Resource {
         //Add auto-created clones of boundary nodes and collapsible links, conveying lyphs,
         //internal nodes and internal lyphs to the group that contains the original lyph
         [$Field.lyphs, $Field.nodes, $Field.links].forEach(prop => {
-            (this[prop] || []).forEach(res => res.includeRelated && res.includeRelated(this));
+            (this[prop] || []).forEach(res => {
+                res.includeRelated && res.includeRelated(this);
+                res.inGroups = res.inGroups || [];
+                includeRef(res.inGroups, this);
+            });
         });
 
         //If a group is hosted by a region, each its lyph is hosted by the region
@@ -475,7 +479,10 @@ export class Group extends Resource {
      */
     hide() {
         this.hidden = true;
-        this.resources.forEach(entity => entity.hidden = true);
+        this.resources.forEach(entity => {
+            let visibleGroups = (entity.inGroups||[]).filter(g => !g.hidden);
+            if (visibleGroups.length <= 1) entity.hidden = true;
+        });
     }
 
     /**

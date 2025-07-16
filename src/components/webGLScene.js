@@ -52,10 +52,8 @@ const WindowResize = require('three-window-resize');
                                 [showPanel]="showPanel"
                                 [showImports]="graphData?.imports"
                                 [lockControls]="lockControls"
-                                [antialias]=antialias
                                 [loggerColor]="loggerColor"
                                 (onToggleControls)="toggleLockControls()"
-                                (onToggleAntialias)="toggleAntialias()"
                                 (onToggleShowPanel)="showPanel = !showPanel"
                                 (onResetCamera)="resetCamera()"
                                 (onUpdateGraph)="graph?.graphData(graphData)"
@@ -146,7 +144,6 @@ export class WebGLSceneComponent {
     ray;
     mouse;
     windowResize;
-    antialias = true;
 
     _highlighted = null;
     _selected = null;
@@ -325,10 +322,6 @@ export class WebGLSceneComponent {
             this.toggleLockControls();
             return false; // Prevent bubbling
         }, undefined, 'Toggle Lock controls'));
-        this.hotkeysService.add(new Hotkey('shift+meta+a', (event: KeyboardEvent): boolean => {
-            this.toggleAntialias();
-            return false; // Prevent bubbling
-        }, undefined, 'Toggle Anti Alias'));
         this.hotkeysService.add(new Hotkey('shift+meta+l', (event: KeyboardEvent): boolean => {
             this.togglelayout();
             return false; // Prevent bubbling
@@ -388,13 +381,9 @@ export class WebGLSceneComponent {
     }
 
     ngAfterViewInit() {
-        if (this.renderer) {
-            return;
-        }
-
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas.nativeElement,
-            antialias: this.antialias,
+            antialias: true,
             alpha: true
         });
         this.renderer.setClearColor(0xffffff, 0.5);
@@ -634,7 +623,6 @@ export class WebGLSceneComponent {
         this.graph.showLabels(this._config.showLabels);
         this.graph.labels(this._config.labels);
         this.scene.add(this.graph);
-        this.updateSettings();
     }
 
     moveCamera(direction) {
@@ -678,6 +666,7 @@ export class WebGLSceneComponent {
     updateGraph() {
         if (this.graph) {
             this.graph.graphData(this._graphData);
+            this.updateSettings();
         }
     }
 
@@ -703,11 +692,6 @@ export class WebGLSceneComponent {
     toggleLockControls() {
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
-    }
-
-    toggleAntialias() {
-        this.antialias = !this.antialias;
-        this.renderer.antialias = this.antialias;
     }
 
     getMouseOverEntity() {
