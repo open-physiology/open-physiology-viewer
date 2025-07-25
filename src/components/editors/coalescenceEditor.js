@@ -173,7 +173,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
      */
     prepareCoalescenceList() {
         this.coalescenceList = [];
-        (this._model.coalescences || []).forEach((cl, idx) => {
+        (this._model?.coalescences || []).forEach((cl, idx) => {
             if (cl::isObject()) {
                 if (!cl.id) {
                     let counter = 1;

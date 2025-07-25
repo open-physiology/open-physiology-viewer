@@ -1,53 +1,62 @@
-import {Component, ElementRef, Inject, ViewChild} from '@angular/core';
+import {Component, Inject, NgModule} from '@angular/core';
 import {
-    MAT_DIALOG_DATA,
+    MAT_DIALOG_DATA, MatDialogModule,
     MatDialogRef
 } from '@angular/material/dialog';
-import {drawSvgCoalescence} from '../utils/svgCoalescence';
-import * as d3 from "d3";
-
-window.d3 = d3;
+import {CoalescencePanelModule} from "../gui/coalescencePanel";
+import {LyphPanelModule} from "../gui/lyphPanel";
+import {CommonModule} from "@angular/common";
 
 @Component({
-    selector: 'importDialog',
+    selector: 'coalescenceDialog',
     template: `
-        <button class="w3-bar-item w3-hover-light-grey w3-right" (click)="draw()" title="Refresh">
-            <i class="fa fa-refresh"> </i>
-        </button>
-        <b mat-dialog-title>Coalescence {{coalescence?.name || coalescence?.id}}</b>
-        <div mat-dialog-content #svgClsContainer id="svgClsContainer">
-            <svg #svg></svg>
-            <div #tooltip class="tooltip"></div>
-        </div>
-        <div mat-dialog-actions align="end">
-            <button mat-button title="Cancel" (click)="onNoClick()">Close</button>
+        <div>
+            <b mat-dialog-title>{{coalescence?.name || coalescence?.id}}</b>
+            <div mat-dialog-content #clsContainer id="clsContainer">
+                <div *ngFor="let lyphPair of lyphPairs">
+                    <coalescence-panel
+                            [lyphPair]="lyphPair"
+                            (onShowLyph)="showLyph($event)"
+                    ></coalescence-panel>
+                </div>
+                <div *ngIf="selectedLyph" #lyphContainer class="lyphContainer">
+                    <button mat-icon-button class="cross" (click)="selectedLyph = null">&cross;</button>
+                    <lyphPanel [lyph]=selectedLyph></lyphPanel>
+                </div>
+            </div>
+            <div mat-dialog-actions align="end">
+                <button mat-button title="Cancel" (click)="onNoClick()">Close</button>
+            </div>
         </div>
     `,
     styles: [`
-        .full-width {
+        #clsContainer {
             width: 100%;
-        }
-
-        .tooltip {
-            position: absolute;
-            padding: 2px;
-            background-color: #f5f5f5;
-            font: 12px sans-serif;
-            border: 1px solid #666;
-            pointer-events: none;
-        }
-
-        #svgClsContainer {
             height: 80%;
+        }
+        .lyphContainer {
+            position: absolute;
+            background-color: #f5f5f5;
+            padding: 2px;
+            border: 1px solid #666;
+            left: 50px;
+            top: 50px;
+            width: 600px;
+            height: 400px;
+        }
+        .cross {
+            position: absolute;
+            left: 94%;
+            top: 0;
+            border: 0;
+            background-color: transparent;
         }
     `]
 })
 export class CoalescenceDialog {
     dialogRef;
     coalescence;
-    @ViewChild('svgClsContainer') svgClsContainer: ElementRef;
-    @ViewChild('svg') svgRef: ElementRef;
-    @ViewChild('tooltip') tooltipRef: ElementRef;
+    lyphPairs = [];
 
     constructor(dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
@@ -55,17 +64,29 @@ export class CoalescenceDialog {
     }
 
     ngAfterViewInit() {
-        this.width = this.svgClsContainer.nativeElement.clientWidth;
-        this.height = this.svgClsContainer.nativeElement.clientHeight;
-        this.draw();
+        this.lyphPairs = this.uniquePairs(this.coalescence.lyphs);
     }
 
-    draw() {
-        let svg = d3.select(this.svgRef.nativeElement).attr("width", this.width).attr("height", this.height);
-        //Clean the view
-        svg.selectAll('g').remove();
-        let tooltip = d3.select(this.tooltipRef.nativeElement).style("opacity", 0);
-        drawSvgCoalescence(this.coalescence, svg, tooltip);
+    showLyph(lyph){
+        this.selectedLyph = lyph;
+    }
+
+    uniquePairs(array) {
+        if (!Array.isArray(array)) {
+            return [];
+        }
+
+        if (array.length < 3) {
+            return [array];
+        }
+
+        return array.reduce(
+            (previousValue, currentValue, index) =>
+                previousValue.concat(
+                    array.slice(index + 1).map((value) => [currentValue, value]),
+                ),
+            [],
+        );
     }
 
     onNoClick() {
@@ -73,3 +94,10 @@ export class CoalescenceDialog {
     }
 }
 
+@NgModule({
+    imports: [CommonModule, MatDialogModule, CoalescencePanelModule, LyphPanelModule],
+    declarations: [CoalescenceDialog],
+    exports: [CoalescenceDialog]
+})
+export class CoalescenceDialogModule {
+}

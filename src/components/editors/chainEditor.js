@@ -348,7 +348,7 @@ export class ChainEditorComponent extends ResourceEditor {
 
     collectLaterals() {
         const missing = new Set();
-        (this._model.chains || []).forEach(chain => {
+        (this._model?.chains || []).forEach(chain => {
             if (chain.lateralOf) {
                 let supertype = this.entitiesByID[chain.lateralOf];
                 if (supertype) {

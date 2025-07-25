@@ -1,5 +1,5 @@
 import {values} from 'lodash-bound';
-import {$Field, modelClasses} from "../model";
+import {modelClasses} from "../model";
 import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
 import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';

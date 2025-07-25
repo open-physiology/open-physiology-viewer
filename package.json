@@ -10,6 +10,7 @@
     "build-hubmap": "cross-env BABEL_ENV=production webpack --config webpack.config-hubmap.js",
     "watch": "webpack --progress --watch",
     "dev-server": "webpack-dev-server --open --hot --config webpack.config-dev.js",
+    "dev-demo-server": "webpack-dev-server --open --hot --config webpack.config-dev-demo.js",
     "esdoc": "./node_modules/.bin/esdoc",
     "bootprint": "bootprint json-schema src/model/graphScheme.json docs/schema"
   },

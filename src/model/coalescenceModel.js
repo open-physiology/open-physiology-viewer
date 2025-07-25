@@ -173,7 +173,7 @@ export class Coalescence extends Resource {
         let group = {
             [$Field.id]: getGenID($Prefix.group, "cls", this.id),
             [$Field.name]: getGenName("Coalescence group", this.name || this.id),
-            [$Field.hidden]: false,
+            [$Field.hidden]: true,
             [$Field.nodes]: [],
             [$Field.links]: [],
             [$Field.lyphs]: [],

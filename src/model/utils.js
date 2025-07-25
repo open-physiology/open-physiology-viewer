@@ -357,8 +357,23 @@ export const addBorderNode = (border, nodeID) => {
     }
 };
 
-export const includeRef = (eArray, ref, namespace = undefined)  => {
-    if (!isIncluded(eArray, ref, namespace)){
+export function sortLinkedArraysDescending(A, B) {
+    // Combine A and B into pairs
+    let combined = A.map((value, index) => ({value, linked: B[index]}));
+
+    // Sort by value in decreasing order
+    combined.sort((a, b) => b.value - a.value);
+
+    // Unpack the sorted arrays back into A and B
+    for (let i = 0; i < combined.length; i++) {
+        A[i] = combined[i].value;
+        B[i] = combined[i].linked;
+    }
+}
+
+
+export const includeRef = (eArray, ref, namespace = undefined) => {
+    if (!isIncluded(eArray, ref, namespace)) {
         eArray = eArray || [];
         ref && eArray.push(ref);
     }
@@ -381,7 +396,7 @@ export const isIncluded = (eArray, ref, namespace = undefined) =>
  * @returns {*|void}
  */
 export const findResourceByID = (eArray, ref, namespace = undefined) => {
-    return ref::isObject()? ref: isIncluded(eArray, ref, namespace);
+    return ref::isObject() ? ref : isIncluded(eArray, ref, namespace);
 }
 
 /**

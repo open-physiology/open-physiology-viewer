@@ -59,7 +59,7 @@ import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
 import config from "../data/config.json";
-import {layoutConfigs, layouts} from "../layouts/layouts";
+import {layouts} from "../layouts/layouts";
 
 enableProdMode();
 
@@ -300,13 +300,9 @@ const TAB_INDEX = {
             width: calc(100% - 48px);
             height: 90vh
         }
-
+        
         #main-panel mat-tab-group {
             height: inherit;
-        }
-
-        #viewer-panel {
-            width: 100%;
         }
 
         #json-editor {
@@ -394,32 +390,29 @@ export class MainApp {
             duration: 2000
         };
 
-        this.create();
+        this.http = http;
     }
 
     set model(model) {
-        this._model = model;
+        this.loading = true;
+        setTimeout(() => {
+            this._model = model;
+            this._modelName = this._model.name || this._model.id || "?";
 
-        //Call dynamic layout
-        const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
-        if (scaffold?.id in layouts) {
-            layouts[scaffold.id](this._model, this.modelClasses);
-        }
+            //Call dynamic layout
+            const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
+            if (scaffold?.id in layouts) {
+                this._graphData = layouts[scaffold.id](this._model, this.modelClasses, this._config);
+            } else {
+                this._graphData = generateFromJSON(this._model);
+            }
 
-        //try{
-        this._modelName = this._model.name || this._model.id || "?";
-        this._graphData = generateFromJSON(this._model);
-        // } catch(err){
-        //    throw new Error(err);
-        // }
-        if (scaffold?.id in layoutConfigs) {
-            layoutConfigs[scaffold.id](this._graphData, this._config);
-        }
-
-        this._snapshot = undefined;
-        if (this._editor) {
-            this._editor.set(this._model);
-        }
+            this._snapshot = undefined;
+            if (this._editor) {
+                this._editor.set(this._model);
+            }
+            this.loading = false;
+        }, 0);
     }
 
     ngAfterViewInit() {
@@ -432,25 +425,19 @@ export class MainApp {
         });
         this._editor.set(this._model);
 
-        this.loading = true;
-        setTimeout(() => {
-            this.model = defaultTestModel;
-
-            // Uncomment to load by default a Git version of WBKG
-            // const url = config.initModel;
-            // http.get(url).subscribe(
-            //     res => {
-            //         this.model = res;
-            //         this.showMessage("Successfully loaded WBKG from GitHub!")
-            //     },
-            //     err => {
-            //         console.error(err);
-            //         this.showErrorMessage("Failed to load WBKG from GitHub!");
-            //     }
-            // );
-            this.loading = false;
-        }, 0);
-
+        //this.create();
+        // Uncomment to load by default a Git version of WBKG
+        const url = config.initModel;
+        this.http.get(url).subscribe(
+            res => {
+                this.model = res;
+                this.showMessage("Successfully loaded WBKG from GitHub!")
+            },
+            err => {
+                console.error(err);
+                this.showErrorMessage("Failed to load WBKG from GitHub!");
+            }
+        );
     }
 
     // noinspection JSMethodCanBeStatic

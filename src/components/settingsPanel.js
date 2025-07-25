@@ -42,7 +42,7 @@ const COLORS = {
     selector: 'settingsPanel',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-        <section>   
+        <section #settingsPanel id="settingsPanel">   
             <!-- Settings -->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -321,7 +321,7 @@ const COLORS = {
         </section>
     `,
     styles: [`
-
+        
         .default-box .default-box-header {
             padding: 0.625rem;
             display: flex;

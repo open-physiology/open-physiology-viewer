@@ -584,6 +584,18 @@
           },
           "relatedTo": "inCoalescences",
           "default": []
+        },
+        "group": {
+          "description": "Group (subgraph) that encompasses coalescence visual resources.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Group"
+            }
+          ],
+          "readOnly": true
         }
       }
     },
@@ -2224,15 +2236,15 @@
         },
         "representsCoalescence": {
           "description": "This node represents a coalescence",
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Coalescence"
-              }
-            ],
-            "readOnly": true
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Coalescence"
+            }
+          ],
+          "readOnly": true
         }
       }
     },
@@ -2946,7 +2958,7 @@
           "readOnly": true
         },
         "inGroups": {
-         "description": "Groups to which this visual resource is included to",
+          "description": "Groups to which this visual resource is included to",
           "type": "array",
           "items": {
             "anyOf": [

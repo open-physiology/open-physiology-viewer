@@ -160,6 +160,10 @@ export class Lyph extends Shape {
         template._inactive = true;
     }
 
+    getLayerIndex() {
+        return (this.layerIn?.layers || []).findIndex(x => x.fullID === this.fullID);
+    }
+
     /**
      * Copy the properties and layer structure of the source lyph to the target lyph
      * @param parentGroup

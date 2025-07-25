@@ -49,7 +49,7 @@ import {enableProdMode} from '@angular/core';
 
 import {removeDisconnectedObjects} from '../view/render/autoLayout'
 import config from "../data/config.json";
-import {layoutConfigs, layouts} from "../layouts/layouts";
+import {layouts} from "../layouts/layouts";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 enableProdMode();
@@ -134,37 +134,30 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                 </modelRepoPanel>
             </section>
 
-            <mat-tab-group animationDuration="0ms" #tabGroup>
-                <!--Viewer-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer</ng-template>
-                    <webGLScene #webGLScene
-                                [modelClasses]="modelClasses"
-                                [graphData]="_graphData"
-                                [config]="_config"
-                                [showChain]="_showChain"
-                                (onImportExternal)="importExternal($event)"
-                                (selectedItemChange)="onSelectedItemChange($event)"
-                                (highlightedItemChange)="onHighlightedItemChange($event)"
-                                (scaffoldUpdated)="onScaffoldUpdated($event)"
-                                (varianceReset)="applyChanges()"
-                                (editResource)="onEditResource($event)"
-                    >
-                    </webGLScene>
-                    <!-- Model loading progress bar -->
-                    <div *ngIf="loading" class="loading-overlay">
-                        <div class="loading-content">
-                            <mat-progress-spinner
-                                    color="primary"
-                                    mode="indeterminate"
-                                    diameter="50">
-                            </mat-progress-spinner>
-                            <p class="loading-text">Please, wait! Model is loading...</p>
-                        </div>
-                    </div>
-                </mat-tab>
-
-            </mat-tab-group>
+            <webGLScene #webGLScene
+                        [modelClasses]="modelClasses"
+                        [graphData]="_graphData"
+                        [config]="_config"
+                        [showChain]="_showChain"
+                        (onImportExternal)="importExternal($event)"
+                        (selectedItemChange)="onSelectedItemChange($event)"
+                        (highlightedItemChange)="onHighlightedItemChange($event)"
+                        (scaffoldUpdated)="onScaffoldUpdated($event)"
+                        (varianceReset)="applyChanges()"
+                        (editResource)="onEditResource($event)"
+            >
+            </webGLScene>
+            <!-- Model loading progress bar -->
+            <div *ngIf="loading" class="loading-overlay">
+                <div class="loading-content">
+                    <mat-progress-spinner
+                            color="primary"
+                            mode="indeterminate"
+                            diameter="50">
+                    </mat-progress-spinner>
+                    <p class="loading-text">Please, wait! Model is loading...</p>
+                </div>
+            </div>
         </section>
 
         <!-- Footer -->
@@ -188,14 +181,6 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
             margin-left: 48px;
             width: calc(100% - 48px);
             height: 90vh
-        }
-
-        #main-panel mat-tab-group {
-            height: inherit;
-        }
-
-        #viewer-panel {
-            width: 100%;
         }
 
         #repo-panel {
@@ -270,16 +255,11 @@ export class DemoApp {
             panelClass: ['w3-panel', 'w3-green'],
             duration: 2000
         };
-
-        this.create();
+        this.http = http;
     }
 
     ngAfterViewInit() {
-        this.loading = true;
-        setTimeout(() => {
-            this.model = defaultTestModel;
-            this.loading = false;
-        }, 0);
+        this.model = defaultTestModel;
     }
 
     // noinspection JSMethodCanBeStatic
@@ -514,28 +494,25 @@ export class DemoApp {
     }
 
     set model(model) {
-        this._model = model;
+        this.loading = true;
+        setTimeout(() => {
+            this._model = model;
 
-        //Call dynamic layout
-        const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
-        if (scaffold?.id in layouts) {
-            layouts[scaffold.id](this._model);
-        }
+            //Call dynamic layout
+            this._modelName = this._model.name || this._model.id || "?";
+            const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
+            if (scaffold?.id in layouts) {
+                this._graphData = layouts[scaffold.id](this._model, this.modelClasses, this._config);
+            } else {
+                this._graphData = generateFromJSON(this._model);
+            }
+            this._snapshot = undefined;
+            if (this._editor) {
+                this._editor.set(this._model);
+            }
 
-        //try{
-        this._modelName = this._model.name || this._model.id || "?";
-        this._graphData = generateFromJSON(this._model);
-        // } catch(err){
-        //    throw new Error(err);
-        // }
-        if (scaffold?.id in layoutConfigs) {
-            layoutConfigs[scaffold.id](this._graphData, this._config);
-        }
-
-        this._snapshot = undefined;
-        if (this._editor) {
-            this._editor.set(this._model);
-        }
+            this.loading = false;
+        }, 0);
     }
 
     get graphData() {

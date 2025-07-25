@@ -34,7 +34,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 	`]
 })
 export class SnapshotToolbar {
-    @Input()  showRepoPanel;
+    @Input() showRepoPanel;
 
     @Output() onSaveState        = new EventEmitter();
     @Output() onPreviousState    = new EventEmitter();

@@ -31,7 +31,6 @@ import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
 import {ModelToolbarModule} from "./toolbars/modelToolbar";
-import call from "d3-selection/src/selection/call";
 import {MatSnackBar} from "@angular/material/snack-bar";
 
 const WindowResize = require('three-window-resize');
@@ -104,26 +103,14 @@ const WindowResize = require('three-window-resize');
     `,
     styles: [`
         #apiLayoutPanel {
-            height: 85vh;
+            min-height: 90vh;
+            height: 100%;
         }
 
         #apiLayoutSettingsPanel {
             height: 100%;
             overflow-y: scroll;
             overflow-x: auto;
-        }
-
-        :host >>> fieldset {
-            border: 1px solid grey;
-            margin: 2px;
-        }
-
-        :host >>> legend {
-            padding: 0.2em 0.5em;
-            border: 1px solid grey;
-            color: grey;
-            font-size: 90%;
-            text-align: right;
         }
     `]
 })
@@ -188,9 +175,7 @@ export class WebGLSceneComponent {
     }
 
     @Input('highlighted') set highlighted(entity) {
-        if (this._highlighted === entity) {
-            return;
-        }
+        if (this._highlighted === entity) return;
         if (this._highlighted !== this._selected) {
             this.unhighlight(this._highlighted);
         } else {
@@ -695,9 +680,8 @@ export class WebGLSceneComponent {
     }
 
     getMouseOverEntity() {
-        if (!this.graph) {
-            return;
-        }
+        if (!this.graph) return;
+
         this.ray.setFromCamera(this.mouse, this.camera);
 
         const selectLayer = (entity) => {
@@ -731,9 +715,7 @@ export class WebGLSceneComponent {
     }
 
     highlight(entity, color, rememberColor = true) {
-        if (!entity || !entity.viewObjects) {
-            return;
-        }
+        if (!entity || !entity.viewObjects) return;
         let obj = entity.viewObjects["main"];
         if (obj && obj.material) {
             // store color of closest object (for later restoration)
@@ -789,10 +771,17 @@ export class WebGLSceneComponent {
 
     onDblClick() {
         this.selected = this.getMouseOverEntity();
+        if (this.selected instanceof this.modelClasses.Lyph){
+            (this.selected.inCoalescences || []).forEach(cls => {
+                if (cls.group){
+                    this.toggleGroup(cls.group);
+                }
+            });
+        }
         if (this.selected?.representsCoalescence) {
             //Show coalescence dialog
             const dialogRef = this.dialog.open(CoalescenceDialog, {
-                width: '50%', height: '50%', data: {
+                width: '50%', height: '60%', data: {
                     coalescence: this.selected.representsCoalescence
                 }
             });

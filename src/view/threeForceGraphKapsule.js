@@ -163,7 +163,7 @@ export default Kapsule({
                         obj.userData instanceof modelClasses.Wire ||
                         obj.userData instanceof modelClasses.Region));
                 state.canvas && (state.canvas.style.cursor = obj && obj.__isDraggable? 'pointer' : null);
-                const tooltipContent = obj? obj.userData.id + "-" + (obj.userData.name || '?') : '';
+                const tooltipContent = obj? (obj.userData.name || obj.userData.id || '?') : '';
                 if (state.toolTipElem) {
                     state.toolTipElem.style.visibility = tooltipContent ? 'visible' : 'hidden';
                     state.toolTipElem.innerHTML = tooltipContent;

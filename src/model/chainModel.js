@@ -661,6 +661,23 @@ export class Chain extends GroupTemplate {
         });
     }
 
+    // Determines if a chain housed by lyph layers starts from the outermost layer
+    get isHousedReversed(){
+        let [startIdx, endIdx] = [-1, -1];
+        //Determine whether the chains are aligned from root to leaf or from leaf to root;
+        (this.levels || []).forEach((link, i) => {
+            if (link.endsIn) {
+                const hostLyph = link.endsIn;
+                if (i === 0) {
+                    startIdx = hostLyph.getLayerIndex();
+                } else {
+                    endIdx = hostLyph.getLayerIndex();
+                }
+            }
+        });
+        return startIdx > endIdx;
+    }
+
     static validateRoots(chains, nodes) {
         const rootNodes = (nodes || []).filter(node => node.rootOf);
         (chains || []).forEach(chain => {
