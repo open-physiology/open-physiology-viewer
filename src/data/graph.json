@@ -1,6 +1,6 @@
 {
-    "id": "vascular",
-    "name": "vascular",
+    "id": "vascular-wbkg-fd",
+    "name": "Vascular + WBKG + FD",
     "lyphs": [
         {
             "id": "lyph_50010931_50010931_3855",
@@ -11919,7 +11919,7 @@
                     "hostedBy": "w-V-rail_0",
                     "skipLabel": true,
                     "invisible": true,
-                    "name": "a Chain Inferior vena cava -> Left common iliac vein"
+                    "name": "Anchor for Chain Inferior vena cava -> Left common iliac vein"
                 },
                 {
                     "id": "a_aV_rV_0&0",
@@ -11942,7 +11942,7 @@
                     "hostedBy": "w-W-rail_0",
                     "skipLabel": true,
                     "invisible": true,
-                    "name": "a Chain Aorta -> Left renal artery"
+                    "name": "Anchor for Chain Aorta -> Left renal artery"
                 },
                 {
                     "id": "a_aW_rW_0&0",

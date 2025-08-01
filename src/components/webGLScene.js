@@ -781,9 +781,18 @@ export class WebGLSceneComponent {
         if (this.selected?.representsCoalescence) {
             //Show coalescence dialog
             const dialogRef = this.dialog.open(CoalescenceDialog, {
-                width: '50%', height: '60%', data: {
+                width: '50%', height: '65%', data: {
                     coalescence: this.selected.representsCoalescence
                 }
+            });
+            dialogRef.afterOpened().subscribe(() => {
+              const componentInstance = dialogRef.componentInstance;
+              componentInstance.resizeDialog.subscribe((maximize: boolean) => {
+                dialogRef.updateSize(
+                  maximize ? '100vw' : '50%',
+                  maximize ? '100vh' : '65%'
+                );
+              });
             });
         }
     }

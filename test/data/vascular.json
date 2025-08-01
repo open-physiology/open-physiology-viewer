@@ -1,8 +1,15 @@
 {
   "id": "vascular",
   "name": "vascular",
-  "imports": [
-    "https://raw.githubusercontent.com/albatros13/apinatomy-models/main/wbrcm.json"
+  "nodes": [
+    {
+      "id": "root_chain_50010931_50010931_3855",
+      "anchoredTo": "fd:aW"
+    },
+    {
+      "id": "root_chain_7096_7096_100000226",
+      "anchoredTo": "fd:aV"
+    }
   ],
   "lyphs": [
     {
@@ -1082,7 +1089,8 @@
       "root": "t_50010931_50013282_50010931_66363",
       "length": 20,
       "lyphTemplate": "wbkg:lt-muscular-artery",
-      "numLevels": 1
+      "numLevels": 1,
+      "leaf": "wbkg:root_right_chain-renal-internal-blood-vessels"
     },
     {
       "id": "chain_branch_50010931_66363_50010931_66364",
@@ -1090,7 +1098,8 @@
       "root": "t_50010931_66363_50010931_66364",
       "length": 20,
       "lyphTemplate": "wbkg:lt-muscular-artery",
-      "numLevels": 1
+      "numLevels": 1,
+      "leaf": "wbkg:root_left_chain-renal-internal-blood-vessels"
     },
     {
       "id": "chain_branch_7096_7096_100000226",
@@ -1151,7 +1160,8 @@
       "root": "t_100000226_68067_100000226_66663",
       "length": 20,
       "lyphTemplate": "wbkg:lt-medium-vein",
-      "numLevels": 1
+      "numLevels": 1,
+      "leaf": "wbkg:leaf_right_chain-renal-internal-blood-vessels"
     },
     {
       "id": "chain_branch_100000226_66663_100000226_66664",
@@ -1159,7 +1169,8 @@
       "root": "t_100000226_66663_100000226_66664",
       "length": 20,
       "lyphTemplate": "wbkg:lt-medium-vein",
-      "numLevels": 1
+      "numLevels": 1,
+      "leaf": "wbkg:leaf_left_chain-renal-internal-blood-vessels"
     },
     {
       "id": "chain_branch_100000226_66664_100000226_66724",
@@ -1295,5 +1306,9 @@
         "lyph_100000226_66669_100000226_66670"
       ]
     }
-  ]
+  ],
+  "version": "d5f9e9d5d5a03ecd87c1551c9022bcbe9a4d4236",
+  "namespace": "nm_vascular",
+  "schemaVersion": "c16375262ae5589b0012bc82da420a63664913a1",
+  "lastUpdated": "2025-06-18"
 }

@@ -617,7 +617,7 @@ export class Chain extends GroupTemplate {
             }
             const genChains = [];
             //All descendant specific lyphs
-            let subtypes = findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID);
+            let subtypes = housingLyphTemplate.isTemplate? findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID): [housingLyphTemplate];
             subtypes.forEach(lyph => {
                 const genChainID = getGenID(chain.id, $Prefix.clone, lyph.id);
                 let genChain = {

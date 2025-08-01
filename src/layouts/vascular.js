@@ -1,4 +1,4 @@
-import {getGenID, $Prefix, $Field, generateFromJSON, getGenName, $SchemaClass} from "../model";
+import {getGenID, $Prefix, $Field, generateFromJSON, getGenName} from "../model";
 import {getFullID, findResourceByID, includeRef, sortLinkedArraysDescending} from "../model/utils";
 import {$LogMsg, logger} from "../model/logger";
 import {VascularScaffold} from "./vascularScaffold";
@@ -15,7 +15,7 @@ export function createVascularLayout(model, modelClasses, config) {
         const results = [];
 
         function isCoalescenceAxis(link) {
-            return link.conveyingLyph?.inCoalescences?.length > 0;
+            return (link.conveyingLyph?.inCoalescences?.filter(cls => cls.topology === "CONNECTING").length > 0);
         }
 
         // Use visit map to find out what causes infinite loops
@@ -35,7 +35,7 @@ export function createVascularLayout(model, modelClasses, config) {
                 [$Field.targetOf, $Field.sourceOf].forEach(prop => {
                     (curr[end][prop] || []).forEach(neighbor => {
                         if (curr.id === neighbor.id) return;
-                        if (curr.namespace === "wbkg" && neighbor.namespace === "vascular") {
+                        if (curr.namespace === "wbkg" && neighbor.namespace !== "wbkg") {
                             return;
                         }
                         if (!blocked.has(neighbor.id) && !visited.has(neighbor.id)) {
@@ -106,10 +106,10 @@ export function createVascularLayout(model, modelClasses, config) {
     const clsLyphSet = new Set();
 
     const anchorPaths = (chains, anchorHandler, wireHandler, chainWire) => {
-        const railLinks = {};
+        const railLinks = new Set();
         chains.forEach((chain, i) => {
             const paths = findAllPaths(genModel.links, chain.levels[0]);
-            console.info("Found paths for chain ", chain.id, paths.length);
+            console.info("Found paths for chain ", chain.id, chain.name, paths.length);
             paths.forEach((path, j) => {
                 let lastLyph = path[path.length - 1].conveyingLyph;
                 if (lastLyph) {
@@ -121,10 +121,8 @@ export function createVascularLayout(model, modelClasses, config) {
             sortLinkedArraysDescending(exitLevels, paths);
 
             const anchorX = anchorHandler(i, chainWire);
-            anchorX.name = getGenName($Prefix.anchor, chain.name || chain.id);
+            anchorX.name = getGenName("Anchor for", chain.name || chain.id);
             wireHandler(chainMap[chain.id], anchorX.id);
-
-            railLinks[chain.id] = new Set();
 
             model.groups = model.groups || [];
             let chainGroup = {
@@ -136,17 +134,21 @@ export function createVascularLayout(model, modelClasses, config) {
             model.groups.unshift(chainGroup);
 
             paths.forEach((path, j) => {
-                railLinks[chain.id].add(path[exitLevels[j]]);
-                path.forEach(edge => includeRef(chainGroup.links, edge.fullID, edge.namespace));
-            });
-            Array.from(railLinks[chain.id]).forEach((edge, j) => {
-                if (!edge) return;
-                let anchorX = anchorHandler(i + "&" + j);
-                anchorX.name = edge.conveyingLyph?.name || edge.id;
-                anchorX.anchoredNode = edge.target?.fullID;
+                railLinks.add(path[exitLevels[j]]);
+                // console.log("Path:", j);
+                path.forEach(edge => {
+                    includeRef(chainGroup.links, edge.fullID, edge.namespace);
+                    // console.log(edge.namespace, edge.name || edge.id);
+                });
             });
         });
-        return railLinks;
+        Array.from(railLinks).forEach((edge, j) => {
+            if (!edge) return;
+            if (edge.target?.anchoredTo) return;
+            let anchorX = anchorHandler("&" + j);
+            anchorX.name = edge.conveyingLyph?.name || edge.id;
+            anchorX.anchoredNode = edge.target?.fullID;
+        });
     }
 
     const anchorHandlerV = (i, wire) => scaffoldLayout.createAnchorRegionV(i, wire);
@@ -159,15 +161,21 @@ export function createVascularLayout(model, modelClasses, config) {
 
     const clsSet = new Set();
 
-    Array.from(clsLyphSet).forEach(clsLyph => (clsLyph.inCoalescences || []).forEach(cls => clsSet.add(cls)));
+    Array.from(clsLyphSet).forEach(clsLyph => (clsLyph.inCoalescences || []).forEach(cls => {
+        if (cls.topology === "CONNECTING") {
+            clsSet.add(cls);
+        }
+    }));
     Array.from(clsSet).forEach((cls, i) => {
-        let group = cls.createNodeGroup(model);
-        let node = cls.createNodes(group, model);
-        node.layout = {
-            "x": CLS_POS.x + i * CLS_DISTANCE,
-            "y": CLS_POS.y
-        };
-        clsMap[cls.id].group = getFullID(model.namespace, group.id);
+        if (cls.id in clsMap) {
+            let group = cls.createNodeGroup(model);
+            let node = cls.createNodes(group, model);
+            node.layout = {
+                "x": CLS_POS.x + i * CLS_DISTANCE,
+                "y": CLS_POS.y
+            };
+            clsMap[cls.id].group = getFullID(model.namespace, group.id);
+        }
     });
 
     // Show urinary trees
@@ -181,7 +189,7 @@ export function createVascularLayout(model, modelClasses, config) {
         wbkgUrinaryRight.hidden = false;
         wbkgUrinaryRight.wiredTo = getFullID(scaffold.namespace, "w-U-f3K-right");
     }
-    return configVascularLayout(model);
+    return configVascularLayout(model, modelClasses, config);
 }
 
 export function configVascularLayout(model, modelClasses, config) {
@@ -206,12 +214,28 @@ export function configVascularLayout(model, modelClasses, config) {
     config.labels = config.labels || {};
     config.labels.Anchor = $Field.name;
 
+    const MAX_PATH_LYPH_SIZE = {width: 12, height: 16};
+    const MAX_PATH_LINK_LENGTH = 10;
+
     genModel.groups.forEach(g => {
         if (g.hidden) {
             g.inactive = true;
         }
         if (g.id.includes("group_paths")) {
-            (g.lyphs || []).forEach(lyph => colorLyph(lyph));
+            (g.lyphs || []).forEach(lyph => {
+                colorLyph(lyph);
+                if (lyph.width > MAX_PATH_LYPH_SIZE.width){
+                    lyph.width = MAX_PATH_LYPH_SIZE.width;
+                }
+                if (lyph.height > MAX_PATH_LYPH_SIZE.height){
+                    lyph.height = MAX_PATH_LYPH_SIZE.height;
+                }
+            });
+            (g.links || []).forEach(link => {
+                if (link.length > MAX_PATH_LINK_LENGTH) {
+                    link.length = MAX_PATH_LINK_LENGTH;
+                }
+            });
         }
     });
 

@@ -97,16 +97,16 @@
           "relatedTo": "anchors"
         },
         "anchoredNode": {
-          "description": "Node anchored by the current anchor point",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Node"
-            }
-          ],
-          "relatedTo": "anchoredTo"
+          "description": "Nodes anchored by the current anchor point",
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Node"
+              }
+            ],
+            "relatedTo": "anchoredTo"
         }
       }
     },

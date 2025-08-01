@@ -223,7 +223,7 @@ Link.prototype.updateViewObjects = function(state) {
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
         } else {
-            if (obj && this.stroke === Link.EDGE_STROKE.DASHED) {
+            if (this.stroke === Link.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();
@@ -334,7 +334,7 @@ Wire.prototype.updateViewObjects = function(state) {
             this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
             obj.geometry.setPositions(coordArray);
         } else {
-            if (obj && this.stroke === Wire.EDGE_STROKE.DASHED) {
+            if (this.stroke === Wire.EDGE_STROKE.DASHED) {
                 obj.geometry.setFromPoints(this.points);
                 obj.geometry.verticesNeedUpdate = true;
                 obj.computeLineDistances();

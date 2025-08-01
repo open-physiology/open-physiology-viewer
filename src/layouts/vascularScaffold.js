@@ -126,6 +126,7 @@ export class VascularScaffold {
             [$Field.target]: anchorT,
             [$Field.geometry]: "spline",
             [$Field.stroke]: "dashed",
+            [$Field.color]: "white",
             [$Field.curvature]: curvature
         }
         this.scaffold.wires.push(w);

@@ -172,17 +172,6 @@ const TAB_INDEX = {
                                 (editResource)="onEditResource($event)"
                     >
                     </webGLScene>
-                    <!-- Model loading progress bar -->
-                    <div *ngIf="loading" class="loading-overlay">
-                        <div class="loading-content">
-                            <mat-progress-spinner
-                                    color="primary"
-                                    mode="indeterminate"
-                                    diameter="50">
-                            </mat-progress-spinner>
-                            <p class="loading-text">Please, wait! Model is loading...</p>
-                        </div>
-                    </div>
                 </mat-tab>
 
                 <!--Relationship graph-->
@@ -277,6 +266,17 @@ const TAB_INDEX = {
                 </mat-tab>
             </mat-tab-group>
         </section>
+        <!-- Model loading progress bar -->
+        <div *ngIf="loading" class="loading-overlay">
+            <div class="loading-content">
+                <mat-progress-spinner
+                        color="primary"
+                        mode="indeterminate"
+                        diameter="50">
+                </mat-progress-spinner>
+                <p class="loading-text">Please, wait! Model is loading...</p>
+            </div>
+        </div>
 
         <!-- Footer -->
 
@@ -300,7 +300,7 @@ const TAB_INDEX = {
             width: calc(100% - 48px);
             height: 90vh
         }
-        
+
         #main-panel mat-tab-group {
             height: inherit;
         }
@@ -319,7 +319,7 @@ const TAB_INDEX = {
         #repo-panel {
             height: 95vh;
         }
-        
+
         .loading-overlay {
             display: flex;
             justify-content: center;
@@ -425,19 +425,19 @@ export class MainApp {
         });
         this._editor.set(this._model);
 
-        //this.create();
+        this.create();
         // Uncomment to load by default a Git version of WBKG
-        const url = config.initModel;
-        this.http.get(url).subscribe(
-            res => {
-                this.model = res;
-                this.showMessage("Successfully loaded WBKG from GitHub!")
-            },
-            err => {
-                console.error(err);
-                this.showErrorMessage("Failed to load WBKG from GitHub!");
-            }
-        );
+        // const url = config.initModel;
+        // this.http.get(url).subscribe(
+        //     res => {
+        //         this.model = res;
+        //         this.showMessage("Successfully loaded WBKG from GitHub!")
+        //     },
+        //     err => {
+        //         console.error(err);
+        //         this.showErrorMessage("Failed to load WBKG from GitHub!");
+        //     }
+        // );
     }
 
     // noinspection JSMethodCanBeStatic

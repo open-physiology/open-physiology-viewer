@@ -211,7 +211,7 @@ const COLORS = {
                                        [(ngModel)]="searchDynamicTerm"
                                        (input)="search($event?.target?.value, 'filteredDynamicGroups', 'dynamicGroups')"/>
                                 <img *ngIf="filter.value !== ''" src="./styles/images/close.svg" class="input-clear"
-                                     (click)="clearTreeSearch(filter, tree)"/>
+                                     (click)="clearSearch('searchTerm', 'filteredDynamicGroups', 'dynamicGroups')"/>
                             </div>
                             <button mat-raised-button (click)="toggleAllDynamicGroup()">Toggle all</button>
                         </div>
@@ -510,14 +510,16 @@ export class SettingsPanel {
     _labelProps;
     _labelClasses;
     selectedLabel;
+
     searchTerm = '';
+    searchTermScaffolds = '';
+
     filteredGroups;
     filteredDynamicGroups;
-    searchTermScaffolds = '';
     filteredScaffolds;
-    nodes;
 
     scaffoldResourceVisibility: Boolean = false;
+
     renderedComponents;
     renderedWires;
     renderedRegions;
@@ -731,11 +733,6 @@ export class SettingsPanel {
         this[term] = '';
         this[filterOptions] = this[allOptions];
     }
-
-    clearTreeSearch(filter, tree) {
-        tree?.treeModel?.filterNodes('');
-        filter.value = '';
-    }
 }
 
 @NgModule({
@@ -743,7 +740,7 @@ export class SettingsPanel {
         MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule,
         MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule,
         MatFormFieldModule, MatAutocompleteModule, MatSelectModule, MatTooltipModule
-    ], //TreeModule],
+    ],
     declarations: [SettingsPanel, StopPropagation, ResourceVisibility],
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
