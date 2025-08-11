@@ -12451,9 +12451,10 @@
           "topology": "CYST"
         },
         {
-          "id": "lyph-cyst-cytotrophoblast-cell",
+          "id": "lt-cyst-cytotrophoblast-cell",
           "name": "Cytotrophoblast cell",
           "supertype": "lt-cyst-cell",
+          "isTemplate": true,
           "ontologyTerms": [
             "UBERON:0000319",
             "CL:0000523"
@@ -15469,6 +15470,8 @@
         {
           "id": "chain-cytotrophoblast-cell-over-syncytiotrophoblast",
           "name": "Cytotrophoblast cell over syncytiotrophoblast",
+          "lyphTemplate": "lt-cyst-cytotrophoblast-cell",
+          "housingLayers": [1],
           "housingLyphTemplates": [
             "lyph-cardiovascular-intervillous-space-of-the-placenta"
           ],

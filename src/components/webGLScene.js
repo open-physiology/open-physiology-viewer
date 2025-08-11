@@ -30,6 +30,7 @@ import {$LogMsg} from "../model/logger";
 import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
+import {LyphDialog} from "./dialogs/lyphDialog";
 import {ModelToolbarModule} from "./toolbars/modelToolbar";
 import {MatSnackBar} from "@angular/material/snack-bar";
 
@@ -166,7 +167,7 @@ export class WebGLSceneComponent {
             }
             this.updateGraph();
             this.loggerColor = this._graphData.logger?.color;
-          }
+        }
     }
 
     @Input('config') set config(newConfig) {
@@ -771,12 +772,20 @@ export class WebGLSceneComponent {
 
     onDblClick() {
         this.selected = this.getMouseOverEntity();
-        if (this.selected instanceof this.modelClasses.Lyph){
-            (this.selected.inCoalescences || []).forEach(cls => {
-                if (cls.group){
-                    this.toggleGroup(cls.group);
-                }
-            });
+        if (this.selected instanceof this.modelClasses.Lyph) {
+            if (this.selected.inCoalescences?.length > 0) {
+                this.selected.inCoalescences.forEach(cls => {
+                    if (cls.group) {
+                        this.toggleGroup(cls.group);
+                    }
+                });
+            } else {
+                const dialogRef = this.dialog.open(LyphDialog, {
+                    width: '40%', height: '40%', data: {
+                        lyph: this.selected
+                    }
+                });
+            }
         }
         if (this.selected?.representsCoalescence) {
             //Show coalescence dialog
@@ -786,13 +795,13 @@ export class WebGLSceneComponent {
                 }
             });
             dialogRef.afterOpened().subscribe(() => {
-              const componentInstance = dialogRef.componentInstance;
-              componentInstance.resizeDialog.subscribe((maximize: boolean) => {
-                dialogRef.updateSize(
-                  maximize ? '100vw' : '50%',
-                  maximize ? '100vh' : '65%'
-                );
-              });
+                const componentInstance = dialogRef.componentInstance;
+                componentInstance.resizeDialog.subscribe((maximize: boolean) => {
+                    dialogRef.updateSize(
+                        maximize ? '100vw' : '50%',
+                        maximize ? '100vh' : '65%'
+                    );
+                });
             });
         }
     }
@@ -910,7 +919,7 @@ export class WebGLSceneComponent {
     imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule,
         ModelToolbarModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
-    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog],
+    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

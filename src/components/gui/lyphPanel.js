@@ -5,14 +5,15 @@ import {
     d3_createRect,
     d3_createBagRect
 } from '../utils/svgDraw';
+import {entries} from 'lodash-bound';
 
 @Component({
     selector: 'lyphPanel',
     template: `
         <b class="w3-padding">{{lyph?.name || lyph?.id}}</b>
         <div #svgLyphContainer id="svgLyphContainer">
-           <svg #svg></svg>
-       </div>
+            <svg #svg></svg>
+        </div>
     `,
     styles: [`
         #svgLyphContainer {
@@ -30,7 +31,6 @@ export class LyphPanel {
     border = 10;
     placeholder = 40;
 
-    // @Input() lyphs;
     @Input() right;
 
     @Input('lyphs') set lyphs(value) {
@@ -40,7 +40,7 @@ export class LyphPanel {
         }
     }
 
-    @Input('tooltipRef') set tooltipRef(value){
+    @Input('tooltipRef') set tooltipRef(value) {
         if (!value) return;
         this.tooltip = d3.select(value.nativeElement);
     }
@@ -51,10 +51,10 @@ export class LyphPanel {
 
     ngAfterViewInit() {
         let el = this.svgContainer.nativeElement;
-        this.width = 0.9*el.clientWidth;
-
+        this.width = 0.9 * el.clientWidth;
+        this.heigth = 0.9 * el.clientHeight;
         window.addEventListener('resize', () => {
-             this.width = 0.9*el.clientWidth;
+            this.width = 0.9 * el.clientWidth;
         }, false);
 
         this.svg = d3.select(this.svgRef.nativeElement);
@@ -74,14 +74,28 @@ export class LyphPanel {
 
         let dx = this.init.x;
         let dy = this.init.y;
-        (this.lyphs || []).forEach(lyph => {
-            this.drawLyph(dx, dy, lyph, zoomGroup);
-            dx += (lyph.placeholder ? this.placeholder : this.lyphSize.width) + 2 * this.border;
+        let max_dy = dy;
+
+        this.lyphs.forEach((lyph, i) => {
+            if (Array.isArray(lyph)){
+                // group -> layer with several cells
+                lyph.forEach(cell => {
+                     max_dy = Math.max(max_dy, dy);
+                     this.drawLyph(dx, dy, cell, zoomGroup);
+                     dy += this.lyphSize.height + 2 * this.border;
+                });
+            } else {
+                this.drawLyph(dx, dy, lyph, zoomGroup);
+            }
+            dy = this.init.y;
+            dx += (lyph.placeholder ? this.placeholder : this.lyphSize.width);
         });
 
+        this.svg.attr("height", Math.max(this.svg.attr("height"), max_dy));
+
         const zoom = d3.zoom()
-          .scaleExtent([0.5, 10])  // zoom out/in limits
-          .on("zoom", () => zoomGroup.attr("transform", d3.event.transform));
+            .scaleExtent([0.5, 10])  // zoom out/in limits
+            .on("zoom", () => zoomGroup.attr("transform", d3.event.transform));
 
         // Attach zoom behavior to SVG
         this.svg.call(zoom);
@@ -112,9 +126,11 @@ export class LyphPanel {
         }
         let hostColor = lyph.housingLyph?.color || "white";
         let delta = 0.5 * this.lyphSize.height / ((lyph.layers || []).length + 1);
-        let layers = [...(lyph.layers||[])].reverse();
+        let layers = [...(lyph.layers || [])].reverse();
 
-        d3_createRect(group, dx - this.border, dy - this.border, width + 2 * this.border, height + 2 * this.border,
+        let borderLeft = roundLeft? this.border: 0;
+        let borderRight = roundRight? this.border: 0;
+        d3_createRect(group, dx - borderLeft, dy - this.border, width + borderLeft + borderRight, height + 2 * this.border,
             hostColor, lyph.housingLyph?.name || lyph.housingLyph?.fullID, this.tooltip);
 
         if (roundRight || roundLeft) {
@@ -128,7 +144,6 @@ export class LyphPanel {
                     dx += 2 * delta;
                 }
                 dy += delta;
-                //TODO Adjust
                 rects.push({x: dx, y: dy, width: width, height: height});
             });
         } else {
@@ -138,7 +153,6 @@ export class LyphPanel {
                 d3_createRect(group, dx, dy, width, height, ...params);
                 height -= 2 * delta;
                 dy += delta;
-                //TODO Adjust
                 rects.push({x: dx, y: dy, width: width, height: height});
             });
         }

@@ -1,11 +1,12 @@
 import {animate} from "animejs";
 import * as d3 from "d3";
 
-export function hideElement(svg, id){
+
+export function hideElement(svg, id) {
     svg.select(`#${id}`).style("display", "none");
 }
 
-export function showElement(svg, id){
+export function showElement(svg, id) {
     svg.select(`#${id}`).style("display", "inline");
 }
 
@@ -162,4 +163,124 @@ export function animate_mergeRects(groupA, groupB, rectWidth, rectHeight, center
 export function animate_posRects(groupA, groupB, rectWidth, rectHeight, centerX, scale) {
     const [aElements, bElements, offsetA, offsetB] = getOffsets(groupA, groupB, rectWidth, rectHeight, centerX);
     animate_groups(aElements, bElements, offsetA * scale, offsetB * scale);
+}
+
+export function collectLayerCells(layerCellLevelMap, layers) {
+    let cells = [];
+    (layers || []).forEach(layer => {
+        if (layer.fullID in layerCellLevelMap) {
+            cells.push(layerCellLevelMap[layer.fullID]);
+        } else {
+            cells.push({
+                placeholder: true,
+                label: layer.name || layer.fullID,
+                color: layer.color
+            })
+        }
+    });
+    return cells;
+}
+
+export function updateLyphMap(map, hostLyph, lyph) {
+    if (!hostLyph) return;
+    map[hostLyph.fullID] = map[hostLyph.fullID] || [];
+    if (!map[hostLyph.fullID].find(e => e.fullID === lyph.fullID)) {
+        map[hostLyph.fullID].push(lyph);
+    }
+}
+
+export function drawLyph(group, layerSize, lyph, x, y, reversed, layerHandler, tooltip) {
+    let layers = [...lyph.layers || []];
+    if (reversed) layers = layers.reverse();
+
+    const lyphWidth = (layerSize.width + layerSize.spacing) * (layers || []).length;
+    const commonParams = ["#eee", lyph.name || lyph.fullID, tooltip];
+
+    let dx = x;
+    // Draw main lyph, shifted to emphasize borders
+    if (!reversed) {
+        d3_createRect(group, x - layerSize.border.x, y - layerSize.border.y,
+            lyphWidth + layerSize.border.x, layerSize.height + layerSize.border.y, ...commonParams);
+        group.append("text")
+            .attr("x", x - layerSize.border.x + 2) // slight padding
+            .attr("y", y - layerSize.border.y + 12) // vertically offset so it's not touching the edge
+            .text(lyph.name || lyph.fullID)
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+    } else {
+        d3_createRect(group, x, y, lyphWidth + layerSize.border.x, layerSize.height + layerSize.border.y, ...commonParams);
+        group.append("text")
+            .attr("x", x + 2) // slight padding
+            .attr("y", y + layerSize.height + layerSize.border.y - 4) // vertically offset so it's not touching the edge
+            .text(lyph.name || lyph.fullID)
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+    }
+
+    // Draw layers
+    layers.forEach((layer, i) => {
+        let rect = d3_createRect(group, dx, y,
+            layerSize.width, layerSize.height,
+            layer.color, layer.name, tooltip);
+        dx += layerSize.width + layerSize.spacing;
+        if (layerHandler) layerHandler(layer.fullID, rect);
+    });
+}
+
+
+export function drawCell(layerCellLevelMap, lyphRectMap, right, chain, group, reversed, k, n, levelHandler, tooltip) {
+    group.attr("id", "g_" + chain.id);
+
+    const createLeftBag = (pos, commonParams) => {
+        const [x, y, width, height] = [
+            pos.x + pos.width / 2, pos.y + pos.height / 4,
+            pos.width / 2, pos.height / 2];
+        return d3_createBagRect(group, x, y, width, height, ...commonParams, {
+            roundLeft: true, roundRight: false, radius: 8
+        });
+    }
+
+    const createRightBag = (pos, commonParams, lyph) => {
+        const [x, y, width, height] = [pos.x, pos.y + pos.height / 4, pos.width / 2, pos.height / 2];
+        right.add(lyph.fullID);
+        return d3_createBagRect(group, x, y, width, height, ...commonParams, {
+            roundLeft: false, roundRight: true, radius: 8
+        });
+    }
+
+    (chain.levels || []).forEach((link, i) => {
+        let commonParams = [link.conveyingLyph?.color || "lightblue", link.conveyingLyph?.name || link.conveyingLyph?.fullID, tooltip];
+
+        const createShape = (hostLyph, isTube = false) => {
+            if (!hostLyph || !link.conveyingLyph) return;
+            updateLyphMap(layerCellLevelMap, hostLyph, link.conveyingLyph);
+            let shape;
+            if (hostLyph.fullID in lyphRectMap) {
+                const hostRect = lyphRectMap[hostLyph.fullID];
+                if (hostRect) {
+                    const pos = d3_getRectDimensions(hostRect);
+                    pos.height /= n;
+                    pos.y += (pos.height * k);
+                    if (isTube) {
+                        shape = (i === 0)
+                            ? (reversed ? createRightBag(pos, commonParams, link.conveyingLyph) : createLeftBag(pos, commonParams))
+                            : (reversed ? createLeftBag(pos, commonParams) : createRightBag(pos, commonParams, link.conveyingLyph));
+                    } else {
+                        const [x, y, width, height] = [pos.x, pos.y + pos.height / 4, pos.width, pos.height / 2];
+                        shape = d3_createBagRect(group, x, y, width, height, ...commonParams, {
+                            roundLeft: false, roundRight: false
+                        });
+                    }
+                }
+            } else {
+                console.error("Lyph with a problem", hostLyph, chain);
+            }
+            return shape;
+        }
+
+        let shape = (link.endsIn) ? createShape(link.endsIn, true) : createShape(link.fasciculatesIn);
+        if (shape && levelHandler) {
+            shape.on("click", d => levelHandler(link.conveyingLyph));
+        }
+    });
 }
