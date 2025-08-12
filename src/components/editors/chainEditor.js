@@ -85,6 +85,7 @@ import {References} from "../utils/references";
                                [value]="selectedChain?.numLevels"
                                (input)="updateNumLevels($event.target.value)"
                         >
+                        
                         <!--Lyph template definition options -->
                         <mat-tab-group animationDuration="0ms" #tabChainMethod>
                             <mat-tab class="w3-margin">
@@ -120,6 +121,7 @@ import {References} from "../utils/references";
                                 </resourceListView>
                             </mat-tab>
                         </mat-tab-group>
+                        
                     </div>
                     <resourceListView *ngIf="selectedChain?.levels"
                                       listTitle="Levels"
@@ -344,6 +346,12 @@ export class ChainEditorComponent extends ResourceEditor {
 
     get selectedNode() {
         return this._selectedNode;
+    }
+
+    get numLevels(){
+       return this.selectedChain?.numLevels ||
+           (this.selectedChain?.lyphs||[]).length || (this.selectedChain?.levels||[]).length ||
+           (this.selectedChain?.houisngLyphs||[]).length;
     }
 
     collectLaterals() {

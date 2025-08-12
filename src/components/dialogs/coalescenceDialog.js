@@ -37,7 +37,7 @@ import {MatTabsModule} from '@angular/material/tabs';
                 </mat-tab>
 
                 <mat-tab *ngFor="let lyphPair of lyphPairs; let i = index" class="w3-margin w3-border">
-                    <ng-template mat-tab-label>{{i + 1}}</ng-template>
+                    <ng-template mat-tab-label [ngClass]="{'selected': active}">{{i + 1}}</ng-template>
                     <coalescence-panel [lyphPair]="lyphPair" [tooltipRef]="tooltipRef"
                                        [width]="width"
                                        [showCells]="true"
@@ -99,6 +99,11 @@ import {MatTabsModule} from '@angular/material/tabs';
             height: 100%;
             max-height:100%;
         }
+        
+        .selected {
+            border: 3px solid #000;
+        }
+
 
     `]
 })

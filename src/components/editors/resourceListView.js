@@ -62,18 +62,8 @@ export class ListNode {
             <div class="title" (click)="activateList()">
                 <span class="w3-padding-small" [ngClass]="{'selected': active}">{{listTitle}}</span>
             </div>
-            
-            <div class="search-bar">
-                <img src="./styles/images/search.svg"/>
-                <input type="text" class="w3-input search-input" placeholder="Search for a resource"
-                       name="searchTerm" [(ngModel)]="searchTerm"
-                       (input)="search($event.target.value, 'filteredListData', 'listData')"/>
-                <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
-                     (click)="clearSearch('searchTerm', 'filteredListData', 'listData')"/>
-            </div>
-            
             <mat-nav-list class="w3-padding-0 node-list">
-                <mat-list-item *ngFor="let node of filteredListData">
+                <mat-list-item *ngFor="let node of listData">
                     <input *ngIf="showColor" class="list-node color-rect"
                            type="button"
                            (contextmenu)="preventDefault($event, node)"
@@ -290,16 +280,6 @@ export class ResourceListView {
     @Output() onColorUpdate = new EventEmitter();
     @Output() onLayerIndexChange = new EventEmitter();
 
-    ngOnInit() {
-        this.searchTerm = '';
-        this.filteredListData = this.listData;
-    }
-
-    ngOnChanges() {
-        this.search(this.searchTerm, 'filteredListData', 'listData');
-        this.filteredListData = this.filteredListData || this.listData;
-    }
-
     get listData() {
         return this._listData;
     }
@@ -357,15 +337,6 @@ export class ResourceListView {
 
     activateList(){
         this.onNodeClick.emit();
-    }
-
-    search(value, filterOptions, allOptions) {
-        this[filterOptions] = this[allOptions]?.filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
-    }
-
-    clearSearch(term, filterOptions, allOptions) {
-        this[term] = '';
-        this[filterOptions] = this[allOptions];
     }
 }
 

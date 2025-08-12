@@ -40,6 +40,7 @@ import {COLORS} from "../utils/colors";
                             >
                         </mat-form-field>
                     </div>
+                    
                     <!--Ontology terms-->
                     <div class="w3-padding w3-margin-bottom w3-border">
                         <div class="w3-margin-bottom"><b>Ontology terms</b></div>
