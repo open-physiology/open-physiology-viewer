@@ -8,7 +8,7 @@ import {SearchAddBarModule} from "./searchAddBar";
 import {CheckboxFilterModule} from "./checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, isNumber, sortBy} from 'lodash-bound';
+import {cloneDeep, isObject, isNumber, sortBy, isString} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
@@ -22,6 +22,11 @@ import {MatTabsModule} from "@angular/material/tabs";
 import {ResourceEditor} from "./resourceEditor";
 import {ResourceTreeNode, ResourceTreeViewModule} from "./resourceTreeView";
 import {References} from "../utils/references";
+import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatSelectModule} from "@angular/material/select";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import cellOntoTermDefinitions from "../../data/cellOntoTerms.json";
+import {includeRef, isIncluded} from "../../model/utils";
 
 
 @Component({
@@ -76,8 +81,9 @@ import {References} from "../utils/references";
                                 (selectedItemChange)="selectLyphTemplate($event)"
                                 (addSelectedItem)="updateLyphTemplate($event)"
                         ></searchAddBar>
-                        <div class="title w3-padding-small">Number of levels</div>
+
                         <!-- Num levels -->
+                        <div class="title w3-padding-small">Number of levels</div>
                         <input type="number" matInput class="w3-input num-levels"
                                matTooltip="Number of levels in the chain"
                                min=0
@@ -85,18 +91,38 @@ import {References} from "../utils/references";
                                [value]="selectedChain?.numLevels"
                                (input)="updateNumLevels($event.target.value)"
                         >
-                        
+                    </div>
+
+                    <!-- Level ontology terms -->
+                    <div *ngIf="selectedChain" style="margin-right:80px;" class="w3-padding w3-margin-bottom w3-border">
+                        <div class="title w3-padding-small">Level ontology terms</div>
+                        <mat-form-field class="full-width"
+                                        *ngFor="let levelOntologyTerm of chainResources['levelOntologyTerms']; let i = index">
+                            <mat-select
+                                    placeholder="Select a level annotation"
+                                    [matTooltip]="'Level' + i"
+                                    [value]="levelOntologyTerm"
+                                    (selectionChange)="updateLevelOntoTerm(i, $event.value)">
+                                <mat-option *ngFor="let option of cellOntoTerms" [value]="option.id">
+                                    {{option.name}} ({{option.id}})
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+
+                    <div *ngIf="selectedChain" style="margin-right:80px;" class="w3-padding w3-margin-bottom w3-border">
                         <!--Lyph template definition options -->
-                        <mat-tab-group animationDuration="0ms" #tabChainMethod>
+                        <mat-tab-group animationDuration="0ms" #tabChainMethod
+                                       (selectedTabChange)="changeActiveList($event)">
                             <mat-tab class="w3-margin">
                                 <!-- Housing lyph templates -->
                                 <ng-template mat-tab-label>Housing lyph templates</ng-template>
                                 <resourceListView *ngIf="selectedChain"
-                                                  listTitle="Housing lyph templates"
-                                                  ordered=true
+                                                  listTitle="Housing lyph templates [start layer]"
                                                   expectedClass="Lyph"
-                                                  splitable=true
-                                                  showLayerIndex="true"
+                                                  [ordered]="false"
+                                                  [labeled]="true"
+                                                  [showLayerIndex]="true"
                                                   [active]="activeList === 'housingLyphTemplates'"
                                                   [listData]="chainResources['housingLyphTemplates']"
                                                   (onNodeClick)="selectLyph($event, 'housingLyphTemplates')"
@@ -109,19 +135,20 @@ import {References} from "../utils/references";
                                 <!-- Housing lyphs -->
                                 <ng-template mat-tab-label>Housing lyphs</ng-template>
                                 <resourceListView *ngIf="selectedChain"
-                                                  listTitle="Housing lyphs"
-                                                  ordered=true
+                                                  listTitle="Housing lyphs [start layer]"
                                                   expectedClass="Lyph"
-                                                  splitable=true
+                                                  [ordered]="true"
+                                                  [showLayerIndex]="true"
                                                   [active]="activeList === 'housingLyphs'"
                                                   [listData]="chainResources['housingLyphs']"
                                                   (onNodeClick)="selectLyph($event, 'housingLyphs')"
                                                   (onChange)="processHousingLyphChange($event)"
+                                                  (onLayerIndexChange)="processHousingLayerChange($event)"
                                 >
                                 </resourceListView>
                             </mat-tab>
                         </mat-tab-group>
-                        
+
                     </div>
                     <resourceListView *ngIf="selectedChain?.levels"
                                       listTitle="Levels"
@@ -192,20 +219,15 @@ import {References} from "../utils/references";
                 >
                 </searchAddBar>
                 <!-- level target -->
-                <div class="resource-box" *ngIf="selectedLyph && activeList === 'lyphs'">
+                <div class="resource-box" *ngIf="selectedLyph && (activeList === 'lyphs')">
                     <div class="resource-boxContent">
                         <div class="w3-padding w3-margin-bottom w3-border">
                             <div class="w3-margin-bottom"><b>{{selectedLyph.name || selecledLyph.id}}</b></div>
-                            Level target
-                            <mat-form-field>
-                                <input disabled matInput class="w3-input"
-                                       matTooltip="Selected level target"
-                                       [value]="selectedLyph._conveys?.target"
-                                >
-                            </mat-form-field>
+                            Level target: <b>{{selectedLyph._conveys?.target}}</b>
                         </div>
                     </div>
                 </div>
+
                 <chainDeclaration
                         [chain]="selectedChain"
                         [wireOptions]="wireOptions"
@@ -215,8 +237,8 @@ import {References} from "../utils/references";
                 </chainDeclaration>
                 <lyphTreeView *ngIf="selectedLyph"
                               listTitle="Layers"
-                              [ordered]=true
-                              [showMenu]=false
+                              [ordered]="true"
+                              [showMenu]="false"
                               [treeData]="layerTree"
                               (onNodeClick)="switchEditor($event)"
                 >
@@ -253,6 +275,10 @@ import {References} from "../utils/references";
             line-height: 0.934rem;
         }
 
+        .full-width {
+            width: 100%;
+        }
+
         .num-levels {
             text-align: right;
             font: 12px sans-serif;
@@ -276,11 +302,14 @@ export class ChainEditorComponent extends ResourceEditor {
         super(snackBar, dialog);
     }
 
+    cellOntoTerms = cellOntoTermDefinitions;
+
     _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex', '_cloning'];
 
     _extraLyphActions = [
         {
-            operation: "connectRoot", label: "Connect chain root"},
+            operation: "connectRoot", label: "Connect chain root"
+        },
         {
             operation: "connectLeaf", label: "Connect chain leaf"
         }
@@ -298,7 +327,8 @@ export class ChainEditorComponent extends ResourceEditor {
         [$Field.lyphs]: [],
         [$Field.housingLyphs]: [],
         [$Field.housingLyphTemplates]: [],
-        [$Field.levels]: []
+        [$Field.levels]: [],
+        [$Field.levelOntologyTerms]: []
     }
 
     activeList = "lyphs";
@@ -348,10 +378,14 @@ export class ChainEditorComponent extends ResourceEditor {
         return this._selectedNode;
     }
 
-    get numLevels(){
-       return this.selectedChain?.numLevels ||
-           (this.selectedChain?.lyphs||[]).length || (this.selectedChain?.levels||[]).length ||
-           (this.selectedChain?.houisngLyphs||[]).length;
+    adjustLevelOntologyTermsListSize() {
+        if (!this.selectedChain) return;
+        this.chainResources.levelOntologyTerms = this.chainResources.levelOntologyTerms || [];
+        if (this.selectedChain.numLevels > 0) {
+            this.chainResources.levelOntologyTerms.length = this.selectedChain.numLevels;
+        } else {
+            this.chainResources.levelOntologyTerms = [];
+        }
     }
 
     collectLaterals() {
@@ -602,6 +636,10 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.prepareChainLyphIcons(this.chainResources[prop]);
             }
         });
+        this.adjustLevelOntologyTermsListSize();
+        (this.selectedChain?.levelOntologyTerms || []).forEach((ontTermRef, i) => {
+            this.chainResources.levelOntologyTerms[i] = isIncluded(this.cellOntoTerms, ontTermRef) ? ontTermRef : {};
+        });
     }
 
     /**
@@ -652,6 +690,14 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.selectedChain.lyphTemplate = this.candidateLyphTemplate.id;
                 this.saveStep("Replaced lyph template in chain " + this.selectedChain.id);
             }
+        }
+    }
+
+    changeActiveList(tabEvent) {
+        if (tabEvent.index === 0) {
+            this.activeList = "housingLyphTemplates";
+        } else {
+            this.activeList = "housingLyphs";
         }
     }
 
@@ -730,7 +776,7 @@ export class ChainEditorComponent extends ResourceEditor {
         this.createChain();
     }
 
-    deleteChain(node, deleteLyphs=false) {
+    deleteChain(node, deleteLyphs = false) {
         let chain = this.entitiesByID[node.id];
         let cls = chain._class?.toLowerCase() || $SchemaClass.Chain;
         if (chain) {
@@ -738,8 +784,8 @@ export class ChainEditorComponent extends ResourceEditor {
             if (idx > -1) {
                 References.clearChainRefs(this._model, node.id);
                 this._model.chains.splice(idx, 1);
-                if (deleteLyphs){
-                    (chain.lyphs||[]).forEach(lyph => {
+                if (deleteLyphs) {
+                    (chain.lyphs || []).forEach(lyph => {
                         References.clearMaterialRefs(this._model, lyph.id);
                         References.removeMaterialOrLyph(this._model, lyph.id);
                     });
@@ -805,7 +851,7 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
                 break;
             case $Field.housingLyphTemplates:
-                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
+                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphOrTemplate);
                 break;
         }
     }
@@ -818,7 +864,7 @@ export class ChainEditorComponent extends ResourceEditor {
     processHousingLyphTemplateChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphTemplate);
+                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphOrTemplate);
                 break;
             case 'delete':
                 this.deleteLyphFromList(node, index, $Field.housingLyphTemplates, $Field.providesChains);
@@ -907,8 +953,8 @@ export class ChainEditorComponent extends ResourceEditor {
         return lyph._class === $SchemaClass.Lyph && !lyph.isTemplate;
     }
 
-    _isLyphTemplate(lyph) {
-        return lyph.isTemplate;
+    _isLyphOrTemplate(lyph) {
+        return lyph._class === $SchemaClass.Lyph;
     }
 
 
@@ -972,6 +1018,25 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
+    updateLevelOntoTerm(idx, termID) {
+        if (!this.selectedChain) return;
+        this.selectedChain.levelOntologyTerms = this.selectedChain.levelOntologyTerms || [];
+        if (this.selectedChain.levelOntologyTerms.length <= idx) {
+            this.selectedChain.levelOntologyTerms.length = idx + 1;
+        }
+        for (let i = 0; i < this.selectedChain.levelOntologyTerms.length; i++) {
+            this.selectedChain.levelOntologyTerms[i] = this.selectedChain.levelOntologyTerms[i] || {};
+        }
+        this.selectedChain.levelOntologyTerms[idx] = termID;
+        this.cellOntoTerms.forEach(def => {
+            if (def.id && !(this._model.ontologyTerms||[]).find(obj => obj.id === def.id)){
+                this._model.ontologyTerms = this._model.ontologyTerms || [];
+                this._model.ontologyTerms.push(def);
+            }
+        });
+        this.saveStep(`Update level ${idx + 1} ontology term to ` + termID);
+    }
+
     /**
      * Update selected lyph property
      * @param prop
@@ -1018,6 +1083,7 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.saveStep(`Removed numLevels property of chain ` + this.selectedChain.id);
             }
         }
+        this.adjustLevelOntologyTermsListSize();
     }
 
     getCurrentState(action) {
@@ -1181,9 +1247,9 @@ export class ChainEditorComponent extends ResourceEditor {
 }
 
 @NgModule({
-    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
-        MatDividerModule, ResourceListViewModule, ChainDeclarationModule, CheckboxFilterModule, MatListModule,
-        LyphTreeViewModule, LinkedResourceModule, MatTabsModule, ResourceTreeViewModule],
+    imports: [CommonModule, MatMenuModule, MatTooltipModule, MatSelectModule, MatFormFieldModule, MatListModule,
+        MatButtonModule, MatDividerModule, MatTabsModule, ResourceDeclarationModule, SearchAddBarModule, ResourceListViewModule,
+        ChainDeclarationModule, CheckboxFilterModule, LyphTreeViewModule, LinkedResourceModule, ResourceTreeViewModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]
 })

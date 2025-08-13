@@ -1,0 +1,14 @@
+[
+  { "id": "", "name": "None"},
+  { "id": "GO:1990794", "name": "Basolateral part of cell" },
+  { "id": "GO:0045177", "name": "Apical part of cell" },
+  { "id": "GO:0097574", "name": "Lateral part of cell" },
+  { "id": "FMA:67644", "name": "Luminal surface of epithelium" },
+  { "id": "FMA:67642", "name": "Abluminal surface of epithelium\n" },
+  { "id": "FMA:67241", "name": "Cell body of neuron" },
+  { "id": "FMA:67314", "name": "Dendrite" },
+  { "id": "FMA:67308", "name": "Axon" },
+  { "id": "FMA:61813", "name": "Axon terminal" },
+  { "id": "GO:0043679", "name": "Axon terminus" },
+  { "id": "GO:0044292", "name": "Dendrite terminus" }
+]

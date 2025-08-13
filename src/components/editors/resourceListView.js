@@ -76,6 +76,7 @@ export class ListNode {
                            [cpSaveClickOutside]="false"
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
+                    <div *ngIf="labeled && (node.index > -1)" class="w3-padding-small">{{(node.index + 10).toString(36).toUpperCase()}}</div>
                     <div *ngIf="ordered && (node.index > -1)" class="w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.id}}
                             [ngClass]="{
@@ -261,6 +262,7 @@ export class ResourceListView {
 
     @Input() listTitle;
     @Input() ordered = false;
+    @Input() labeled = false;
     @Input() expectedClass;
     @Input() selectedNode;
     @Input() linkedNode;

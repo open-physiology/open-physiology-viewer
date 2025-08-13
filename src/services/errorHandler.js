@@ -13,7 +13,7 @@ export class GlobalErrorHandler implements ErrorHandler {
 
     handleError(error) {
         console.error(error);
-        let message = "An unexpected error occurred: " + error;
+        let message = "An unexpected error occurred!";
         this._snackBar.open(message, "OK", this.config);
     }
 }
