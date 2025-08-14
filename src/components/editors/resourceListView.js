@@ -36,7 +36,7 @@ export class ListNode {
         this.canMoveUp = index > 0 && this.length > 1;
         this.canMoveDown = index < this.length - 1;
         this.layerIndex = resource?._layerIndex;
-        this.maxLayerIndex = (this.resource?.layers||[]).length - 1;
+        this.maxLayerIndex = (this.resource?.layers || []).length - 1;
     }
 
     /**
@@ -59,9 +59,12 @@ export class ListNode {
     selector: 'resourceListView',
     template: `
         <section class="list-container">
-            <div class="title" (click)="activateList()">
-                <span class="w3-padding-small" [ngClass]="{'selected': active}">{{listTitle}}</span>
+            <div>
+                <span (click)="activateList()" class="title w3-padding-small"
+                      [ngClass]="{'selected': active}">{{listTitle}}</span>
+                <span *ngIf="showLayerIndex" class="title w3-padding-small w3-right">Start layer</span>
             </div>
+
             <mat-nav-list class="w3-padding-0 node-list">
                 <mat-list-item *ngFor="let node of listData">
                     <input *ngIf="showColor" class="list-node color-rect"
@@ -76,7 +79,8 @@ export class ListNode {
                            [cpSaveClickOutside]="false"
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
-                    <div *ngIf="labeled && (node.index > -1)" class="w3-padding-small">{{(node.index + 10).toString(36).toUpperCase()}}</div>
+                    <div *ngIf="labeled && (node.index > -1)"
+                         class="w3-padding-small">{{(node.index + 10).toString(36).toUpperCase()}}</div>
                     <div *ngIf="ordered && (node.index > -1)" class="w3-padding-small">{{node.index}}</div>
                     <button class="w3-hover-pale-red w3-hover-border-grey list-node" matTooltip={{node.id}}
                             [ngClass]="{
@@ -97,8 +101,8 @@ export class ListNode {
                     <div *ngFor="let icon of node.icons; let i = index">
                         <i class="icon-mini" [ngClass]=icon> </i>
                     </div>
-                    
-                    <div *ngIf="showLayerIndex && node?.maxLayerIndex >=0 ">
+
+                    <div *ngIf="showLayerIndex && node?.maxLayerIndex >=0" style="margin-left: auto;">
                         <input type="number" matInput class="w3-input layer-index"
                                [value]="node?.layerIndex"
                                [min]=0
@@ -165,9 +169,9 @@ export class ListNode {
         .list-node {
             border: 0.067rem solid ${COLORS.border};
         }
-        
-        .color-rect{
-            width: 20px; 
+
+        .color-rect {
+            width: 20px;
             height: 20px;
         }
 
@@ -238,7 +242,7 @@ export class ListNode {
             font-weight: 500;
             cursor: pointer;
         }
-        
+
         .layer-index {
             text-align: right;
             font: 12px sans-serif;
@@ -255,7 +259,6 @@ export class ListNode {
     `]
 })
 export class ResourceListView {
-    _listData = [];
     rtmTopLeftPosition = {x: '0', y: '0'}
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
@@ -273,24 +276,18 @@ export class ResourceListView {
     @Input() showMenu = true;
     @Input() showLayerIndex;
 
-    @Input('listData') set model(newListData) {
-        this._listData = newListData;
-    }
+    @Input() listData;
 
     @Output() onNodeClick = new EventEmitter();
     @Output() onChange = new EventEmitter();
     @Output() onColorUpdate = new EventEmitter();
     @Output() onLayerIndexChange = new EventEmitter();
 
-    get listData() {
-        return this._listData;
-    }
-
     updateLayerIndex(node, layerIndex) {
         this.onLayerIndexChange.emit({node: node, layerIndex: layerIndex});
     }
 
-    preventDefault(e, node){
+    preventDefault(e, node) {
         e.preventDefault();
         e.stopPropagation();
     }
@@ -337,7 +334,7 @@ export class ResourceListView {
         this.onNodeClick.emit(node);
     }
 
-    activateList(){
+    activateList() {
         this.onNodeClick.emit();
     }
 }

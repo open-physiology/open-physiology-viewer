@@ -8,7 +8,7 @@ import {SearchAddBarModule} from "./searchAddBar";
 import {CheckboxFilterModule} from "./checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, isNumber, sortBy, isString} from 'lodash-bound';
+import {cloneDeep, isObject, isNumber, sortBy} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
@@ -118,7 +118,7 @@ import {includeRef, isIncluded} from "../../model/utils";
                                 <!-- Housing lyph templates -->
                                 <ng-template mat-tab-label>Housing lyph templates</ng-template>
                                 <resourceListView *ngIf="selectedChain"
-                                                  listTitle="Housing lyph templates [start layer]"
+                                                  listTitle="Housing lyph templates"
                                                   expectedClass="Lyph"
                                                   [ordered]="false"
                                                   [labeled]="true"
@@ -135,7 +135,7 @@ import {includeRef, isIncluded} from "../../model/utils";
                                 <!-- Housing lyphs -->
                                 <ng-template mat-tab-label>Housing lyphs</ng-template>
                                 <resourceListView *ngIf="selectedChain"
-                                                  listTitle="Housing lyphs [start layer]"
+                                                  listTitle="Housing lyphs"
                                                   expectedClass="Lyph"
                                                   [ordered]="true"
                                                   [showLayerIndex]="true"
@@ -610,13 +610,15 @@ export class ChainEditorComponent extends ResourceEditor {
     }
 
     prepareResourceList(prop) {
-        let res = [];
         if (!this.selectedChain) return res;
+        let res = [];
         (this.selectedChain[prop] || []).forEach((resourceID, idx) => {
             let resource = this.entitiesByID[resourceID];
-            if (prop === $Field.housingLyphTemplates) {
+            if (prop === $Field.housingLyphTemplates || prop === $Field.housingLyphs) {
                 if (this.selectedChain.housingLayers?.length > idx) {
                     resource._layerIndex = this.selectedChain.housingLayers[idx];
+                } else {
+                    resource._layerIndex = 0;
                 }
             }
             let node = ListNode.createInstance(resource || resourceID, idx, this.selectedChain[prop].length);
@@ -626,6 +628,7 @@ export class ChainEditorComponent extends ResourceEditor {
     }
 
     prepareChainResources(props) {
+        if (!this.selectedChain) return;
         if (!props || props.length === 0) {
             props = [$Field.lyphs, $Field.housingLyphs, $Field.housingLyphTemplates, $Field.levels];
         }
@@ -637,9 +640,10 @@ export class ChainEditorComponent extends ResourceEditor {
             }
         });
         this.adjustLevelOntologyTermsListSize();
-        (this.selectedChain?.levelOntologyTerms || []).forEach((ontTermRef, i) => {
+        (this.selectedChain.levelOntologyTerms || []).forEach((ontTermRef, i) => {
             this.chainResources.levelOntologyTerms[i] = isIncluded(this.cellOntoTerms, ontTermRef) ? ontTermRef : {};
         });
+        //
     }
 
     /**
@@ -864,6 +868,10 @@ export class ChainEditorComponent extends ResourceEditor {
     processHousingLyphTemplateChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
+                if ((this.selectedChain.housingLyphs||[]).length > 0){
+                     this.showWarning("Cannot add housing lyph templates to the chain with housing lyphs.");
+                     break;
+                }
                 this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphOrTemplate);
                 break;
             case 'delete':
@@ -885,6 +893,10 @@ export class ChainEditorComponent extends ResourceEditor {
     processHousingLyphChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
+                if ((this.selectedChain.housingLyphTemplates||[]).length > 0){
+                     this.showWarning("Cannot add housing lyphs to the chain with housing lyph templates.");
+                     break;
+                }
                 this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
                 break;
             case 'delete':
