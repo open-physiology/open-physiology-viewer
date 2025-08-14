@@ -12,6 +12,7 @@ import {ColorPickerModule} from 'ngx-color-picker';
 import {isNumber, isObject, isString} from "lodash-bound";
 import {COLORS} from "../utils/colors";
 import {$Field, $SchemaClass} from "../../model";
+import {limitLabel} from "../utils/helpers";
 
 export const myCustomTooltipDefaults: MatTooltipDefaultOptions = {
     showDelay: 0,
@@ -47,7 +48,7 @@ export const ICON = {
 export class LyphTreeNode {
     constructor(id, label, cls, parent, length, children, isTemplate, index, resource) {
         this.id = id;
-        this.label = label;
+        this.label = limitLabel(label);
         this.parent = parent;
         this.length = length;
         this.children = children;

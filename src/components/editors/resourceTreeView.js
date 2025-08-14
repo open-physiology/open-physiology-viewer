@@ -12,6 +12,7 @@ import {COLORS} from "../utils/colors";
 import {$Field} from "../../model";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {ColorPickerModule} from "ngx-color-picker";
+import {limitLabel} from "../utils/helpers";
 
 
 /**
@@ -31,7 +32,7 @@ import {ColorPickerModule} from "ngx-color-picker";
 export class ResourceTreeNode {
     constructor(id, label, type, parent, length, children, index, resource) {
         this.id = id;
-        this.label = label;
+        this.label = limitLabel(label);
         this.parent = parent;
         this.length = length;
         this.children = children;

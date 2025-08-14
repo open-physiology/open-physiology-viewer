@@ -302,9 +302,10 @@ export class ChainEditorComponent extends ResourceEditor {
         super(snackBar, dialog);
     }
 
+    layerTree;
     cellOntoTerms = cellOntoTermDefinitions;
 
-    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex', '_cloning'];
+    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex', '_maxLayerIndex', '_cloning'];
 
     _extraLyphActions = [
         {
@@ -480,6 +481,9 @@ export class ChainEditorComponent extends ResourceEditor {
             let nodeID = node::isObject() ? node.id : node;
             this.selectedLyph = this.entitiesByID[nodeID];
             this.prepareLayerTree();
+            if (this.layerTree && this.layerTree.length > 0) {
+                this.selectedLyph._maxLayerIndex = (this.layerTree[0].children||[]).length - 1;
+            }
         }
         this.activeList = prop;
     }
@@ -852,10 +856,10 @@ export class ChainEditorComponent extends ResourceEditor {
                 this.addLyphToList(node, index, $Field.lyphs, this._isLyphInstance);
                 break;
             case $Field.housingLyphs:
-                this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
+                this.addLyphToList(node, index, $Field.housingLyphs, this._isValidHousingLyph);
                 break;
             case $Field.housingLyphTemplates:
-                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphOrTemplate);
+                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isValidHousingLyphTemplate);
                 break;
         }
     }
@@ -868,11 +872,7 @@ export class ChainEditorComponent extends ResourceEditor {
     processHousingLyphTemplateChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                if ((this.selectedChain.housingLyphs||[]).length > 0){
-                     this.showWarning("Cannot add housing lyph templates to the chain with housing lyphs.");
-                     break;
-                }
-                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isLyphOrTemplate);
+                this.addLyphToList(node, index, $Field.housingLyphTemplates, this._isValidHousingLyphTemplate);
                 break;
             case 'delete':
                 this.deleteLyphFromList(node, index, $Field.housingLyphTemplates, $Field.providesChains);
@@ -893,11 +893,7 @@ export class ChainEditorComponent extends ResourceEditor {
     processHousingLyphChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                if ((this.selectedChain.housingLyphTemplates||[]).length > 0){
-                     this.showWarning("Cannot add housing lyphs to the chain with housing lyph templates.");
-                     break;
-                }
-                this.addLyphToList(node, index, $Field.housingLyphs, this._isLyphInstance);
+                this.addLyphToList(node, index, $Field.housingLyphs, this._isValidHousingLyph);
                 break;
             case 'delete':
                 this.deleteLyphFromList(node, index, $Field.housingLyphs, $Field.bundlesChains);
@@ -961,14 +957,21 @@ export class ChainEditorComponent extends ResourceEditor {
         this.updateSearchOptions();
     }
 
-    _isLyphInstance(lyph) {
+    _isLyphInstance(lyph, selectedChain) {
         return lyph._class === $SchemaClass.Lyph && !lyph.isTemplate;
     }
 
-    _isLyphOrTemplate(lyph) {
+    _isLyphOrTemplate(lyph, selectedChain) {
         return lyph._class === $SchemaClass.Lyph;
     }
 
+    _isValidHousingLyph(lyph, selectedChain) {
+        return (lyph._class === $SchemaClass.Lyph) && !lyph.isTemplate && ((selectedChain?.housingLyphTemplates || []).length === 0);
+    }
+
+    _isValidHousingLyphTemplate(lyph, selectedChain) {
+        return (lyph._class === $SchemaClass.Lyph) && ((selectedChain?.housingLyphs || []).length === 0);
+    }
 
     /**
      * Add layer to the lyph
@@ -982,13 +985,13 @@ export class ChainEditorComponent extends ResourceEditor {
             if (!this.lyphToLink) {
                 this.showWarning("Lyph is not selected!");
             } else {
-                if (!fncValidate || fncValidate(this.lyphToLink)) {
+                if (!fncValidate || fncValidate(this.lyphToLink, this.selectedChain)) {
                     this.selectedChain[prop] = this.selectedChain[prop] || [];
                     this.selectedChain[prop].push(this.lyphToLink.id);
                     this.prepareChainResources([prop]);
                     this.saveStep(`Added ${this.lyphToLink.id} to chain's ${this.selectedChain.id} "${prop}"`);
                 } else {
-                    this.showWarning(`Cannot add ${this.lyphToLink.id} to the chain's property "${prop}" - wrong resource type!`);
+                    this.showWarning(`Cannot add ${this.lyphToLink.id} to the chain's property "${prop}" - model consistency validation failed!`);
                 }
             }
         } else {
@@ -1041,7 +1044,7 @@ export class ChainEditorComponent extends ResourceEditor {
         }
         this.selectedChain.levelOntologyTerms[idx] = termID;
         this.cellOntoTerms.forEach(def => {
-            if (def.id && !(this._model.ontologyTerms||[]).find(obj => obj.id === def.id)){
+            if (def.id && !(this._model.ontologyTerms || []).find(obj => obj.id === def.id)) {
                 this._model.ontologyTerms = this._model.ontologyTerms || [];
                 this._model.ontologyTerms.push(def);
             }

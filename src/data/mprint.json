@@ -1,0 +1,9 @@
+[
+  { "id": "", "name": "None"},
+  { "id": "MPRINT:Pravastatin", "name": "Pravastatin" },
+  { "id": "PharmGKB:PA267", "name": "ABCB1", "url": "https://www.clinpgx.org/gene/PA267" },
+  { "id": "PharmGKB:PA116", "name": "ABCC2", "url": "https://www.clinpgx.org/gene/PA116" },
+  { "id": "PharmGKB:PA390", "name": "ABCG2", "url": "https://www.clinpgx.org/gene/PA390" },
+  { "id": "PharmGKB:PA388", "name": "SLC22A6", "url": "https://www.clinpgx.org/gene/PA388" },
+  { "id": "PharmGKB:PA389", "name": "SLC22A8", "url": "https://www.clinpgx.org/gene/PA389"}
+]

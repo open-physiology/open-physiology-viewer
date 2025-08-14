@@ -10,6 +10,7 @@ import {ColorPickerModule} from 'ngx-color-picker';
 import {isObject} from "lodash-bound";
 import {COLORS} from "../utils/colors";
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {limitLabel} from "../utils/helpers";
 
 /**
  * @class
@@ -26,7 +27,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 export class ListNode {
     constructor(id, label, cls, length, isTemplate, index, resource) {
         this.id = id;
-        this.label = label;
+        this.label = limitLabel(label);
         this.length = length;
         this.isTemplate = isTemplate;
         this.class = cls;
@@ -36,7 +37,7 @@ export class ListNode {
         this.canMoveUp = index > 0 && this.length > 1;
         this.canMoveDown = index < this.length - 1;
         this.layerIndex = resource?._layerIndex;
-        this.maxLayerIndex = (this.resource?.layers || []).length - 1;
+        this.maxLayerIndex = resource?._maxLayerIndex || (resource?.layers || []).length - 1;
     }
 
     /**

@@ -25,6 +25,7 @@ import {
 import {SearchOptions} from "../utils/searchOptions";
 import {LinkedResourceModule} from "./linkedResource";
 import {ResourceEditor} from "./resourceEditor";
+import {limitLabel} from "../utils/helpers";
 
 /**
  * Css class names to represent ApiNATOMY resource classes
@@ -57,7 +58,7 @@ export class MaterialNode {
         this.id = id;
         this.parents = parents;
         this.children = children;
-        this.label = label;
+        this.label = limitLabel(label);
         this.type = type;
         this.resource = resource;
     }
