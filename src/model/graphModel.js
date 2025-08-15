@@ -74,7 +74,7 @@ let baseContext = {
     "topology": {
         "@id": "apinatomy:topology",
         "@type": "@id",
-        "@context": {"@base": " "}
+        "@context": {"@base": "https://apinatomy.org/uris/readable/"}
     },
 };
 
