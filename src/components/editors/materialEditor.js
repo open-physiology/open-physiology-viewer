@@ -11,7 +11,7 @@ import * as dagreD3 from "dagre-d3";
 import {cloneDeep, sortBy, isObject} from 'lodash-bound';
 
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
-import {SearchAddBarModule} from "./searchAddBar";
+import {SearchAddBarModule} from "../gui/searchAddBar";
 import {ResourceListViewModule, ListNode} from "./resourceListView";
 import {MaterialGraphViewerModule} from "./materialGraphViewer";
 
@@ -23,9 +23,10 @@ import {
     References,
 } from '../utils/references.js';
 import {SearchOptions} from "../utils/searchOptions";
-import {LinkedResourceModule} from "./linkedResource";
+import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 import {limitLabel} from "../utils/helpers";
+import mprintResources from "../../data/mprint.json";
 
 /**
  * Css class names to represent ApiNATOMY resource classes
@@ -169,6 +170,7 @@ export class Edge {
                 </searchAddBar>
                 <resourceDeclaration
                         [resource]="selectedMaterial"
+                        [externalSearchOptions]="externalSearchOptions"
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
                 <resourceListView
@@ -363,6 +365,13 @@ export class MaterialEditorComponent extends ResourceEditor {
     //Canvas resizing
     screenHeight;
     screenWidth;
+
+    externalResources = mprintResources;
+    externalSearchOptions = [];
+
+    ngOnInit() {
+        SearchOptions.addOptions(this.externalResources, this.externalSearchOptions, $SchemaClass.OntologyTerm);
+    }
 
     @ViewChild(MatMenuTrigger, {static: true}) matMenuTrigger: MatMenuTrigger;
     @ViewChild('materialEditor') materialEditor: ElementRef;
@@ -706,6 +715,10 @@ export class MaterialEditorComponent extends ResourceEditor {
                         label: this.selectedMaterial.name || this.selectedMaterial.id,
                     });
                     this.inner.call(this.render, this.graphD3);
+                }
+                if (prop === $Field.ontologyTerms){
+                    console.log(value);
+
                 }
                 this.saveStep(`Update property ${prop} of material ` + this.selectedNode);
             }

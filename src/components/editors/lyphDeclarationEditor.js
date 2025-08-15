@@ -7,7 +7,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatRadioModule} from "@angular/material/radio";
-import {SearchAddBarModule} from "./searchAddBar";
+import {SearchAddBarModule} from "../gui/searchAddBar";
 
 import {COLORS} from '../utils/colors';
 import {$Field} from "../../model";

@@ -1,5 +1,4 @@
 [
-  { "id": "", "name": "None"},
   { "id": "MPRINT:Pravastatin", "name": "Pravastatin" },
   { "id": "PharmGKB:PA267", "name": "ABCB1", "url": "https://www.clinpgx.org/gene/PA267" },
   { "id": "PharmGKB:PA116", "name": "ABCC2", "url": "https://www.clinpgx.org/gene/PA116" },

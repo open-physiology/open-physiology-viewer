@@ -8,7 +8,7 @@ import * as d3 from "d3";
 import 'd3-transition';
 
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
-import {SearchAddBarModule} from "./searchAddBar";
+import {SearchAddBarModule} from "../gui/searchAddBar";
 import {ResourceListViewModule} from "./resourceListView";
 import {COLORS} from "../utils/colors";
 

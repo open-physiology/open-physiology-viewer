@@ -2,7 +2,7 @@ import {cloneDeep, values} from "lodash-bound";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {MatDialog} from "@angular/material/dialog";
 import {EventEmitter, Output} from "@angular/core";
-import {DiffDialog} from "./diffDialog";
+import {DiffDialog} from "../dialogs/diffDialog";
 import {$SchemaClass} from "../../model";
 
 export class ResourceEditor {

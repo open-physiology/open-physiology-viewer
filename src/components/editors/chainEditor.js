@@ -4,8 +4,8 @@ import {MatListModule} from '@angular/material/list';
 import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
-import {SearchAddBarModule} from "./searchAddBar";
-import {CheckboxFilterModule} from "./checkboxFilter";
+import {SearchAddBarModule} from "../gui/searchAddBar";
+import {CheckboxFilterModule} from "../gui/checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {cloneDeep, isObject, isNumber, sortBy} from 'lodash-bound';
@@ -17,7 +17,7 @@ import {COLORS} from '../utils/colors.js'
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
 import {$Field, $SchemaClass, $Prefix, getGenID, getGenName} from "../../model";
-import {LinkedResourceModule} from "./linkedResource";
+import {LinkedResourceModule} from "../gui/linkedResource";
 import {MatTabsModule} from "@angular/material/tabs";
 import {ResourceEditor} from "./resourceEditor";
 import {ResourceTreeNode, ResourceTreeViewModule} from "./resourceTreeView";
@@ -26,7 +26,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatSelectModule} from "@angular/material/select";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import cellOntoTermDefinitions from "../../data/cellOntoTerms.json";
-import {includeRef, isIncluded} from "../../model/utils";
+import {isIncluded} from "../../model/utils";
 
 
 @Component({

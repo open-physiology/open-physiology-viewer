@@ -2,7 +2,7 @@ import {NgModule, Component, Input, Output, EventEmitter} from '@angular/core';
 import {MatMenuModule} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
-import {SearchAddBarModule} from "./searchAddBar";
+import {SearchAddBarModule} from "../gui/searchAddBar";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {cloneDeep, isObject, values} from 'lodash-bound';
@@ -11,12 +11,12 @@ import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {ResourceListViewModule, ListNode} from "./resourceListView";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
-import {DiffDialog} from "./diffDialog";
+import {DiffDialog} from "../dialogs/diffDialog";
 
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
 import {$Field, $SchemaClass} from "../../model";
-import {LinkedResourceModule} from "./linkedResource";
+import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 
 @Component({

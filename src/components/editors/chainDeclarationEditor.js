@@ -8,7 +8,7 @@ import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {MatRadioModule} from "@angular/material/radio";
-import {SearchAddBarModule} from "./searchAddBar";
+import {SearchAddBarModule} from "../gui/searchAddBar";
 
 import {COLORS} from '../utils/colors';
 import {$Field, $Prefix, getGenID, getGenName} from "../../model";

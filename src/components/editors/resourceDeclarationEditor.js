@@ -6,10 +6,11 @@ import {MatInputModule} from '@angular/material/input';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 
-import {UberonOptionsModule} from './uberonOptionsBar';
+import {UberonOptionsModule} from '../gui/uberonOptionsBar';
 
 import {$Field, getGenID} from "../../model";
 import {COLORS} from "../utils/colors";
+import {SearchAddBarModule} from "../gui/searchAddBar";
 
 @Component({
     selector: 'resourceDeclaration',
@@ -73,6 +74,13 @@ import {COLORS} from "../utils/colors";
                                     (onInclude)="addManyToMany('ontologyTerms', $event)"
                             ></uberonSearch>
                         </div>
+                        
+                        <searchAddBar *ngIf="externalSearchOptions"
+                                [searchOptions]="externalSearchOptions"
+                                [selected]="selectedExternal?.id"
+                                (selectedItemChange)="selectExternal($event)"
+                                (addSelectedItem)="addExternal($event)"
+                        ></searchAddBar>
 
                     </div>
                 </div>
@@ -100,9 +108,14 @@ import {COLORS} from "../utils/colors";
  */
 export class ResourceDeclarationEditor {
     @Input() resource;
+    @Input() externalSearchOptions;
+
     @Output() onValueChange = new EventEmitter();
+
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
+
+    selectedExternal;
 
     constructor(snackBar: MatSnackBar) {
         this._snackBar = snackBar;
@@ -124,6 +137,14 @@ export class ResourceDeclarationEditor {
         }
     }
 
+    selectExternal(nodeLabel){
+        this.selectedExternal = this.externalSearchOptions.find(x => x.label === nodeLabel);
+    }
+
+    addExternal(){
+        this.addOneToMany($Field.ontologyTerms, this.selectedExternal.id);
+    }
+
     updateOneOfMany(prop, value, idx) {
         if (this.resource && idx > -1) {
             this.resource[prop][idx] = value;
@@ -141,11 +162,16 @@ export class ResourceDeclarationEditor {
         }
     }
 
-    addOneToMany(prop) {
+    addOneToMany(prop, ref) {
         if (this.resource) {
             this.resource[prop] = this.resource[prop] || [];
-            this.resource[prop].push(getGenID(this.resource.id, prop, "new", this.resource[prop].length + 1));
+            if (!ref) {
+                this.resource[prop].push(getGenID(this.resource.id, prop, "new", this.resource[prop].length + 1));
+            } else {
+                this.resource[prop].push(ref);
+            }
             this.onValueChange.emit({prop: prop, value: this.resource[prop]});
+
         }
     }
 
@@ -173,7 +199,8 @@ export class ResourceDeclarationEditor {
 }
 
 @NgModule({
-    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule, UberonOptionsModule],
+    imports: [FormsModule, BrowserAnimationsModule, MatFormFieldModule, MatInputModule, MatTooltipModule,
+        UberonOptionsModule, SearchAddBarModule],
     declarations: [ResourceDeclarationEditor],
     exports: [ResourceDeclarationEditor]
 })
