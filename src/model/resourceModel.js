@@ -336,10 +336,21 @@ export class Resource{
         function valueToJSON(value, depth) { return (value instanceof Resource)? value.toJSON(depth-1, inlineResources): value }
 
         let alsothis = this;
-        function removeImported(obj) {
-            return (obj instanceof Resource && Object.hasOwn(obj, 'namespace')) ?
-                // FIXME need to exclude externals from the big list probably, individual refs are ok
-                (alsothis.namespace === obj.namespace || obj instanceof External) : true
+        function removeImported(thing, key) {
+            // FIXME yeah this improves things, but doesn't solve the fact that
+            // housingLyphs on chains don't populate housingLyph on individual lyphs :/
+            function inner(obj) {
+                if (obj instanceof Resource && Object.hasOwn(obj, 'namespace')) {
+                    if (alsothis.namespace === obj.namespace || obj instanceof External) {
+                        return true
+                    } else {
+                        if (thing.constructor.name === 'Graph') { return false }
+                        if (key === 'inGroups') { return false }
+                        return true
+                    }
+                } else { return true }
+            }
+            return inner
         }
 
         /**
@@ -348,11 +359,12 @@ export class Resource{
          * @param depth - depth of nested resources to output
          * @returns {*} JSON object or an array of JSON objects without circular references
          */
-        function fieldToJSON(value, depth) { return value::isArray() ?
-                                             // XXX the logic used for removeImported fails catastrophically for Externals due to
-                                             // the namespace mismatch so we just skip them entirely until we can fix the logic
-                                             (alsothis instanceof External ? value : value.filter(removeImported)).map(e => valueToJSON(e, depth))
-                                             : valueToJSON(value, depth); }
+        function fieldToJSON(thing, key, value, depth) {
+            return value::isArray() ?
+                // XXX the logic used for removeImported fails catastrophically for Externals due to
+            // the namespace mismatch so we just skip them entirely until we can fix the logic
+            (alsothis instanceof External ? value : value.filter(removeImported(thing, key))).map(e => valueToJSON(e, depth))
+            : valueToJSON(value, depth); }
 
         if (depth <= 0) {
             return this.fullID || this.id || null;
@@ -361,7 +373,7 @@ export class Resource{
         let res = {};
         const omitKeys = (this::keys())::difference(schemaClassModels[this.class].fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
         this::keys().filter(key => this[key] !== undefined && !omitKeys.includes(key)).forEach(key => {
-            res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
+            res[key] = fieldToJSON(this, key, this[key], (inlineResources[key] || depth) - 1);
         });
         return res;
     }
