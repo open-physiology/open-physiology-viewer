@@ -176,6 +176,17 @@ export const getRefNamespace = (ref, namespace = undefined) => {
     return namespace;
 }
 
+export function defineNewResource(res, entitiesByID){
+    let newCounter = 1;
+    let newID = res.id + newCounter;
+    while (entitiesByID[newID]) {
+        newID = res.id + ++newCounter;
+    }
+    res.id = newID;
+    res.name = getGenName(res.name, newCounter);
+    return res;
+}
+
 export const getGenName = (...args) => args.join(" ");
 
 /**

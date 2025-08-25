@@ -114,8 +114,8 @@ export class LyphTreeNode {
                     loops.push(lyph.id);
                 } else {
                     res.children = (lyph[prop] || []).map((e, i) => mapToNodes(e, lyph, i));
-                    if (includeInherited && lyph.supertype) {
-                        let supertype = mapToNodes(lyph.supertype, lyph);
+                    if (includeInherited && lyph._supertype) {
+                        let supertype = mapToNodes(lyph._supertype, lyph);
                         supertype.children.forEach(c => {
                             c.inherited = true;
                             if (!c.icons.includes(ICON.INHERITED)) {

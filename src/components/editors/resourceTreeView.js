@@ -144,12 +144,12 @@ export class ResourceTreeNode {
                            (colorPickerSelect)="updateColor(node, $event)"
                     />
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.id}}
-                            [ngClass]="getNgClass(node)"                            
+                            [ngClass]="getNgClass(node)"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
                         {{node.label || node.id}}
                     </button>
-                   
+
                 </mat-tree-node>
                 <!--Closed node with children-->
                 <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
@@ -167,10 +167,10 @@ export class ResourceTreeNode {
                            (colorPickerChange)="updateColor(node, $event)"
                     />
                     <button class="w3-hover-pale-red w3-hover-border-grey node-item" matTooltip={{node.id}}
-                           [ngClass]="getNgClass(node)" 
-                           (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
+                            [ngClass]="getNgClass(node)"
+                            (click)="selectNode(node)" (contextmenu)="onRightClick($event, node)">
                         {{node.label || node.id}}
-                    </button>                    
+                    </button>
                 </mat-tree-node>
             </mat-tree>
         </section>
@@ -186,24 +186,24 @@ export class ResourceTreeNode {
         <mat-menu #rightTreeMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-type="type" let-hasParent="hasParent" let-index="index"
                          let-hasChildren="hasChildren">
-                    <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
-                    <div *ngIf="type !== 'Undefined'">
-<!--                        <button mat-menu-item (click)="processOperation('deleteDef', item, index)">Delete definition-->
-<!--                        </button>-->
-                        <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
-                        <button *ngIf="hasChildren" mat-menu-item
-                                (click)="processOperation('removeChildren', item, index)">Remove children
-                        </button>
-                    </div>
-                    <button *ngIf="hasParent" mat-menu-item (click)="processOperation('removeParent', item, index)">
-                        Remove parent
+                <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
+                <div *ngIf="type !== 'Undefined'">
+                    <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
+                    <button *ngIf="hasChildren" mat-menu-item
+                            (click)="processOperation('removeChildren', item, index)">Remove children
                     </button>
-                    <div *ngIf="type === 'Undefined'">
-                        <button mat-menu-item (click)="processOperation('define', item, index)">Define</button>
-                    </div>
-                    <button *ngFor="let action of extraActions" mat-menu-item
-                        (click)="processOperation(action.operation, item, index)">{{action.label}}
+                </div>
+                <button *ngIf="hasParent" mat-menu-item (click)="processOperation('removeParent', item, index)">
+                    Remove parent
+                </button>
+                <div *ngIf="type === 'Undefined'">
+                    <button mat-menu-item (click)="processOperation('define', item, index)">Define</button>
+                </div>
+                <div *ngFor="let action of extraActions">
+                    <button *ngIf="!action.condition || action.condition(item)" mat-menu-item
+                            (click)="processOperation(action.operation, item, index)">{{action.label}}
                     </button>
+                </div>
             </ng-template>
         </mat-menu>
 
@@ -241,7 +241,7 @@ export class ResourceTreeNode {
         .chain {
             background-color: ${COLORS.chain};
         }
-        
+
         .lyph {
             background-color: ${COLORS.lyph};
         }
@@ -274,7 +274,7 @@ export class ResourceTreeNode {
         .selected {
             border: 3px solid ${COLORS.selectedBorder};
         }
-        
+
         .linked {
             border: 3px solid ${COLORS.linkedBorder};
         }
@@ -345,7 +345,7 @@ export class ResourceTreeView {
     @Output() onChange = new EventEmitter();
 
     getNgClass(node) {
-        let typeCls = node.type? node.type.toLowerCase(): 'undefined';
+        let typeCls = node.type ? node.type.toLowerCase() : 'undefined';
         return {
             'selected': this.active && (node.id === (this.selectedNode?.id || this.selectedNode)),
             'linked': (node.id === (this.linkedNode?.id || this.linkedNode)),

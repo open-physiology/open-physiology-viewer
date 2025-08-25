@@ -1,7 +1,36 @@
 import {clone, isObject} from "lodash-bound";
 import {$SchemaClass} from "../../model";
+import {LYPH_TOPOLOGY} from "../../model/utils";
 
 export class ResourceMaps {
+    static getTopology(lyph){
+        if (!lyph) return LYPH_TOPOLOGY.TUBE;
+        return lyph.topology || this.getTopology(lyph._supertype);
+    }
+
+    static getMaterials(rootLyph, entitiesByID){
+        let res = {};
+        function collectMaterials(objOrID, parent){
+            if (!objOrID || !parent) return;
+            let obj = objOrID::isObject()? objOrID: entitiesByID[objOrID];
+            if (!obj) return;
+            res[parent.id] =  res[parent.id] || [];
+            if (!res[parent.id].find(x => x.id === obj.id)) {
+                if (parent.id !== obj.id) {
+                    res[parent.id].push(obj);
+                }
+            }
+            if (obj._class !== $SchemaClass.Material) {
+                //Substitute only first level of materials in lyphs
+                (obj.materials || []).forEach(material => collectMaterials(material, obj));
+            }
+            (obj.layers||[]).forEach(layer => collectMaterials(layer, obj));
+            collectMaterials(obj._supertype, obj);
+        }
+        collectMaterials(rootLyph, rootLyph);
+        return res;
+    }
+
     static assignID(resource, prefix, entitiesByID){
         if (!resource.id) {
             let counter = 1;
@@ -24,6 +53,7 @@ export class ResourceMaps {
                 if (!lyph.id) {
                     this.assignID(lyph, "tmpLyphID", entitiesByID);
                 }
+                //NK why do we delete _supertype?
                 lyph._subtypes = [];
                 delete lyph._supertype;
                 lyph._class = $SchemaClass.Lyph;

@@ -158,8 +158,8 @@ export class Edge {
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
-                <linkedResource 
-                        [resource]="matToLink">                    
+                <linkedResource
+                        [resource]="matToLink">
                 </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
@@ -203,7 +203,7 @@ export class Edge {
                     <button *ngIf="hasChildren" mat-menu-item (click)="removeChildren(item)">Disconnect from children
                     </button>
                     <button *ngIf="selectedNode !== item" mat-menu-item (click)="linkMaterial(item)">Connect to selected
-                    </button>                    
+                    </button>
                 </div>
                 <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents"
                         mat-menu-item (click)="excludeLyph(item)">Exclude from view
@@ -286,16 +286,16 @@ export class Edge {
 
         :host /deep/ .node rect {
             stroke: ${COLORS.border};
-            fill:  ${COLORS.default};
+            fill: ${COLORS.default};
         }
 
         :host /deep/ .node rect:hover {
-            fill:  ${COLORS.highlighted};
+            fill: ${COLORS.highlighted};
             stroke-width: 2px;
         }
 
         :host /deep/ .edgePath path {
-            stroke:  ${COLORS.path};
+            stroke: ${COLORS.path};
             stroke-width: 2px;
         }
 
@@ -310,7 +310,7 @@ export class Edge {
 
         :host /deep/ path.link {
             fill: none;
-            stroke:  ${COLORS.pathLink};
+            stroke: ${COLORS.pathLink};
             stroke-width: 4px;
             stroke-dasharray: 10, 2;
             cursor: default;
@@ -327,7 +327,7 @@ export class Edge {
         :host /deep/ path.link.hidden {
             stroke-width: 0;
         }
-        
+
         .label {
             user-select: none;
             cursor: pointer;
@@ -380,6 +380,7 @@ export class MaterialEditorComponent extends ResourceEditor {
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
+        this.clearHelpers(this._model);
         this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
         this.currentStep = 0;
@@ -627,41 +628,12 @@ export class MaterialEditorComponent extends ResourceEditor {
      * Update the whole graph to reflect global changes in the model
      */
     updateGraph() {
-        this.faultyDefs = [];
         this.entitiesByID = {};
         this.nodes = [];
         this.edges = [];
 
-        let created = [];
-
         this.updateSearchOptions();
-
-        [$Field.materials, $Field.lyphs].forEach(prop => {
-            (this._model[prop] || []).forEach(m => {
-                if (!m.id) {
-                    this.faultyDefs.push({item: m, reason: "No ID"});
-                    return;
-                }
-                m._inMaterials = [];
-                this.entitiesByID[m.id] = m;
-            });
-        });
-
-        [$Field.materials, $Field.lyphs].forEach(prop => {
-            (this._model[prop] || []).forEach(m => {
-                (m.materials || []).forEach(childID => {
-                    if (!this.entitiesByID[childID]) {
-                        this.entitiesByID[childID] = {
-                            [$Field.id]: childID,
-                            "_generated": true,
-                            "_inMaterials": [],
-                        };
-                        created.push(this.entitiesByID[childID]);
-                    }
-                });
-                (m.materials || []).forEach(childID => this.entitiesByID[childID]._inMaterials.push(m));
-            });
-        });
+        let created = this.collectMaterials();
 
         //Create nodes for visualization
         (this._model.materials || []).forEach(m => {
@@ -715,10 +687,6 @@ export class MaterialEditorComponent extends ResourceEditor {
                         label: this.selectedMaterial.name || this.selectedMaterial.id,
                     });
                     this.inner.call(this.render, this.graphD3);
-                }
-                if (prop === $Field.ontologyTerms){
-                    console.log(value);
-
                 }
                 this.saveStep(`Update property ${prop} of material ` + this.selectedNode);
             }
@@ -859,7 +827,7 @@ export class MaterialEditorComponent extends ResourceEditor {
     }
 
     _addRelation({v, w}) {
-        if (v === w){
+        if (v === w) {
             this.showWarning(`Cannot include a material to itself!`);
             return;
         }
@@ -1078,7 +1046,7 @@ export class MaterialEditorComponent extends ResourceEditor {
         }
     }
 
-    restoreState(){
+    restoreState() {
         this.updateGraph();
         this.draw();
     }

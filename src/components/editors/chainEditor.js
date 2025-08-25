@@ -8,7 +8,7 @@ import {SearchAddBarModule} from "../gui/searchAddBar";
 import {CheckboxFilterModule} from "../gui/checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, isNumber, sortBy} from 'lodash-bound';
+import {cloneDeep, isObject, isNumber, sortBy, isArray, keys, values, entries} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
@@ -26,8 +26,8 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatSelectModule} from "@angular/material/select";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import cellOntoTermDefinitions from "../../data/cellOntoTerms.json";
-import {isIncluded} from "../../model/utils";
-
+import {defineNewResource, isIncluded, LYPH_TOPOLOGY} from "../../model/utils";
+import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSelectDialog";
 
 @Component({
     selector: 'chainEditor',
@@ -305,7 +305,8 @@ export class ChainEditorComponent extends ResourceEditor {
     layerTree;
     cellOntoTerms = cellOntoTermDefinitions;
 
-    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex', '_maxLayerIndex', '_cloning'];
+    _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id', '_conveys', '_layerIndex',
+        '_maxLayerIndex', '_cloning', '_inMaterials', '_materials'];
 
     _extraLyphActions = [
         {
@@ -316,9 +317,12 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     ];
 
-    _extraChainActions = [
+    extraChainActions = [
         {
-            operation: "deleteWithLyphs", label: "Delete with lyphs"
+            operation: "deleteWithLyphs", label: "Delete with lyphs", condition: this._chainHasLyphs
+        },
+        {
+            operation: "createModification", label: "Create modification", condition: this._isChainTemplate
         }
     ];
 
@@ -336,6 +340,7 @@ export class ChainEditorComponent extends ResourceEditor {
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
+        this.clearHelpers(this._model);
         this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
         this.currentStep = 0;
@@ -361,7 +366,8 @@ export class ChainEditorComponent extends ResourceEditor {
             obj._class = $SchemaClass.Node;
             this.entitiesByID[obj.id] = obj;
         });
-
+        this.collectMaterials();
+        this.collectSubtypes(); //Assigns _supertype and _subtypes to get interconnected hierarchy
         this.updateSearchOptions();
         this.updateScaffoldSearchOptions();
         this.updateView((this._model?.chains || [])[0]);
@@ -482,7 +488,7 @@ export class ChainEditorComponent extends ResourceEditor {
             this.selectedLyph = this.entitiesByID[nodeID];
             this.prepareLayerTree();
             if (this.layerTree && this.layerTree.length > 0) {
-                this.selectedLyph._maxLayerIndex = (this.layerTree[0].children||[]).length - 1;
+                this.selectedLyph._maxLayerIndex = (this.layerTree[0].children || []).length - 1;
             }
         }
         this.activeList = prop;
@@ -716,13 +722,6 @@ export class ChainEditorComponent extends ResourceEditor {
         return [];
     }
 
-    get extraChainActions() {
-        if (this.selectedChain?.lyphs?.length > 0) {
-            return this._extraChainActions;
-        }
-        return [];
-    }
-
     processChainChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
@@ -734,6 +733,12 @@ export class ChainEditorComponent extends ResourceEditor {
             case 'deleteWithLyphs':
                 this.deleteChain(node, true);
                 break;
+            case 'createModification':
+                this.createModification(node, index);
+                break;
+            case 'define':
+                this.showWarning("Cannot define unknown resource!");
+                break;
             case 'select':
                 if (this.chainToLink && this.chainToLink.id === node.id) {
                     this.chainToLink = null;
@@ -744,27 +749,181 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
+    createModification(node) {
+        let chainPrototype = node.resource;
+        if (chainPrototype?.lyphTemplate) {
+            let oldLyph = this.entitiesByID[chainPrototype.lyphTemplate];
+            if (!oldLyph) {
+                this.showWarning("LyphTemplate definition is not found!");
+                return;
+            }
+            let oldMaterialMap = ResourceMaps.getMaterials(oldLyph, this.entitiesByID);
+            let levels = Array.from(new Set((chainPrototype.levelOntologyTerms||[]))).filter(x => x);
+            if (levels.length === 0){
+                levels = ["All levels"];
+            }
+
+            const dialogRef = this.dialog.open(MaterialSelectDialog, {
+                width: '90%',
+                data: {
+                    'materialsByLyphID': oldMaterialMap,
+                    'entitiesByID': this.entitiesByID,
+                    'levelOntologyTerms': levels
+                }
+            });
+            dialogRef.afterClosed().subscribe(result => {
+                if (result) {
+                    this.createChainFromPrototype(chainPrototype, result);
+                }
+            });
+
+        } else {
+            this.showWarning("Chain definition is not found or contains no lyphTemplate!");
+        }
+    }
+
+    reviseHierarchy(oldLyph, replacementMap){
+
+        const replaceLyph = (objOrID) => {
+            let obj = objOrID::isObject()? objOrID: this.entitiesByID[objOrID];
+            if (!obj) return oldLyph;
+            //Replicating lyph
+            // console.log("Replacing lyph", obj.id);
+            // console.log("Replacement materials", replacementMap[obj.id]);
+            let lyphDef = defineNewResource(obj::cloneDeep(), this.entitiesByID);
+            let materialMap = replacementMap[obj.id] || [];
+            for (let i = 0; i < lyphDef.layers?.length; i++){
+                if (materialMap[lyphDef.layers[i]]) {
+                    lyphDef.layers[i] = materialMap[lyphDef.layers[i]];
+                }
+                //NK recursively revise layers?
+            }
+            if (lyphDef._supertype){
+                let s = replaceLyph(lyphDef._supertype);
+                if (s?.id) {
+                    lyphDef.supertype = s.id;
+                    lyphDef._supertype = s;
+                }
+            }
+            return this.defineNewLyph(lyphDef);
+        }
+        return replaceLyph(oldLyph);
+    }
+
+    createChainFromPrototype(chainPrototype, replacementMapLevels) {
+        if (replacementMapLevels::keys().length === 0){
+            return;
+        }
+        let oldLyph = this.entitiesByID[chainPrototype.lyphTemplate];
+        if (!oldLyph){
+            this.showWarning("Failed to locate lyph template definition");
+            return;
+        }
+        let topology = ResourceMaps.getTopology(oldLyph);
+        const N = chainPrototype.numLevels;
+
+        const chainDef = defineNewResource({
+            [$Field.id]: chainPrototype.id,
+            [$Field.name]: chainPrototype.name,
+            [$Field.lyphs]: new Array(N),
+            "_class": $SchemaClass.Chain
+        }, this.entitiesByID);
+
+        let newLyphs = {};
+
+        replacementMapLevels::entries().forEach(([level, replacementMap]) => {
+
+            let reviseLyph = false;
+            (oldLyph.layers ||[]).forEach(layer => {
+                if (replacementMap[layer.id]) reviseLyph = true;
+            });
+            if (reviseLyph){
+                console.log("Revising layers", level);
+                newLyphs[level] = this.reviseHierarchy(oldLyph);
+            } else {
+                let reviseHierarchy = false;
+                let curr = oldLyph;
+                while (curr._supertype) {
+                    curr = curr._supertype::isObject() ? curr._supertype : this.entitiesByID[curr._supertype];
+                    if (replacementMap[curr.id]) {
+                        reviseHierarchy = true;
+                        break;
+                    }
+                }
+                console.log("Revising hierarchy", level);
+                newLyphs[level] = reviseHierarchy ? this.reviseHierarchy(oldLyph._supertype, replacementMap): oldLyph;
+            }
+        });
+
+        const modifyLyphTemplate = (lyphDef, idx) => {
+            let level = "All levels";
+            if ((chainPrototype.levelOntologyTerms||[]).length > idx && chainPrototype.levelOntologyTerms[idx]){
+                level = chainPrototype.levelOntologyTerms[idx];
+            }
+            let newLyph = newLyphs[level] || oldLyph;
+            console.log(idx, level, newLyph);
+            if (newLyph) {
+                if (newLyph.supertype) lyphDef.supertype = newLyph.supertype;
+                if (newLyph.layers) lyphDef.layers = newLyph.layers;
+            }
+            return (lyphDef.id in this.entitiesByID)? this.entitiesByID[lyphDef.id].id: this.defineNewLyph(lyphDef).id;
+        }
+
+        if (topology === LYPH_TOPOLOGY.CYST || topology === LYPH_TOPOLOGY.BAG2) {
+            // BAG2
+            let lyphDef = defineNewResource({
+                [$Field.id]: getGenID(oldLyph.id, "bag+"),
+                [$Field.name]: getGenName(oldLyph.name || oldLyph.id, "(BAG+)"),
+                [$Field.isTemplate]: true,
+                [$Field.topology]: LYPH_TOPOLOGY.BAG2,
+            }, this.entitiesByID);
+            chainDef.lyphs[0] = modifyLyphTemplate(lyphDef, 0);
+        }
+        if (topology === LYPH_TOPOLOGY.CYST || topology === LYPH_TOPOLOGY.BAG) {
+            //BAG
+            let lyphDef = defineNewResource({
+                [$Field.id]: getGenID(oldLyph.id, "bag-"),
+                [$Field.name]: getGenName(oldLyph.name || oldLyph.id, "(BAG-)"),
+                [$Field.isTemplate]: true,
+                [$Field.topology]: LYPH_TOPOLOGY.BAG
+            }, this.entitiesByID);
+            chainDef.lyphs[N-1] = modifyLyphTemplate(lyphDef, N-1);
+        }
+        let n = chainDef.lyphs.filter(x => x).length;
+        if (n > 0) {
+            //TUBE
+             let lyphDef = defineNewResource({
+                [$Field.id]: getGenID(oldLyph.id, "tube"),
+                [$Field.name]: getGenName(oldLyph.name || oldLyph.id, "(TUBE)"),
+                [$Field.isTemplate]: true,
+                [$Field.topology]: LYPH_TOPOLOGY.TUBE
+            }, this.entitiesByID);
+            for (let i = 0; i < N; i++) {
+                if (!chainDef.lyphs[i]) {
+                    chainDef.lyphs[i] = modifyLyphTemplate(lyphDef, i);
+                }
+            }
+        }
+
+        this.createChain(chainDef, false); // Do not register "create chain" action
+        this.saveStep("Create chain modification", chainDef.id);
+    }
+
+    defineNewChain = (chainDef) => {
+        let newChain = chainDef || defineNewResource({[$Field.id]: "_newChain", [$Field.name]: "New chain"},
+            this.entitiesByID);
+        newChain._class = $SchemaClass.Chain;
+        this._model.chains = this._model.chains || [];
+        this._model.chains.push(newChain);
+        this.entitiesByID[newChain.id] = newChain;
+        return newChain;
+    }
+
     /**
      * Create a new chain
      */
     createChain(_chain, register = true) {
-        const defineNewChain = () => {
-            let newCounter = 1;
-            let newID = "_newChain" + newCounter;
-            while (this.entitiesByID[newID]) {
-                newID = "_newChain" + ++newCounter;
-            }
-            return {
-                [$Field.id]: newID,
-                [$Field.name]: getGenName("New chain", newCounter)
-            }
-        }
-        const chain = _chain || defineNewChain();
-        chain._class = $SchemaClass.Chain;
-        this._model.chains = this._model.chains || [];
-        this._model.chains.push(chain);
-        this.entitiesByID[chain.id] = chain;
-        //Add to model
+        const chain = this.defineNewChain(_chain);
         // let node = ListNode.createInstance(chain);
         let node = ResourceTreeNode.createInstance(chain);
         this.chainList = [node, ...this.chainList];
@@ -824,10 +983,13 @@ export class ChainEditorComponent extends ResourceEditor {
     processLyphChange({operation, node, index}) {
         switch (operation) {
             case 'insert':
-                this.addLyphToList(node, index, $Field.lyphs, this._isLyphInstance);
+                this.addLyphToList(node, index, $Field.lyphs);
                 break;
             case 'delete':
                 this.deleteLyphFromList(node, index, $Field.lyphs, $Field.levelIn);
+                break;
+            case 'select':
+                this.lyphToLink = this.entitiesByID[node.id];
                 break;
             case 'up':
                 this.moveLevelUp(node, index, $Field.lyphs);
@@ -853,7 +1015,7 @@ export class ChainEditorComponent extends ResourceEditor {
     addLyph(node, index) {
         switch (this.activeList) {
             case $Field.lyphs:
-                this.addLyphToList(node, index, $Field.lyphs, this._isLyphInstance);
+                this.addLyphToList(node, index, $Field.lyphs);
                 break;
             case $Field.housingLyphs:
                 this.addLyphToList(node, index, $Field.housingLyphs, this._isValidHousingLyph);
@@ -955,6 +1117,20 @@ export class ChainEditorComponent extends ResourceEditor {
         }
         this.saveStep("Define as lyph " + node.id);
         this.updateSearchOptions();
+    }
+
+    _chainHasLyphs(node) {
+        if (node?.resource) {
+            return ((node.resource._class === $SchemaClass.Chain) && node.resource.lyphs?.length > 0);
+        }
+        return false;
+    }
+
+    _isChainTemplate(node) {
+        if (node?.resource) {
+            return ((node.resource._class === $SchemaClass.Chain) && node.resource.lyphTemplate && (node.resource.numLevels > 1));
+        }
+        return false;
     }
 
     _isLyphInstance(lyph, selectedChain) {
@@ -1264,7 +1440,7 @@ export class ChainEditorComponent extends ResourceEditor {
 @NgModule({
     imports: [CommonModule, MatMenuModule, MatTooltipModule, MatSelectModule, MatFormFieldModule, MatListModule,
         MatButtonModule, MatDividerModule, MatTabsModule, ResourceDeclarationModule, SearchAddBarModule, ResourceListViewModule,
-        ChainDeclarationModule, CheckboxFilterModule, LyphTreeViewModule, LinkedResourceModule, ResourceTreeViewModule],
+        ChainDeclarationModule, CheckboxFilterModule, LyphTreeViewModule, LinkedResourceModule, ResourceTreeViewModule, MaterialSelectModule],
     declarations: [ChainEditorComponent],
     exports: [ChainEditorComponent]
 })

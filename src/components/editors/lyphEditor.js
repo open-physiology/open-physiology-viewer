@@ -18,7 +18,7 @@ import {$Field, $SchemaClass} from "../../model";
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
 import {References} from "../utils/references";
-import {getGenID} from "../../model/utils";
+import {getGenID, LYPH_TOPOLOGY} from "../../model/utils";
 import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 import {MatTabsModule} from "@angular/material/tabs";
@@ -201,10 +201,10 @@ export class LyphEditorComponent extends ResourceEditor {
 
     topologyOptions: Option[] = [
         {name: 'None', id: undefined},
-        {name: 'TUBE', id: 'TUBE'},
-        {name: 'BAG- (BAG)', id: 'BAG'},
-        {name: 'BAG+ (BAG2)', id: 'BAG2'},
-        {name: 'CYST', id: 'CYST'}
+        {name: 'TUBE', id: LYPH_TOPOLOGY.TUBE},
+        {name: 'BAG- (BAG)', id: LYPH_TOPOLOGY.BAG},
+        {name: 'BAG+ (BAG2)', id: LYPH_TOPOLOGY.BAG2},
+        {name: 'CYST', id: LYPH_TOPOLOGY.CYST}
     ];
 
     constructor(snackBar: MatSnackBar, dialog: MatDialog) {
@@ -213,6 +213,7 @@ export class LyphEditorComponent extends ResourceEditor {
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
+        this.clearHelpers(this._model);
         this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
         this.currentStep = 0;
@@ -270,29 +271,6 @@ export class LyphEditorComponent extends ResourceEditor {
         });
     }
 
-    /**
-     * Create a new lyph definition
-     * @returns {{[p: string]: *, _class: *}}
-     */
-    defineNewLyph(lyphDef) {
-        let newLyph = lyphDef;
-        if (!newLyph) {
-            let newCounter = 1;
-            let newID = "_newLyph" + newCounter;
-            while (this.entitiesByID[newID]) {
-                newID = "_newLyph" + ++newCounter;
-            }
-            newLyph = {
-                [$Field.id]: newID,
-                [$Field.name]: "New lyph " + newCounter,
-                "_class": $SchemaClass.Lyph
-            }
-        }
-        this._model.lyphs = this._model.lyphs || [];
-        this._model.lyphs.push(newLyph);
-        this.entitiesByID[newLyph.id] = newLyph;
-        return newLyph;
-    }
 
     /**
      * Pass given lyph to dependent components to display and edit its relations and properties
@@ -343,39 +321,6 @@ export class LyphEditorComponent extends ResourceEditor {
         }
     }
 
-    collectSubtypes() {
-        let missing = new Set();
-        //Prepare _subtype/_supertype hierarchy
-        (this._model.lyphs || []).forEach(lyph => {
-            if (lyph.supertype) {
-                let supertype = this.entitiesByID[lyph.supertype];
-                if (supertype) {
-                    supertype._subtypes = supertype._subtypes || [];
-                    if (!supertype._subtypes.find(x => x.id === lyph.id)) {
-                        supertype._subtypes.push(lyph);
-                    }
-                    lyph._supertype = supertype;
-                } else {
-                    missing.add(lyph.supertype)
-                }
-            }
-            (lyph.subtypes || []).forEach(subtype => {
-                if (this.entitiesByID[subtype]) {
-                    lyph._subtypes = lyph._subtypes || [];
-                    if (!lyph._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
-                        lyph._subtypes.push(this.entitiesByID[subtype]);
-                    }
-                    this.entitiesByID[subtype]._supertype = lyph;
-                } else {
-                    missing.add(subtype);
-                }
-            });
-        });
-        if (missing.size > 0) {
-            this.showWarning("Cannot generate tree nodes for lyphs (external or undefined): " + [...missing].join(', '));
-        }
-    }
-
     /**
      * Create a hierarchy of defined lyphs
      * @returns {({}|LyphTreeNode)[]}
@@ -383,10 +328,16 @@ export class LyphEditorComponent extends ResourceEditor {
     prepareLyphTree() {
         this.entitiesByID = {};
         ResourceMaps.materialsAndLyphs(this._model, this.entitiesByID);
-        this.collectSubtypes();
+
+        let missing = this.collectSubtypes();
+        if (missing.size > 0) {
+            this.showWarning("Cannot include (external or undefined) references to the lyph tree: " + [...missing].join(', '));
+        }
+
         //Recursively create lyph tree nodes
         let stack = [];
         let loops = [];
+
         const mapToNodes = (lyphOrID, parent, idx) => {
             if (!lyphOrID) return {};
             if (parent) stack.push(parent);

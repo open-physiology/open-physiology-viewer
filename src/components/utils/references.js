@@ -91,7 +91,10 @@ export class References {
                 $Field.internalLyphs, $Field.subtypes], materialID);
             this.clearOne(lyph, [$Field.layerIn, $Field.supertype, $Field.internalIn, $Field.seed], materialID);
         });
-        (model.chains || []).forEach(chain => this.clearMany(chain, [$Field.lyphs, $Field.housingLyphs], materialID));
+        (model.chains || []).forEach(chain => {
+            this.clearMany(chain, [$Field.lyphs, $Field.housingLyphs, $Field.housingLyphTemplates], materialID);
+            this.clearOne(chain, [$Field.lyphTemplate], materialID);
+        });
         (model.groups || []).forEach(group => this.clearMany(group, [$Field.seed], materialID));
         (model.links || []).forEach(link => this.clearMany(link, [$Field.conveyingMaterials], materialID));
         return model;

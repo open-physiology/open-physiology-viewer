@@ -127,11 +127,9 @@ export class ListNode {
         <mat-menu #rightListMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-class="class" let-index="index"
                          let-canMoveUp="canMoveUp" let-canMoveDown="canMoveDown">
-                <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
-                <button *ngIf="class === 'Chain'"
-                        mat-menu-item (click)="processOperation('select',item, index)">Select
-                </button>
                 <button mat-menu-item (click)="processOperation('insert', item, index)">Add</button>
+                <button mat-menu-item (click)="processOperation('delete',item, index)">Delete</button>
+                <button mat-menu-item (click)="processOperation('select', item, index)">Select</button>
                 <button *ngIf="class === 'Undefined'" mat-menu-item
                         (click)="processOperation('defineAsLyph', item, index)">Define as lyph
                 </button>
@@ -143,8 +141,10 @@ export class ListNode {
                     <button *ngIf="splitable" mat-menu-item (click)="processOperation('split', item, index)">Split
                     </button>
                 </div>
-                <button *ngFor="let action of extraActions" mat-menu-item
-                        (click)="processOperation(action.operation, item, index)">{{action.label}}</button>
+                <div *ngFor="let action of extraActions">
+                    <button *ngIf="!action.condition || action.condition(item)" mat-menu-item
+                            (click)="processOperation(action.operation, item, index)">{{action.label}}</button>
+                </div>
             </ng-template>
         </mat-menu>
 

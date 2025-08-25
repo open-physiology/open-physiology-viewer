@@ -3,7 +3,9 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {MatDialog} from "@angular/material/dialog";
 import {EventEmitter, Output} from "@angular/core";
 import {DiffDialog} from "../dialogs/diffDialog";
-import {$SchemaClass} from "../../model";
+import {$Field, $SchemaClass, getGenName} from "../../model";
+import {defineNewResource, LYPH_TOPOLOGY} from "../../model/utils";
+import {MaterialNode} from "./materialEditor";
 
 export class ResourceEditor {
     _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
@@ -29,6 +31,85 @@ export class ResourceEditor {
             panelClass: ['w3-panel', 'w3-orange'],
             duration: 2000
         };
+    }
+
+    collectMaterials(){
+        let created = [];
+        [$Field.materials, $Field.lyphs].forEach(prop => {
+            (this._model[prop] || []).forEach(m => {
+                if (m.id) {
+                    m._inMaterials = [];
+                    this.entitiesByID[m.id] = this.entitiesByID[m.id] || m;
+                }
+            });
+        });
+        [$Field.materials, $Field.lyphs].forEach(prop => {
+            (this._model[prop] || []).forEach(m => {
+                (m.materials || []).forEach(childID => {
+                    if (!this.entitiesByID[childID]) {
+                        this.entitiesByID[childID] = {
+                            [$Field.id]: childID,
+                            "_generated": true,
+                            "_inMaterials": [],
+                        };
+                        created.push(this.entitiesByID[childID]);
+                    }
+                });
+                (m.materials || []).forEach(childID => {
+                    if (!this.entitiesByID[childID]._inMaterials.find(x => x.id === m.id)) {
+                        this.entitiesByID[childID]._inMaterials.push(m);
+                    }
+                });
+            });
+        });
+        return created;
+    }
+
+    collectSubtypes() {
+        let missing = new Set();
+        //Prepare _subtype/_supertype hierarchy
+        (this._model.lyphs || []).forEach(lyph => {
+            if (lyph.supertype) {
+                let supertype = this.entitiesByID[lyph.supertype];
+                if (supertype) {
+                    supertype._subtypes = supertype._subtypes || [];
+                    if (!supertype._subtypes.find(x => x.id === lyph.id)) {
+                        supertype._subtypes.push(lyph);
+                    }
+                    lyph._supertype = supertype;
+                } else {
+                    missing.add(lyph.supertype)
+                }
+            }
+            (lyph.subtypes || []).forEach(subtype => {
+                if (this.entitiesByID[subtype]) {
+                    lyph._subtypes = lyph._subtypes || [];
+                    if (!lyph._subtypes.find(x => x.id === this.entitiesByID[subtype].id)) {
+                        lyph._subtypes.push(this.entitiesByID[subtype]);
+                    }
+                    this.entitiesByID[subtype]._supertype = lyph;
+                } else {
+                    missing.add(subtype);
+                }
+            });
+        });
+        return missing;
+    }
+
+    /**
+     * Create a new lyph definition
+     * @returns {{[p: string]: *, _class: *}}
+     */
+    defineNewLyph(lyphDef) {
+        let newLyph = lyphDef || defineNewResource({
+            [$Field.id]: "_newLyph",
+            [$Field.name]: "New lyph",
+            "_class":  $SchemaClass.Lyph
+        }, this.entitiesByID);
+        this._model.lyphs = this._model.lyphs || [];
+        this._model.lyphs.push(newLyph);
+        this.entitiesByID[newLyph.id] = newLyph;
+        return newLyph;
     }
 
     showWarning(message) {

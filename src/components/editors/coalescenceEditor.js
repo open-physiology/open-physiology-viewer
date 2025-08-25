@@ -15,9 +15,10 @@ import {DiffDialog} from "../dialogs/diffDialog";
 
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
-import {$Field, $SchemaClass} from "../../model";
+import {$Field, $SchemaClass, getGenName} from "../../model";
 import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
+import {defineNewResource} from "../../model/utils";
 
 @Component({
     selector: 'coalescenceEditor',
@@ -45,7 +46,7 @@ import {ResourceEditor} from "./resourceEditor";
                                       (onChange)="processLyphChange($event)"
                     >
                     </resourceListView>
-                </section> 
+                </section>
                 <section class="w3-padding-right" style="position:relative;">
                     <section class="w3-bar-block w3-right vertical-toolbar" style="position:absolute; right:0">
                         <button class="w3-bar-item w3-hover-light-grey"
@@ -85,8 +86,8 @@ import {ResourceEditor} from "./resourceEditor";
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
-                <linkedResource 
-                        [resource]="lyphToLink">                    
+                <linkedResource
+                        [resource]="lyphToLink">
                 </linkedResource>
                 <searchAddBar
                         [searchOptions]="searchOptions"
@@ -116,16 +117,16 @@ import {ResourceEditor} from "./resourceEditor";
             display: flex;
             justify-content: space-between;
         }
-                
-        .settings-panel{33
-          height: 100vh;
-          overflow-y: auto;
-          overflow-x: auto;
+
+        .settings-panel {
+            33 height: 100vh;
+            overflow-y: auto;
+            overflow-x: auto;
         }
- 
+
         .vertical-toolbar {
             margin-right: 20px;
-        }       
+        }
 
     `]
 })
@@ -140,6 +141,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
+        this.clearHelpers(this._model);
         this._modelText = JSON.stringify(this._model, null, 4);
         this.steps = [];
         this.currentStep = 0;
@@ -147,8 +149,8 @@ export class CoalescenceEditorComponent extends ResourceEditor {
         this.prepareCoalescenceList();
         ResourceMaps.materialsAndLyphs(this._model, this.entitiesByID);
         // Prepare lyphs from imported models
-        (this._model.groups||[]).forEach(g => {
-            if (g.imported && g.namespace !== this._model.namespace){
+        (this._model.groups || []).forEach(g => {
+            if (g.imported && g.namespace !== this._model.namespace) {
                 ResourceMaps.importedMaterialsAndLyphs(g, this.entitiesByID);
             }
         });
@@ -295,6 +297,9 @@ export class CoalescenceEditorComponent extends ResourceEditor {
             case 'delete':
                 this.deleteCoalescence(node);
                 break;
+            case 'select':
+                this.selectCoalescence(node);
+                break;
         }
     }
 
@@ -303,16 +308,11 @@ export class CoalescenceEditorComponent extends ResourceEditor {
      * @returns {{[p: string]: *, _class: *}}
      */
     defineNewCoalescence() {
-        let newCounter = 1;
-        let newID = "_newCoalescence" + newCounter;
-        while (this.entitiesByID[newID]) {
-            newID = "_newCoalescence" + ++newCounter;
-        }
-        let newCoalescence = {
-            [$Field.id]: newID,
-            [$Field.name]: "New coalescence " + newCounter,
+        let newCoalescence = defineNewResource({
+            [$Field.id]: "_newCoalescence",
+            [$Field.name]: "New coalescence",
             "_class": $SchemaClass.Coalescence
-        }
+        }, this.entitiesByID);
         this._model.coalescences = this._model.coalescences || [];
         this._model.coalescences.push(newCoalescence);
         this.entitiesByID[newCoalescence.id] = newCoalescence;
@@ -373,6 +373,9 @@ export class CoalescenceEditorComponent extends ResourceEditor {
                 break;
             case 'delete':
                 this.deleteCoalescenceLyph(node, index);
+                break;
+            case 'select':
+                this.lyphToLink = this.entitiesByID[node.id];
                 break;
             case 'up':
                 this.moveLyphUp(node, index);
@@ -490,7 +493,7 @@ export class CoalescenceEditorComponent extends ResourceEditor {
         }
     }
 
-    getCurrentState(action){
+    getCurrentState(action) {
         let snapshot = this._model::cloneDeep();
         return {action: action, snapshot: snapshot, selected: this.selectedCoalescence?.id};
     }
