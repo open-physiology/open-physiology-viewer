@@ -202,6 +202,10 @@ export class Chain extends GroupTemplate {
          * Generates chain group resources (nodes, links, and lyphs) from chain template with given sequence of lyphs
          */
         function deriveFromLyphs() {
+            if (chain.lyphs && chain.lyphTemplate){
+                logger.warn($LogMsg.CHAIN_CONFLICT_GEN, chain);
+            }
+
             let lyphs = refsToResources(chain.lyphs, parentGroup, $Field.lyphs, true);
 
             if (chain.lyphTemplate) {
@@ -220,6 +224,10 @@ export class Chain extends GroupTemplate {
             const N = chain.numLevels;
 
             for (let i = 0; i < N; i++) {
+                if (!lyphs[i]){
+                    logger.error($LogMsg.CHAIN_CRITICAL_ERROR, chain.id);
+                    return;
+                }
                 lyphs[i].namespace = lyphs[i].namespace || getRefNamespace(lyphs[i]) || parentGroup.namespace;
                 lyphs[i].fullID = getFullID(lyphs[i].namespace, lyphs[i].id);
                 let existingLink = lyphs[i].conveys && refToResource(getFullID(lyphs[i].namespace, lyphs[i].conveys), parentGroup, $Field.links);
@@ -294,6 +302,10 @@ export class Chain extends GroupTemplate {
 
             let prevLink;
             for (let i = 0; i < N; i++) {
+                if (!lyphs[i]){
+                    logger.error($LogMsg.CHAIN_CRITICAL_ERROR, chain.id);
+                    return;
+                }
                 lyphs[i].namespace = lyphs[i].namespace || getRefNamespace(lyphs[i]) || parentGroup.namespace;
                 lyphs[i].fullID = lyphs[i].fullID || getFullID(lyphs[i].namespace.lyphs[i].id);
                 if (!chain.levels[i].id) {
@@ -605,6 +617,11 @@ export class Chain extends GroupTemplate {
 
     static replicateToHousingLyphSubtypes(parentGroup, chain) {
 
+        if (!chain.lyphTemplate && !chain.lyphs){
+            logger.error($LogMsg.CHAIN_TEMPLATE_INCOMPLETE, chain.id);
+            return;
+        }
+
         const processOne = (housingLyphTemplateID, startLayer) => {
             let housingLyphTemplate = refToResource(housingLyphTemplateID, parentGroup, $Field.lyphs);
             if (!housingLyphTemplate) {
@@ -612,7 +629,7 @@ export class Chain extends GroupTemplate {
                 return;
             }
             if (!housingLyphTemplate.layers) {
-                logger.error("Housing lyph template with no layers", chain.id);
+                logger.error($LogMsg.CHAIN_HOUSING_LYPH_TEMPLATE_NO_LAYERS, chain.id);
                 return;
             }
             const genChains = [];
@@ -623,11 +640,23 @@ export class Chain extends GroupTemplate {
                 let genChain = {
                     [$Field.id]: genChainID,
                     [$Field.namespace]: parentGroup.namespace,
-                    [$Field.lyphTemplate]: chain.lyphTemplate,
                     [$Field.housingLyphs]: [],
                     [$Field.generatedFrom]: chain.id,
                     [$Field.radial]: true
                 };
+                if (chain.lyphTemplate){
+                    genChain.lyphTemplate = chain.lyphTemplate;
+                } else {
+                    if (chain.lyphs) {
+                        let lyphs = refsToResources(chain.lyphs, parentGroup, $Field.lyphs, true);
+                        genChain.lyphs = lyphs.map(lyph => {
+                            let targetLyph = {
+                                [$Field.id]: getGenID(lyph.id, genChainID)
+                            };
+                            return Lyph.clone(parentGroup, lyph, targetLyph);
+                        });
+                    }
+                }
                 if (chain.name) {
                     genChain.name = getGenName(chain.name, "in", lyph.name || lyph.id);
                 }

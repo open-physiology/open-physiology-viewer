@@ -1220,6 +1220,10 @@
             "namespace": "http://www.ncbi.nlm.nih.gov/pubmed/"
         },
         {
+            "prefix": "ilxtr",
+            "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
+        },
+        {
             "prefix": "EMAPA",
             "namespace": "http://purl.obolibrary.org/obo/EMAPA_"
         },
@@ -1230,10 +1234,6 @@
         {
             "prefix": "NCBITaxon",
             "namespace": "http://purl.obolibrary.org/obo/NCBITaxon_"
-        },
-        {
-            "prefix": "ilxtr",
-            "namespace": "http://uri.interlex.org/tgbugs/uris/readable/"
         },
         {
             "prefix": "pancr",

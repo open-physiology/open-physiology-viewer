@@ -284,3 +284,72 @@ export function drawCell(layerCellLevelMap, lyphRectMap, right, chain, group, re
         }
     });
 }
+
+export function generateRandomCellNetwork(rects) {
+    let nodes = rects.map(rect => {
+        let numNodes = Math.random() < 0.5 ? 1 : 2;
+        let nodes = [];
+        for (let i = 0; i < numNodes; i++) {
+            nodes.push({
+                x: rect.x + Math.random() * rect.width,
+                y: rect.y + Math.random() * rect.height
+            });
+        }
+        return nodes;
+    });
+    // 4) Generate links between nodes in rect[i] and rect[i+1]
+    let links = [];
+    for (let i = 0; i < nodes.length - 1; i++) {
+        let groupA = nodes[i];
+        let groupB = nodes[i + 1];
+        groupA.forEach(a => {
+            groupB.forEach(b => {
+                links.push({source: a, target: b});
+            });
+        });
+    }
+    return [nodes.flat(), links];
+}
+
+export function drawCellNetwork(rects, group, nodes, links, tooltip) {
+    // 3) Draw nodes
+    let node = group.selectAll("circle")
+        .data(nodes)
+        .enter()
+        .append("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", 5)
+        .attr("fill", "steelblue")
+        .style("cursor", "pointer")
+        .on("mouseover", d => {
+            if (!tooltip) return;
+            tooltip
+                .style("left", d3.event.pageX + 10 + "px")
+                .style("top", d3.event.pageY + 10 + "px")
+                .style("opacity", "0.9")
+                .html(d.label);
+        })
+        .on("mouseout", d => {
+            if (!tooltip) return;
+            tooltip.style("opacity", 0)
+        });
+
+    node.enter().append("text")
+        .attr("x", d => d.x + 2)
+        .attr("y", d => d.y - 4)
+        .text(d => d.label)
+        .attr("font-size", "10px")
+        .attr("fill", "black");
+
+    // 5) Draw links
+    group.selectAll("line")
+        .data(links)
+        .enter()
+        .append("line")
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke", "#999");
+}

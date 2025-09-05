@@ -788,8 +788,6 @@ export class ChainEditorComponent extends ResourceEditor {
             let obj = objOrID::isObject()? objOrID: this.entitiesByID[objOrID];
             if (!obj) return oldLyph;
             //Replicating lyph
-            // console.log("Replacing lyph", obj.id);
-            // console.log("Replacement materials", replacementMap[obj.id]);
             let lyphDef = defineNewResource(obj::cloneDeep(), this.entitiesByID);
             let materialMap = replacementMap[obj.id] || [];
             for (let i = 0; i < lyphDef.layers?.length; i++){
@@ -838,7 +836,6 @@ export class ChainEditorComponent extends ResourceEditor {
                 if (replacementMap[layer.id]) reviseLyph = true;
             });
             if (reviseLyph){
-                console.log("Revising layers", level);
                 newLyphs[level] = this.reviseHierarchy(oldLyph);
             } else {
                 let reviseHierarchy = false;
@@ -850,7 +847,6 @@ export class ChainEditorComponent extends ResourceEditor {
                         break;
                     }
                 }
-                console.log("Revising hierarchy", level);
                 newLyphs[level] = reviseHierarchy ? this.reviseHierarchy(oldLyph._supertype, replacementMap): oldLyph;
             }
         });
@@ -861,7 +857,6 @@ export class ChainEditorComponent extends ResourceEditor {
                 level = chainPrototype.levelOntologyTerms[idx];
             }
             let newLyph = newLyphs[level] || oldLyph;
-            console.log(idx, level, newLyph);
             if (newLyph) {
                 if (newLyph.supertype) lyphDef.supertype = newLyph.supertype;
                 if (newLyph.layers) lyphDef.layers = newLyph.layers;

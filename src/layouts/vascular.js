@@ -135,11 +135,7 @@ export function createVascularLayout(model, modelClasses, config) {
 
             paths.forEach((path, j) => {
                 railLinks.add(path[exitLevels[j]]);
-                // console.log("Path:", j);
-                path.forEach(edge => {
-                    includeRef(chainGroup.links, edge.fullID, edge.namespace);
-                    // console.log(edge.namespace, edge.name || edge.id);
-                });
+                path.forEach(edge => includeRef(chainGroup.links, edge.fullID, edge.namespace));
             });
         });
         Array.from(railLinks).forEach((edge, j) => {

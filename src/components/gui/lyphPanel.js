@@ -3,9 +3,10 @@ import {CommonModule} from "@angular/common";
 import * as d3 from "d3";
 import {
     d3_createRect,
-    d3_createBagRect
+    d3_createBagRect,
+    drawCellNetwork, generateRandomCellNetwork
 } from '../utils/svgDraw';
-import {entries} from 'lodash-bound';
+import cellularNetworks from "../../data/cellNetworks.json";
 
 @Component({
     selector: 'lyphPanel',
@@ -76,7 +77,7 @@ export class LyphPanel {
         let dy = this.init.y;
         let max_dy = dy;
 
-        this.lyphs.forEach((lyph, i) => {
+        this.lyphs.forEach(lyph => {
             if (Array.isArray(lyph)){
                 // group -> layer with several cells
                 lyph.forEach(cell => {
@@ -115,7 +116,6 @@ export class LyphPanel {
             return;
         }
 
-        let rects = [];
         let roundLeft = false, roundRight = false;
         if (['BAG', 'BAG2', 'CYST'].includes(lyph.topology)) {
             if (this.right?.has(lyph.fullID)) {
@@ -133,81 +133,122 @@ export class LyphPanel {
         d3_createRect(group, dx - borderLeft, dy - this.border, width + borderLeft + borderRight, height + 2 * this.border,
             hostColor, lyph.housingLyph?.name || lyph.housingLyph?.fullID, this.tooltip);
 
+        let rects = [];
         if (roundRight || roundLeft) {
             layers.forEach((layer, i) => {
                 let params = [layer?.color || "lightblue", layer?.name || layer?.fullID, this.tooltip];
                 d3_createBagRect(group, dx, dy, width, height, ...params,
                     {roundLeft: roundLeft, roundRight: roundRight, radius: 30});
+                rects.push({x: dx, y: dy, width: width, height: height, left: roundLeft, right: roundRight});
                 height -= 2 * delta;
                 width -= 2 * delta;
                 if (roundLeft) {
                     dx += 2 * delta;
                 }
                 dy += delta;
-                rects.push({x: dx, y: dy, width: width, height: height});
             });
         } else {
             //tube, draw layers on both sides from center
             layers.forEach(layer => {
                 let params = [layer?.color || "lightblue", layer?.name || layer?.fullID, this.tooltip];
                 d3_createRect(group, dx, dy, width, height, ...params);
+                rects.push({x: dx, y: dy, width: width, height: height});
                 height -= 2 * delta;
                 dy += delta;
-                rects.push({x: dx, y: dy, width: width, height: height});
             });
         }
-        this.drawRandomGraph(rects, group);
+
+        //let [nodes, links] = generateRandomCellNetwork(rects);
+        let [nodes, links] = this.generateCellNetwork(layers, rects);
+        drawCellNetwork(rects, group, nodes, links, this.tooltip);
     }
 
-    drawRandomGraph(rects, group) {
-        let nodesByRect = rects.map(rect => {
-            let numNodes = Math.random() < 0.5 ? 1 : 2;
-            let nodes = [];
-            for (let i = 0; i < numNodes; i++) {
-                nodes.push({
-                    x: rect.x + Math.random() * rect.width,
-                    y: rect.y + Math.random() * rect.height,
-                    rectIndex: rects.indexOf(rect)
-                });
-            }
-            return nodes;
+    generateCellNetwork(layers, rects){
+        if (!layers) return;
+        let fromMaterials = new Set();
+        let toMaterials = new Set();
+        cellularNetworks.forEach(network => {
+            fromMaterials.add(network.from);
+            (network.to||[]).forEach(target => toMaterials.add(target))
         });
 
-        // Flatten node list for drawing
-        let allNodes = nodesByRect.flat();
-
-        // 3) Draw nodes
-        group.selectAll("circle")
-            .data(allNodes)
-            .enter()
-            .append("circle")
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y)
-            .attr("r", 5)
-            .attr("fill", "steelblue");
-
-        // 4) Generate links between nodes in rect[i] and rect[i+1]
-        let links = [];
-        for (let i = 0; i < nodesByRect.length - 1; i++) {
-            let groupA = nodesByRect[i];
-            let groupB = nodesByRect[i + 1];
-            groupA.forEach(a => {
-                groupB.forEach(b => {
-                    links.push({source: a, target: b});
-                });
+        function findCellMaterials(material){
+            let cellMaterials = [];
+            if (material) {
+                if (toMaterials.has(material.id)) return [material.id];
+            }
+            (material?.inMaterials||[]).forEach(inMat => {
+                if (fromMaterials.has(inMat.id)){
+                    cellMaterials.push(inMat.id);
+                }
             });
+            (material?.materials||[]).forEach(mat => {
+                let nested = findCellMaterials(mat);
+                if (nested.length > 0){
+                    cellMaterials = cellMaterials.concat(nested);
+                }
+            });
+            return cellMaterials;
         }
 
-        // 5) Draw links
-        group.selectAll("line")
-            .data(links)
-            .enter()
-            .append("line")
-            .attr("x1", d => d.source.x)
-            .attr("y1", d => d.source.y)
-            .attr("x2", d => d.target.x)
-            .attr("y2", d => d.target.y)
-            .attr("stroke", "#999");
+        function mapToCellNodes(lyph){
+            let curr = lyph;
+            while (curr.cloneOf){
+                curr = curr.cloneOf;
+            }
+            while (curr?.supertype){
+                curr = curr.supertype
+            }
+            if (curr.generatedFrom){
+                curr = curr.generatedFrom;
+            }
+            return findCellMaterials(curr);
+        }
+
+        const createNode = (name, idx, i, n) => {
+            let rect = rects[idx];
+            let dx, dy;
+            if (rect.left || rect.right) {
+                dy = (i + 1) / (n + 1);
+            } else {
+                dy = 0.05;
+            }
+            if (rect.left){
+                dx = 0.1;
+            } else {
+                if (rect.right){
+                    dx = 0.9;
+                } else {
+                    dx =  (i + 1) / (n + 1);
+                }
+            }
+
+            return ({
+                x: rect.x + dx * rect.width,
+                y: rect.y + dy * rect.height,
+                label: name,
+                from: 0,
+                to: 0
+            })
+        }
+
+        let nodes = [];
+        layers.forEach((layer, idx) => {
+            let components = mapToCellNodes(layer);
+            components.forEach((c, i) => nodes.push(createNode(c, idx, i, components.length)));
+        });
+        let fromNodes = nodes.filter(node => fromMaterials.has(node.label));
+        let toNodes = nodes.filter(node => toMaterials.has(node.label));
+        let links = [];
+        fromNodes.forEach(s => {
+            toNodes.forEach(t =>{
+                 links.push({source: s, target: t});
+                 s.from += 1
+                 t.to += 1
+            });
+        });
+        nodes = nodes.filter(node => node.to + node.from > 0);
+        return [nodes, links];
     }
 }
 

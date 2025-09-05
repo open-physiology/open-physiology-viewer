@@ -7046,6 +7046,7 @@
       "topology": "BAG",
       "supertype": "lt-renal-nephron-epithelial-conduit"
     },
+
     {
       "id": "lyph-cardiovascular-chorionic-artery",
       "name": "Chorionic artery of placenta",
@@ -7151,6 +7152,159 @@
         "CL:0000523"
       ],
       "topology": "CYST"
+    },
+    {
+      "id": "lyph-cardiovascular-chorionic-artery",
+      "name": "Chorionic artery of placenta",
+      "supertype": "lt-muscular-artery"
+    },
+    {
+      "id": "lyph-cardiovascular-radial-stem-placental-artery",
+      "name": "Radial stem artery of placenta",
+      "supertype": "lt-muscular-artery"
+    },
+    {
+      "id": "lyph-cardiovascular-villous-arteriole-of-placenta",
+      "name": "Villous arteriole of placenta",
+      "supertype": "lt-arteriole"
+    },
+    {
+      "id": "lyph-cardiovascular-terminal-arterioles-of-placenta",
+      "name": "Terminal arterioles of the placenta",
+      "supertype": "lt-metarteriole"
+    },
+    {
+      "id": "lyph-cardiovascular-fetal-capillaries-in-terminal-villi-of-placenta",
+      "name": "Fetal capillaries in terminal villi of placenta",
+      "supertype": "lt-blood-capillary"
+    },
+    {
+      "id": "lyph-cardiovascular-postcapillary-pacental-venule",
+      "name": "Postcapillary pacental venule",
+      "supertype": "lt-venule"
+    },
+    {
+      "id": "lyph-cardiovascular-collecting-veins-of-placenta",
+      "name": "Collecting veins of placenta",
+      "supertype": "lt-small-vein"
+    },
+    {
+      "id": "lyph-cardiovascular-chorionic-vein-of-placenta",
+      "name": "Chorionic vein of placenta",
+      "supertype": "lt-medium-vein"
+    },
+    {
+      "id": "lyph-cardiovascular-umbilical-vein",
+      "name": "Umbilical vein",
+      "supertype": "lt-major-vein"
+    },
+    {
+      "id": "lyph-cardiovascular-arcuate-artery-of-the-uterus",
+      "name": "Arcuate artery of the Uterus",
+      "supertype": "lt-muscular-artery"
+    },
+    {
+      "id": "lyph-cardiovascular-radial-artery-of-the-uterus",
+      "name": "Radial artery of the uterus",
+      "supertype": "lt-muscular-artery"
+    },
+    {
+      "id": "lyph-cardiovascular-basal-artery-of-the-uterus",
+      "name": "Basal artery of the uterus",
+      "supertype": "lt-arteriole"
+    },
+    {
+      "id": "lyph-cardiovascular-spiral-artery-of-the-uterus",
+      "name": "Spiral artery of the uterus",
+      "supertype": "lt-arteriole"
+    },
+    {
+      "id": "lyph-cardiovascular-endometrial-vein-of-the-uterus",
+      "name": "Endometrial vein of the uterus",
+      "supertype": "lt-venule"
+    },
+    {
+      "id": "lyph-cardiovascular-myometrial-vein-of-the-uterus",
+      "name": "Myometrial vein of the uterus",
+      "supertype": "lt-small-vein"
+    },
+    {
+      "id": "lyph-cardiovascular-intervillous-space-of-the-placenta",
+      "name": "Intervillous space of the placenta",
+      "layers": [
+        "mat-blood",
+        "mat-syncytiotrophoblast-of-placenta",
+        "mat-cytotrophoblast-of-placenta",
+        "mat-stroma-of-placenta",
+        "mat-basement-membrane"
+      ]
+    },
+    {
+      "id": "lt-cyst-syncytiotrophoblast-cell",
+      "name": "Syncytiotrophoblast cell",
+      "supertype": "lt-cyst-cell",
+      "isTemplate": true,
+      "ontologyTerms": [
+        "CL:0000525"
+      ],
+      "topology": "CYST"
+    },
+    {
+      "id": "lt-cyst-cell1",
+      "name": "Cell Generic 1",
+      "ontologyTerms": [
+        "CL:0000000"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "layers": [
+        "mat-cytoplasm",
+        "mat-plasma-membrane-renal-epithelial-cell-apical",
+        "mat-extracellular-fluid"
+      ]
+    },
+    {
+      "id": "lt-cyst-cell2",
+      "name": "Cell Generic 2",
+      "ontologyTerms": [
+        "CL:0000000"
+      ],
+      "isTemplate": true,
+      "topology": "CYST",
+      "layers": [
+        "mat-cytoplasm",
+        "mat-plasma-membrane-renal-epithelial-cell-basolateral",
+        "mat-extracellular-fluid"
+      ]
+    },
+    {
+      "id": "lt-cyst-cell-endothelial_bag+1",
+      "name": "Cell Endothelial (BAG+) 1",
+      "isTemplate": true,
+      "topology": "BAG2",
+      "layers": [
+        "mat-cytoplasm",
+        "mat-plasma-membrane-renal-epithelial-cell-apical",
+        "mat-extracellular-fluid"
+      ]
+    },
+    {
+      "id": "lt-cyst-cell-endothelial_bag-1",
+      "name": "Cell Endothelial (BAG-) 1",
+      "isTemplate": true,
+      "topology": "BAG",
+      "layers": [
+        "mat-cytoplasm",
+        "mat-plasma-membrane-renal-epithelial-cell-basolateral",
+        "mat-extracellular-fluid"
+      ]
+    },
+    {
+      "id": "lt-cyst-cell-endothelial_tube1",
+      "name": "Cell Endothelial (TUBE) 1",
+      "isTemplate": true,
+      "topology": "TUBE",
+      "supertype": "lt-cyst-cell"
     }
   ],
   "materials": [
@@ -10229,6 +10383,7 @@
     {
       "id": "chain-cytotrophoblast-cell-over-syncytiotrophoblast",
       "name": "Cytotrophoblast cell over syncytiotrophoblast",
+      "lyphTemplate": "lt-cyst-cytotrophoblast-cell",
       "housingLayers": [
         1
       ],
@@ -10236,6 +10391,15 @@
         "lyph-cardiovascular-intervillous-space-of-the-placenta"
       ],
       "numLevels": 3
+    },
+    {
+      "id": "chain-endothelial-cell1",
+      "name": "Chain Endothelial Cell 1",
+      "lyphs": [
+        "lt-cyst-cell-endothelial_bag+1",
+        "lt-cyst-cell-endothelial_tube1",
+        "lt-cyst-cell-endothelial_bag-1"
+      ]
     }
   ],
   "groups": [
@@ -10322,7 +10486,7 @@
   "imports": [
     "https://raw.githubusercontent.com/open-physiology/apinatomy-models/master/models/too-map/source/too-map.json"
   ],
-  "version": "3a960309b00fd28230b1b3aae2db854f8d43cca7",
+  "version": "eb8eb729b499c35f74fe9a902e0c0844eb2315a6",
   "schemaVersion": "4135d33a4d370730c4cf54e236184835a2ecc3ad",
   "lastUpdated": "2025-08-27"
 }
