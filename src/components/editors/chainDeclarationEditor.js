@@ -143,8 +143,8 @@ export class ChainDeclarationEditor {
                 this.rootOptions = [getGenID($Prefix.root, this._chain.id)];
                 this.leafOptions = [getGenID($Prefix.leaf, this._chain.id)];
             }
-            if (this._chain?.lateralOf) {
-                this.rootOptions.push(getGenID($Prefix.root, this._chain.lateralOf));
+            if (this._chain?.specializationOf) {
+                this.rootOptions.push(getGenID($Prefix.root, this._chain.specializationOf));
             }
         }
     }

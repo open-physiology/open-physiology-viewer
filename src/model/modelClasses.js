@@ -1,11 +1,11 @@
 import {GroupTemplate} from './groupTemplateModel';
-import {Chain}   from './chainModel';
-import {Tree}    from './treeModel';
+import {Chain} from './chainModel';
+import {Tree} from './treeModel';
 import {Channel} from './channelModel';
-import {Villus}  from './villusModel';
-import {Group}   from './groupModel';
+import {Villus} from './villusModel';
+import {Group} from './groupModel';
 import {Component} from './componentModel';
-import {Graph}   from './graphModel';
+import {Graph} from './graphModel';
 import {Scaffold} from './scaffoldModel';
 import {Resource, External, Reference, OntologyTerm} from './resourceModel';
 import {VarianceSpec} from "./varianceSpecModel";
@@ -13,13 +13,13 @@ import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
 import {Shape, Lyph, Region, Border} from './shapeModel'
-import {Coalescence}  from './coalescenceModel';
+import {Coalescence} from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
-import {isString, keys, assign, isObject} from "lodash-bound";
+import {isString, keys, assign, isObject, merge} from "lodash-bound";
 import schema from "./graphScheme";
 import {logger} from "./logger";
 import * as XLSX from 'xlsx';
-import { mergeWith } from 'lodash-bound';
+import {mergeWith} from 'lodash-bound';
 import {
     $Field,
     ModelType,
@@ -34,43 +34,43 @@ const hash = require('object-hash');
 
 export const modelClasses = {
     /*Abstract */
-    [$SchemaClass.Resource]       : Resource,
-    [$SchemaClass.VisualResource] : VisualResource,
-    [$SchemaClass.GroupTemplate]  : GroupTemplate,
-    [$SchemaClass.Shape]          : Shape,
-    [$SchemaClass.Edge]           : Edge,
-    [$SchemaClass.Vertice]        : Vertice,
+    [$SchemaClass.Resource]: Resource,
+    [$SchemaClass.VisualResource]: VisualResource,
+    [$SchemaClass.GroupTemplate]: GroupTemplate,
+    [$SchemaClass.Shape]: Shape,
+    [$SchemaClass.Edge]: Edge,
+    [$SchemaClass.Vertice]: Vertice,
 
     /*Resources */
-    [$SchemaClass.External]       : External,
-    [$SchemaClass.Reference]      : Reference,
-    [$SchemaClass.OntologyTerm]   : OntologyTerm,
-    [$SchemaClass.VarianceSpec]   : VarianceSpec,
-    [$SchemaClass.Coalescence]    : Coalescence,
-    [$SchemaClass.Channel]        : Channel,
-    [$SchemaClass.Chain]          : Chain,
-    [$SchemaClass.Tree]           : Tree,
-    [$SchemaClass.Villus]         : Villus,
-    [$SchemaClass.Group]          : Group,
-    [$SchemaClass.Graph]          : Graph,
-    [$SchemaClass.Component]      : Component,
-    [$SchemaClass.Scaffold]       : Scaffold,
+    [$SchemaClass.External]: External,
+    [$SchemaClass.Reference]: Reference,
+    [$SchemaClass.OntologyTerm]: OntologyTerm,
+    [$SchemaClass.VarianceSpec]: VarianceSpec,
+    [$SchemaClass.Coalescence]: Coalescence,
+    [$SchemaClass.Channel]: Channel,
+    [$SchemaClass.Chain]: Chain,
+    [$SchemaClass.Tree]: Tree,
+    [$SchemaClass.Villus]: Villus,
+    [$SchemaClass.Group]: Group,
+    [$SchemaClass.Graph]: Graph,
+    [$SchemaClass.Component]: Component,
+    [$SchemaClass.Scaffold]: Scaffold,
 
     /*Visual resources */
-    [$SchemaClass.Anchor]         : Anchor,
-    [$SchemaClass.Wire]           : Wire,
-    [$SchemaClass.Node]           : Node,
-    [$SchemaClass.Link]           : Link,
+    [$SchemaClass.Anchor]: Anchor,
+    [$SchemaClass.Wire]: Wire,
+    [$SchemaClass.Node]: Node,
+    [$SchemaClass.Link]: Link,
 
     /* Shapes */
-    [$SchemaClass.Material]       : Material,
-    [$SchemaClass.Region]         : Region,
-    [$SchemaClass.Lyph]           : Lyph,
-    [$SchemaClass.Border]         : Border,
+    [$SchemaClass.Material]: Material,
+    [$SchemaClass.Region]: Region,
+    [$SchemaClass.Lyph]: Lyph,
+    [$SchemaClass.Border]: Border,
 
     /* Scaffold */
-    [$SchemaClass.State]          : State,
-    [$SchemaClass.Snapshot]       : Snapshot,
+    [$SchemaClass.State]: State,
+    [$SchemaClass.Snapshot]: Snapshot,
 };
 
 /**
@@ -80,21 +80,23 @@ export const modelClasses = {
  * @param extension - file extension
  * @param isBinary  - Boolean flag that indicates whether the input model is in binary format
  */
-export function loadModel(content, name, extension, isBinary = true){
+export function loadModel(content, name, extension, isBinary = true) {
     logger.clear();
     let newModel = {};
-    if (extension === "xlsx"){
+    if (extension === "xlsx") {
         let excelModel = {};
-        const wb = isBinary? XLSX.read(content, {type: "binary"}): content;
+        const wb = isBinary ? XLSX.read(content, {type: "binary"}) : content;
         wb.SheetNames.forEach(sheetName => {
-            let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1});
-            if(roa.length) { excelModel[sheetName] = roa; }
+            let roa = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header: 1});
+            if (roa.length) {
+                excelModel[sheetName] = roa;
+            }
         });
         excelModel[$Field.id] = excelModel[$Field.id] || name;
         newModel = excelToJSON(excelModel);
     } else {
         if (extension === "json") {
-            if (content::isString()){
+            if (content::isString()) {
                 newModel = JSON.parse(content);
             } else {
                 newModel = content;
@@ -110,7 +112,7 @@ export function loadModel(content, name, extension, isBinary = true){
  * @param inputModel
  * @returns {boolean}
  */
-export function isScaffold(inputModel){
+export function isScaffold(inputModel) {
     return !!(inputModel.components || inputModel.anchors || inputModel.wires);
 }
 
@@ -119,7 +121,7 @@ export function isScaffold(inputModel){
  * @param inputModel
  * @returns {boolean}
  */
-export function isSnapshot(inputModel){
+export function isSnapshot(inputModel) {
     return !!(inputModel.model && inputModel.states);
 }
 
@@ -128,7 +130,7 @@ export function isSnapshot(inputModel){
  * @param inputModel
  * @returns {boolean}
  */
-export function isGraph(inputModel){
+export function isGraph(inputModel) {
     return !!(inputModel.lyphs || inputModel.links || inputModel.nodes);
 }
 
@@ -138,7 +140,7 @@ export function isGraph(inputModel){
  * @returns {*}
  */
 export function excelToJSON(inputModel) {
-    if (isScaffold(inputModel)){
+    if (isScaffold(inputModel)) {
         return Scaffold.excelToJSON(inputModel, modelClasses);
     } else {
         return Graph.excelToJSON(inputModel, modelClasses);
@@ -151,10 +153,10 @@ export function excelToJSON(inputModel) {
  * @returns {void|*}
  */
 export function jsonToExcel(inputModel) {
-    if (isScaffold(inputModel)){
+    if (isScaffold(inputModel)) {
         return Scaffold.jsonToExcel(inputModel);
     } else {
-        (inputModel.scaffolds||[]).forEach(scaffold => Scaffold.jsonToExcel(scaffold));
+        (inputModel.scaffolds || []).forEach(scaffold => Scaffold.jsonToExcel(scaffold));
         delete inputModel.scaffolds;
         return Graph.jsonToExcel(inputModel);
     }
@@ -175,10 +177,10 @@ export function generateFromJSON(inputModel) {
     } else {
         //Move levels to links
         let count = 1;
-        (inputModel.chains||[]).forEach(chain => {
+        (inputModel.chains || []).forEach(chain => {
             chain.id = chain.id || getGenID($Prefix.chain, $Prefix.default, count++);
-            (chain.levels||[]).forEach((level, i) => {
-                if (level::isObject()){
+            (chain.levels || []).forEach((level, i) => {
+                if (level::isObject()) {
                     level.id = level.id || getGenID($Prefix.link, $Prefix.default, chain.id, i);
                     inputModel.links = inputModel.links || [];
                     inputModel.links.push(level);
@@ -195,7 +197,7 @@ export function generateFromJSON(inputModel) {
  * @param inputModel - input model
  * @returns {Promise<*>} - input model with imported parts (e.g., scaffold)
  */
-export async function mergeWithImports(inputModel){
+export async function mergeWithImports(inputModel) {
     if (inputModel.imports) {
         function get(url) {
             return new Promise(function (resolve, reject) {
@@ -215,24 +217,25 @@ export async function mergeWithImports(inputModel){
                 req.send();
             });
         }
+
         await Promise.all((inputModel.imports || []).map(url => get(url))).then(values => {
-             if (values && values.length > 0) {
+            if (values && values.length > 0) {
                 processImports(inputModel, values);
-             }
+            }
         });
     }
     return inputModel;
 }
 
-export function processImports(inputModel, importedModels){
+export function processImports(inputModel, importedModels) {
     let scaffolds = importedModels.filter(m => isScaffold(m));
     let groups = importedModels.filter(m => isGraph(m));
     inputModel.scaffolds = inputModel.scaffolds || [];
     inputModel.groups = inputModel.groups || [];
 
-    function addNestedImports(newModel){
-        (newModel.imports||[]).forEach(newImport => {
-            if (!inputModel.imports.find(url => url === newImport)){
+    function addNestedImports(newModel) {
+        (newModel.imports || []).forEach(newImport => {
+            if (!inputModel.imports.find(url => url === newImport)) {
                 inputModel.imports.push(newImport);
             }
         });
@@ -246,9 +249,9 @@ export function processImports(inputModel, importedModels){
         } else {
             inputModel.groups[groupIdx] = newModel;
         }
-         //Uplift imported model's scaffolds to reveal them in the settings panel
-        (newModel.scaffolds||[]).forEach(scaffold => {
-           scaffolds.push(scaffold);
+        //Uplift imported model's scaffolds to reveal them in the settings panel
+        (newModel.scaffolds || []).forEach(scaffold => {
+            scaffolds.push(scaffold);
         });
         addNestedImports(newModel);
     });
@@ -271,7 +274,7 @@ export function processImports(inputModel, importedModels){
  */
 export function fromJSONGenerated(inputModel) {
     let namespace = inputModel.namespace || undefined;
-    let entitiesByID = { waitingList: {}};
+    let entitiesByID = {waitingList: {}};
 
     function typeCast(obj) {
         if (obj instanceof Object && !(obj instanceof Array) && !(typeof obj === 'function') && obj['class'] !== undefined && modelClasses[obj['class']] !== undefined) {
@@ -316,28 +319,28 @@ export function fromJsonLD(inputModel, callback) {
  * @param flattenGroups - Boolean flag that indicates whether model B should be joined to model A as its group
  * @returns {*}
  */
-export function joinModels(inputModelA, inputModelB, flattenGroups = false){
+export function joinModels(inputModelA, inputModelB, flattenGroups = false) {
     let joined = {};
-    if (isScaffold(inputModelA)){
+    if (isScaffold(inputModelA)) {
         if (isScaffold(inputModelB)) {
             //Both specifications define scaffolds
             schema.definitions.Scaffold.properties::keys().forEach(prop => {
                 let spec = schema.definitions.Scaffold.properties[prop];
                 //FIXME? Local conventions can have duplicates
-                if (spec.type === $SchemaType.ARRAY){
-                    joined[prop] = Array.from(new Set([...inputModelA[prop]||[], ...inputModelB[prop]||[]]));
+                if (spec.type === $SchemaType.ARRAY) {
+                    joined[prop] = Array.from(new Set([...inputModelA[prop] || [], ...inputModelB[prop] || []]));
                 }
                 delete inputModelB[prop];
                 delete inputModelA[prop];
             });
-            if (flattenGroups){
+            if (flattenGroups) {
                 inputModelA.components = inputModelA.components || [];
                 inputModelA.components.push(inputModelB);
                 return inputModelA;
             }
             return joined::mergeWith({
-                [$Field.id]        : getGenID(inputModelA.id, inputModelB.id),
-                [$Field.name]      : getGenName(inputModelA.name, "+" ,inputModelB.name),
+                [$Field.id]: getGenID(inputModelA.id, inputModelB.id),
+                [$Field.name]: getGenName(inputModelA.name, "+", inputModelB.name),
                 [$Field.components]: [inputModelA, inputModelB]
             });
         } else {
@@ -358,8 +361,8 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
     schema.definitions.Graph.properties::keys().forEach(prop => {
         let spec = schema.definitions.Graph.properties[prop];
         //FIXME? Local conventions can have duplicates, abbrev is lost
-        if (spec.type === $SchemaType.ARRAY){
-            joined[prop] = Array.from(new Set([...inputModelA[prop]||[], ...inputModelB[prop]||[]]));
+        if (spec.type === $SchemaType.ARRAY) {
+            joined[prop] = Array.from(new Set([...inputModelA[prop] || [], ...inputModelB[prop] || []]));
         }
         delete inputModelB[prop];
         delete inputModelA[prop];
@@ -369,8 +372,8 @@ export function joinModels(inputModelA, inputModelB, flattenGroups = false){
         inputModelA.groups.push(inputModelB);
     }
     return joined::mergeWith({
-        [$Field.id]    : getGenID(inputModelA.id, inputModelB.id),
-        [$Field.name]  : getGenName(inputModelA.name, "+" ,inputModelB.name),
+        [$Field.id]: getGenID(inputModelA.id, inputModelB.id),
+        [$Field.name]: getGenName(inputModelA.name, "+", inputModelB.name),
         [$Field.groups]: [inputModelA, inputModelB]
     });
 }

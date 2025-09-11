@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter, Input, NgModule, ChangeDetectionStrategy} from '@angular/core';
 
-import {loadModel} from '../../model';
+import {jsonToExcel, loadModel} from '../../model';
 import {ImportExcelModelDialog} from "../dialogs/importExcelModelDialog";
 import {MatDialog,MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -31,6 +31,9 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
            </button>
+           <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
+               <i class="fa fa-file-excel-o"> </i>
+           </button>
            <button id="joinBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
                 <i class="fa fa-object-ungroup"> </i>
            </button>
@@ -45,16 +48,17 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                     (click)="onToggleRepoPanel.emit()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
            </button> 
+           <!-- Save changes -->
            <button id="commitBtn" class="w3-bar-item w3-hover-light-grey" (click)="onModelCommit.emit()" title="Commit changes">
                <i class="fa fa-code-commit"> </i>
            </button>
-           <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
-               <i class="fa fa-file-excel-o"> </i>
-           </button>
            <button id="exportExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('excel')" title="Export Excel model">
                 <i class="fa fa-table"> </i> 
+           </button>           
+           <button id="exportJSONLDBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json-ld')" title="Export JSON-LD model">
+                <i class="fa fa-file-text"> </i> 
            </button>
-           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json')" title="Save model">
+           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json')" title="Save JSON model">
                 <i class="fa fa-save"> </i> 
            </button>
         </section>
@@ -66,7 +70,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 	`]
 })
 export class MainToolbar {
-    @Input()  showRepoPanel;
+    @Input() showRepoPanel;
     @Output() onCreateModel      = new EventEmitter();
     @Output() onLoadModel        = new EventEmitter();
     @Output() onJoinModel        = new EventEmitter();

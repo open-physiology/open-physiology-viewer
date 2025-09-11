@@ -458,8 +458,8 @@
             }
           ]
         },
-        "laterals": {
-          "description": "Chains created by lateralization of this chain",
+        "specializations": {
+          "description": "Chains created by modification of this chain",
           "type": "array",
           "items": {
             "anyOf": [
@@ -470,10 +470,10 @@
                 "$ref": "#/definitions/Chain"
               }
             ],
-            "relatedTo": "lateralOf"
+            "relatedTo": "specializationOf"
           }
         },
-        "lateralOf": {
+        "specializationOf": {
           "description": "A chain used as prototype for the generation of this chain",
           "anyOf": [
             {
@@ -482,7 +482,8 @@
             {
               "$ref": "#/definitions/Chain"
             }
-          ]
+          ],
+           "relatedTo": "specializations"
         }
       }
     },

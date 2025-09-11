@@ -51,6 +51,7 @@ import {removeDisconnectedObjects} from '../view/render/autoLayout'
 import config from "../data/config.json";
 import {layouts} from "../layouts/layouts";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {addJSONLDType, getJSONLDContext} from "../model/utilsJSONLD";
 
 enableProdMode();
 
@@ -377,16 +378,34 @@ export class DemoApp {
     }
 
     save(format) {
-        if (format === "excel") {
-            jsonToExcel(this._model);
-        } else {
-            if (this._scaffoldUpdated) {
-                this.saveScaffoldUpdates();
-                this._scaffoldUpdated = false;
-            }
-            let result = JSON.stringify(this._model, null, 4);
-            const blob = new Blob([result], {type: 'text/plain'});
-            FileSaver.saveAs(blob, this._model.id + '-model.json');
+        switch (format) {
+            case "excel":
+                jsonToExcel(this._model);
+                break;
+
+            case "json":
+                if (this._scaffoldUpdated) {
+                    this.saveScaffoldUpdates();
+                    this._scaffoldUpdated = false;
+                }
+                const result = JSON.stringify(this._model, null, 4);
+                const blob = new Blob([result], {type: "text/plain"});
+                FileSaver.saveAs(blob, `${this._model.id}-model.json`);
+                break;
+
+            case "json-ld":
+                let jsonLDModel = getJSONLDContext(this._model);
+                (this._model.materials || []).forEach(obj => jsonLDModel["@graph"].push(addJSONLDType(obj)));
+                (this._model.lyphs || []).forEach(obj => jsonLDModel["@graph"].push(addJSONLDType(obj)));
+
+                const result2 = JSON.stringify(jsonLDModel, null, 2);
+                const blob2 = new Blob([result2], {type: 'application/ld+json'});
+                FileSaver.saveAs(blob2, `${this._model.id}-model-ld.jsonld`);
+                break;
+
+            default:
+                this.showErrorMessage("Unknown export format!");
+                break;
         }
     }
 

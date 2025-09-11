@@ -11652,7 +11652,7 @@
             "lyph-cardiovascular-renal-arcuate-vein",
             "lyph-cardiovascular-renal-interlobar-vein"
           ],
-          "laterals": [
+          "specializations": [
             "left_chain-renal-internal-blood-vessels",
             "right_chain-renal-internal-blood-vessels"
           ]
@@ -11702,7 +11702,7 @@
             "left_lyph-cardiovascular-renal-arcuate-vein",
             "left_lyph-cardiovascular-renal-interlobar-vein"
           ],
-          "lateralOf": "chain-renal-internal-blood-vessels",
+          "specializationOf": "chain-renal-internal-blood-vessels",
           "root": "root_left_chain-renal-internal-blood-vessels",
           "leaf": "leaf_left_chain-renal-internal-blood-vessels"
         },
@@ -11722,7 +11722,7 @@
             "right_lyph-cardiovascular-renal-arcuate-vein",
             "right_lyph-cardiovascular-renal-interlobar-vein"
           ],
-          "lateralOf": "chain-renal-internal-blood-vessels",
+          "specializationOf": "chain-renal-internal-blood-vessels",
           "root": "root_right_chain-renal-internal-blood-vessels",
           "leaf": "leaf_right_chain-renal-internal-blood-vessels"
         },
@@ -11761,7 +11761,7 @@
             "left_lyph-urinary-proximal-straight-tubule_1",
             "left_lyph-renal-Bowmans-capsule"
           ],
-          "lateralOf": "chain-urinary-tail",
+          "specializationOf": "chain-urinary-tail",
           "hidden": false,
           "wiredTo": "fd:w-U-f3K-left"
         },
@@ -11791,7 +11791,7 @@
             "right_lyph-urinary-proximal-straight-tubule_1",
             "right_lyph-renal-Bowmans-capsule"
           ],
-          "lateralOf": "chain-urinary-tail",
+          "specializationOf": "chain-urinary-tail",
           "hidden": false,
           "wiredTo": "fd:w-U-f3K-right"
         },

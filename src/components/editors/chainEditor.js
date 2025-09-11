@@ -395,22 +395,22 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
-    collectLaterals() {
+    collectSpecializations() {
         const missing = new Set();
         (this._model?.chains || []).forEach(chain => {
-            if (chain.lateralOf) {
-                let supertype = this.entitiesByID[chain.lateralOf];
+            if (chain.specializationOf) {
+                let supertype = this.entitiesByID[chain.specializationOf];
                 if (supertype) {
                     supertype._subtypes = supertype._subtypes || [];
                     if (!supertype._subtypes.find(x => x.id === chain.id)) {
                         supertype._subtypes.push(chain);
                     }
-                    chain._supertype = chain.lateralOf;
+                    chain._supertype = chain.specializationOf;
                 } else {
-                    missing.add(chain.lateralOf)
+                    missing.add(chain.specializationOf)
                 }
             }
-            (chain.laterals || []).forEach(subtypeID => {
+            (chain.specializations || []).forEach(subtypeID => {
                 const subtype = this.entitiesByID[subtypeID];
                 if (subtype) {
                     chain._subtypes = chain._subtypes || [];
@@ -429,7 +429,7 @@ export class ChainEditorComponent extends ResourceEditor {
     }
 
     prepareGroupedChainList() {
-        this.collectLaterals();
+        this.collectSpecializations();
         const mapToNodes = (objOrID, parent, idx) => {
             if (!objOrID) return {};
             let resource = objOrID.id ? objOrID : this.entitiesByID[objOrID];
@@ -821,9 +821,10 @@ export class ChainEditorComponent extends ResourceEditor {
         const N = chainPrototype.numLevels;
 
         const chainDef = defineNewResource({
-            [$Field.id]: chainPrototype.id,
+            [$Field.id]: chainPrototype.id, //The identifier is auto-created by appending counter
             [$Field.name]: chainPrototype.name,
             [$Field.lyphs]: new Array(N),
+            [$Field.specializationOf]: chainPrototype.id, //Keep the reference to the original chain
             "_class": $SchemaClass.Chain
         }, this.entitiesByID);
 
@@ -1380,8 +1381,8 @@ export class ChainEditorComponent extends ResourceEditor {
             // delete chain.root;
             // delete chain.leaf;
 
-            if (chain.laterals) delete chain.laterals; // Remove cloned prototype's laterals
-            chain.lateralOf = this.selectedChain.id;
+            delete chain.specializations; // Remove cloned prototype's specializations
+            chain.specializationOf = this.selectedChain.id;
 
             // Put lateral copy to the common group
             let groups = (this._model.groups || []).filter(g => g.id.startsWith($Prefix.gParts) && (g.chains || []).find(c => c === this.selectedChain.id));

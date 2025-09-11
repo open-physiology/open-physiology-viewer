@@ -45,8 +45,8 @@ import {defaults, isObject, flatten, isString, values, merge, clone} from 'lodas
  * @property {Node} root
  * @property {Node} leaf
  * @property chainTopology
- * @property {Array<Chain>} laterals
- * @property {Chain} lateralOf
+ * @property {Array<Chain>} specializations
+ * @property {Chain} specializationOf
  * @property {Lyph} housingLyphTemplates
  * @property {boolean} radial,
  * @property {Chain} generatedFrom

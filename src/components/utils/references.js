@@ -103,8 +103,8 @@ export class References {
     static clearChainRefs(model, chainID) {
         (model.nodes || []).forEach(node => this.clearOne(node, [$Field.rootOf, $Field.leafOf], chainID));
         (model.chains || []).forEach(chain => {
-            this.clearMany(chain, [$Field.laterals], chainID);
-            this.clearOne(chain, [$Field.lateralOf], chainID);
+            this.clearMany(chain, [$Field.specializations], chainID);
+            this.clearOne(chain, [$Field.specializationOf], chainID);
         });
         (model.links || []).forEach(link => this.clearMany(link, [$Field.levelIn], chainID));
         (model.lyphs || []).forEach(lyph => {
