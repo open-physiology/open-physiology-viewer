@@ -3,9 +3,8 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {MatDialog} from "@angular/material/dialog";
 import {EventEmitter, Output} from "@angular/core";
 import {DiffDialog} from "../dialogs/diffDialog";
-import {$Field, $SchemaClass, getGenName} from "../../model";
-import {defineNewResource, LYPH_TOPOLOGY} from "../../model/utils";
-import {MaterialNode} from "./materialEditor";
+import {$Field, $SchemaClass} from "../../model";
+import {defineNewResource} from "../../model/utils";
 
 export class ResourceEditor {
     _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];

@@ -1,5 +1,6 @@
-import {entries, isObject, merge, values} from "lodash-bound";
+import {clone, entries, isObject, merge, values} from "lodash-bound";
 import schema from "./graphScheme.json";
+import {getFullID} from "./utils";
 
 let baseContext = {
     "@version": 1.1,
@@ -78,9 +79,22 @@ export function addJSONLDType(obj) {
     return obj;
 }
 
-export function getJSONLDContext(inputModel) {
-    const m = "https://apinatomy.org/uris/models/";
-    const uri = m.concat(inputModel.id);
+export function addJSONLDTypeDef(obj, cls, model, baseURL) {
+    let resource = obj::clone();
+    resource.class = cls;
+    if (resource.class === "OntologyTerm"){
+        resource["@type"] = "owl:Class"
+     } else {
+        resource.fullID = getFullID(model.namespace, resource.id);
+        resource["@type"] = "owl:NamedIndividual";
+        // resource["@id"] = baseURL.concat(model.id).concat("/ids/").concat(resource.id);
+        // delete resource.id;
+    }
+    return resource;
+}
+
+export function getJSONLDContext(inputModel, baseURL) {
+    const uri = baseURL.concat(inputModel.id);
 
     let curiesContext = {};
     (inputModel.localConventions || []).forEach((obj) =>

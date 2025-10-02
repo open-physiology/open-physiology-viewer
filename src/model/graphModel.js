@@ -564,7 +564,7 @@ export class Graph extends Group {
      * Serialize the map of all resources to JSONLD
      */
     entitiesToJSONLD() {
-        let res = getJSONLDContext(this);
+        let res = getJSONLDContext(this, "https://apinatomy.org/uris/models/");
         (this.entitiesByID || {})::values()
             .forEach(obj => res["@graph"].push((obj instanceof Resource) ? addJSONLDType(obj.toJSON()) : obj));
         return res;
