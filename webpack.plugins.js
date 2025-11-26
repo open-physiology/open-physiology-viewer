@@ -27,6 +27,8 @@ module.exports = [
         outputFilename: 'meta/licenses-all.txt'
     }),
     new webpack.DefinePlugin({
-        'process.env.GITHUB_TOKEN': JSON.stringify(process.env.GITHUB_TOKEN)
+        'process.env.GITHUB_TOKEN': JSON.stringify(process.env.GITHUB_TOKEN),
+        'process.env.OPENAI_API_KEY': JSON.stringify(process.env.OPENAI_API_KEY),
+        'process.env.ANTHROPIC_API_KEY': JSON.stringify(process.env.ANTHROPIC_API_KEY)
     })
 ];

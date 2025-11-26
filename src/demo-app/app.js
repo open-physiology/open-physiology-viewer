@@ -1,7 +1,7 @@
 import {NgModule, Component, ErrorHandler, ChangeDetectionStrategy} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
-import {MatDialogModule} from '@angular/material/dialog';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatListModule} from '@angular/material/list'
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -28,6 +28,7 @@ import {enableProdMode} from '@angular/core';
 
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {AppCommon} from "../components/appCommon";
+import {HttpClient, HttpClientModule} from "@angular/common/http";
 
 enableProdMode();
 
@@ -195,6 +196,11 @@ enableProdMode();
     `]
 })
 export class DemoApp extends AppCommon {
+
+    constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
+        super(dialog, snackBar, http);
+    }
+
     ngAfterViewInit() {
         this.model = defaultTestModel;
     }
@@ -206,7 +212,8 @@ export class DemoApp extends AppCommon {
 @NgModule({
     imports: [BrowserModule, WebGLSceneModule, BrowserAnimationsModule,
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule,
-        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MatProgressSpinnerModule],
+        MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MatProgressSpinnerModule,
+        HttpClientModule],
     declarations: [DemoApp, ImportDialog],
     bootstrap: [DemoApp],
     entryComponents: [ImportDialog],

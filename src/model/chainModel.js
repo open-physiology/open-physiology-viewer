@@ -649,6 +649,8 @@ export class Chain extends GroupTemplate {
                 } else {
                     if (chain.lyphs) {
                         let lyphs = refsToResources(chain.lyphs, parentGroup, $Field.lyphs, true);
+                        // Filter out empty/unresolved/faulty to avoid exception
+                        lyphs = lyphs.filter(x => x);
                         genChain.lyphs = lyphs.map(lyph => {
                             let targetLyph = {
                                 [$Field.id]: getGenID(lyph.id, genChainID)

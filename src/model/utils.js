@@ -71,6 +71,11 @@ export const ModelType = {
  * @property Graph
  */
 export const $SchemaClass = schema.definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
+
+/**
+ * @property created
+ * @property lastUpdated
+ */
 export const $Field = $SchemaClass::keys().map(className => schema.definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
 export const EDGE_GEOMETRY = schema.definitions.EdgeGeometryScheme.enum.map(r => [r.toUpperCase(), r])::fromPairs();

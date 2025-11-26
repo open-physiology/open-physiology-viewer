@@ -14,7 +14,7 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import {MainToolbarModule} from "../components/toolbars/mainToolbar";
 import {SnapshotToolbarModule} from "../components/toolbars/snapshotToolbar";
 import {StateToolbarModule} from "../components/toolbars/stateToolbar";
-import {LayoutEditorModule} from "../components/layoutEditor";
+// import {LayoutEditorModule} from "../components/layoutEditor";
 import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
@@ -35,7 +35,7 @@ import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/js/v4-shims";
 import "@fortawesome/fontawesome-free/css/v4-shims.css";
 
-import {$Field} from "../model/utils";
+import {$Field} from "../model";
 import {logger} from "../model/logger";
 import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/dialogs/importDialog";
@@ -46,6 +46,8 @@ import {MaterialEditorModule} from "../components/editors/materialEditor";
 import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
+import {AssistantPanelModule} from "../components/assistantPanel";
+import {HttpClient, HttpClientModule} from '@angular/common/http';
 
 enableProdMode();
 
@@ -77,12 +79,12 @@ const TAB_INDEX = {
             <span class="w3-bar-item" title="Source code">
 				<a href="https://github.com/open-physiology/open-physiology-viewer"><i class="fa fa-github"> </i></a>
 			</span>
-            <span *ngIf="version" class="w3-bar-item w3-right">{{version}}</span>
+            <span *ngIf="version" class="w3-bar-item w3-right">{{ version }}</span>
             <span class="w3-bar-item">
-                Model: {{_modelName}}
+                Model: {{ _modelName }}
             </span>
             <span *ngIf="_snapshot" class="w3-bar-item">
-                Snapshot model: {{_snapshot.name}}
+                Snapshot model: {{ _snapshot.name }}
             </span>
             <snapshot-toolbar id="snapshot-toolbar"
                               (onCreateSnapshot)="createSnapshot()"
@@ -137,116 +139,130 @@ const TAB_INDEX = {
                 </modelRepoPanel>
             </section>
 
-            <mat-tab-group animationDuration="0ms" #tabGroup>
-                <!--Viewer-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer</ng-template>
-                    <webGLScene #webGLScene
-                                [modelClasses]="modelClasses"
-                                [graphData]="_graphData"
-                                [config]="_config"
-                                [showChain]="_showChain"
-                                (onImportExternal)="importExternal($event)"
-                                (selectedItemChange)="onSelectedItemChange($event)"
-                                (highlightedItemChange)="onHighlightedItemChange($event)"
-                                (scaffoldUpdated)="onScaffoldUpdated($event)"
-                                (varianceReset)="applyChanges()"
-                                (editResource)="onEditResource($event)"
-                    >
-                    </webGLScene>
-                </mat-tab>
+            <section id="content-split" class="content-split">
+                <section class="main-content">
+                    <mat-tab-group animationDuration="0ms" #tabGroup>
+                        <!--Viewer-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
+                            <ng-template mat-tab-label><i class="fa fa-heartbeat"></i> Viewer</ng-template>
+                            <webGLScene #webGLScene
+                                        [modelClasses]="modelClasses"
+                                        [graphData]="_graphData"
+                                        [config]="_config"
+                                        [showChain]="_showChain"
+                                        (onImportExternal)="importExternal($event)"
+                                        (selectedItemChange)="onSelectedItemChange($event)"
+                                        (highlightedItemChange)="onHighlightedItemChange($event)"
+                                        (scaffoldUpdated)="onScaffoldUpdated($event)"
+                                        (varianceReset)="applyChanges()"
+                                        (editResource)="onEditResource($event)"
+                            >
+                            </webGLScene>
+                        </mat-tab>
 
-                <!--Relationship graph-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>
-                    <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Relationship graph</ng-template>
-                    <relGraph
-                            [graphData]="_graphData"
-                            [isActive]="relGraphTab.isActive">
-                    </relGraph>
-                </mat-tab>
+                        <!--Relationship graph-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>
+                            <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Relationship graph
+                            </ng-template>
+                            <relGraph
+                                    [graphData]="_graphData"
+                                    [isActive]="relGraphTab.isActive">
+                            </relGraph>
+                        </mat-tab>
 
-                <!--Layout editor-->
-                <mat-tab *ngIf="!!_model?.scaffolds" class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-wpforms"> </i>Layout</ng-template>
-                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
-                                title="Apply changes">
-                            <i class="fa fa-check"> </i>
-                        </button>
-                    </section>
-                    <section id="layout-editor">
-                        <layoutEditor
-                                [modelClasses]="modelClasses"
-                                [modelResources]="_graphData.entitiesByID || {}"
-                                [resource]="_model">
-                        </layoutEditor>
-                    </section>
-                </mat-tab>
+                        <!--Layout editor-->
+<!--                        TODO Needs fixing-->
+<!--                        <mat-tab *ngIf="!!_model?.scaffolds" class="w3-margin" [class.w3-threequarter]="showRepoPanel">-->
+<!--                            <ng-template mat-tab-label><i class="fa fa-wpforms"> </i>Layout</ng-template>-->
+<!--                            <div class="code-tab-container">-->
+<!--                                <section class="code-toolbar w3-bar-block vertical-toolbar">-->
+<!--                                    <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"-->
+<!--                                            title="Apply changes">-->
+<!--                                        <i class="fa fa-check"> </i>-->
+<!--                                    </button>-->
+<!--                                </section>-->
+<!--                                <section id="layout-editor">-->
+<!--                                    <layoutEditor-->
+<!--                                            [modelClasses]="modelClasses"-->
+<!--                                            [modelResources]="_graphData.entitiesByID || {}"-->
+<!--                                            [resource]="_model">-->
+<!--                                    </layoutEditor>-->
+<!--                                </section>-->
+<!--                            </div>-->
+<!--                        </mat-tab>-->
 
-                <!--Code editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
-                    <ng-template mat-tab-label><i class="fa fa-edit"></i> Code</ng-template>
-                    <section class="w3-sidebar w3-bar-block w3-right vertical-toolbar" style="right:0">
-                        <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()"
-                                title="Apply changes">
-                            <div style="display: flex">
-                                <i class="fa fa-check"> </i>
-                                <span *ngIf="codeChanged" style="color: red">*</span>
+                        <!--Code editor-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel">
+                            <ng-template mat-tab-label><i class="fa fa-edit"></i> Code</ng-template>
+                            <div class="code-tab-container">
+                                <section class="code-toolbar w3-bar-block vertical-toolbar">
+                                    <button class="w3-bar-item w3-hover-light-grey" (click)="applyJSONEditorChanges()"
+                                            title="Apply changes">
+                                        <div style="display: flex">
+                                            <i class="fa fa-check"> </i>
+                                            <span *ngIf="codeChanged" style="color: red">*</span>
+                                        </div>
+                                    </button>
+                                </section>
+                                <section #jsonEditor id="json-editor" (change)="codeChanged = true">
+                                </section>
                             </div>
-                        </button>
-                    </section>
-                    <section #jsonEditor id="json-editor" (change)="codeChanged = true">
-                    </section>
-                </mat-tab>
+                        </mat-tab>
 
-                <!--Material editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor</ng-template>
-                    <materialEditor
-                            [model]="_model"
-                            [selectedNode]="_selectedResources['material']"
-                            (onChangesSave)="applyEditorChanges($event, 'material')"
-                            (onSwitchEditor)="switchEditor($event)"
-                    >
-                    </materialEditor>
-                </mat-tab>
+                        <!--Material editor-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
+                            <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor</ng-template>
+                            <materialEditor
+                                    [model]="_model"
+                                    [selectedNode]="_selectedResources['material']"
+                                    (onChangesSave)="applyEditorChanges($event, 'material')"
+                                    (onSwitchEditor)="switchEditor($event)"
+                            >
+                            </materialEditor>
+                        </mat-tab>
 
-                <!--Lyph editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor</ng-template>
-                    <lyphEditor
-                            [model]="_model"
-                            [selectedNode]="_selectedResources['lyph']"
-                            (onChangesSave)="applyEditorChanges($event, 'lyph')"
-                            (onSwitchEditor)="switchEditor($event)"
-                    >
-                    </lyphEditor>
-                </mat-tab>
+                        <!--Lyph editor-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
+                            <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor</ng-template>
+                            <lyphEditor
+                                    [model]="_model"
+                                    [selectedNode]="_selectedResources['lyph']"
+                                    (onChangesSave)="applyEditorChanges($event, 'lyph')"
+                                    (onSwitchEditor)="switchEditor($event)"
+                            >
+                            </lyphEditor>
+                        </mat-tab>
 
-                <!--Chain editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor</ng-template>
-                    <chainEditor
-                            [model]="_model"
-                            [selectedNode]="_selectedResources['chain']"
-                            (onChangesSave)="applyEditorChanges($event, 'chain')"
-                            (onSwitchEditor)="switchEditor($event)"
-                            (onShowInTheViewer)="showSelectedChain($event)"
-                    >
-                    </chainEditor>
-                </mat-tab>
+                        <!--Chain editor-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
+                            <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor</ng-template>
+                            <chainEditor
+                                    [model]="_model"
+                                    [selectedNode]="_selectedResources['chain']"
+                                    (onChangesSave)="applyEditorChanges($event, 'chain')"
+                                    (onSwitchEditor)="switchEditor($event)"
+                                    (onShowInTheViewer)="showSelectedChain($event)"
+                            >
+                            </chainEditor>
+                        </mat-tab>
 
-                <!--Coalescence editor-->
-                <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
-                    <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor</ng-template>
-                    <coalescenceEditor
-                            [model]="_model"
-                            [selectedNode]="_selectedResources['coalescence']"
-                            (onChangesSave)="applyEditorChanges($event, 'coalescence')"
-                            (onSwitchEditor)="switchEditor($event)">
-                    </coalescenceEditor>
-                </mat-tab>
-            </mat-tab-group>
+                        <!--Coalescence editor-->
+                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
+                            <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor</ng-template>
+                            <coalescenceEditor
+                                    [model]="_model"
+                                    [selectedNode]="_selectedResources['coalescence']"
+                                    (onChangesSave)="applyEditorChanges($event, 'coalescence')"
+                                    (onSwitchEditor)="switchEditor($event)">
+                            </coalescenceEditor>
+                        </mat-tab>
+                    </mat-tab-group>
+                </section>
+                <div class="resizer" title="Drag to resize" (mousedown)="startResizing($event)"></div>
+                <aside class="assistant-pane" [style.width.px]="assistantWidth">
+                    <assistant-panel [model]="_model"></assistant-panel>
+                </aside>
+            </section>
         </section>
         <!-- Model loading progress bar -->
         <div *ngIf="loading" class="loading-overlay">
@@ -276,11 +292,63 @@ const TAB_INDEX = {
             width: 48px;
         }
 
+        /* Code tab scoped container so the Apply button stays at the right edge of the editor,
+           and still to the left of the AI assistant pane */
+        .code-tab-container {
+            position: relative;
+            height: 100%;
+        }
+
+        .code-toolbar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 48px;
+        }
+
         #main-panel {
             margin-top: 40px;
             margin-left: 48px;
             width: calc(100% - 48px);
             height: 90vh
+        }
+
+        /* Split layout: editors/views on the left, assistant on the right */
+        .content-split {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .main-content {
+            flex: 1 1 auto;
+            min-width: 0; /* allow mat tabs to shrink within flex */
+            height: 100%;
+        }
+
+        .assistant-pane {
+            flex: 0 0 auto;
+            height: 100%;
+            max-width: 70vw;
+            border-left: 1px solid #ddd;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .resizer {
+            flex: 0 0 6px;
+            cursor: col-resize;
+            background: #f1f1f1;
+            border-left: 1px solid #e0e0e0;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .resizer:hover {
+            background: #e7e7e7;
         }
 
         #main-panel mat-tab-group {
@@ -339,6 +407,50 @@ export class MainApp extends AppCommon {
 
     @ViewChild('jsonEditor') _container: ElementRef;
     @ViewChild('tabGroup') _tabGroup: ElementRef;
+
+    constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
+        super(dialog, snackBar, http);
+    }
+
+    // Assistant pane sizing state
+    assistantWidth = 380; // px
+    minAssistantWidth = 24; // allow minimizing to a slim bar
+    maxAssistantWidth = 700;
+    _resizing = false;
+    _startX = 0;
+    _startWidth = 0;
+
+    // Mouse move and up handlers bound as arrow functions to preserve context
+    _onMouseMove = (e) => {
+        if (!this._resizing) return;
+        const deltaX = e.clientX - this._startX;
+        const newWidth = this._startWidth - deltaX; // dragging right shrinks, left expands
+        this.assistantWidth = this._clamp(newWidth, this.minAssistantWidth, this.maxAssistantWidth);
+    };
+
+    _onMouseUp = () => {
+        if (!this._resizing) return;
+        this._resizing = false;
+        window.removeEventListener('mousemove', this._onMouseMove);
+        window.removeEventListener('mouseup', this._onMouseUp);
+    };
+
+    startResizing(event) {
+        this._resizing = true;
+        this._startX = event.clientX;
+        this._startWidth = this.assistantWidth;
+        window.addEventListener('mousemove', this._onMouseMove);
+        window.addEventListener('mouseup', this._onMouseUp);
+    }
+
+    _clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    ngOnDestroy() {
+        window.removeEventListener('mousemove', this._onMouseMove);
+        window.removeEventListener('mouseup', this._onMouseUp);
+    }
 
     ngAfterViewInit() {
         if (!this._container) return;
@@ -418,9 +530,10 @@ export class MainApp extends AppCommon {
  */
 @NgModule({
     imports: [BrowserModule, WebGLSceneModule, BrowserAnimationsModule,
-        RelGraphModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule, LayoutEditorModule,
+        RelGraphModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule,
+        //LayoutEditorModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, MatProgressSpinnerModule],
+        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, AssistantPanelModule, MatProgressSpinnerModule, HttpClientModule],
     declarations: [MainApp, ImportDialog],
     bootstrap: [MainApp],
     entryComponents: [ImportDialog],

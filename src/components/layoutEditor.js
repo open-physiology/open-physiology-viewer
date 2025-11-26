@@ -65,7 +65,7 @@ import {entries} from "lodash-bound";
                                     </section>
                                     <section class="w3-half"> 
                                         <mat-select
-                                                placeholder="resource"
+                                                placeholder="[select resource]"
                                                 [value]="value"
                                                 (selectionChange)="updateValue($event.value, scaffoldResource, field[0])">
                                             <mat-option *ngFor="let option of selectOptions(field[0])" [value]="option">
@@ -104,7 +104,7 @@ export class LayoutEditor {
 
     _scaffoldRelationships = {
         [$Field.anchors]: $Field.anchoredNode,
-        [$Field.wires]  : $Field.wiredChain,
+        [$Field.wires]  : $Field.wiredChains,
         [$Field.regions]: $Field.hostedGroup
     };
 
@@ -156,16 +156,17 @@ export class LayoutEditor {
         let prop = this._resourceRelationships[fieldName];
         let relatedProp = this._scaffoldRelationships[fieldName];
         if (!prop || !relatedProp){
-            throw new Error("Unknown resource-scaffold relationship!");
+            throw new Error(`Unknown resource-scaffold relationship ${fieldName}`);
         }
         let sResource = this.modelResources[scaffoldResource.id];
         if (!sResource) {
             throw new Error("Failed to find scaffold resource!");
         }
-        if (modelResource == null){
+        if (modelResource === null){
             delete scaffoldResource[relatedProp];
             delete sResource[relatedProp];
         } else {
+            // TODO Wires -> wiredChains is an array, needs fixing
             sResource[relatedProp] = modelResource;
             scaffoldResource[relatedProp] = modelResource.id;
             modelResource[prop] = scaffoldResource.id;

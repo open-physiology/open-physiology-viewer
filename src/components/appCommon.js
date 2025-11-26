@@ -4,10 +4,10 @@ import {
     generateFromJSON,
     getGenID,
     getGenName,
-    isScaffold,
+    isScaffold, isSnapshot,
     joinModels,
     jsonToExcel,
-    loadModel,
+    loadModel, processImports,
     schema
 } from "../model";
 import {removeDisconnectedObjects} from "../view/render/autoLayout";
@@ -16,14 +16,17 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {HttpClient} from "@angular/common/http";
 import config from "../data/config.json";
 import {layouts} from "../layouts/layouts";
-import {findResourceByID, getFullID} from "../model/utils";
-import {clone, cloneDeep, keys, merge, pick} from "lodash-bound";
+import {findResourceByID, mergeResources} from "../model/utils";
+import {clone, cloneDeep, keys, merge, pick, isArray} from "lodash-bound";
 import {$LogMsg, logger} from "../model/logger";
 import {addJSONLDTypeDef, getJSONLDContext} from "../model/utilsJSONLD";
 import {environment} from "../version/environment";
 import {ElementRef, ViewChild} from "@angular/core";
 import {modelClasses,} from '../model/index';
 import FileSaver from 'file-saver';
+import {makeRequest} from "../api/github";
+import {ImportDialog} from "./dialogs/importDialog";
+import {isGraph} from "rdflib";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -31,6 +34,13 @@ export class AppCommon {
     modelClasses = modelClasses;
     showRepoPanel = false;
     _graphData;
+    /**
+     * @property layout
+     * @property showLabels
+     * @property labels
+     * @type {{}}
+     * @private
+     */
     _config = {};
     _model = {};
     _modelName;
@@ -71,7 +81,6 @@ export class AppCommon {
             this.model = removeDisconnectedObjects(this._model, newModel);
             this.applyScaffold(this._model, newModel);
         } else {
-            //FIXME (NK for MetaCell) As I understand, removeDisconnectedObjects works on scaffold applied to model
             //The code below joins 2 connectivity models or 2 scaffolds, your method breaks the join
             //this.model = removeDisconnectedObjects(this._model, newModel);
             let jointModel = joinModels(this._model, newModel, this._flattenGroups);
@@ -97,25 +106,6 @@ export class AppCommon {
             applyScaffold(modelB, modelA);
         } else {
             applyScaffold(modelA, modelB);
-        }
-    }
-
-    join(newModel) {
-        if (this._model.id === newModel.id) {
-            throw new Error("Cannot join models with the same identifiers: " + this._model.id);
-        }
-        if (isScaffold(this._model) !== isScaffold(newModel)) {
-            this.model = removeDisconnectedObjects(this._model, newModel);
-            this.applyScaffold(this._model, newModel);
-        } else {
-            //FIXME (NK for MetaCell) As I understand, removeDisconnectedObjects works on scaffold applied to model
-            //The code below joins 2 connectivity models or 2 scaffolds, your method breaks the join
-            //this.model = removeDisconnectedObjects(this._model, newModel);
-            let jointModel = joinModels(this._model, newModel, this._flattenGroups);
-            //NK config property is deprecated, merging with it was a bug caused by Master+Metacell conflict resolution mistake
-            jointModel::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
-            this.model = jointModel;
-            this._flattenGroups = true;
         }
     }
 
@@ -157,17 +147,6 @@ export class AppCommon {
                     }
                 }
             });
-        }
-    }
-
-    merge(newModel) {
-        if (isScaffold(this._model) !== isScaffold(newModel)) {
-            this.applyScaffold(this._model, newModel);
-        } else {
-            this.model = {
-                [$Field.created]: this.currentDate,
-                [$Field.lastUpdated]: this.currentDate
-            }::merge(this._model::mergeWith(newModel, mergeResources));
         }
     }
 
@@ -221,26 +200,6 @@ export class AppCommon {
         const COMMIT_MESSAGE = "Add/update JSON file via API";
         const BASE_URL = config.storageURL;
 
-        // Helper function to make API requests with XMLHttpRequest
-        function makeRequest(method, url, body = null, callback) {
-            const xhr = new XMLHttpRequest();
-            xhr.open(method, url, true);
-            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
-            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        callback(null, JSON.parse(xhr.responseText));
-                    } else {
-                        callback(`Error: ${xhr.status} - ${xhr.responseText}`, null);
-                    }
-                }
-            };
-            xhr.send(body ? JSON.stringify(body) : null);
-        }
-
         const commitJsonFile = () => {
             // Step 1: Check if the file exists to retrieve its SHA
             makeRequest(
@@ -268,7 +227,7 @@ export class AppCommon {
                             branch: BRANCH,
                             sha: fileSHA,
                         },
-                        (err, response) => {
+                        (err) => {
                             if (err) {
                                 console.error("❌ Error committing file:", err);
                                 throw Error("Error committing file!");
