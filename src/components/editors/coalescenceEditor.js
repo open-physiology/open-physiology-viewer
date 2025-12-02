@@ -307,12 +307,32 @@ export class CoalescenceEditorComponent extends ResourceEditor {
      * Create a new chain definition
      * @returns {{[p: string]: *, _class: *}}
      */
-    defineNewCoalescence() {
-        let newCoalescence = defineNewResource({
-            [$Field.id]: "_newCoalescence",
-            [$Field.name]: "New coalescence",
-            "_class": $SchemaClass.Coalescence
-        }, this.entitiesByID);
+    defineNewCoalescence(def) {
+        let newCoalescence;
+        if (def && typeof def === 'object') {
+            // Ensure unique id
+            let baseId = def.id || '_newCoalescence';
+            let candidate = baseId;
+            let idx = 1;
+            while (this.entitiesByID[candidate]) {
+                const m = (baseId.match(/^(.*?)(\d+)$/) || []);
+                if (m.length) {
+                    candidate = `${m[1]}${parseInt(m[2],10)+1}`;
+                } else {
+                    idx += 1;
+                    candidate = `_newCoalescence${idx}`;
+                }
+            }
+            def.id = candidate;
+            def._class = def._class || $SchemaClass.Coalescence;
+            newCoalescence = def;
+        } else {
+            newCoalescence = defineNewResource({
+                [$Field.id]: "_newCoalescence",
+                [$Field.name]: "New coalescence",
+                "_class": $SchemaClass.Coalescence
+            }, this.entitiesByID);
+        }
         this._model.coalescences = this._model.coalescences || [];
         this._model.coalescences.push(newCoalescence);
         this.entitiesByID[newCoalescence.id] = newCoalescence;
@@ -322,8 +342,8 @@ export class CoalescenceEditorComponent extends ResourceEditor {
     /**
      * Create a new chain
      */
-    createCoalescence() {
-        let chain = this.defineNewCoalescence();
+    createCoalescence(def) {
+        let chain = this.defineNewCoalescence(def);
         let node = ListNode.createInstance(chain);
         this.coalescenceList = [node, ...this.coalescenceList];
         this.saveStep("Create new chain " + chain.id);

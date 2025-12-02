@@ -886,10 +886,34 @@ export class MaterialEditorComponent extends ResourceEditor {
         return newMat;
     }
 
-    createMaterial() {
-        let newMat = this.defineNewMaterial();
+    createMaterial(def) {
+        let newMat;
+        if (def && typeof def === 'object') {
+            // Ensure id uniqueness
+            let baseId = def.id || 'newMat1';
+            let idx = 1;
+            let candidate = baseId;
+            while (this.entitiesByID[candidate]) {
+                const m = (baseId.match(/^(.*?)(\d+)$/) || []);
+                if (m.length) {
+                    candidate = `${m[1]}${parseInt(m[2],10)+1}`;
+                } else {
+                    idx += 1;
+                    candidate = `newMat${idx}`;
+                }
+            }
+            def.id = candidate;
+            def._class = def._class || $SchemaClass.Material;
+            // Insert into model and cache
+            this._model.materials = this._model.materials || [];
+            this._model.materials.push(def);
+            this.entitiesByID[def.id] = def;
+            newMat = def;
+        } else {
+            newMat = this.defineNewMaterial();
+        }
         this.graphD3.setNode(newMat.id, {
-            label: newMat.name,
+            label: newMat.name || newMat.id,
             class: CLASS.MATERIAL
         });
         this.inner.call(this.render, this.graphD3);

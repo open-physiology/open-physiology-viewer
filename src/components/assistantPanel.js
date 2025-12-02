@@ -1,10 +1,20 @@
-import {NgModule, Component, ChangeDetectionStrategy, Input, ViewChild, ElementRef} from '@angular/core';
+import {
+    NgModule,
+    Component,
+    ChangeDetectionStrategy,
+    Input,
+    ViewChild,
+    ElementRef,
+    Output,
+    EventEmitter
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
 import graphSchema from '../model/graphScheme.json';
-import { sendOpenAIChat } from '../api/openai';
-import { sendAnthropicChat } from '../api/anthropic';
+import {sendOpenAIChat} from '../api/openai';
+import {detectCreateIntent, parseResourceFromText} from '../api/llmUtils';
+import {sendAnthropicChat} from '../api/anthropic';
 
 /**
  * AssistantPanel provides a simple panel to compose requests to an AI coding assistant
@@ -23,8 +33,7 @@ import { sendAnthropicChat } from '../api/anthropic';
             <section class="top-pane">
                 <fieldset class="w3-card w3-round w3-margin-small fill">
                     <legend>Conversation</legend>
-                    <div class="conv-controls"><button class="w3-button w3-tiny w3-light-grey" (click)="scrollConversationTop()" title="Scroll to top"><i class="fa fa-arrow-up"></i></button><button class="w3-button w3-tiny w3-light-grey" (click)="scrollConversationBottom()" title="Scroll to bottom"><i class="fa fa-arrow-down"></i></button></div>
-                                        <mat-nav-list #convList class="conversation" (wheel)="$event.stopPropagation()">
+                    <mat-nav-list #convList class="conversation" (wheel)="$event.stopPropagation()">
                         <ng-container *ngIf="messages.length; else empty">
                             <mat-list-item *ngFor="let m of messages; let i = index">
                                 <div class="message" [ngClass]="m.role">
@@ -34,11 +43,34 @@ import { sendAnthropicChat } from '../api/anthropic';
                                         <span class="time">{{ m.time | date:'short' }}</span>
                                     </div>
                                     <div class="content">{{ m.content }}</div>
+                                    <div *ngIf="m.role === 'assistant' && m.parsedResource" class="w3-margin-top"
+                                         style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                        <ng-container *ngIf="m.parsedResource.items?.length > 1; else singleLabel">
+                                            <span class="w3-small w3-text-grey">Detected {{ m.parsedResource.items.length }}
+                                                resource definitions<span
+                                                        *ngIf="m.parsedResource.homogeneousType"> (all {{ m.parsedResource.homogeneousType }}
+                                                    s)</span>.</span>
+                                        </ng-container>
+                                        <ng-template #singleLabel>
+                                            <span class="w3-small w3-text-grey">Detected {{ m.parsedResource.type }}
+                                                definition.</span>
+                                        </ng-template>
+                                        <button class="w3-button w3-green w3-tiny" (click)="addParsedToModel(m)"
+                                                title="Add definition(s) directly to the model">Add to model
+                                        </button>
+                                        <button class="w3-button w3-blue w3-tiny"
+                                                [disabled]="!canAddViaEditor(m.parsedResource)"
+                                                (click)="addParsedViaEditor(m)" title="Add definition(s) via editors">
+                                            Add via editor
+                                        </button>
+                                    </div>
                                 </div>
                             </mat-list-item>
                         </ng-container>
                         <ng-template #empty>
-                            <div class="w3-padding-small w3-text-grey">No messages yet. Compose a request below and click Send.</div>
+                            <div class="w3-padding-small w3-text-grey">No messages yet. Compose a request below and
+                                click Send.
+                            </div>
                         </ng-template>
                     </mat-nav-list>
                 </fieldset>
@@ -55,26 +87,32 @@ import { sendAnthropicChat } from '../api/anthropic';
                         <textarea class="w3-input request-editor"
                                   [(ngModel)]="draft"
                                   placeholder="Describe your coding question or request here..."></textarea>
-                        <div class="w3-margin-top w3-right toolbar" style="display:flex; gap:8px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
+                        <div class="w3-margin-top w3-right toolbar"
+                             style="display:flex; gap:8px; align-items:center; flex-wrap: wrap; justify-content: flex-end;">
                             <label class="w3-small" title="Choose preferred assistant">
                                 Assistant:
-                                <select class="w3-select w3-border w3-small" [(ngModel)]="provider" style="width:auto; display:inline-block;">
+                                <select class="w3-select w3-border w3-small" [(ngModel)]="provider"
+                                        style="width:auto; display:inline-block;">
                                     <option value="ChatGPT">ChatGPT</option>
                                     <option value="Claude">Claude</option>
                                 </select>
                             </label>
                             <label class="w3-small" title="Include current JSON model in the context">
-                                <input type="checkbox" [(ngModel)]="includeModel" [ngModelOptions]="{standalone: true}" checked>
+                                <input type="checkbox" [(ngModel)]="includeModel" [ngModelOptions]="{standalone: true}"
+                                       checked>
                                 Include model
                             </label>
                             <label class="w3-small" title="Include JSON schema in the context">
-                                <input type="checkbox" [(ngModel)]="includeSchema" [ngModelOptions]="{standalone: true}" checked>
+                                <input type="checkbox" [(ngModel)]="includeSchema" [ngModelOptions]="{standalone: true}"
+                                       checked>
                                 Include schema
                             </label>
                             <button class="w3-button w3-blue w3-small" (click)="send()" [disabled]="!canSend()">
-                                <i class="fa fa-paper-plane" [ngClass]="{'fa-spin': isSending}"></i> {{ isSending ? 'Sending...' : 'Send' }}
+                                <i class="fa fa-paper-plane"
+                                   [ngClass]="{'fa-spin': isSending}"></i> {{ isSending ? 'Sending...' : 'Send' }}
                             </button>
-                            <button class="w3-button w3-light-grey w3-small" (click)="clearDraft()" [disabled]="!draft || isSending">
+                            <button class="w3-button w3-light-grey w3-small" (click)="clearDraft()"
+                                    [disabled]="!draft || isSending">
                                 <i class="fa fa-eraser"></i> Clear
                             </button>
                         </div>
@@ -90,6 +128,7 @@ import { sendAnthropicChat } from '../api/anthropic';
             display: flex;
             flex-direction: column;
         }
+
         /* Header styled similarly to Material tab labels */
         .assistant-header {
             display: flex;
@@ -100,27 +139,71 @@ import { sendAnthropicChat } from '../api/anthropic';
             border-bottom: 1px solid #e0e0e0;
             background: #fafafa;
             font-weight: 500;
-            color: rgba(0,0,0,0.87);
+            color: rgba(0, 0, 0, 0.87);
             letter-spacing: .01071em;
         }
+
         .assistant-icon {
             font-size: 16px;
             color: #616161;
         }
+
         .assistant-title {
             font-size: 14px;
             white-space: nowrap;
         }
-        fieldset { border: 1px solid grey; margin: 4px; position: relative; }
-        legend { padding: 0.2em 0.5em; border: 1px solid grey; color: grey; font-size: 90%; }
-        .fill { height: 100%; display: flex; flex-direction: column; }
 
-        .top-pane { flex: 1 1 auto; min-height: 80px; }
-        .bottom-pane { flex: 0 0 auto; min-height: 60px; overflow: hidden; }
+        fieldset {
+            border: 1px solid grey;
+            margin: 4px;
+            position: relative;
+        }
 
-        .editor-wrap { display: flex; flex-direction: column; height: 100%; }
-        .request-editor { width: 100%; flex: 1 1 auto; min-height: 60px; resize: none; }
-        .toolbar { flex: 0 0 auto; }
+        legend {
+            padding: 0.2em 0.5em;
+            border: 1px solid grey;
+            color: grey;
+            font-size: 90%;
+        }
+
+        .fill {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-pane {
+            flex: 1 1 auto;
+            min-height: 80px;
+        }
+
+        .top-pane .mat-list-item {
+            height: auto !important;
+            min-height: unset !important;
+        }
+
+        .bottom-pane {
+            flex: 0 0 auto;
+            min-height: 60px;
+            overflow: hidden;
+        }
+
+        .editor-wrap {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .request-editor {
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 60px;
+            resize: none;
+        }
+
+        .toolbar {
+            flex: 0 0 auto;
+        }
 
         .v-resizer {
             flex: 0 0 6px;
@@ -129,18 +212,54 @@ import { sendAnthropicChat } from '../api/anthropic';
             border-top: 1px solid #e0e0e0;
             border-bottom: 1px solid #e0e0e0;
         }
-        .v-resizer:hover { background: #e7e7e7; }
 
-        .conversation { height: 100%; overflow-y: auto; }
-        .conversation .content { font-size: 12px; line-height: 1.35; }
-        .message { width: 100%; }
-        .message .meta { font-size: 12px; color: #666; margin-bottom: 4px; display: flex; gap: 6px; align-items: center; }
-        .message.user .content { white-space: pre-wrap; background: #eef6ff; border-left: 3px solid #7ab3ff; padding: 6px; border-radius: 3px; }
-        .message.assistant .content { white-space: pre-wrap; background: #f4f4f4; border-left: 3px solid #9e9e9e; padding: 6px; border-radius: 3px; }
-        .conv-controls { position: absolute; top: 6px; right: 8px; display: flex; gap: 4px; z-index: 2; }
+        .v-resizer:hover {
+            background: #e7e7e7;
+        }
+
+        .conversation {
+            height: 100%;
+            overflow: auto;
+        }
+
+        .conversation .content {
+            font-size: 12px;
+            line-height: 1.35;
+        }
+
+        .message {
+            width: 100%;
+        }
+
+        .message .meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .message.user .content {
+            white-space: pre-wrap;
+            background: #eef6ff;
+            border-left: 3px solid #7ab3ff;
+            padding: 6px;
+            border-radius: 3px;
+        }
+
+        .message.assistant .content {
+            white-space: pre-wrap;
+            background: #f4f4f4;
+            border-left: 3px solid #9e9e9e;
+            padding: 6px;
+            border-radius: 3px;
+        }
     `]
 })
 export class AssistantPanel {
+    @Output() onOpenEditor = new EventEmitter();
+    @Output() onResourceFromAI = new EventEmitter();
     @Input() model;
     @ViewChild('convList') convList: ElementRef;
 
@@ -161,39 +280,51 @@ export class AssistantPanel {
     _startY = 0;
     _startHeight = 0;
 
-    canSend(){
+    canSend() {
         return !!(this.draft && this.draft.trim()) && !this.isSending;
     }
 
-    clearDraft(){
+    clearDraft() {
         this.draft = '';
     }
 
-    async send(){
+    async send() {
+        const intent = detectCreateIntent(this.draft);
+        if (intent) {
+            // Emit immediately to open the respective editor; keep normal send flow too
+            this.onOpenEditor.emit({editor: intent});
+        }
         const content = (this.draft || '').trim();
-        if (!content || this.isSending) { return; }
+        if (!content || this.isSending) {
+            return;
+        }
         const now = new Date();
-        this.messages.push({ role: 'user', content, time: now });
+        this.messages.push({role: 'user', content, time: now});
         this._scrollToBottomSoon();
         this.isSending = true;
 
         try {
             const context = {};
-            if (this.includeModel && this.model){ context.model = this.model; }
-            if (this.includeSchema){ context.schema = graphSchema; }
-
-            let replyText = '';
-            if (this.provider === 'Claude'){
-                replyText = await sendAnthropicChat({ prompt: content, context });
-            } else {
-                replyText = await sendOpenAIChat({ prompt: content, context });
+            if (this.includeModel && this.model) {
+                context.model = this.model;
+            }
+            if (this.includeSchema) {
+                context.schema = graphSchema;
             }
 
-            this.messages.push({ role: 'assistant', content: replyText, time: new Date() });
+            let replyText = '';
+            if (this.provider === 'Claude') {
+                replyText = await sendAnthropicChat({prompt: content, context});
+            } else {
+                replyText = await sendOpenAIChat({prompt: content, context});
+            }
+
+            const parsed = parseResourceFromText(replyText);
+            this.messages.push({role: 'assistant', content: replyText, time: new Date(), parsedResource: parsed});
             this._scrollToBottomSoon();
         } catch (err) {
             const msg = (err && err.message) ? err.message : String(err);
-            this.messages.push({ role: 'assistant', content: `Error: ${msg}`, time: new Date() });
+            this.messages.push({role: 'assistant', content: `Error: ${msg}`, time: new Date()});
         } finally {
             this.isSending = false;
             this.draft = '';
@@ -201,7 +332,7 @@ export class AssistantPanel {
     }
 
     // Vertical resize handlers
-    startVResize(event){
+    startVResize(event) {
         this._vResizing = true;
         this._startY = event.clientY;
         this._startHeight = this.editorHeight;
@@ -224,35 +355,69 @@ export class AssistantPanel {
     };
 
     // Conversation scroll helpers
-    scrollConversationTop(){
-        try {
-            const el = this.convList && this.convList.nativeElement;
-            if (el){ el.scrollTop = 0; }
-        } catch(e) {}
+    scrollConversationTop() {
+        if (this.convList) {
+            this.convList.scrollTop = 0;
+        }
     }
-    scrollConversationBottom(){
-        try {
-            const el = this.convList && this.convList.nativeElement;
-            if (el){ el.scrollTop = el.scrollHeight; }
-        } catch(e) {}
+
+    scrollConversationBottom() {
+        if (this.convList) {
+            this.convList.scrollTop = this.convList.scrollHeight;
+        }
     }
-    _isNearBottom(){
+
+    _isNearBottom() {
         const el = this.convList && this.convList.nativeElement;
         if (!el) return false;
         const threshold = 60; // px
         return (el.scrollHeight - el.scrollTop - el.clientHeight) <= threshold;
     }
-    _scrollToBottomSoon(){
+
+    _scrollToBottomSoon() {
         // Only auto-scroll if user is near the bottom already
         if (!this._isNearBottom()) return;
         setTimeout(() => this.scrollConversationBottom(), 0);
     }
 
-    _clamp(val, min, max){
+    _clamp(val, min, max) {
         return Math.max(min, Math.min(max, val));
     }
 
-    ngOnDestroy(){
+    canAddViaEditor(parsed) {
+        if (!parsed) return false;
+        // Editor batch allowed only if all same type and type is lyph or material
+        if (parsed.items?.length > 1) {
+            return parsed.homogeneousType === 'lyph' || parsed.homogeneousType === 'material';
+        }
+        // Single resource: allow editor for lyph or material only
+        return parsed.type === 'lyph' || parsed.type === 'material';
+    }
+
+    addParsedToModel(m) {
+        if (!m || !m.parsedResource) return;
+        const pr = m.parsedResource;
+        if (pr.items && pr.items.length) {
+            this.onResourceFromAI.emit({mode: 'model', items: pr.items, homogeneousType: pr.homogeneousType});
+        } else {
+            const {type, object} = pr;
+            this.onResourceFromAI.emit({mode: 'model', type, object});
+        }
+    }
+
+    addParsedViaEditor(m) {
+        if (!m || !m.parsedResource) return;
+        const pr = m.parsedResource;
+        if (pr.items && pr.items.length) {
+            // Only enabled if homogeneous lyph/material per canAddViaEditor
+            this.onResourceFromAI.emit({mode: 'editor', items: pr.items, homogeneousType: pr.homogeneousType});
+        } else {
+            const {type, object} = pr;
+            this.onResourceFromAI.emit({mode: 'editor', type, object});
+        }
+    }
+
+    ngOnDestroy() {
         window.removeEventListener('mousemove', this._onVMove);
         window.removeEventListener('mouseup', this._onVUp);
     }
@@ -263,4 +428,5 @@ export class AssistantPanel {
     declarations: [AssistantPanel],
     exports: [AssistantPanel]
 })
-export class AssistantPanelModule {}
+export class AssistantPanelModule {
+}

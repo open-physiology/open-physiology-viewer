@@ -47,6 +47,10 @@ import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
 import {AssistantPanelModule} from "../components/assistantPanel";
+import {MaterialEditorComponent} from "../components/editors/materialEditor";
+import {LyphEditorComponent} from "../components/editors/lyphEditor";
+import {ChainEditorComponent} from "../components/editors/chainEditor";
+import {CoalescenceEditorComponent} from "../components/editors/coalescenceEditor";
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 
 enableProdMode();
@@ -212,7 +216,7 @@ const TAB_INDEX = {
                         <!--Material editor-->
                         <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #matEditTab>
                             <ng-template mat-tab-label><i class="fa fa-cube"></i> Material editor</ng-template>
-                            <materialEditor
+                            <materialEditor #materialEd
                                     [model]="_model"
                                     [selectedNode]="_selectedResources['material']"
                                     (onChangesSave)="applyEditorChanges($event, 'material')"
@@ -224,7 +228,7 @@ const TAB_INDEX = {
                         <!--Lyph editor-->
                         <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
                             <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor</ng-template>
-                            <lyphEditor
+                            <lyphEditor #lyphEd
                                     [model]="_model"
                                     [selectedNode]="_selectedResources['lyph']"
                                     (onChangesSave)="applyEditorChanges($event, 'lyph')"
@@ -236,7 +240,7 @@ const TAB_INDEX = {
                         <!--Chain editor-->
                         <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
                             <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor</ng-template>
-                            <chainEditor
+                            <chainEditor #chainEd
                                     [model]="_model"
                                     [selectedNode]="_selectedResources['chain']"
                                     (onChangesSave)="applyEditorChanges($event, 'chain')"
@@ -249,7 +253,7 @@ const TAB_INDEX = {
                         <!--Coalescence editor-->
                         <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
                             <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor</ng-template>
-                            <coalescenceEditor
+                            <coalescenceEditor #coalEd
                                     [model]="_model"
                                     [selectedNode]="_selectedResources['coalescence']"
                                     (onChangesSave)="applyEditorChanges($event, 'coalescence')"
@@ -260,7 +264,10 @@ const TAB_INDEX = {
                 </section>
                 <div class="resizer" title="Drag to resize" (mousedown)="startResizing($event)"></div>
                 <aside class="assistant-pane" [style.width.px]="assistantWidth">
-                    <assistant-panel [model]="_model"></assistant-panel>
+                    <assistant-panel [model]="_model" 
+                                     (onOpenEditor)="openEditor($event)" 
+                                    (onResourceFromAI)="handleAIResource($event)">                        
+                    </assistant-panel>
                 </aside>
             </section>
         </section>
@@ -407,6 +414,10 @@ export class MainApp extends AppCommon {
 
     @ViewChild('jsonEditor') _container: ElementRef;
     @ViewChild('tabGroup') _tabGroup: ElementRef;
+    @ViewChild('materialEd') materialEd: MaterialEditorComponent;
+    @ViewChild('lyphEd') lyphEd: LyphEditorComponent;
+    @ViewChild('chainEd') chainEd: ChainEditorComponent;
+    @ViewChild('coalEd') coalEd: CoalescenceEditorComponent;
 
     constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
         super(dialog, snackBar, http);
@@ -513,6 +524,140 @@ export class MainApp extends AppCommon {
         this._selectedResources[editor] = node;
         if (['material', 'lyph', 'chain', 'coalescence'].includes(editor)) {
             this._tabGroup.selectedIndex = TAB_INDEX[editor];
+        }
+    }
+
+    openEditor({editor}) {
+        if (!editor) return;
+        if (['material','lyph','chain','coalescence'].includes(editor)){
+            this._selectedResources[editor] = null; // new item workflow
+            this._tabGroup.selectedIndex = TAB_INDEX[editor];
+        }
+    }
+
+    // Handle AI-produced resource definitions (single or batch)
+    handleAIResource(payload) {
+        const { mode } = payload || {};
+        if (!mode) return;
+
+        const ensureUniqueId = (arr, baseId, type) => {
+            let candidate = baseId || {lyph:'newLyph1', material:'newMat1', chain:'newChain1', coalescence:'newCoalescence1'}[type];
+            let idx = 1;
+            while ((arr || []).some(x => x.id === candidate)) {
+                const m = (candidate.match(/^(.*?)(\d+)$/) || []);
+                if (m.length) {
+                    candidate = `${m[1]}${parseInt(m[2],10)+1}`;
+                } else {
+                    idx += 1;
+                    const prefix = {lyph:'newLyph', material:'newMat', chain:'newChain', coalescence:'newCoalescence'}[type];
+                    candidate = `${prefix}${idx}`;
+                }
+            }
+            return candidate;
+        };
+
+        const addOneToModel = (type, object) => {
+            const plural = {lyph:'lyphs', material:'materials', chain:'chains', coalescence:'coalescences'}[type];
+            if (!plural) return;
+            this._model[plural] = this._model[plural] || [];
+            const cls = {lyph:'Lyph', material:'Material', chain:'Chain', coalescence:'Coalescence'}[type];
+            object._class = object._class || cls;
+            object.id = ensureUniqueId(this._model[plural], object.id, type);
+            this._model[plural].push(object);
+            this._selectedResources[type] = object.id;
+            this._tabGroup.selectedIndex = TAB_INDEX[type];
+        };
+
+        // MODE: add directly to model (supports mixed types and batches)
+        if (mode === 'model') {
+            try {
+                if (payload.items && payload.items.length) {
+                    let lastType = null;
+                    for (const {type, object} of payload.items) {
+                        addOneToModel(type, object);
+                        lastType = type;
+                    }
+                    if (lastType) { this._tabGroup.selectedIndex = TAB_INDEX[lastType]; }
+                } else {
+                    const { type, object } = payload;
+                    if (!type || !object) return;
+                    addOneToModel(type, object);
+                }
+                this.applyChanges();
+            } catch (e) {
+                console.error('Failed to add AI resource(s) to model', e);
+            }
+            return;
+        }
+
+        // MODE: add via editors
+        if (mode === 'editor') {
+            try {
+                if (payload.items && payload.items.length) {
+                    const ht = payload.homogeneousType;
+                    if (ht === 'material') {
+                        this._tabGroup.selectedIndex = TAB_INDEX['material'];
+                        for (const {object} of payload.items) {
+                            if (this.materialEd?.createMaterial) this.materialEd.createMaterial(object);
+                            else addOneToModel('material', object);
+                        }
+                        return;
+                    }
+                    if (ht === 'lyph') {
+                        this._tabGroup.selectedIndex = TAB_INDEX['lyph'];
+                        for (const {object} of payload.items) {
+                            if (this.lyphEd?.createLyph) this.lyphEd.createLyph(object);
+                            else addOneToModel('lyph', object);
+                        }
+                        return;
+                    }
+                    // If mixed or unsupported type for editor, fall back to model insertion
+                    for (const {type, object} of payload.items) {
+                        addOneToModel(type, object);
+                    }
+                    this.applyChanges();
+                    return;
+                }
+
+                // Single resource via editor
+                const { type, object } = payload;
+                if (!type || !object) return;
+                if (type === 'material' && this.materialEd && this.materialEd.createMaterial) {
+                    this._tabGroup.selectedIndex = TAB_INDEX['material'];
+                    this.materialEd.createMaterial(object);
+                    return;
+                }
+                if (type === 'lyph' && this.lyphEd && this.lyphEd.createLyph) {
+                    this._tabGroup.selectedIndex = TAB_INDEX['lyph'];
+                    this.lyphEd.createLyph(object);
+                    return;
+                }
+                if (type === 'chain' && this.chainEd && this.chainEd.createChain) {
+                    this._tabGroup.selectedIndex = TAB_INDEX['chain'];
+                    this.chainEd.createChain(object);
+                    return;
+                }
+                if (type === 'coalescence' && this.coalEd && this.coalEd.createCoalescence) {
+                    this._tabGroup.selectedIndex = TAB_INDEX['coalescence'];
+                    this.coalEd.createCoalescence(object);
+                    return;
+                }
+                // Fallback to model if no editor method
+                addOneToModel(type, object);
+                this.applyChanges();
+            } catch (e) {
+                console.error('Failed to add AI resource via editor, falling back to model', e);
+                try {
+                    if (payload.items && payload.items.length) {
+                        for (const {type, object} of payload.items) addOneToModel(type, object);
+                    } else if (payload.type && payload.object) {
+                        addOneToModel(payload.type, payload.object);
+                    }
+                    this.applyChanges();
+                } catch (err) {
+                    console.error('Fallback also failed', err);
+                }
+            }
         }
     }
 
