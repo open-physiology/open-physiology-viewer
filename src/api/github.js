@@ -8,15 +8,12 @@ function getGitHubHeaders(additional = {}) {
         'Accept': 'application/vnd.github.v3+json'
     }, additional);
 
-    // Prefer process.env.GITHUB_TOKEN (Node) or globalThis.GITHUB_TOKEN (if exposed)
     const token = (typeof process !== 'undefined' && process.env && process.env.GITHUB_TOKEN)
         ? process.env.GITHUB_TOKEN
         : (typeof globalThis !== 'undefined' ? globalThis.GITHUB_TOKEN : undefined);
 
     if (token) {
-        // Use Bearer for modern tokens
         headers['Authorization'] = `Bearer ${token}`;
-        // console.log('Using authenticated GitHub API requests');
     }
     return headers;
 }
@@ -46,24 +43,25 @@ export function makeRequest(method, url, headers = {}, body = null, callback = n
         const resultHeaders = {};
         // normalize headers access
         if (resp.headers && typeof resp.headers.forEach === 'function') {
-            resp.headers.forEach((value, key) => { resultHeaders[key] = value; });
+            resp.headers.forEach((value, key) => {
+                resultHeaders[key] = value;
+            });
         }
 
         // Try parse JSON if possible
-        let parsed;
+        let data;
         try {
-            parsed = JSON.parse(text);
+            data = JSON.parse(text);
         } catch (err) {
-            parsed = text;
+            data = text;
         }
 
         if (resp.ok) {
-            return { data: parsed, status: resp.status, headers: resultHeaders };
-    } else {
-            // include body for diagnostics
+            return {data: data, status: resp.status, headers: resultHeaders};
+        } else {
             const err = new Error(`Error ${resp.status}: ${text}`);
             err.status = resp.status;
-            err.body = parsed;
+            err.body = data;
             throw err;
         }
     });
@@ -88,40 +86,8 @@ export async function fetchGitHubAPI(url) {
 }
 
 /**
- * Fetch raw content (text) from a URL. Auth header included if token available.
- */
-export async function fetchRawContent(url) {
-    try {
-        const headers = getGitHubHeaders();
-        const resp = await fetch(url, { headers });
-        const text = await resp.text();
-        if (resp.ok) {
-            return text;
-        } else {
-            throw new Error(`Failed to fetch raw content (${resp.status}): ${text}`);
-        }
-    } catch (err) {
-        throw new Error(`Failed to fetch raw content: ${err.message || err}`);
-    }
-}
-
-/**
- * Extract a simple description from README-like content
- */
-function extractDescription(readmeContent) {
-    if (!readmeContent) return 'No description available';
-    const lines = readmeContent.split('\n');
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith('#')) continue;
-        if (trimmed.length > 0) return trimmed;
-    }
-    return 'No description available';
-}
-
-/**
  * Fetches models from the open-physiology/apinatomy-models repository under "models" directory.
- * Returns an array of { name, description, modelData, jsonUrl, pdfDocs }.
+ * Returns an array of { name, modelData}.
  */
 export async function fetchModelsFromGitHub() {
     const owner = 'open-physiology';
@@ -138,85 +104,34 @@ export async function fetchModelsFromGitHub() {
                 const modelName = dir.name;
                 try {
                     const modelContents = await fetchGitHubAPI(dir.url);
-                const readmeFile = modelContents.find(file => file.name && file.name.toLowerCase().match(/^readme\.(md|txt)$/i));
-                const sourceDir = modelContents.find(item => item.type === 'dir' && item.name.toLowerCase() === 'source');
-                    const docsDir = modelContents.find(item =>
-                        item.type === 'dir' && item.name.toLowerCase() === 'docs'
-                    );
-
-                    let description = 'No description available';
-                    let modelData = null;
-                    let jsonUrl = null;
-                let pdfDocs = [];
-
-                if (readmeFile && readmeFile.download_url) {
-                        try {
-                            const readmeContent = await fetchRawContent(readmeFile.download_url);
-                            description = extractDescription(readmeContent);
-                        } catch (err) {
-                        console.error(`Failed to fetch README for ${modelName}:`, err.message || err);
-                        }
-                    }
+                    const sourceDir = modelContents.find(item => item.type === 'dir' && item.name.toLowerCase() === 'source');
 
                     if (sourceDir) {
                         try {
                             const sourceContents = await fetchGitHubAPI(sourceDir.url);
-                        const jsonFile = (Array.isArray(sourceContents) ? sourceContents.find(f => f.name && f.name.endsWith('.json') && f.type === 'file') : null);
-                        if (jsonFile && jsonFile.download_url) {
-                            try {
-                                const jsonContent = await fetchRawContent(jsonFile.download_url);
-                                modelData = JSON.parse(jsonContent);
-                                jsonUrl = jsonFile.download_url;
-                            } catch (err) {
-                                console.error(`Failed to fetch or parse JSON for ${modelName}:`, err.message || err);
-                            }
+                            const jsonFile = (Array.isArray(sourceContents) ? sourceContents.find(f => f.name && f.name.endsWith('.json') && f.type === 'file') : null);
+                            if (jsonFile){
+                                return jsonFile;
                             }
                         } catch (err) {
-                        console.error(`Failed to read source directory for ${modelName}:`, err.message || err);
-                    }
-                }
-
-                if (docsDir) {
-                    try {
-                        const docsContents = await fetchGitHubAPI(docsDir.url);
-                        pdfDocs = (Array.isArray(docsContents) ? docsContents.filter(file => file.name && file.name.toLowerCase().endsWith('.pdf') && file.type === 'file').map(f => f.download_url) : []);
-                    } catch (err) {
-                        console.error(`Failed to read docs for ${modelName}:`, err.message || err);
+                            console.error(`Failed to read source directory for ${modelName}:`, err.message || err);
                         }
                     }
-
-                return { name: modelName, description, modelData, jsonUrl, pdfDocs };
                 } catch (err) {
-                console.error(`Error processing model ${modelName}:`, err.message || err);
-                return { name: modelName, description: 'Error loading model', modelData: null, jsonUrl: null, pdfDocs: [], error: err.message || String(err) };
+                    console.error(`Error processing model ${modelName}:`, err.message || err);
                 }
-        }));
-        return models;
-
+            }));
+        return models.filter(m => m);
     } catch (err) {
         console.error('Error fetching models from GitHub:', err);
         throw err;
     }
 }
 
-/**
- * Returns lightweight descriptions for models
- */
-export async function fetchModelDescriptions() {
-    const models = await fetchModelsFromGitHub();
-    return models.map(m => ({
-        name: m.name,
-        description: m.description,
-        jsonUrl: m.jsonUrl,
-        pdfDocs: m.pdfDocs || []
-    }));
-}
-
 // Export for use in browser or other environments
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         fetchModelsFromGitHub,
-        fetchModelDescriptions,
         makeRequest
     };
 }

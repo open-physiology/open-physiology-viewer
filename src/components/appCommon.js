@@ -190,7 +190,7 @@ export class AppCommon {
         }
     }
 
-    commit() {
+   commit() {
         const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
         if (!GITHUB_TOKEN) {
             throw Error("Set the GITHUB_TOKEN environment variable!");
@@ -199,6 +199,26 @@ export class AppCommon {
         const FILE_CONTENT = JSON.stringify(this._model, null, 4);
         const COMMIT_MESSAGE = "Add/update JSON file via API";
         const BASE_URL = config.storageURL;
+
+        // Helper function to make API requests with XMLHttpRequest
+        function makeRequest(method, url, body = null, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
+            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        callback(null, JSON.parse(xhr.responseText));
+                    } else {
+                        callback(`Error: ${xhr.status} - ${xhr.responseText}`, null);
+                    }
+                }
+            };
+            xhr.send(body ? JSON.stringify(body) : null);
+        }
 
         const commitJsonFile = () => {
             // Step 1: Check if the file exists to retrieve its SHA
@@ -227,7 +247,7 @@ export class AppCommon {
                             branch: BRANCH,
                             sha: fileSHA,
                         },
-                        (err) => {
+                        (err, response) => {
                             if (err) {
                                 console.error("❌ Error committing file:", err);
                                 throw Error("Error committing file!");

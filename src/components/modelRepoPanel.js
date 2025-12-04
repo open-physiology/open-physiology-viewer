@@ -1,4 +1,4 @@
-import {NgModule, Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {NgModule, Component, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
@@ -8,6 +8,7 @@ import {MatSelectModule} from "@angular/material/select";
 import {HttpClient} from "@angular/common/http";
 import config from '../data/config';
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {fetchModelsFromGitHub} from '../api/github';
 
 /**
  * @ignore
@@ -118,14 +119,23 @@ export class ModelRepoPanel {
         }
 
         try {
+            if (this.url === config.sparcContentURL) {
+                fetchModelsFromGitHub().then(models => {
+                   this.fileNames = (models||[]).map(m => m.name);
+                   (models||[]).forEach(m => this.models[m.name] = m);
+                })
+                .catch(e => {
+                    console.error(e);
+                    throw new Error("Failed to access the SPARC model repository.");
+                });
+                return;
+            }
+
             this.http.get(this.url).subscribe(res => {
                 this.fileNames = (res||[]).map(model => model.name);
                 this.fileNames = this.fileNames.filter(fileName => getFileExt(fileName) === "json" );
-                (res || []).forEach(model => {
-                    this.models[model.name] = model;
-                });
-            //TODO? get
-            })
+                (res || []).forEach(model => this.models[model.name] = model);
+            });
         } catch (e){
             throw new Error("Failed to access the model repository, please revise the repository URL.");
         }
