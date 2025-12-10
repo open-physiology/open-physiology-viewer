@@ -86,6 +86,12 @@ import {defineNewResource} from "../../model/utils";
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
+               <linkedResource
+                        [resource]="selectedCoalescence"
+                        [color]="COLORS.selectedBorder"
+                        [highlightColor]="COLORS.selected"
+                >
+                </linkedResource>
                 <linkedResource
                         [resource]="lyphToLink">
                 </linkedResource>

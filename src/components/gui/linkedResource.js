@@ -8,7 +8,7 @@ import {COLORS} from "../utils/colors";
         <div *ngIf="resource">
             <div class="resource-box w3-margin-top">
                 <div class="resource-boxContent">
-                    <div class="linked">
+                    <div class="linked" [style.border-color]="color || '#4CAF50'" [style.background-color]="highlightColor || null">
                         {{resource.id}} {{resource.name}}
                     </div>
                 </div>
@@ -23,7 +23,7 @@ import {COLORS} from "../utils/colors";
             font-weight: 500;
         }
         .linked {
-            border:3px solid #4CAF50;
+            border:3px solid;
             padding:8px 16px;
             border-radius:2px;
         }    
@@ -35,6 +35,8 @@ import {COLORS} from "../utils/colors";
  */
 export class LinkedResourcePanel {
     _resource;
+    @Input() color;
+    @Input() highlightColor;
 
     @Input('resource') set resource(aResource) {
         this._resource = aResource;

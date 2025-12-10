@@ -27,6 +27,7 @@ import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 import {limitLabel} from "../utils/helpers";
 import mprintResources from "../../data/mprint.json";
+import {MatTabsModule} from "@angular/material/tabs";
 
 /**
  * Css class names to represent ApiNATOMY resource classes
@@ -159,6 +160,12 @@ export class Edge {
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
                 <linkedResource
+                        [resource]="selectedMaterial"
+                        [color]="COLORS.selectedBorder"
+                        [highlightColor]="COLORS.selected"
+                >
+                </linkedResource>
+                <linkedResource
                         [resource]="matToLink">
                 </linkedResource>
                 <searchAddBar
@@ -173,13 +180,28 @@ export class Edge {
                         [externalSearchOptions]="externalSearchOptions"
                         (onValueChange)="updateProperty($event)"
                 ></resourceDeclaration>
-                <resourceListView
-                        listTitle="Lyphs"
-                        [showMenu]=false
-                        [listData]="lyphList"
-                        (onNodeClick)="switchEditor($event)"
-                >
-                </resourceListView>
+                <mat-tab-group animationDuration="0ms" #tabChainMethod>
+                    <mat-tab class="w3-margin">
+                        <!-- Lyphs -->
+                        <ng-template mat-tab-label>Lyphs</ng-template>
+                        <resourceListView
+                                listTitle="Lyphs"
+                                [showMenu]=false
+                                [listData]="lyphList"
+                                (onNodeClick)="switchEditor($event)"
+                        >
+                        </resourceListView>
+                    </mat-tab>
+                    <mat-tab class="w3-margin">
+                        <!-- Materials -->
+                        <ng-template mat-tab-label>Materials</ng-template>
+                        <resourceListView
+                                listTitle="Materials"
+                                [showMenu]=false
+                                [listData]="materialList">
+                        </resourceListView>
+                    </mat-tab>
+                </mat-tab-group>
             </section>
         </section>
         <section #tooltip class="tooltip"></section>
@@ -347,7 +369,6 @@ export class Edge {
 export class MaterialEditorComponent extends ResourceEditor {
     _helperFields = ['_class', '_generated', '_inMaterials', '_included'];
     CLASS = CLASS;
-    EDGE_CLASS = EDGE_CLASS;
 
     showTree = false;
     graphD3;
@@ -771,6 +792,7 @@ export class MaterialEditorComponent extends ResourceEditor {
                 }
             }
             this.prepareLyphList();
+            this.prepareMaterialList();
         }
     }
 
@@ -781,6 +803,18 @@ export class MaterialEditorComponent extends ResourceEditor {
                 this.lyphList.push(ListNode.createInstance(lyph));
             }
         });
+    }
+
+    prepareMaterialList() {
+        this.materialList = [];
+        if (this.selectedMaterial){
+            (this.selectedMaterial.materials||[]).forEach(
+                matID => {
+                    let mat = this.entitiesByID[matID] || matID;
+                    this.materialList.push(ListNode.createInstance(mat));
+                }
+            );
+        }
     }
 
     get selectedNode() {
@@ -810,6 +844,12 @@ export class MaterialEditorComponent extends ResourceEditor {
             hasChildren: (node.materials || []).length > 0
         }
         this.matMenuTrigger.openMenu();
+    }
+
+    saveStep(action) {
+        // Refresh material parts panel as it may change after editing
+        this.prepareMaterialList();
+        super.saveStep(action);
     }
 
     onEmptyClick() {
@@ -896,7 +936,7 @@ export class MaterialEditorComponent extends ResourceEditor {
             while (this.entitiesByID[candidate]) {
                 const m = (baseId.match(/^(.*?)(\d+)$/) || []);
                 if (m.length) {
-                    candidate = `${m[1]}${parseInt(m[2],10)+1}`;
+                    candidate = `${m[1]}${parseInt(m[2], 10) + 1}`;
                 } else {
                     idx += 1;
                     candidate = `newMat${idx}`;
@@ -1133,7 +1173,7 @@ export class MaterialEditorComponent extends ResourceEditor {
 }
 
 @NgModule({
-    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule,
+    imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule, MatTabsModule,
         MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule, LinkedResourceModule],
     declarations: [MaterialEditorComponent],
     exports: [MaterialEditorComponent]

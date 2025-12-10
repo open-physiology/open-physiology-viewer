@@ -5,8 +5,10 @@ import {EventEmitter, Output} from "@angular/core";
 import {DiffDialog} from "../dialogs/diffDialog";
 import {$Field, $SchemaClass} from "../../model";
 import {defineNewResource} from "../../model/utils";
+import {COLORS} from '../utils/colors.js'
 
 export class ResourceEditor {
+    COLORS = COLORS;
     _helperFields = ['_class', '_generated', '_subtypes', '_supertype', '_node', '_id'];
     _model;
     _snackBar;

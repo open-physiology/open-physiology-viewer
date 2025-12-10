@@ -72,7 +72,7 @@ import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSel
                         <div class="title w3-padding-small">Lyph template</div>
                         <div class="resource-box w3-margin-top">
                             <div class="resource-boxContent">
-                                {{selectedChain.lyphTemplate}}
+                                {{ selectedChain.lyphTemplate }}
                             </div>
                         </div>
                         <searchAddBar
@@ -104,7 +104,7 @@ import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSel
                                     [value]="levelOntologyTerm"
                                     (selectionChange)="updateLevelOntoTerm(i, $event.value)">
                                 <mat-option *ngFor="let option of cellOntoTerms" [value]="option.id">
-                                    {{option.name}} ({{option.id}})
+                                    {{ option.name }} ({{ option.id }})
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
@@ -207,6 +207,12 @@ import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSel
                 </section>
             </section>
             <section *ngIf="showPanel" class="w3-quarter w3-white settings-panel">
+                <linkedResource
+                        [resource]="selectedChain"
+                        [color]="COLORS.selectedBorder"
+                        [highlightColor]="COLORS.selected"
+                >
+                </linkedResource>
                 <!-- Select lyph to link -->
                 <linkedResource
                         [resource]="lyphToLink">
@@ -222,8 +228,8 @@ import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSel
                 <div class="resource-box" *ngIf="selectedLyph && (activeList === 'lyphs')">
                     <div class="resource-boxContent">
                         <div class="w3-padding w3-margin-bottom w3-border">
-                            <div class="w3-margin-bottom"><b>{{selectedLyph.name || selecledLyph.id}}</b></div>
-                            Level target: <b>{{selectedLyph._conveys?.target}}</b>
+                            <div class="w3-margin-bottom"><b>{{ selectedLyph.name || selecledLyph.id }}</b></div>
+                            Level target: <b>{{ selectedLyph._conveys?.target }}</b>
                         </div>
                     </div>
                 </div>
@@ -235,6 +241,17 @@ import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSel
                         (onCreateLateral)="createLateral($event)"
                 >
                 </chainDeclaration>
+
+                <!-- Supertype -->
+                <div *ngIf="selectedLyphSupertype">
+                    <span class="title w3-margin-left">Supertype</span>
+                    <linkedResource
+                            [resource]="selectedLyphSupertype"
+                            [color]="COLORS.tooltipBorder"
+                            [highlightColor]="COLORS.template">
+                    </linkedResource>
+                </div>
+
                 <lyphTreeView *ngIf="selectedLyph"
                               listTitle="Layers"
                               [ordered]="true"
@@ -511,6 +528,10 @@ export class ChainEditorComponent extends ResourceEditor {
         if (loops.length > 0) {
             this.showWarning("Loop is detected in the layer hierarchy of the following lyphs: " + loops.join(", "));
         }
+        if (this.selectedLyph) {
+            this.selectedLyphSupertype = this.entitiesByID[this.selectedLyph._supertype] || this.selectedLyph._supertype;
+        }
+
     }
 
     split(lyphNode, index) {
@@ -758,8 +779,8 @@ export class ChainEditorComponent extends ResourceEditor {
                 return;
             }
             let oldMaterialMap = ResourceMaps.getMaterials(oldLyph, this.entitiesByID);
-            let levels = Array.from(new Set((chainPrototype.levelOntologyTerms||[]))).filter(x => x);
-            if (levels.length === 0){
+            let levels = Array.from(new Set((chainPrototype.levelOntologyTerms || []))).filter(x => x);
+            if (levels.length === 0) {
                 levels = ["All levels"];
             }
 
@@ -782,21 +803,21 @@ export class ChainEditorComponent extends ResourceEditor {
         }
     }
 
-    reviseHierarchy(oldLyph, replacementMap){
+    reviseHierarchy(oldLyph, replacementMap) {
 
         const replaceLyph = (objOrID) => {
-            let obj = objOrID::isObject()? objOrID: this.entitiesByID[objOrID];
+            let obj = objOrID::isObject() ? objOrID : this.entitiesByID[objOrID];
             if (!obj) return oldLyph;
             //Replicating lyph
             let lyphDef = defineNewResource(obj::cloneDeep(), this.entitiesByID);
             let materialMap = replacementMap[obj.id] || [];
-            for (let i = 0; i < lyphDef.layers?.length; i++){
+            for (let i = 0; i < lyphDef.layers?.length; i++) {
                 if (materialMap[lyphDef.layers[i]]) {
                     lyphDef.layers[i] = materialMap[lyphDef.layers[i]];
                 }
                 //NK recursively revise layers?
             }
-            if (lyphDef._supertype){
+            if (lyphDef._supertype) {
                 let s = replaceLyph(lyphDef._supertype);
                 if (s?.id) {
                     lyphDef.supertype = s.id;
@@ -809,11 +830,11 @@ export class ChainEditorComponent extends ResourceEditor {
     }
 
     createChainFromPrototype(chainPrototype, replacementMapLevels) {
-        if (replacementMapLevels::keys().length === 0){
+        if (replacementMapLevels::keys().length === 0) {
             return;
         }
         let oldLyph = this.entitiesByID[chainPrototype.lyphTemplate];
-        if (!oldLyph){
+        if (!oldLyph) {
             this.showWarning("Failed to locate lyph template definition");
             return;
         }
@@ -833,10 +854,10 @@ export class ChainEditorComponent extends ResourceEditor {
         replacementMapLevels::entries().forEach(([level, replacementMap]) => {
 
             let reviseLyph = false;
-            (oldLyph.layers ||[]).forEach(layer => {
+            (oldLyph.layers || []).forEach(layer => {
                 if (replacementMap[layer.id]) reviseLyph = true;
             });
-            if (reviseLyph){
+            if (reviseLyph) {
                 newLyphs[level] = this.reviseHierarchy(oldLyph);
             } else {
                 let reviseHierarchy = false;
@@ -848,13 +869,13 @@ export class ChainEditorComponent extends ResourceEditor {
                         break;
                     }
                 }
-                newLyphs[level] = reviseHierarchy ? this.reviseHierarchy(oldLyph._supertype, replacementMap): oldLyph;
+                newLyphs[level] = reviseHierarchy ? this.reviseHierarchy(oldLyph._supertype, replacementMap) : oldLyph;
             }
         });
 
         const modifyLyphTemplate = (lyphDef, idx) => {
             let level = "All levels";
-            if ((chainPrototype.levelOntologyTerms||[]).length > idx && chainPrototype.levelOntologyTerms[idx]){
+            if ((chainPrototype.levelOntologyTerms || []).length > idx && chainPrototype.levelOntologyTerms[idx]) {
                 level = chainPrototype.levelOntologyTerms[idx];
             }
             let newLyph = newLyphs[level] || oldLyph;
@@ -862,7 +883,7 @@ export class ChainEditorComponent extends ResourceEditor {
                 if (newLyph.supertype) lyphDef.supertype = newLyph.supertype;
                 if (newLyph.layers) lyphDef.layers = newLyph.layers;
             }
-            return (lyphDef.id in this.entitiesByID)? this.entitiesByID[lyphDef.id].id: this.defineNewLyph(lyphDef).id;
+            return (lyphDef.id in this.entitiesByID) ? this.entitiesByID[lyphDef.id].id : this.defineNewLyph(lyphDef).id;
         }
 
         if (topology === LYPH_TOPOLOGY.CYST || topology === LYPH_TOPOLOGY.BAG2) {
@@ -883,12 +904,12 @@ export class ChainEditorComponent extends ResourceEditor {
                 [$Field.isTemplate]: true,
                 [$Field.topology]: LYPH_TOPOLOGY.BAG
             }, this.entitiesByID);
-            chainDef.lyphs[N-1] = modifyLyphTemplate(lyphDef, N-1);
+            chainDef.lyphs[N - 1] = modifyLyphTemplate(lyphDef, N - 1);
         }
         let n = chainDef.lyphs.filter(x => x).length;
         if (n > 0) {
             //TUBE
-             let lyphDef = defineNewResource({
+            let lyphDef = defineNewResource({
                 [$Field.id]: getGenID(oldLyph.id, "tube"),
                 [$Field.name]: getGenName(oldLyph.name || oldLyph.id, "(TUBE)"),
                 [$Field.isTemplate]: true,
