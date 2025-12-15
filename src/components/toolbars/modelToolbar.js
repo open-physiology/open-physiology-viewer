@@ -12,63 +12,63 @@ import {MatSelectModule} from "@angular/material/select";
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="w3-bar-block vertical-toolbar">
-            <button *ngIf="!lockControls" class="w3-bar-item w3-hover-light-grey"
+            <button id="lockBtn" *ngIf="!lockControls && !hidden('lockBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleControls.emit(true)" title="Lock controls">
                 <i class="fa fa-lock"> </i>
             </button>
-            <button *ngIf="lockControls" class="w3-bar-item w3-hover-light-grey"
+            <button id="unlockBtn" *ngIf="lockControls && !hidden('unlockBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleControls.emit(false)" title="Unlock controls">
                 <i class="fa fa-unlock"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey"
+            <button id="resetCameraBtn" *ngIf="!hidden('resetCameraBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onResetCamera.emit()" title="Reset controls">
                 <i class="fa fa-compass"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey" 
+            <button id="updateGraphBtn" *ngIf="!hidden('updateGraphBtn')" class="w3-bar-item w3-hover-light-grey" 
                     (click)="onUpdateGraph.emit()" title="Update layout">
                 <i class="fa fa-refresh"> </i>
             </button>
-            <button *ngIf="!showPanel" class="w3-bar-item w3-hover-light-grey"
+            <button id="showSettingsBtn" *ngIf="!showPanel && !hidden('showSettingsBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleShowPanel.emit()" title="Show settings">
                 <i class="fa fa-cog"> </i>
             </button>
-            <button *ngIf="showPanel" class="w3-bar-item w3-hover-light-grey"
+            <button id="hideSettingsBtn" *ngIf="showPanel && !hidden('hideSettingsBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleShowPanel.emit()" title="Hide settings">
                 <i class="fa fa-window-close"> </i>
             </button>
-            <button *ngIf="showImports" id="importBtn" class="w3-bar-item w3-hover-light-grey"
+            <button *ngIf="showImports && !hidden('importBtn')" id="importBtn" class="w3-bar-item w3-hover-light-grey"
                     (click)="onImportExternal.emit()" title="Download external models">
                 <i class="fa fa-download"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey"
+            <button id="processQueryBtn" *ngIf="!hidden('processQueryBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onProcessQuery.emit()" title="Show query result as group">
                 <i class="fa fa-question-circle-o"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey"
+            <button id="exportJsonBtn" *ngIf="!hidden('exportJsonBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onExportResource.emit('json')" title="Export json">
                 <i class="fa fa-file-code-o"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey"
+            <button id="exportMapLDBtn" *ngIf="!hidden('exportMapLDBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onExportResource.emit('mapLD')" title="Export json-ld resource map">
                 <i class="fa fa-file-text"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey"
+            <button id="exportMapLDFlatBtn" *ngIf="!hidden('exportMapLDFlatBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onExportResource.emit('mapLDFlat')" title="Export flattened json-ld resource map">
                 <i class="fa fa-file-text-o"> </i>
             </button>
-            <button class="w3-bar-item w3-hover-light-grey"
+            <button id="exportBondBtn" *ngIf="!hidden('exportBondBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onExportResource.emit('bond')" title="Export Bond Graph for visible network">
                 <i>bg</i>
             </button>
-            <button *ngIf="loggerColor === 'red'" class="w3-bar-item w3-hover-light-grey"
+            <button id="showReportBtn" *ngIf="loggerColor === 'red' && !hidden('showReportBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onShowReport.emit()" title="Show logs">
                 <i class="fa fa-exclamation-triangle" style="color:red"> </i>
             </button>
-            <button *ngIf="loggerColor === 'yellow'" class="w3-bar-item w3-hover-light-grey"
+            <button id="showReportBtn" *ngIf="loggerColor === 'yellow' && !hidden('showReportBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onShowReport.emit()" title="Show logs">
                 <i class="fa fa-exclamation-triangle" style="color:yellow"> </i>
             </button>
-            <button *ngIf="loggerColor === 'green'" class="w3-bar-item w3-hover-light-grey"
+            <button id="showReportBtn" *ngIf="loggerColor === 'green' && !hidden('showReportBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onShowReport.emit()" title="Show logs">
                 <i class="fa fa-check-circle" style="color:green"> </i>
             </button>
@@ -95,6 +95,17 @@ export class ModelToolbar {
     @Output() onProcessQuery = new EventEmitter();
     @Output() onExportResource = new EventEmitter();
     @Output() onShowReport = new EventEmitter();
+
+    _skip = new Set();
+    @Input() set skip(value){
+        if (!value){ this._skip = new Set(); return; }
+        if (value instanceof Set){ this._skip = new Set(value); return; }
+        if (Array.isArray(value)){ this._skip = new Set(value); return; }
+        if (typeof value === 'string'){ this._skip = new Set([value]); return; }
+        try { this._skip = new Set(value); } catch(e){ this._skip = new Set(); }
+    }
+    get skip(){ return this._skip; }
+    hidden(id){ return this._skip && this._skip.has(id); }
 }
 
 @NgModule({

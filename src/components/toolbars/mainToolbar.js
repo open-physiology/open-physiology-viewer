@@ -25,40 +25,40 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
                    (change)="load(fileInput1, onJoinModel)"/>
            <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
                    (change)="load(fileInput2, onMergeModel)"/>
-           <button id="createBtn" class="w3-bar-item w3-hover-light-grey" (click)="onCreateModel.emit()" title="Create model">
+           <button id="createBtn" *ngIf="!hidden('createBtn')" class="w3-bar-item w3-hover-light-grey" (click)="onCreateModel.emit()" title="Create model">
                 <i class="fa fa-plus"> </i>
            </button>
-           <button id="loadBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
+           <button id="loadBtn" *ngIf="!hidden('loadBtn')" class="w3-bar-item w3-hover-light-grey" (click)="fileInput.click()" title="Load model">
                 <i class="fa fa-folder"> </i>
            </button>
-           <button id="importExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
+           <button id="importExcelBtn" *ngIf="!hidden('importExcelBtn')" class="w3-bar-item w3-hover-light-grey" (click)="importExcel()" title="Import Excel model from URI">
                <i class="fa fa-file-excel-o"> </i>
            </button>
-           <button id="joinBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
+           <button id="joinBtn" *ngIf="!hidden('joinBtn')" class="w3-bar-item w3-hover-light-grey" (click)="fileInput1.click()" title="Join model">
                 <i class="fa fa-object-ungroup"> </i>
            </button>
-           <button id="mergeBtn" class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
+           <button id="mergeBtn" *ngIf="!hidden('mergeBtn')" class="w3-bar-item w3-hover-light-grey" (click)="fileInput2.click()" title="Merge with model">
                 <i class="fa fa-object-group"> </i>
            </button>
-           <button id="showRepoBtn" *ngIf="!showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+           <button id="showRepoBtn" *ngIf="!showRepoPanel && !hidden('showRepoBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleRepoPanel.emit()" title="Show model repository">
                 <i class="fa fa-database"> </i>
            </button>
-           <button id="hideRepoBtn" *ngIf="showRepoPanel" class="w3-bar-item w3-hover-light-grey"
+           <button id="hideRepoBtn" *ngIf="showRepoPanel && !hidden('hideRepoBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleRepoPanel.emit()" title="Hide model repository">
                 <i class="fa fa-window-close"> </i>
            </button> 
            <!-- Save changes -->
-           <button id="commitBtn" class="w3-bar-item w3-hover-light-grey" (click)="onModelCommit.emit()" title="Commit changes">
+           <button id="commitBtn" *ngIf="!hidden('commitBtn')" class="w3-bar-item w3-hover-light-grey" (click)="onModelCommit.emit()" title="Commit changes">
                <i class="fa fa-code-commit"> </i>
            </button>
-           <button id="exportExcelBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('excel')" title="Export Excel model">
+           <button id="exportExcelBtn" *ngIf="!hidden('exportExcelBtn')" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('excel')" title="Export Excel model">
                 <i class="fa fa-table"> </i> 
            </button>           
-           <button id="exportJSONLDBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json-ld')" title="Export JSON-LD model">
+           <button id="exportJSONLDBtn" *ngIf="!hidden('exportJSONLDBtn')" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json-ld')" title="Export JSON-LD model">
                 <i class="fa fa-file-text"> </i> 
            </button>
-           <button id="saveBtn" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json')" title="Save JSON model">
+           <button id="saveBtn" *ngIf="!hidden('saveBtn')" class="w3-bar-item w3-hover-light-grey" (click)="onExportModel.emit('json')" title="Save JSON model">
                 <i class="fa fa-save"> </i> 
            </button>
         </section>
@@ -79,6 +79,17 @@ export class MainToolbar {
     @Output() onToggleRepoPanel  = new EventEmitter();
     @Output() onImportExcelModel = new EventEmitter();
     @Output() onModelCommit      = new EventEmitter();
+
+    _skip = new Set();
+    @Input() set skip(value){
+        if (!value){ this._skip = new Set(); return; }
+        if (value instanceof Set){ this._skip = new Set(value); return; }
+        if (Array.isArray(value)){ this._skip = new Set(value); return; }
+        if (typeof value === 'string'){ this._skip = new Set([value]); return; }
+        try { this._skip = new Set(value); } catch(e){ this._skip = new Set(); }
+    }
+    get skip(){ return this._skip; }
+    hidden(id){ return this._skip && this._skip.has(id); }
 
     constructor(http: HttpClient, dialog: MatDialog){
         this._http = http;

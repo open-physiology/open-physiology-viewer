@@ -304,7 +304,6 @@ export class Graph extends Group {
         logger.info($LogMsg.GRAPH_RESOURCE_NUM, this.id, entitiesByID::keys().length);
         res.logger = logger;
         this.entitiesByID = entitiesByID;
-
         return res;
     }
 

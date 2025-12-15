@@ -57,7 +57,8 @@ export class ResourceEditor {
                     }
                 });
                 (m.materials || []).forEach(childID => {
-                    if (!this.entitiesByID[childID]._inMaterials.find(x => x.id === m.id)) {
+                    if (!((this.entitiesByID[childID]._inMaterials||[]).find(x => x.id === m.id))) {
+                        this.entitiesByID[childID]._inMaterials = this.entitiesByID[childID]._inMaterials  || [];
                         this.entitiesByID[childID]._inMaterials.push(m);
                     }
                 });

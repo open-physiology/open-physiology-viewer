@@ -4,7 +4,7 @@ import {
     generateFromJSON,
     getGenID,
     getGenName,
-    isScaffold, isSnapshot,
+    isScaffold, isSnapshot, isGraph,
     joinModels,
     jsonToExcel,
     loadModel, processImports,
@@ -24,9 +24,7 @@ import {environment} from "../version/environment";
 import {ElementRef, ViewChild} from "@angular/core";
 import {modelClasses,} from '../model/index';
 import FileSaver from 'file-saver';
-import {makeRequest} from "../api/github";
 import {ImportDialog} from "./dialogs/importDialog";
-import {isGraph} from "rdflib";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
