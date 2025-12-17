@@ -18,7 +18,7 @@ import {$Field, $SchemaClass} from "../../model";
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
 import {References} from "../utils/references";
-import {getGenID, LYPH_TOPOLOGY} from "../../model/utils";
+import {defineNewResource, getGenID, LYPH_TOPOLOGY} from "../../model/utils";
 import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 import {MatTabsModule} from "@angular/material/tabs";
@@ -172,6 +172,23 @@ const TREE = {
                         >
                         </resourceListView>
                     </mat-tab>
+                    <mat-tab class="w3-margin">
+                        <!-- Housed chains -->
+                        <ng-template mat-tab-label>Housed chains</ng-template>
+                        <button *ngIf="selectedLyph" (click)="addNewHousedChain()"
+                                matTooltip="Add a new chain"
+                                class="w3-bar-item w3-right w3-hover-light-grey">
+                            <i class="fa fa-add">
+                            </i>
+                        </button>
+                        <resourceListView
+                                listTitle="Housed chains"
+                                [showMenu]="false"
+                                [listData]="housedChainList"
+                                (onNodeClick)="switchEditor($event)"
+                        >
+                        </resourceListView>                       
+                    </mat-tab>
                 </mat-tab-group>
             </section>
         </section>
@@ -216,6 +233,8 @@ export class LyphEditorComponent extends ResourceEditor {
     constructor(snackBar: MatSnackBar, dialog: MatDialog) {
         super(snackBar, dialog);
     }
+
+    @Output() onAddNewHousedChain = new EventEmitter();
 
     @Input('model') set model(newModel) {
         this._model = newModel::cloneDeep();
@@ -264,6 +283,20 @@ export class LyphEditorComponent extends ResourceEditor {
             }
         });
     }
+
+    prepareHousedChainList() {
+        this.housedChainList = [];
+        (this._model.chains || []).forEach(chain => {
+            if (!chain::isObject()) return;
+            if ((chain.housingLyphTemplates || []).find(e => e === this.selectedLyph?.id)) {
+                chain._class = $SchemaClass.Chain;
+                if (!this.housedChainList.find(x => x.id === chain.id)) {
+                    this.housedChainList.push(ListNode.createInstance(chain));
+                }
+            }
+        });
+    }
+
 
     prepareCoalescenceList() {
         this.coalescenceList = [];
@@ -458,6 +491,7 @@ export class LyphEditorComponent extends ResourceEditor {
             this.prepareInternalTree();
             this.prepareChainList();
             this.prepareCoalescenceList();
+            this.prepareHousedChainList();
         }
         this.activeTree = TREE.lyphTree;
     }
@@ -1145,6 +1179,18 @@ export class LyphEditorComponent extends ResourceEditor {
                 }
                 this.saveStep(`Update color ` + res.id);
             }
+        }
+    }
+
+    addNewHousedChain() {
+        if (this.selectedLyph) {
+            let newChain = defineNewResource({[$Field.id]: "_newChain", [$Field.name]: "New chain",
+                "housingLyphTemplates": [this.selectedLyph.id]},
+                this.entitiesByID);
+            this._model.chains = this._model.chains || [];
+            this._model.chains.push(newChain);
+            this.clearHelpers();
+            this.onAddNewHousedChain.emit({model: this._model, selected: newChain});
         }
     }
 }

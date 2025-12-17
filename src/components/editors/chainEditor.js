@@ -8,7 +8,7 @@ import {SearchAddBarModule} from "../gui/searchAddBar";
 import {CheckboxFilterModule} from "../gui/checkboxFilter";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, isNumber, sortBy, isArray, keys, values, entries} from 'lodash-bound';
+import {cloneDeep, isObject, isNumber, sortBy, isArray, keys, entries} from 'lodash-bound';
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
@@ -26,7 +26,7 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatSelectModule} from "@angular/material/select";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import cellOntoTermDefinitions from "../../data/cellOntoTerms.json";
-import {defineNewResource, isIncluded, LYPH_TOPOLOGY} from "../../model/utils";
+import {defineNewResource, isIncluded, isExternal, LYPH_TOPOLOGY} from "../../model/utils";
 import {MaterialSelectDialog, MaterialSelectModule} from "../dialogs/materialSelectDialog";
 
 @Component({
@@ -1327,7 +1327,7 @@ export class ChainEditorComponent extends ResourceEditor {
             }
 
             const isLyphInstance = id => {
-                if (id.includes(":")) return false;
+                if (isExternal(id)) return false;
                 const lyph = this.entitiesByID[id];
                 return (lyph && !lyph._cloning && lyph._class === $SchemaClass.Lyph && !lyph.isTemplate);
             }
@@ -1367,7 +1367,7 @@ export class ChainEditorComponent extends ResourceEditor {
             }
 
             const copyLink = id => {
-                if (id.includes(":")) {
+                if (isExternal(id)) {
                     throw Error("Cannot copy a resource from another workspace: ", id);
                 }
                 const link = this.entitiesByID[id];

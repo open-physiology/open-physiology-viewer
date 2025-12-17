@@ -233,6 +233,7 @@ const TAB_INDEX = {
                                     [selectedNode]="_selectedResources['lyph']"
                                     (onChangesSave)="applyEditorChanges($event, 'lyph')"
                                     (onSwitchEditor)="switchEditor($event)"
+                                    (onAddNewHousedChain)="applyEditorChanges($event, 'chain')"    
                             >
                             </lyphEditor>
                         </mat-tab>
@@ -518,6 +519,7 @@ export class MainApp extends AppCommon {
         this._selectedResources[editor] = selected;
         this._model = model;
         this.applyChanges();
+        this._tabGroup.selectedIndex = TAB_INDEX[editor];
     }
 
     switchEditor({editor, node}) {

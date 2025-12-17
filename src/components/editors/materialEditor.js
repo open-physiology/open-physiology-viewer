@@ -1,7 +1,7 @@
-import {NgModule, Component, Input, Output, EventEmitter, ViewChild, ElementRef, HostListener} from '@angular/core';
+import {NgModule, Component, Input, ViewChild, ElementRef, HostListener} from '@angular/core';
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {CommonModule} from "@angular/common";
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
 import {MatDialog} from "@angular/material/dialog";
@@ -230,7 +230,7 @@ export class Edge {
                 <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents"
                         mat-menu-item (click)="excludeLyph(item)">Exclude from view
                 </button>
-                <div *ngIf="type === CLASS.UNDEFINED">
+                <div *ngIf="type === CLASS.UNDEFINED && !item.includes(':')">
                     <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
                     <button mat-menu-item (click)="defineAsLyphTemplate(item)">Define as lyph template</button>
                 </div>
@@ -369,6 +369,7 @@ export class Edge {
 export class MaterialEditorComponent extends ResourceEditor {
     _helperFields = ['_class', '_generated', '_inMaterials', '_included'];
     CLASS = CLASS;
+    EDGE_CLASS = EDGE_CLASS;
 
     showTree = false;
     graphD3;
@@ -770,6 +771,9 @@ export class MaterialEditorComponent extends ResourceEditor {
 
     @Input('selectedNode') set selectedNode(nodeID) {
         if (!this._selectedNode !== nodeID) {
+            function selector(id){
+                return 'g.edgePath.' + id.replace(":", "_") + ' path';
+            }
             if (this._selectedNode) {
                 let previous = this.graphD3.node(this._selectedNode);
                 if (previous) {
@@ -777,7 +781,7 @@ export class MaterialEditorComponent extends ResourceEditor {
                     const prevColor = this._selectedNodeColor || COLORS.material;
                     const elem = d3.select(previous.elem).select("g rect");
                     elem.style("stroke-width", "1px").style("stroke", COLORS.border).style("fill", prevColor);
-                    d3.selectAll('g.edgePath.' + this._selectedNode + ' path').style("stroke", COLORS.path);
+                    d3.selectAll(selector(this._selectedNode)).style("stroke", COLORS.path);
                 }
             }
             this._selectedNode = nodeID;
@@ -788,7 +792,7 @@ export class MaterialEditorComponent extends ResourceEditor {
                     const elem = d3.select(node.elem).select("g rect");
                     this._selectedNodeColor = elem.attr("fill");
                     elem.style("stroke-width", "4px").style("stroke", COLORS.selectedBorder).style("fill", COLORS.selected);
-                    d3.selectAll('g.edgePath.' + nodeID + ' path').style("stroke", COLORS.selectedPathLink);
+                    d3.selectAll(selector(this._selectedNode)).style("stroke", COLORS.selectedPathLink);
                 }
             }
             this.prepareLyphList();
@@ -807,8 +811,8 @@ export class MaterialEditorComponent extends ResourceEditor {
 
     prepareMaterialList() {
         this.materialList = [];
-        if (this.selectedMaterial){
-            (this.selectedMaterial.materials||[]).forEach(
+        if (this.selectedMaterial) {
+            (this.selectedMaterial.materials || []).forEach(
                 matID => {
                     let mat = this.entitiesByID[matID] || matID;
                     this.materialList.push(ListNode.createInstance(mat));

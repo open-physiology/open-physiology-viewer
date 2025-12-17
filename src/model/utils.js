@@ -72,6 +72,14 @@ export const ModelType = {
  */
 export const $SchemaClass = schema.definitions::keys().map(schemaClsName => [schemaClsName, schemaClsName])::fromPairs();
 
+export function isExternal(item){
+    if (item::isString() && item.includes(":")){
+        return true;
+    }
+    return false;
+}
+
+
 /**
  * @property created
  * @property lastUpdated
