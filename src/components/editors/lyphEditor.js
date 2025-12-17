@@ -187,7 +187,7 @@ const TREE = {
                                 [listData]="housedChainList"
                                 (onNodeClick)="switchEditor($event)"
                         >
-                        </resourceListView>                       
+                        </resourceListView>
                     </mat-tab>
                 </mat-tab-group>
             </section>
@@ -1184,8 +1184,18 @@ export class LyphEditorComponent extends ResourceEditor {
 
     addNewHousedChain() {
         if (this.selectedLyph) {
-            let newChain = defineNewResource({[$Field.id]: "_newChain", [$Field.name]: "New chain",
-                "housingLyphTemplates": [this.selectedLyph.id]},
+            let newChain = defineNewResource(
+                {
+                    [$Field.id]: "chain-" + this.selectedLyph.id,
+                    [$Field.name]: "Cell in " + this.selectedLyph.name || this.selectedLyph.id,
+                    [$Field.numLevels]: 3,
+                    [$Field.levelOntologyTerms]: [
+                        "GO:0045177",
+                        "GO:0097574",
+                        "GO:1990794"
+                      ],
+                    [$Field.housingLyphTemplates]: [this.selectedLyph.id]
+                },
                 this.entitiesByID);
             this._model.chains = this._model.chains || [];
             this._model.chains.push(newChain);
