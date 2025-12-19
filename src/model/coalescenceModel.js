@@ -131,6 +131,60 @@ export class Coalescence extends Resource {
         return !!(this.lyphs || []).find(lyphOrMat => lyphOrMat.isTemplate || lyphOrMat.class === $SchemaClass.Material);
     }
 
+    static createNodeGroup(parentGroup, cls) {
+        parentGroup.nodes = parentGroup.nodes || [];
+        parentGroup.links = parentGroup.links || [];
+        parentGroup.groups = parentGroup.groups || [];
+        let group = {
+            [$Field.id]: getGenID($Prefix.group, "cls", cls.id),
+            [$Field.name]: getGenName("Coalescence group", cls.name || cls.id),
+            [$Field.hidden]: true,
+            [$Field.nodes]: [],
+            [$Field.links]: [],
+            [$Field.lyphs]: [],
+        }
+        parentGroup.groups.push(group);
+        return group;
+    }
+
+    static createNodes(group, parentGroup, cls){
+        let nodeID = getGenID($Prefix.node, cls.id);
+
+        //If a coalescence node exists, do nothing
+        if (isIncluded(parentGroup.nodes, nodeID)) return;
+
+        let node = {
+            [$Field.id]: nodeID,
+            [$Field.name]: cls.name || cls.id,
+            [$Field.val]: 5,
+            [$Field.fixed]: true,
+            [$Field.color]: $Color.Coalescence,
+            [$Field.representsCoalescence]: cls.id
+        }
+
+        mergeGenResource(group, parentGroup, node, $Field.nodes);
+
+        (cls.lyphs || []).forEach((lyphFullID, i) => {
+            let lyphNode = {
+                [$Field.id]: getGenID(nodeID, i),
+                [$Field.name]: cls.name || cls.id,
+                [$Field.invisible]: true,
+                [$Field.internalIn]: lyphFullID
+            }
+            mergeGenResource(group, parentGroup, lyphNode, $Field.nodes);
+            let link = {
+                [$Field.id]: getGenID($Prefix.link, cls.id, i),
+                [$Field.name]: getGenName("Coalescing lyph", i, cls.name || this.id),
+                [$Field.stroke]: "dashed",
+                [$Field.source]: node.id,
+                [$Field.target]: lyphNode.id
+            }
+            mergeGenResource(group, parentGroup, link, $Field.links);
+            includeRef(group.lyphs, lyphFullID);
+        });
+        return node;
+    }
+
     createNodes(group, parentGroup) {
         let nodeID = getGenID($Prefix.node, this.id);
         //If coalescence node exists, do nothing

@@ -229,12 +229,12 @@ export class CoalescencePanel {
     }
 
     pairCoalescingCells() {
-        let lastA = this.lyphA.layers[this.lyphA.layers.length - 1];
-        let lastB = this.lyphB.layers[this.lyphB.layers.length - 1];
+        let lastA = this.lyphA.layers? this.lyphA.layers[this.lyphA.layers.length - 1]: null;
+        let lastB = this.lyphB.layers? this.lyphB.layers[this.lyphB.layers.length - 1]: null;
         this.pairCellLevelMap = {};
         this.layerCellLevelMap::entries().forEach(([key, value]) => this.pairCellLevelMap[key] = [...value]);
-        (this.pairCellLevelMap[lastA.fullID] || []).forEach(cell => updateLyphMap(this.pairCellLevelMap, lastB, cell));
-        (this.pairCellLevelMap[lastB.fullID] || []).forEach(cell => updateLyphMap(this.pairCellLevelMap, lastA, cell));
+        if (lastA) (this.pairCellLevelMap[lastA.fullID] || []).forEach(cell => updateLyphMap(this.pairCellLevelMap, lastB, cell));
+        if (lastB) (this.pairCellLevelMap[lastB.fullID] || []).forEach(cell => updateLyphMap(this.pairCellLevelMap, lastA, cell));
     }
 
     draw() {

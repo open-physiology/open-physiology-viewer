@@ -17,7 +17,7 @@ import {HttpClient} from "@angular/common/http";
 import config from "../data/config.json";
 import {layouts} from "../layouts/layouts";
 import {findResourceByID, mergeResources} from "../model/utils";
-import {clone, cloneDeep, keys, merge, pick, isArray} from "lodash-bound";
+import {clone, cloneDeep, keys, merge, pick, isArray, omit} from "lodash-bound";
 import {$LogMsg, logger} from "../model/logger";
 import {addJSONLDTypeDef, getJSONLDContext} from "../model/utilsJSONLD";
 import {environment} from "../version/environment";
@@ -194,7 +194,11 @@ export class AppCommon {
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
         const BRANCH = "main";
-        const FILE_CONTENT = JSON.stringify(this._model, null, 4);
+        const baseModel = this._model::omit($Field.groups);
+        if (this._model.groups) {
+            baseModel.groups = this._model.groups.filter(g => !g.imported);
+        }
+        const FILE_CONTENT = JSON.stringify(baseModel, null, 4);
         const COMMIT_MESSAGE = "Add/update JSON file via API";
         const BASE_URL = config.storageURL;
 

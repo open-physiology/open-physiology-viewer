@@ -216,6 +216,12 @@ export class Graph extends Group {
             inputModel.groupsByID::values().forEach(json => {
                 modelClasses.Lyph.mapInternalResourcesToLayers(json, modelClasses);
             });
+
+            //Create coalescence nodes
+            modelClasses.Group.createCoalescenceNodes(inputModel, modelClasses, -1);
+            inputModel.groupsByID::values().forEach((json, idx) => {
+                modelClasses.Group.createCoalescenceNodes(json, modelClasses, idx);
+            });
         }
 
         let res = super.fromJSON(inputModel, modelClasses, entitiesByID, inputModel.namespace);

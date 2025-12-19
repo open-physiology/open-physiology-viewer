@@ -19,7 +19,7 @@ import {
     refToResource,
     mergeGenResource,
     genResource,
-    mergeRecursively, isIncluded, includeRef
+    mergeRecursively, isIncluded, includeRef, getFullID
 } from './utils';
 import {logger, $LogMsg} from './logger';
 
@@ -141,7 +141,7 @@ export class Group extends Resource {
             });
             (this.nodes || []).forEach(node => node.charge = 20);
         }
-        if (this.hidden){
+        if (this.hidden) {
             this.hide();
         } else {
             this.show();
@@ -421,6 +421,31 @@ export class Group extends Resource {
         });
     }
 
+    static createCoalescenceNodes(parentGroup, modelClasses, groupIdx = 0) {
+        const CLS_POS = {x: -50, y: 25 + groupIdx * 5};
+        const CLS_DISTANCE = 5;
+        const coalescenceGroup = {
+            "id": getGenID($Prefix.coalescence, parentGroup.id),
+            "name": "Coalescences in " + (parentGroup.name || parentGroup.namespace || parentGroup.id),
+            "groups": []
+        };
+        (parentGroup.coalescences || []).forEach((cls, i) => {
+            if (cls.topology !== modelClasses.Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING) {
+                let group = modelClasses.Coalescence.createNodeGroup(parentGroup, cls);
+                let node = modelClasses.Coalescence.createNodes(group, parentGroup, cls);
+                node.layout = {
+                    "x": CLS_POS.x + i * CLS_DISTANCE,
+                    "y": CLS_POS.y
+                };
+                cls.group = group.id;
+                coalescenceGroup.groups.push(group.id);
+            }
+        });
+        if (coalescenceGroup.groups.length > 0){
+            parentGroup.groups.push(coalescenceGroup);
+        }
+    }
+
     assignHousingLyphs() {
         (this.lyphs || []).forEach(lyph => {
             let axis = lyph.axis;
@@ -480,7 +505,7 @@ export class Group extends Resource {
     hide() {
         this.hidden = true;
         this.resources.forEach(entity => {
-            let visibleGroups = (entity.inGroups||[]).filter(g => !g.hidden);
+            let visibleGroups = (entity.inGroups || []).filter(g => !g.hidden);
             if (visibleGroups.length <= 1) entity.hidden = true;
         });
     }
@@ -546,7 +571,6 @@ export class Group extends Resource {
     get create3d() {
         return (this.lyphs || []).find(e => e.create3d);
     }
-
 
 }
 
