@@ -29,7 +29,12 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     `,
     styles: [`
          .snapshot-toolbar{
-            width : 140px; 
+            width: 140px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 11001; /* Ensure above Angular Material dialog overlay and tooltips */
+            pointer-events: auto; /* Allow clicks even when overlays are present */
         }
 	`]
 })

@@ -364,12 +364,18 @@ export class AppCommon {
             [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states || []).length),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
-                up: this._webGLScene.camera.up::pick(["x", "y", "z"])
+                up: this._webGLScene.camera.up::pick(["x", "y", "z"]),
+                target: (this._webGLScene.controls && this._webGLScene.controls.target)
+                    ? this._webGLScene.controls.target::pick(["x", "y", "z"]) : undefined
             },
             [$Field.layout]: this._config.layout::cloneDeep(),
             [$Field.showLabels]: this._config.showLabels::cloneDeep(),
             [$Field.labelContent]: this._config.labels::cloneDeep()
         }::merge(this._graphData.getCurrentState());
+        // Include open coalescence dialog node id if any
+        if (this._webGLScene && this._webGLScene.openCoalescenceNodeId) {
+            state_json.openCoalescenceNodeId = this._webGLScene.openCoalescenceNodeId;
+        }
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
@@ -383,7 +389,7 @@ export class AppCommon {
             this._graphData.showGroups(activeState.visibleGroups);
         }
         if (activeState.camera) {
-            this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up);
+            this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up, activeState.camera.target);
         }
         this._config = {};
         if (activeState.layout) {
@@ -393,7 +399,7 @@ export class AppCommon {
             this._config.showLabels = activeState.showLabels;
         }
         if (activeState.labelContent) {
-            this._config.labelContent = activeState.labelContent;
+            this._config.labels = activeState.labelContent;
         }
         if (isScaffold(this._model)) {
             this._graphData.loadState(activeState);
@@ -408,6 +414,10 @@ export class AppCommon {
             })
         }
         this._webGLScene.updateGraph();
+        // If the snapshot state contains an open coalescence dialog id, open it now
+        if (activeState.openCoalescenceNodeId && this._webGLScene?.openCoalescenceByResourceId) {
+            this._webGLScene.openCoalescenceByResourceId(activeState.openCoalescenceNodeId);
+        }
     }
 
     previousState() {

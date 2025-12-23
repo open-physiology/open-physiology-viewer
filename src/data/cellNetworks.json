@@ -1,0 +1,7 @@
+[
+  {
+    "from": "pravastatin",
+    "to": ["ABCB1", "ABCC2", "ABCG2", "SLC22A6", "SLC22A8"],
+    "description": "renal principal cell"
+  }
+]

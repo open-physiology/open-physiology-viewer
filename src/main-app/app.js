@@ -74,7 +74,7 @@ const TAB_INDEX = {
 
         <!-- Header -->
 
-        <header class="w3-bar w3-top w3-dark-grey" style="z-index:10;">
+        <header class="w3-bar w3-top w3-dark-grey" style="z-index:2002;">
             <span class="w3-bar-item"><i class="fa fa-heartbeat w3-margin-right"> </i>ApiNATOMY
 			</span>
             <span class="w3-bar-item" title="About ApiNATOMY">

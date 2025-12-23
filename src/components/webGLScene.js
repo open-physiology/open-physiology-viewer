@@ -633,7 +633,7 @@ export class WebGLSceneComponent {
         }
     }
 
-    resetCamera(positionPoint, lookupPoint) {
+    resetCamera(positionPoint, lookupPoint, targetPoint) {
         let position = [0, -100, 120 * this.scaleFactor];
         let lookup = [0, 0, 1];
         ["x", "y", "z"].forEach((dim, i) => {
@@ -643,9 +643,23 @@ export class WebGLSceneComponent {
             if (positionPoint && positionPoint.hasOwnProperty(dim)) {
                 position[i] = positionPoint[dim];
             }
-        })
+        });
         this.camera.position.set(...position);
         this.camera.up.set(...lookup);
+
+        // If a target is provided, update OrbitControls target and align camera
+        if (targetPoint && this.controls && this.controls.target) {
+            const target = [this.controls.target.x, this.controls.target.y, this.controls.target.z];
+            ["x", "y", "z"].forEach((dim, i) => {
+                if (targetPoint.hasOwnProperty(dim)) {
+                    target[i] = targetPoint[dim];
+                }
+            });
+            this.controls.target.set(...target);
+            this.camera.lookAt(this.controls.target);
+            this.controls.update && this.controls.update();
+        }
+
         this.camera.updateProjectionMatrix();
     }
 
@@ -789,6 +803,7 @@ export class WebGLSceneComponent {
         }
         if (this.selected?.representsCoalescence) {
             //Show coalescence dialog
+            this.openCoalescenceNodeId = this.selected.id;
             const dialogRef = this.dialog.open(CoalescenceDialog, {
                 width: '50%', height: '65%', data: {
                     coalescence: this.selected.representsCoalescence
@@ -803,12 +818,45 @@ export class WebGLSceneComponent {
                     );
                 });
             });
+            dialogRef.afterClosed().subscribe(() => {
+                if (this.openCoalescenceNodeId === (this.selected && this.selected.id)) {
+                    this.openCoalescenceNodeId = undefined;
+                }
+            });
         }
     }
 
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('dblclick', () => this.onDblClick(), false);
+    }
+
+    openCoalescenceByResourceId(nodeId) {
+        if (!nodeId) return;
+        const node = (this._graphData?.resources || []).find(e => e.id === nodeId);
+        if (!node || !node.representsCoalescence) {
+            return;
+        }
+        this.openCoalescenceNodeId = node.id;
+        const dialogRef = this.dialog.open(CoalescenceDialog, {
+            width: '50%', height: '65%', data: {
+                coalescence: node.representsCoalescence
+            }
+        });
+        dialogRef.afterOpened().subscribe(() => {
+            const componentInstance = dialogRef.componentInstance;
+            componentInstance.resizeDialog.subscribe((maximize: boolean) => {
+                dialogRef.updateSize(
+                    maximize ? '100vw' : '50%',
+                    maximize ? '100vh' : '65%'
+                );
+            });
+        });
+        dialogRef.afterClosed().subscribe(() => {
+            if (this.openCoalescenceNodeId === node.id) {
+                this.openCoalescenceNodeId = undefined;
+            }
+        });
     }
 
     onMouseMove(evt) {
