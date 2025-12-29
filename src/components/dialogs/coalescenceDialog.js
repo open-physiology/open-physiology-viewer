@@ -103,8 +103,6 @@ import {MatTabsModule} from '@angular/material/tabs';
         .selected {
             border: 3px solid #000;
         }
-
-
     `]
 })
 export class CoalescenceDialog {

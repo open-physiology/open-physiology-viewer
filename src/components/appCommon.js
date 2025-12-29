@@ -25,6 +25,7 @@ import {ElementRef, ViewChild} from "@angular/core";
 import {modelClasses,} from '../model/index';
 import FileSaver from 'file-saver';
 import {ImportDialog} from "./dialogs/importDialog";
+import {DiffDialog} from "./dialogs/diffDialog";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -167,8 +168,8 @@ export class AppCommon {
             case "json-ld":
 
                 const baseURL = "https://apinatomy.org/uris/";
-                const baseURLModels = baseURL+"models/";
-                const defBaseURL = baseURL+"defs/";
+                const baseURLModels = baseURL + "models/";
+                const defBaseURL = baseURL + "defs/";
                 let jsonLDModel = getJSONLDContext(this._model, baseURLModels);
 
                 (this._model.materials || []).forEach(obj => jsonLDModel["@graph"].push(addJSONLDTypeDef(obj, $SchemaClass.Material, this._model, baseURLModels)));
@@ -188,18 +189,23 @@ export class AppCommon {
         }
     }
 
-   commit() {
+    commit() {
         const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
         if (!GITHUB_TOKEN) {
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
         const BRANCH = "main";
-        const baseModel = this._model::omit($Field.groups);
-        if (this._model.groups) {
-            baseModel.groups = this._model.groups.filter(g => !g.imported);
-        }
+        // Remove imported groups and scaffolds
+        let props = [$Field.groups, $Field.scaffolds, $Field.snapshots];
+        const baseModel = this._model::omit(...props);
+        props.forEach(prop => {
+            if (this._model[prop]) {
+                baseModel[prop] = this._model[prop].filter(g => !g.imported);
+            }
+        });
+
         const FILE_CONTENT = JSON.stringify(baseModel, null, 4);
-        const COMMIT_MESSAGE = "Add/update JSON file via API";
+        const DEFAULT_COMMIT_MESSAGE = "Add/update JSON file via API";
         const BASE_URL = config.storageURL;
 
         // Helper function to make API requests with XMLHttpRequest
@@ -222,47 +228,75 @@ export class AppCommon {
             xhr.send(body ? JSON.stringify(body) : null);
         }
 
-        const commitJsonFile = () => {
-            // Step 1: Check if the file exists to retrieve its SHA
-            makeRequest(
-                "GET",
-                `${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`,
-                null,
-                (err, fileData) => {
-                    let fileSHA = null;
-                    if (!err) {
-                        fileSHA = fileData.sha;
-                    } else if (err.includes("404")) {
-                        this.showMessage("File does not exist. Creating a new one.");
-                    } else {
-                        console.error("❌ Error checking file existence:", err);
-                        throw Error("Error checking file existence!");
+        const FILE_PATH = this._model.id + ".json";
+
+        // Step 1: Get existing file (if any) to retrieve SHA and old content for diff
+        makeRequest(
+            "GET",
+            `${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`,
+            null,
+            (err, fileData) => {
+                let fileSHA = null;
+                let oldContentText = "";
+                if (!err && fileData && fileData.content) {
+                    fileSHA = fileData.sha;
+                    try {
+                        // GitHub API returns base64 with possible newlines
+                        const cleaned = fileData.content.replace(/\n/g, "");
+                        oldContentText = atob(cleaned);
+                    } catch (e) {
+                        console.warn("Could not decode existing file content", e);
+                        oldContentText = "";
                     }
+                } else if (err && err.includes("404")) {
+                    this.showMessage("File does not exist. A new one will be created.");
+                } else if (err) {
+                    console.error("❌ Error checking file existence:", err);
+                    this.showErrorMessage("Error checking file existence!");
+                    return;
+                }
+
+                // Open diff dialog to show differences and ask for an optional commit message
+                const dialogRef = this._dialog.open(DiffDialog, {
+                    width: '75%',
+                    data: {
+                        oldContent: oldContentText,
+                        newContent: FILE_CONTENT,
+                        askCommitMessage: true,
+                        defaultMessage: DEFAULT_COMMIT_MESSAGE
+                    }
+                });
+
+                dialogRef.afterClosed().subscribe(result => {
+                    // If dialog was closed without result or user cancelled, abort
+                    if (!result || result.proceed === false) {
+                        this.showMessage("Commit canceled.");
+                        return;
+                    }
+                    const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
 
                     // Step 2: Create or update the file
                     makeRequest(
                         "PUT",
                         `${BASE_URL}/contents/${FILE_PATH}`,
                         {
-                            message: COMMIT_MESSAGE,
+                            message: commitMessage,
                             content: Buffer.from(FILE_CONTENT).toString("base64"), // Convert to Base64
                             branch: BRANCH,
                             sha: fileSHA,
                         },
-                        (err, response) => {
-                            if (err) {
-                                console.error("❌ Error committing file:", err);
-                                throw Error("Error committing file!");
+                        (commitErr, response) => {
+                            if (commitErr) {
+                                console.error("❌ Error committing file:", commitErr);
+                                this.showErrorMessage("Error committing file!");
+                                return;
                             }
                             this.showMessage("Model file committed successfully!")
                         }
                     );
-                }
-            );
-        }
-
-        const FILE_PATH = this._model.id + ".json";
-        commitJsonFile(FILE_PATH);
+                });
+            }
+        );
     }
 
     showMessage(message) {
@@ -309,6 +343,9 @@ export class AppCommon {
                 this._graphData = generateFromJSON(this._model);
             }
             this._snapshot = undefined;
+            if (this._model.snapshots?.length > 0) {
+                this.loadSnapshot(model.snapshots[0]);
+            }
             if (this._editor) {
                 this._editor.set(this._model);
             }
@@ -456,10 +493,10 @@ export class AppCommon {
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
-            throw new Error("Snapshot is not applicable to the model!");
+            this.showErrorMessage("Snapshot is not applicable to the model!");
         } else {
             if (match === 0) {
-                throw new Error("Snapshot corresponds to a different version of the model!");
+                this.showMessage("Snapshot corresponds to a different version of the model!");
             }
         }
         this._snapshot = newSnapshot;

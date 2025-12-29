@@ -168,10 +168,12 @@ export function jsonToExcel(inputModel) {
  * @returns {Graph}
  */
 export function generateFromJSON(inputModel) {
-    inputModel.version = hash(inputModel);
-    inputModel.id = inputModel.id || "main";
-    inputModel.namespace = inputModel.namespace || "nm_" + inputModel.id;
-    inputModel.schemaVersion = hash(schema);
+    if (isGraph(inputModel) || isScaffold(inputModel)) {
+        inputModel.version = hash(inputModel);
+        inputModel.id = inputModel.id || "main";
+        inputModel.namespace = inputModel.namespace || "nm_" + inputModel.id;
+        inputModel.schemaVersion = hash(schema);
+    }
     if (isScaffold(inputModel)) {
         return Scaffold.fromJSON(inputModel, modelClasses);
     } else {
@@ -230,8 +232,12 @@ export async function mergeWithImports(inputModel) {
 export function processImports(inputModel, importedModels) {
     let scaffolds = importedModels.filter(m => isScaffold(m));
     let groups = importedModels.filter(m => isGraph(m));
+    let snapshots = importedModels.filter(m => isSnapshot(m));
+
     inputModel.scaffolds = inputModel.scaffolds || [];
     inputModel.groups = inputModel.groups || [];
+    // Keep a place for snapshots so that UI/app layer can pick them up and apply via loadSnapshot
+    inputModel.snapshots = inputModel.snapshots || [];
 
     function addNestedImports(newModel) {
         (newModel.imports || []).forEach(newImport => {
@@ -255,6 +261,7 @@ export function processImports(inputModel, importedModels) {
         });
         addNestedImports(newModel);
     });
+
     scaffolds.forEach(newModel => {
         newModel.imported = true;
         const scaffoldIdx = inputModel.scaffolds.findIndex(s => s.id === newModel.id);
@@ -266,7 +273,17 @@ export function processImports(inputModel, importedModels) {
         addNestedImports(newModel);
     });
 
-
+    // Handle imported snapshots: store/replace by id and mark imported
+    snapshots.forEach(newModel => {
+        newModel.imported = true;
+        const snapIdx = inputModel.snapshots.findIndex(s => s.id === newModel.id);
+        if (snapIdx === -1) {
+            inputModel.snapshots.push(newModel);
+        } else {
+            inputModel.snapshots[snapIdx] = newModel;
+        }
+        addNestedImports(newModel);
+    });
 }
 
 /**
