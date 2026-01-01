@@ -1196,6 +1196,13 @@
             "$ref": "#/definitions/Scaffold"
           }
         },
+        "snapshots": {
+          "description": "Snapshot that define connectivity graph layout",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Scaffold"
+          }
+        },
         "varianceSpecs": {
           "description": "Specifications of variance among species",
           "type": "array",

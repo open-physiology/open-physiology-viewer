@@ -15,7 +15,7 @@ import {MainToolbarModule} from "../components/toolbars/mainToolbar";
 import {SnapshotToolbarModule} from "../components/toolbars/snapshotToolbar";
 import {StateToolbarModule} from "../components/toolbars/stateToolbar";
 // import {LayoutEditorModule} from "../components/layoutEditor";
-import {RelGraphModule} from "../components/relationGraph";
+// import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
 import {AppCommon} from '../components/appCommon';
@@ -94,6 +94,7 @@ const TAB_INDEX = {
                               (onCreateSnapshot)="createSnapshot()"
                               (onLoadSnapshot)="loadSnapshot($event)"
                               (onSaveSnapshot)="saveSnapshot()"
+                              (onCommitSnapshot)="commitSnapshot()"
             >
             </snapshot-toolbar>
             <state-toolbar id="state-toolbar"
@@ -154,6 +155,8 @@ const TAB_INDEX = {
                                         [graphData]="_graphData"
                                         [config]="_config"
                                         [showChain]="_showChain"
+                                        [showAssistant]="showAssistantPanel"
+                                        (onToggleAssistant)="showAssistantPanel = !showAssistantPanel"
                                         (onImportExternal)="importExternal($event)"
                                         (selectedItemChange)="onSelectedItemChange($event)"
                                         (highlightedItemChange)="onHighlightedItemChange($event)"
@@ -165,14 +168,14 @@ const TAB_INDEX = {
                         </mat-tab>
 
                         <!--Relationship graph-->
-                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>
-                            <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Relationship graph
-                            </ng-template>
-                            <relGraph
-                                    [graphData]="_graphData"
-                                    [isActive]="relGraphTab.isActive">
-                            </relGraph>
-                        </mat-tab>
+<!--                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #relGraphTab>-->
+<!--                            <ng-template mat-tab-label><i class="fa fa-diagram-project"></i> Relationship graph-->
+<!--                            </ng-template>-->
+<!--                            <relGraph-->
+<!--                                    [graphData]="_graphData"-->
+<!--                                    [isActive]="relGraphTab.isActive">-->
+<!--                            </relGraph>-->
+<!--                        </mat-tab>-->
 
                         <!--Layout editor-->
 <!--                        TODO Needs fixing-->
@@ -264,7 +267,7 @@ const TAB_INDEX = {
                     </mat-tab-group>
                 </section>
                 <div class="resizer" title="Drag to resize" (mousedown)="startResizing($event)"></div>
-                <aside class="assistant-pane" [style.width.px]="assistantWidth">
+                <aside class="assistant-pane" *ngIf="showAssistantPanel" [style.width.px]="assistantWidth">
                     <assistant-panel [model]="_model" 
                                      (onOpenEditor)="openEditor($event)" 
                                     (onResourceFromAI)="handleAIResource($event)">                        
@@ -423,6 +426,9 @@ export class MainApp extends AppCommon {
     constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
         super(dialog, snackBar, http);
     }
+
+    // AI Assistant panel visibility (default hidden)
+    showAssistantPanel = false;
 
     // Assistant pane sizing state
     assistantWidth = 380; // px
@@ -677,8 +683,8 @@ export class MainApp extends AppCommon {
  */
 @NgModule({
     imports: [BrowserModule, WebGLSceneModule, BrowserAnimationsModule,
-        RelGraphModule, ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule,
-        //LayoutEditorModule,
+        ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule,
+        //LayoutEditorModule, RelGraphModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
         LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, AssistantPanelModule, MatProgressSpinnerModule, HttpClientModule],
     declarations: [MainApp, ImportDialog],

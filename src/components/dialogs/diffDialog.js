@@ -15,6 +15,9 @@ import { FormsModule } from '@angular/forms';
             <div *ngIf="data && data.askCommitMessage" style="margin-top: 12px;">
                 <label for="commitMsg"><b>Commit message (optional):</b></label>
                 <textarea id="commitMsg" [(ngModel)]="commitMessage" rows="3" style="width: 100%;"></textarea>
+                <mat-checkbox [(ngModel)]="omitCollections" style="margin-top: 8px; display: block;">
+                    Omit imported groups, scaffolds and snapshots from commit
+                </mat-checkbox>
             </div>
         </div>
         <div mat-dialog-actions align="end">
@@ -33,6 +36,7 @@ export class DiffDialog {
     dialogRef;
     data = { 'oldContent': "", 'newContent': "", 'askCommitMessage': false, 'defaultMessage': "" };
     commitMessage = "";
+    omitCollections = true; // default behavior: omit groups/scaffolds/snapshots
 
     constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
@@ -49,7 +53,7 @@ export class DiffDialog {
     }
 
     proceed(){
-        this.dialogRef.close({ proceed: true, message: this.commitMessage });
+        this.dialogRef.close({ proceed: true, message: this.commitMessage, omitCollections: this.omitCollections });
     }
 }
 

@@ -25,11 +25,14 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
            <button id="saveSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="save()" title="Export snapshot model">
                 <i class="fa fa-save"> </i> 
            </button>
+           <button id="commitSnapBtn" class="w3-bar-item w3-hover-light-grey" (click)="commit()" title="Commit snapshot to GitHub">
+                <i class="fa fa-code-commit"> </i>
+           </button>
         </section>
     `,
     styles: [`
          .snapshot-toolbar{
-            width: 140px;
+            width: 190px;
             position: fixed;
             bottom: 0;
             left: 0;
@@ -48,6 +51,7 @@ export class SnapshotToolbar {
     @Output() onCreateSnapshot   = new EventEmitter();
     @Output() onLoadSnapshot     = new EventEmitter();
     @Output() onSaveSnapshot     = new EventEmitter();
+    @Output() onCommitSnapshot   = new EventEmitter();
 
     constructor(http: HttpClient, dialog: MatDialog){
         this._http = http;
@@ -80,6 +84,10 @@ export class SnapshotToolbar {
 
     save(){
         this.onSaveSnapshot.emit();
+    }
+
+    commit(){
+        this.onCommitSnapshot.emit();
     }
 
     saveState(){

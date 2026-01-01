@@ -42,7 +42,7 @@ const COLORS = {
     selector: 'settingsPanel',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-        <section #settingsPanel id="settingsPanel">   
+        <section #settingsPanel id="settingsPanel">
             <!-- Settings -->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -89,19 +89,69 @@ const COLORS = {
                                                   [checked]="config.layout.showCoalescences">Coalescences
                                 </mat-slide-toggle>
                             </div>
+<!--                            <div class="wrap">-->
+<!--                                <mat-slide-toggle matTooltip="Fixed coalescence node position"-->
+<!--                                                  (change)="toggleLayout('fixedCoalescenceLayout')"-->
+<!--                                                  [checked]="config.layout.fixedCoalescenceLayout">Fixed coalescence-->
+<!--                                    node position-->
+<!--                                </mat-slide-toggle>-->
+
+<!--                                <div class="w3-row-padding">-->
+<!--                                    <div class="w3-half">-->
+<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
+<!--                                            <mat-label>Start X</mat-label>-->
+<!--                                            <input matInput type="number"-->
+<!--                                                   [(ngModel)]="config.coalescenceLayout.startX"-->
+<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
+<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
+<!--                                        </mat-form-field>-->
+<!--                                    </div>-->
+<!--                                    <div class="w3-half">-->
+<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
+<!--                                            <mat-label>Base Y</mat-label>-->
+<!--                                            <input matInput type="number"-->
+<!--                                                   [(ngModel)]="config.coalescenceLayout.baseY"-->
+<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
+<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
+<!--                                        </mat-form-field>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div class="w3-row-padding">-->
+<!--                                    <div class="w3-half">-->
+<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
+<!--                                            <mat-label>Group Y offset</mat-label>-->
+<!--                                            <input matInput type="number"-->
+<!--                                                   [(ngModel)]="config.coalescenceLayout.groupYOffset"-->
+<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
+<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
+<!--                                        </mat-form-field>-->
+<!--                                    </div>-->
+<!--                                    <div class="w3-half">-->
+<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
+<!--                                            <mat-label>Distance</mat-label>-->
+<!--                                            <input matInput type="number"-->
+<!--                                                   [(ngModel)]="config.coalescenceLayout.distance"-->
+<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
+<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
+<!--                                        </mat-form-field>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
 
                         <div class="settings-wrap">
                             <h5>Labels</h5>
                             <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                                <mat-slide-toggle matTooltip="Toggle labels" [checked]="config.showLabels[labelClass]"
+                                <mat-slide-toggle matTooltip="Toggle labels"
+                                                  [checked]="config.showLabels[labelClass]"
                                                   (change)="updateShowLabels(labelClass)"><img
-                                        src="./styles/images/toggle-icon.svg"/>{{labelClass}}</mat-slide-toggle>
+                                        src="./styles/images/toggle-icon.svg"/>{{ labelClass }}
+                                </mat-slide-toggle>
                                 <mat-radio-group [(ngModel)]="config.labels[labelClass]"
                                                  *ngIf="config.showLabels[labelClass]">
                                     <mat-radio-button *ngFor="let labelProp of _labelProps"
                                                       [value]="labelProp"
-                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{labelProp}}
+                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{ labelProp }}
                                     </mat-radio-button>
                                 </mat-radio-group>
                             </div>
@@ -111,7 +161,8 @@ const COLORS = {
                             <h5>Helpers</h5>
                             <div class="wrap" *ngFor="let helper of _helperKeys">
                                 <mat-slide-toggle matTooltip="Toggle planes" [checked]="_showHelpers.has(helper)"
-                                                  (change)="toggleHelperPlane(helper)">{{helper}}</mat-slide-toggle>
+                                                  (change)="toggleHelperPlane(helper)">{{ helper }}
+                                </mat-slide-toggle>
                             </div>
                         </div>
                     </div>
@@ -186,8 +237,9 @@ const COLORS = {
                         <div class="wrap" *ngFor="let group of filteredGroups">
                             <mat-slide-toggle [checked]="!group.hidden"
                                               [matTooltip]="group.name + ' (' + group.id + ')'"
-                                              (change)="onToggleGroup.emit(group)">{{group.namespace ? group.namespace + ":" : ""}}
-                                {{group.name || group.id}}</mat-slide-toggle>
+                                              (change)="onToggleGroup.emit(group)">{{ group.namespace ? group.namespace + ":" : "" }}
+                                {{ group.name || group.id }}
+                            </mat-slide-toggle>
                         </div>
                     </div>
                 </mat-expansion-panel>
@@ -218,7 +270,8 @@ const COLORS = {
                         <div class="wrap" *ngFor="let group of filteredDynamicGroups">
                             <mat-slide-toggle [checked]="!group.hidden"
                                               [matTooltip]="group.name + ' (' + group.id + ')'"
-                                              (change)="onToggleGroup.emit(group)">{{group.name || group.id}}</mat-slide-toggle>
+                                              (change)="onToggleGroup.emit(group)">{{ group.name || group.id }}
+                            </mat-slide-toggle>
                         </div>
                     </div>
                 </mat-expansion-panel>
@@ -248,7 +301,8 @@ const COLORS = {
                         </div>
                         <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
                             <mat-slide-toggle [checked]="!scaffold.hidden"
-                                              (change)="toggleScaffold(scaffold)">{{scaffold._parent ? scaffold._parent.id + ":" : ""}}{{scaffold.name || scaffold.id}}</mat-slide-toggle>
+                                              (change)="toggleScaffold(scaffold)">{{ scaffold._parent ? scaffold._parent.id + ":" : "" }}{{ scaffold.name || scaffold.id }}
+                            </mat-slide-toggle>
                         </div>
                     </div>
 
@@ -311,7 +365,7 @@ const COLORS = {
                                         [value]="clade"
                                         (selectionChange)="onCladeChange.emit($event.value)">
                                 <mat-option *ngFor="let option of clades" [value]="option.id">
-                                    {{option.id}}
+                                    {{ option.id }}
                                 </mat-option>
                             </mat-select>
                         </div>
@@ -321,7 +375,7 @@ const COLORS = {
         </section>
     `,
     styles: [`
-        
+
         .default-box .default-box-header {
             padding: 0.625rem;
             display: flex;
@@ -536,7 +590,10 @@ export class SettingsPanel {
 
     @Input('config') set config(newConfig) {
         if (this._config !== newConfig) {
-            this._config = newConfig;
+            this._config = newConfig || {};
+            // Ensure layout object exists
+            // Ensure coalescenceLayout exists with safe defaults to avoid template errors
+            this._config.coalescenceLayout = this._config.coalescenceLayout || {};
             this._labelClasses = this._config[$Field.labels]::keys();
             let ids = this._config.visibleGroups || [];
             this._showGroups = new Set((this.groups || []).filter(g => ids.includes(g.id)));
@@ -575,6 +632,7 @@ export class SettingsPanel {
     @Output() onToggleHelperPlane = new EventEmitter();
     @Output() onCladeChange = new EventEmitter();
     @Output() onCladeReset = new EventEmitter();
+    @Output() onUpdateCoalescenceLayout = new EventEmitter();
 
     constructor() {
         this._labelProps = [$Field.id, $Field.name];
@@ -665,6 +723,11 @@ export class SettingsPanel {
     updateLabelContent(labelClass, labelProp) {
         this.config.labels[labelClass] = labelProp;
         this.onUpdateLabelContent.emit(this.config.labels || {})
+    }
+
+    emitCoalescenceLayout() {
+        this.config.coalescenceLayout = this.config.coalescenceLayout || {};
+        this.onUpdateCoalescenceLayout.emit(this.config.coalescenceLayout);
     }
 
     toggleHelperPlane(helper) {

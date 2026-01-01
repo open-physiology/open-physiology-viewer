@@ -12,6 +12,15 @@ import {MatSelectModule} from "@angular/material/select";
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="w3-bar-block vertical-toolbar">
+            <!-- AI Assistant toggle -->
+            <button id="showAssistantBtn" *ngIf="!showAssistant && !hidden('showAssistantBtn')" class="w3-bar-item w3-hover-light-grey"
+                    (click)="onToggleAssistant.emit()" title="Show AI Assistant">
+                <i class="fa fa-robot"> </i>
+            </button>
+            <button id="hideAssistantBtn" *ngIf="showAssistant && !hidden('hideAssistantBtn')" class="w3-bar-item w3-hover-light-grey"
+                    (click)="onToggleAssistant.emit()" title="Hide AI Assistant">
+                <i class="fa fa-window-close"> </i>
+            </button>
             <button id="lockBtn" *ngIf="!lockControls && !hidden('lockBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleControls.emit(true)" title="Lock controls">
                 <i class="fa fa-lock"> </i>
@@ -71,8 +80,7 @@ import {MatSelectModule} from "@angular/material/select";
             <button id="showReportBtn" *ngIf="loggerColor === 'green' && !hidden('showReportBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onShowReport.emit()" title="Show logs">
                 <i class="fa fa-check-circle" style="color:green"> </i>
-            </button>
-
+            </button>            
         </section>
     `,
     styles: [`
@@ -86,6 +94,7 @@ export class ModelToolbar {
     @Input() showImports;
     @Input() lockControls;
     @Input() loggerColor;
+    @Input() showAssistant;
 
     @Output() onToggleControls = new EventEmitter();
     @Output() onToggleShowPanel = new EventEmitter();
@@ -95,6 +104,7 @@ export class ModelToolbar {
     @Output() onProcessQuery = new EventEmitter();
     @Output() onExportResource = new EventEmitter();
     @Output() onShowReport = new EventEmitter();
+    @Output() onToggleAssistant = new EventEmitter();
 
     _skip = new Set();
     @Input() set skip(value){

@@ -115,12 +115,15 @@ export class Snapshot extends Resource {
     }
 
     validate(model){
-        if (this.model !== model.id){
+        const groups = (model && model.groups) || [];
+        const matches = (this.model === model.id) || groups.some(g => g && g.id === this.model);
+        if (!matches){
             return -1;
         }
         if (this.annotation){
-            if (this.annotation.version !== model.version ||
-                this.annotation.lastUpdated !== model.lastUpdated){
+            const candidates = [model, ...groups];
+            const anyMatch = candidates.some(c => c && c.version === this.annotation.version && c.lastUpdated === this.annotation.lastUpdated);
+            if (!anyMatch){
                 return 0;
             }
         }

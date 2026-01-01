@@ -2,6 +2,7 @@ import {Resource} from './resourceModel';
 import {Node} from './verticeModel';
 import {Link} from './edgeModel';
 import {Lyph} from './shapeModel';
+import * as colorSchemes from 'd3-scale-chromatic';
 
 import {isObject, unionBy, merge, keys, entries, isArray, pick, flatten} from 'lodash-bound';
 import {
@@ -422,8 +423,13 @@ export class Group extends Resource {
     }
 
     static createCoalescenceNodes(parentGroup, modelClasses, groupIdx = 0) {
-        const CLS_POS = {x: -50, y: 25 + groupIdx * 5};
-        const CLS_DISTANCE = 5;
+        // Allow overriding default coalescence node positions via parentGroup.coalescenceLayout
+        // const layoutCfg = parentGroup && parentGroup.coalescenceLayout || {};
+        // const startX = Number.isFinite(layoutCfg.startX) ? layoutCfg.startX : -50;
+        // const baseY = Number.isFinite(layoutCfg.baseY) ? layoutCfg.baseY : 25;
+        // const groupYOffset = Number.isFinite(layoutCfg.groupYOffset) ? layoutCfg.groupYOffset : 5;
+        // const distance = Number.isFinite(layoutCfg.distance) ? layoutCfg.distance : 5;
+        // const clsPos = { x: startX, y: baseY + groupIdx * groupYOffset };
         const coalescenceGroup = {
             "id": getGenID($Prefix.coalescence, parentGroup.id),
             "name": "Coalescences in " + (parentGroup.name || parentGroup.namespace || parentGroup.id),
@@ -431,12 +437,14 @@ export class Group extends Resource {
         };
         (parentGroup.coalescences || []).forEach((cls, i) => {
             if (cls.topology !== modelClasses.Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING) {
+                const palette = [...(colorSchemes.schemePaired || []), ...(colorSchemes.schemeDark2 || [])];
+                const color = cls.color || (palette.length ? palette[i % palette.length] : $Color.Coalescence);
                 let group = modelClasses.Coalescence.createNodeGroup(parentGroup, cls);
-                let node = modelClasses.Coalescence.createNodes(group, parentGroup, cls);
-                node.layout = {
-                    "x": CLS_POS.x + i * CLS_DISTANCE,
-                    "y": CLS_POS.y
-                };
+                let node = modelClasses.Coalescence.createNodes(group, parentGroup, cls, color);
+                // node.layout = {
+                //     "x": clsPos.x + i * distance,
+                //     "y": clsPos.y
+                // };
                 cls.group = group.id;
                 coalescenceGroup.groups.push(group.id);
             }
@@ -515,7 +523,9 @@ export class Group extends Resource {
      */
     show() {
         this.hidden = false;
-        this.resources.forEach(entity => delete entity.hidden);
+        this.resources.forEach(entity => {
+            delete entity.hidden;
+        });
     }
 
     /**

@@ -195,16 +195,24 @@ export class AppCommon {
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
         const BRANCH = "main";
-        // Remove imported groups and scaffolds
-        let props = [$Field.groups, $Field.scaffolds, $Field.snapshots];
-        const baseModel = this._model::omit(...props);
-        props.forEach(prop => {
-            if (this._model[prop]) {
-                baseModel[prop] = this._model[prop].filter(g => !g.imported);
+        // Build model for commit based on whether to omit collections (groups/scaffolds/snapshots)
+        const props = [$Field.groups, $Field.scaffolds, $Field.snapshots];
+        const buildModelForCommit = (omitCollections = true) => {
+            // Start with model without the heavy collections
+            let base = this._model;
+            if (omitCollections) {
+                base = base::omit(...props);
+                props.forEach(prop => {
+                    if (this._model[prop]) {
+                        base[prop] = this._model[prop].filter(g => !g.imported);
+                    }
+                });
             }
-        });
+            return base;
+        };
 
-        const FILE_CONTENT = JSON.stringify(baseModel, null, 4);
+        const initialModel = buildModelForCommit(true); // default: omit collections
+        const FILE_CONTENT_OMIT = JSON.stringify(initialModel, null, 4);
         const DEFAULT_COMMIT_MESSAGE = "Add/update JSON file via API";
         const BASE_URL = config.storageURL;
 
@@ -261,7 +269,7 @@ export class AppCommon {
                     width: '75%',
                     data: {
                         oldContent: oldContentText,
-                        newContent: FILE_CONTENT,
+                        newContent: FILE_CONTENT_OMIT,
                         askCommitMessage: true,
                         defaultMessage: DEFAULT_COMMIT_MESSAGE
                     }
@@ -274,6 +282,10 @@ export class AppCommon {
                         return;
                     }
                     const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
+                    const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
+
+                    const modelForCommit = buildModelForCommit(omitCollections);
+                    const fileContent = JSON.stringify(modelForCommit, null, 4);
 
                     // Step 2: Create or update the file
                     makeRequest(
@@ -281,7 +293,7 @@ export class AppCommon {
                         `${BASE_URL}/contents/${FILE_PATH}`,
                         {
                             message: commitMessage,
-                            content: Buffer.from(FILE_CONTENT).toString("base64"), // Convert to Base64
+                            content: Buffer.from(fileContent).toString("base64"), // Convert to Base64
                             branch: BRANCH,
                             sha: fileSHA,
                         },
@@ -349,7 +361,6 @@ export class AppCommon {
             if (this._editor) {
                 this._editor.set(this._model);
             }
-
             this.loading = false;
         }, 0);
     }
@@ -510,6 +521,147 @@ export class AppCommon {
             const blob = new Blob([result], {type: 'application/json'});
             FileSaver.saveAs(blob, this._snapshot.id + '.json');
         }
+    }
+
+    commitSnapshot() {
+        if (!this._snapshot) {
+            this.showErrorMessage("No snapshot to commit!");
+            return;
+        }
+        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+        if (!GITHUB_TOKEN) {
+            throw Error("Set the GITHUB_TOKEN environment variable!");
+        }
+        const BRANCH = "main";
+
+        // Serialize snapshot similar to saveSnapshot()
+        const snapshotJSON = JSON.stringify(this._snapshot.toJSON(2, { [$Field.states]: 4 }), null, 2);
+        const DEFAULT_COMMIT_MESSAGE = `Update snapshot ${this._snapshot.id}`;
+        const BASE_URL = config.storageURL;
+
+        function makeRequest(method, url, body = null, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
+            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        callback(null, JSON.parse(xhr.responseText));
+                    } else {
+                        callback(`Error: ${xhr.status} - ${xhr.responseText}`, null);
+                    }
+                }
+            };
+            xhr.send(body ? JSON.stringify(body) : null);
+        }
+
+        // Store snapshots in a snapshots/ folder next to models in the repo
+        const FILE_PATH = `snapshots/${this._snapshot.id}.json`;
+
+        // Step 1: Get existing file to retrieve SHA and old content
+        makeRequest(
+            "GET",
+            `${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`,
+            null,
+            (err, fileData) => {
+                let fileSHA = null;
+                let oldContentText = "";
+                if (!err && fileData && fileData.content) {
+                    fileSHA = fileData.sha;
+                    try {
+                        const cleaned = fileData.content.replace(/\n/g, "");
+                        oldContentText = atob(cleaned);
+                    } catch (e) {
+                        console.warn("Could not decode existing snapshot content", e);
+                        oldContentText = "";
+                    }
+                } else if (err && err.includes("404")) {
+                    this.showMessage("Snapshot file does not exist. A new one will be created.");
+                } else if (err) {
+                    console.error("❌ Error checking snapshot existence:", err);
+                    this.showErrorMessage("Error checking snapshot existence!");
+                    return;
+                }
+
+                // Show diff and ask for commit message
+                const dialogRef = this._dialog.open(DiffDialog, {
+                    width: '75%',
+                    data: {
+                        oldContent: oldContentText,
+                        newContent: snapshotJSON,
+                        askCommitMessage: true,
+                        defaultMessage: DEFAULT_COMMIT_MESSAGE
+                    }
+                });
+
+                dialogRef.afterClosed().subscribe(result => {
+                    if (!result || result.proceed === false) {
+                        this.showMessage("Snapshot commit canceled.");
+                        return;
+                    }
+                    const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
+
+                    makeRequest(
+                        "PUT",
+                        `${BASE_URL}/contents/${FILE_PATH}`,
+                        {
+                            message: commitMessage,
+                            content: Buffer.from(snapshotJSON).toString("base64"),
+                            branch: BRANCH,
+                            sha: fileSHA,
+                        },
+                        (commitErr) => {
+                            if (commitErr) {
+                                console.error("❌ Error committing snapshot:", commitErr);
+                                this.showErrorMessage("Error committing snapshot!");
+                                return;
+                            }
+                            // Build raw GitHub URL for the committed snapshot and copy to clipboard
+                            const storageURL = config.storageURL || '';
+                            const match = storageURL.match(/repos\/([^/]+)\/([^/]+)/);
+                            const owner = match ? match[1] : 'open-physiology';
+                            const repo  = match ? match[2] : 'apinatomy-models';
+                            const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${BRANCH}/${FILE_PATH}`;
+
+                            const copyToClipboard = async (text) => {
+                                try {
+                                    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+                                        await navigator.clipboard.writeText(text);
+                                        return true;
+                                    }
+                                } catch (e) { /* fall back below */ }
+                                try {
+                                    const ta = document.createElement('textarea');
+                                    ta.value = text;
+                                    ta.style.position = 'fixed';
+                                    ta.style.top = '0';
+                                    ta.style.left = '0';
+                                    ta.style.opacity = '0';
+                                    document.body.appendChild(ta);
+                                    ta.focus();
+                                    ta.select();
+                                    const success = document.execCommand('copy');
+                                    document.body.removeChild(ta);
+                                    return !!success;
+                                } catch (e) {
+                                    return false;
+                                }
+                            };
+
+                            copyToClipboard(rawUrl).then(ok => {
+                                if (ok) {
+                                    this.showMessage("Snapshot committed successfully! location copied to clipboard");
+                                } else {
+                                    this.showMessage(`Snapshot committed successfully! Raw location: ${rawUrl}`);
+                                }
+                            });
+                        }
+                    );
+                });
+            }
+        );
     }
 
 

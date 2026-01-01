@@ -53,6 +53,7 @@ const WindowResize = require('three-window-resize');
                                 [showImports]="graphData?.imports"
                                 [lockControls]="lockControls"
                                 [loggerColor]="loggerColor"
+                                [showAssistant]="showAssistant"
                                 (onToggleControls)="toggleLockControls()"
                                 (onToggleShowPanel)="showPanel = !showPanel"
                                 (onResetCamera)="resetCamera()"
@@ -61,6 +62,7 @@ const WindowResize = require('three-window-resize');
                                 (onProcessQuery)="processQuery()"
                                 (onExportResource)="exportResource($event)"
                                 (onShowReport)="showReport()"
+                                (onToggleAssistant)="onToggleAssistant.emit()"
                         >
                         </model-toolbar>
                         <mat-slider vertical class="w3-grey"
@@ -91,6 +93,7 @@ const WindowResize = require('three-window-resize');
                         (onOpenExternal)="openExternal($event)"
                         (onUpdateShowLabels)="graph?.showLabels($event)"
                         (onUpdateLabelContent)="graph?.labels($event)"
+                        (onUpdateCoalescenceLayout)="graph?.coalescenceLayout($event)"
                         (onToggleMode)="graph?.numDimensions($event)"
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
@@ -124,6 +127,9 @@ const WindowResize = require('three-window-resize');
 export class WebGLSceneComponent {
     @ViewChild('canvas') canvas: ElementRef;
     showPanel = false;
+    // Assistant visibility is controlled by parent; propagate to toolbar
+    @Input() showAssistant;
+    @Output() onToggleAssistant = new EventEmitter();
     scene;
     camera;
     renderer;
@@ -273,7 +279,8 @@ export class WebGLSceneComponent {
                 showLayers: true,
                 showLyphs3d: false,
                 showCoalescences: false,
-                numDimensions: 3
+                numDimensions: 3,
+                coalescenceLayout: { startX: -50, baseY: 25, groupYOffset: 5, distance: 5 }
             },
             showLabels: {
                 [$SchemaClass.Wire]: false,
@@ -350,7 +357,12 @@ export class WebGLSceneComponent {
         if (this.graph) {
             this.graph.showLabels(this._config.showLabels);
             this.graph.labels(this._config.labels);
-            this._config.layout::keys().forEach(prop => this.graph[prop](this._config.layout[prop]));
+            this._config.layout::keys().forEach(prop => {
+                const fn = this.graph && this.graph[prop];
+                if (typeof fn === 'function') {
+                    fn.call(this.graph, this._config.layout[prop]);
+                }
+            });
             this.graphData.showGroups(this._graphData.visibleGroups.map(g => g.id));
         }
     }
@@ -869,7 +881,10 @@ export class WebGLSceneComponent {
 
     toggleLayout(prop) {
         if (this.graph) {
-            this.graph[prop](this._config.layout[prop]);
+            const fn = this.graph && this.graph[prop];
+            if (typeof fn === 'function') {
+                fn.call(this.graph, this._config.layout[prop]);
+            }
         }
     }
 

@@ -32,7 +32,7 @@ import {FormsModule} from "@angular/forms";
     `, styles: [`
         .state-toolbar{
             width : 300px; 
-            margin-left: 150px;
+            margin-left: 190px;
         }
 	`]
 })

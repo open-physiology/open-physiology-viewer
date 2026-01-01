@@ -185,7 +185,34 @@ export default Kapsule({
         showLyphs3d      : { default: false},
         showCoalescences : { default: false},
         showLabels       : { default: {}},
-
+        coalescenceLayout: { 
+            default: { startX: -50, baseY: 25, groupYOffset: 5, distance: 5 },
+            onChange(layout, state){
+                // apply defaults if some values are missing or not finite
+                const cfg = Object.assign({ startX: -50, baseY: 25, groupYOffset: 5, distance: 5 }, layout || {});
+                const graph = state.graphData;
+                if (!graph){ return; }
+                const applyToGroup = (group, groupIdx) => {
+                    if (!group){ return; }
+                    const list = (group.coalescences || []).filter(cls => cls && cls.topology !== modelClasses.Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING);
+                    list.forEach((cls, i) => {
+                        const repId = cls.fullID || cls.id;
+                        const node = (group.nodes || []).find(n => n && n.representsCoalescence === repId);
+                        if (node){
+                            node.layout = node.layout || {};
+                            node.layout.x = Number(cfg.startX) + i * Number(cfg.distance);
+                            node.layout.y = Number(cfg.baseY) + Number(groupIdx) * Number(cfg.groupYOffset);
+                            node.fixed = true;
+                        }
+                    });
+                };
+                // root graph may also have coalescences
+                applyToGroup(graph, -1);
+                // apply to subgroups if present
+                (graph.groups || []).forEach((g, idx) => applyToGroup(g, idx));
+            }
+        },
+        
         labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize     : { default: 0.1},
         labelOffset      : { default: {Vertice: 10, Edge: 5, Lyph: 0, Region: 0}},

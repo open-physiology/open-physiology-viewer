@@ -59,6 +59,7 @@ enableProdMode();
                               (onCreateSnapshot)="createSnapshot()"
                               (onLoadSnapshot)="loadSnapshot($event)"
                               (onSaveSnapshot)="saveSnapshot()"
+                              (onCommitSnapshot)="commitSnapshot()"
             >
             </snapshot-toolbar>
             <state-toolbar id="state-toolbar"
