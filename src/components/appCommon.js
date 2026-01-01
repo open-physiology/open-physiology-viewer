@@ -462,9 +462,13 @@ export class AppCommon {
             })
         }
         this._webGLScene.updateGraph();
-        // If the snapshot state contains an open coalescence dialog id, open it now
+        // If the snapshot state contains an open coalescence dialog id, open it now; otherwise close any open coalescence dialog
         if (activeState.openCoalescenceNodeId && this._webGLScene?.openCoalescenceByResourceId) {
             this._webGLScene.openCoalescenceByResourceId(activeState.openCoalescenceNodeId);
+        } else {
+            if (this._webGLScene?.closeCoalescenceDialog) {
+                this._webGLScene.closeCoalescenceDialog();
+            }
         }
     }
 

@@ -821,6 +821,7 @@ export class WebGLSceneComponent {
                     coalescence: this.selected.representsCoalescence
                 }
             });
+            this._coalescenceDialogRef = dialogRef;
             dialogRef.afterOpened().subscribe(() => {
                 const componentInstance = dialogRef.componentInstance;
                 componentInstance.resizeDialog.subscribe((maximize: boolean) => {
@@ -834,6 +835,7 @@ export class WebGLSceneComponent {
                 if (this.openCoalescenceNodeId === (this.selected && this.selected.id)) {
                     this.openCoalescenceNodeId = undefined;
                 }
+                this._coalescenceDialogRef = undefined;
             });
         }
     }
@@ -855,6 +857,7 @@ export class WebGLSceneComponent {
                 coalescence: node.representsCoalescence
             }
         });
+        this._coalescenceDialogRef = dialogRef;
         dialogRef.afterOpened().subscribe(() => {
             const componentInstance = dialogRef.componentInstance;
             componentInstance.resizeDialog.subscribe((maximize: boolean) => {
@@ -869,6 +872,14 @@ export class WebGLSceneComponent {
                 this.openCoalescenceNodeId = undefined;
             }
         });
+    }
+
+    closeCoalescenceDialog() {
+        if (this._coalescenceDialogRef) {
+            try { this._coalescenceDialogRef.close(); } catch (e) { /* ignore */ }
+            this._coalescenceDialogRef = undefined;
+        }
+        this.openCoalescenceNodeId = undefined;
     }
 
     onMouseMove(evt) {
