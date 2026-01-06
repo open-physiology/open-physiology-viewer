@@ -32,9 +32,11 @@ import {COLORS} from "../utils/colors";
         #svgTree {
             display: block;
             width: 100%;
+            height: 100%;
             top: 0;
             left: 0;
-            min-height: 100%;
+            min-width: 800px; 
+            min-height: 600px;
         }
         
         :host /deep/ text {
@@ -54,6 +56,7 @@ export class DagViewerD3Component {
 
     @Input('rootNode') set node(value) {
         this._rootNode = value;
+        this.hasCenteredRoot = false; // recenter on new data
         this.draw();
     }
     @Output() onNodeSelect = new EventEmitter();
@@ -67,15 +70,20 @@ export class DagViewerD3Component {
 
         this.svg.select("rect")
             .attr("fill", "white");
-            // .on('click', d => this.onEmptyClick())
-            // .on('contextmenu', d => this.onEmptyRightClick(d));
         this.width = this.svgRef.nativeElement.clientWidth;
         this.height = this.svgRef.nativeElement.clientHeight;
         this.draw();
 
         window.addEventListener('resize', () => {
+            // const container = this.svgRef.nativeElement.parentElement;
+            // this.width = container.clientWidth;
+            // this.height = container.clientHeight;
             this.width = this.svgRef.nativeElement.clientWidth;
             this.height = this.svgRef.nativeElement.clientHeight;
+            this.hasCenteredRoot = false;
+            if (this.svg) {
+                this.svg.attr("width", this.width).attr("height", this.height);
+            }
             this.draw();
         }, false);
     }
@@ -162,7 +170,8 @@ export class DagViewerD3Component {
             const transition = this.inner.transition()
                 .duration(duration)
                 .attr("height", height)
-                .attr("viewBox", [-marginLeft, left.x - marginTop, width, height])
+                // Note: viewBox on a <g> has no effect; keeping transition for compatibility
+                .attr("viewBox", [-marginLeft, left.x - marginTop - (height - (right.x - left.x)) / 2, width, height])
                 .tween("resize", window.ResizeObserver ? null : () => () => this.inner.dispatch("toggle"));
 
             // Update the nodes…
@@ -246,10 +255,20 @@ export class DagViewerD3Component {
                 d.x0 = d.x;
                 d.y0 = d.y;
             });
+
+            // Center the root once after layout is computed
+            if (!this.hasCenteredRoot) {
+                // Defer to end of the current tick to ensure sizes are computed
+                setTimeout(() => {
+                    this.centerOnNode(root);
+                    this.hasCenteredRoot = true;
+                }, 0);
+            }
         }
 
         root.x0 = dy / 2;
-        root.y0 = 0;
+        root.y0 = marginLeft;
+
         root.descendants().forEach((d, i) => {
             d.id = i;
             d._children = d.children;
@@ -260,6 +279,24 @@ export class DagViewerD3Component {
         this.resizeCanvas();
     }
 
+    // Center given node (typically root) in the SVG viewport using zoom transform.
+    centerOnNode(node, scale = 1) {
+        if (!this.svg || !this.zoom || !node) return;
+        const svgEl = this.svgRef.nativeElement;
+        const svgWidth = svgEl.clientWidth || this.width || 1000;
+        const svgHeight = svgEl.clientHeight || this.height || 800;
+
+        // Current layout uses x (vertical) and y (horizontal).
+        const targetX = node.x;
+        const targetY = node.y;
+
+        const translateX = (svgWidth / 2) - (targetY * scale);
+        const translateY = (svgHeight / 2) - (targetX * scale);
+
+        const t = d3.zoomIdentity.translate(translateX, translateY).scale(scale);
+        this.svg.transition().duration(350).call(this.zoom.transform, t);
+    }
+
     @HostListener('window:resize', ['$event'])
     getScreenSize(event?) {
           this.screenHeight = window.innerHeight;
@@ -268,7 +305,7 @@ export class DagViewerD3Component {
 
     resizeCanvas(){
         this.svg.attr("width", Math.max(this.screenWidth, 1000));
-        this.svg.attr("height", Math.max(this.screenHeight, 1000));
+        this.svg.attr("height", Math.max(this.screenHeight, 800));
     }
 }
 
