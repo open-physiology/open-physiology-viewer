@@ -24,9 +24,9 @@ import {COLORS} from "../utils/colors";
     `,
     styles: [`      
         #materialGraphViewer {
-            height: 100vh;
-            overflow-y: scroll;
-            overflow-x: scroll;
+            height: 90vh;
+            overflow-y: auto;
+            overflow-x: auto;
         }
 
         #svgTree {

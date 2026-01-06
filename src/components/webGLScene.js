@@ -27,12 +27,14 @@ import {$Field, $SchemaClass} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./dialogs/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
-import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
+import {$Color, getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
 import {LyphDialog} from "./dialogs/lyphDialog";
+import {MaterialTreeDialog, MaterialTreeDialogModule} from "./dialogs/materialTreeDialog";
 import {ModelToolbarModule} from "./toolbars/modelToolbar";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {buildTree} from "./structs/materialNode";
 
 const WindowResize = require('three-window-resize');
 
@@ -280,7 +282,7 @@ export class WebGLSceneComponent {
                 showLyphs3d: false,
                 showCoalescences: false,
                 numDimensions: 3,
-                coalescenceLayout: { startX: -50, baseY: 25, groupYOffset: 5, distance: 5 }
+                coalescenceLayout: {startX: -50, baseY: 25, groupYOffset: 5, distance: 5}
             },
             showLabels: {
                 [$SchemaClass.Wire]: false,
@@ -761,6 +763,7 @@ export class WebGLSceneComponent {
                     child.material.color.setHex(color);
                 }
             });
+            this._highlightCoalescenceLinks(entity, this.highlightColor);
         }
     }
 
@@ -777,7 +780,8 @@ export class WebGLSceneComponent {
                 if (child.material) {
                     child.material.color.setHex(child.currentHex || this.defaultColor);
                 }
-            })
+            });
+            this._unhighlightCoalescenceLinks(entity);
         }
     }
 
@@ -806,12 +810,36 @@ export class WebGLSceneComponent {
                     }
                 });
             } else {
-                const dialogRef = this.dialog.open(LyphDialog, {
-                    width: '40%', height: '40%', data: {
-                        lyph: this.selected
+                if (this.selected.layers?.length > 0) {
+                    this.dialog.open(LyphDialog, {
+                        width: '40%', height: '40%', data: {
+                            lyph: this.selected
+                        }
+                    });
+                }
+            }
+            // Show material hierarchy dialog for lyph materials
+            if (this.selected.materials?.length > 0) {
+                const entitiesByID = this._graphData?.entitiesByID || {};
+                const roots = (this.selected.materials || [])
+                    .map(m => buildTree(entitiesByID, m, true, true))
+                    .filter(x => x);
+                this.openMaterialTreeLyphId = this.selected.id;
+                const dialogRef = this.dialog.open(MaterialTreeDialog, {
+                    width: '80vw', height: '70vh', maxWidth: '95vw', data: {
+                        title: `Materials of ${this.selected.name || this.selected.id}`,
+                        roots
                     }
                 });
+                this._materialTreeDialogRef = dialogRef;
+                dialogRef.afterClosed().subscribe(() => {
+                    if (this.openMaterialTreeLyphId === (this.selected && this.selected.id)) {
+                        this.openMaterialTreeLyphId = undefined;
+                    }
+                    this._materialTreeDialogRef = undefined;
+                });
             }
+
         }
         if (this.selected?.representsCoalescence) {
             //Show coalescence dialog
@@ -845,6 +873,26 @@ export class WebGLSceneComponent {
         window.addEventListener('dblclick', () => this.onDblClick(), false);
     }
 
+    _unhighlightCoalescenceLinks(node) {
+        if (node?.representsCoalescence) {
+            let links = node.getIncidentLinks() || [];
+            links.forEach(entity => {
+                const color = entity.color || node.color;
+                const hexColor = parseInt(color.slice(1), 16);
+                this.highlight(entity, hexColor, false);
+            });
+        }
+    }
+
+    _highlightCoalescenceLinks(node, color) {
+        if (node?.representsCoalescence) {
+            let links = node.getIncidentLinks() || [];
+            links.forEach(entity => {
+                this.highlight(entity, color, true);
+            });
+        }
+    }
+
     openCoalescenceByResourceId(nodeId) {
         if (!nodeId) return;
         const node = (this._graphData?.resources || []).find(e => e.id === nodeId);
@@ -876,10 +924,47 @@ export class WebGLSceneComponent {
 
     closeCoalescenceDialog() {
         if (this._coalescenceDialogRef) {
-            try { this._coalescenceDialogRef.close(); } catch (e) { /* ignore */ }
+            try {
+                this._coalescenceDialogRef.close();
+            } catch (e) { /* ignore */
+            }
             this._coalescenceDialogRef = undefined;
         }
         this.openCoalescenceNodeId = undefined;
+    }
+
+    openMaterialTreeByLyphId(lyphId) {
+        if (!lyphId) return;
+        const lyph = (this._graphData?.lyphs || []).find(e => e.id === lyphId);
+        if (!lyph) return;
+        const entitiesByID = this._graphData?.entitiesByID || {};
+        const roots = (lyph.materials || [])
+            .map(m => buildTree(entitiesByID, m, true, true))
+            .filter(x => x);
+        this.openMaterialTreeLyphId = lyph.id;
+        const dialogRef = this.dialog.open(MaterialTreeDialog, {
+            width: '80vw', height: '70vh', maxWidth: '95vw', data: {
+                title: `Materials of ${lyph.name || lyph.id}`,
+                roots
+            }
+        });
+        this._materialTreeDialogRef = dialogRef;
+        dialogRef.afterClosed().subscribe(() => {
+            if (this.openMaterialTreeLyphId === lyph.id) {
+                this.openMaterialTreeLyphId = undefined;
+            }
+            this._materialTreeDialogRef = undefined;
+        });
+    }
+
+    closeMaterialTreeDialog() {
+        if (this._materialTreeDialogRef) {
+            try {
+                this._materialTreeDialogRef.close();
+            } catch (e) { /* ignore */ }
+            this._materialTreeDialogRef = undefined;
+        }
+        this.openMaterialTreeLyphId = undefined;
     }
 
     onMouseMove(evt) {
@@ -991,9 +1076,9 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule,
-        ModelToolbarModule, HotkeyModule.forRoot()],
+        ModelToolbarModule, MaterialTreeDialogModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
-    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog],
+    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog, MaterialTreeDialog],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

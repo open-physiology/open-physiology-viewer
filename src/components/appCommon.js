@@ -322,6 +322,13 @@ export class AppCommon {
         });
     }
 
+    showWarningMessage(message) {
+        this._snackBar.open(message, "Warning", {
+            panelClass: ['w3-panel', 'w3-orange'],
+            duration: 2000
+        });
+    }
+
     loadFromRepo({fileName, fileContent}) {
         let [name, extension] = fileExtensionRe.exec(fileName);
         extension = extension.toLowerCase();
@@ -424,6 +431,10 @@ export class AppCommon {
         if (this._webGLScene && this._webGLScene.openCoalescenceNodeId) {
             state_json.openCoalescenceNodeId = this._webGLScene.openCoalescenceNodeId;
         }
+        // Include open material tree dialog lyph id if any
+        if (this._webGLScene && this._webGLScene.openMaterialTreeLyphId) {
+            state_json.openMaterialTreeLyphId = this._webGLScene.openMaterialTreeLyphId;
+        }
         return this.modelClasses.State.fromJSON(state_json, this.modelClasses, this._graphData.entitiesByID);
     }
 
@@ -470,6 +481,14 @@ export class AppCommon {
                 this._webGLScene.closeCoalescenceDialog();
             }
         }
+        // If the snapshot contains an open material tree dialog lyph id, open it; otherwise, close if open
+        if (activeState.openMaterialTreeLyphId && this._webGLScene?.openMaterialTreeByLyphId) {
+            this._webGLScene.openMaterialTreeByLyphId(activeState.openMaterialTreeLyphId);
+        } else {
+            if (this._webGLScene?.closeMaterialTreeDialog) {
+                this._webGLScene.closeMaterialTreeDialog();
+            }
+        }
     }
 
     previousState() {
@@ -508,10 +527,10 @@ export class AppCommon {
         let newSnapshot = this.modelClasses.Snapshot.fromJSON(value, this.modelClasses, this._graphData.entitiesByID);
         const match = newSnapshot.validate(this._graphData);
         if (match < 0) {
-            this.showErrorMessage("Snapshot is not applicable to the model!");
+            this.showWarningMessage("Snapshot is not applicable to the main model!");
         } else {
             if (match === 0) {
-                this.showMessage("Snapshot corresponds to a different version of the model!");
+                this.showWarningMessage("Snapshot corresponds to a different version of the model!");
             }
         }
         this._snapshot = newSnapshot;

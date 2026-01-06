@@ -3202,6 +3202,10 @@
         "openCoalescenceNodeId": {
           "description": "Identifier of a node representing coalescence with an open dialog",
           "$ref": "#/definitions/IdentifierScheme"
+        },
+        "openMaterialTreeLyphId": {
+          "description": "Identifier of a lyph with an open material tree dialog",
+          "$ref": "#/definitions/IdentifierScheme"
         }
       }
     },

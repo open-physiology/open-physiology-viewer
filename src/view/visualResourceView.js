@@ -1,4 +1,5 @@
 import {modelClasses} from "../model";
+// import {SpriteText2D} from "./text/spriteText2D";
 import {SpriteText2D} from "three-text2d";
 
 import {

@@ -59,12 +59,12 @@ const ace = require('ace-builds');
 
 const TAB_INDEX = {
     viewer: 0,
-    relation: 1,
-    code: 2,
-    material: 3,
-    lyph: 4,
-    chain: 5,
-    coalescence: 6
+    code: 1,
+    material: 2,
+    lyph: 3,
+    chain: 4,
+    coalescence: 5,
+    // relation: 6
 }
 
 @Component({

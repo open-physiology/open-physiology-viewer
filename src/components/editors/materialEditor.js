@@ -25,78 +25,9 @@ import {
 import {SearchOptions} from "../utils/searchOptions";
 import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
-import {limitLabel} from "../utils/helpers";
 import mprintResources from "../../data/mprint.json";
 import {MatTabsModule} from "@angular/material/tabs";
-
-/**
- * Css class names to represent ApiNATOMY resource classes
- * @type {{LYPH: string, UNDEFINED: string, TEMPLATE: string, MATERIAL: string}}
- */
-const CLASS = {
-    LYPH: $SchemaClass.Lyph,
-    MATERIAL: $SchemaClass.Material,
-    TEMPLATE: "Template",
-    UNDEFINED: "Undefined"
-}
-
-const EDGE_CLASS = {
-    MATERIAL: 'has-material',
-    NEW: 'has-new'
-}
-
-/**
- * @class
- * @property id
- * @property parents
- * @property children
- * @property label
- * @property type
- * @property resource
- * @property category
- */
-export class MaterialNode {
-    constructor(id, parents, children, label, type, resource) {
-        this.id = id;
-        this.parents = parents;
-        this.children = children;
-        this.label = limitLabel(label);
-        this.type = type;
-        this.resource = resource;
-    }
-
-    /**
-     * @param material - ApiNATOMY material resource object
-     * @param clsName - resource type
-     * @returns {MaterialNode}
-     */
-    static createInstance(material, clsName = CLASS.MATERIAL) {
-        return new this(
-            material.id,
-            (material._inMaterials || []).map(parent => parent.id),
-            (material.materials || []).map(child => child.id ? child.id : child),
-            material.name || material.id,
-            (clsName === CLASS.LYPH && material.isTemplate) ? CLASS.TEMPLATE : clsName,
-            material
-        );
-    }
-}
-
-/**
- * @class
- * @property id
- * @property parent
- * @property child
- * @property type
- */
-export class Edge {
-    constructor(id, parent, child, type) {
-        this.id = id;
-        this.source = parent;
-        this.target = child;
-        this.type = type;
-    }
-}
+import {MaterialNode, Edge, MAT_NODE_CLASS, MAT_EDGE_CLASS, buildTree} from "../structs/materialNode";
 
 @Component({
     selector: 'materialEditor',
@@ -216,7 +147,7 @@ export class Edge {
         <mat-menu #rightMenu="matMenu">
             <ng-template matMenuContent let-item="item" let-type="type" let-hasParents="hasParents"
                          let-hasChildren="hasChildren">
-                <div *ngIf="[CLASS.LYPH, CLASS.TEMPLATE, CLASS.MATERIAL].includes(type)">
+                <div *ngIf="[MAT_NODE_CLASS.LYPH, MAT_NODE_CLASS.TEMPLATE, MAT_NODE_CLASS.MATERIAL].includes(type)">
                     <button mat-menu-item (click)="deleteMaterial(item)">Delete</button>
                     <button *ngIf="!hasChildren" mat-menu-item (click)="deleteDefinition(item)">Delete definition
                     </button>
@@ -227,17 +158,17 @@ export class Edge {
                     <button *ngIf="selectedNode !== item" mat-menu-item (click)="linkMaterial(item)">Connect to selected
                     </button>
                 </div>
-                <button *ngIf="[CLASS.LYPH, CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents"
+                <button *ngIf="[MAT_NODE_CLASS.LYPH, MAT_NODE_CLASS.TEMPLATE].includes(type) && !hasChildren && !hasParents"
                         mat-menu-item (click)="excludeLyph(item)">Exclude from view
                 </button>
-                <div *ngIf="type === CLASS.UNDEFINED && !item.includes(':')">
+                <div *ngIf="type === MAT_NODE_CLASS.UNDEFINED && !item.includes(':')">
                     <button mat-menu-item (click)="defineAsMaterial(item)">Define as material</button>
                     <button mat-menu-item (click)="defineAsLyphTemplate(item)">Define as lyph template</button>
                 </div>
-                <button *ngIf="type === EDGE_CLASS.MATERIAL" mat-menu-item (click)="removeRelation(item)">Delete
+                <button *ngIf="type === MAT_EDGE_CLASS.MATERIAL" mat-menu-item (click)="removeRelation(item)">Delete
                     relation
                 </button>
-                <button *ngIf="type === EDGE_CLASS.NEW" mat-menu-item (click)="addMaterial(item)">Add material</button>
+                <button *ngIf="type === MAT_EDGE_CLASS.NEW" mat-menu-item (click)="addMaterial(item)">Add material</button>
             </ng-template>
         </mat-menu>
     `,
@@ -284,19 +215,19 @@ export class Edge {
             height: 32px;
         }
 
-        :host /deep/ g.${CLASS.UNDEFINED} > rect {
+        :host /deep/ g.${MAT_NODE_CLASS.UNDEFINED} > rect {
             fill: ${COLORS.undefined};
         }
 
-        :host /deep/ g.${CLASS.MATERIAL} > rect {
+        :host /deep/ g.${MAT_NODE_CLASS.MATERIAL} > rect {
             fill: ${COLORS.material};
         }
 
-        :host /deep/ g.${CLASS.LYPH} > rect {
+        :host /deep/ g.${MAT_NODE_CLASS.LYPH} > rect {
             fill: ${COLORS.lyph};
         }
 
-        :host /deep/ g.${CLASS.TEMPLATE} > rect {
+        :host /deep/ g.${MAT_NODE_CLASS.TEMPLATE} > rect {
             fill: ${COLORS.template};
         }
 
@@ -368,8 +299,8 @@ export class Edge {
  */
 export class MaterialEditorComponent extends ResourceEditor {
     _helperFields = ['_class', '_generated', '_inMaterials', '_included'];
-    CLASS = CLASS;
-    EDGE_CLASS = EDGE_CLASS;
+    MAT_NODE_CLASS = MAT_NODE_CLASS;
+    MAT_EDGE_CLASS = MAT_EDGE_CLASS;
 
     showTree = false;
     graphD3;
@@ -665,7 +596,7 @@ export class MaterialEditorComponent extends ResourceEditor {
         });
         (this._model.lyphs || []).forEach(m => {
             if ((m._inMaterials || []).length > 0 || (m.materials || []).length > 0 || m._included) {
-                let node = MaterialNode.createInstance(m, CLASS.LYPH);
+                let node = MaterialNode.createInstance(m, MAT_NODE_CLASS.LYPH);
                 this.nodes.push(node);
                 m._included = true;
             }
@@ -673,7 +604,7 @@ export class MaterialEditorComponent extends ResourceEditor {
         });
         (created || []).forEach(m => {
             if (m.id) {
-                let node = MaterialNode.createInstance(m, CLASS.UNDEFINED);
+                let node = MaterialNode.createInstance(m, MAT_NODE_CLASS.UNDEFINED);
                 this.nodes.push(node);
             }
         });
@@ -727,41 +658,7 @@ export class MaterialEditorComponent extends ResourceEditor {
     }
 
     onDblClick(nodeID) {
-        const buildTree = (rootMat, includeChildren = true, includeParents = true) => {
-            let root = MaterialNode.createInstance(rootMat, rootMat._class);
-            let notFound = [];
-            if (includeChildren && rootMat.materials) {
-                root.children = rootMat.materials.map(child => {
-                    let mat = child::isObject() ? child : this.entitiesByID[child];
-                    if (mat) {
-                        return buildTree(mat, true, false);
-                    } else {
-                        notFound.push(child);
-                    }
-                });
-            } else {
-                delete root.children;
-            }
-            if (includeParents && rootMat._inMaterials) {
-                let parents = rootMat._inMaterials.map(parent => {
-                    let mat = parent::isObject() ? parent : this.entitiesByID[parent];
-                    if (mat) {
-                        return buildTree(mat, false, true);
-                    } else {
-                        notFound.push(parent);
-                    }
-                });
-                (parents || []).forEach(p => {
-                    p.category = 'parent';
-                });
-                root.children = (root.children || []).concat(parents);
-            }
-            if (notFound.length > 0) {
-                root.children = root.children.filter(e => e);
-            }
-            return root;
-        }
-        this.selectedTreeNode = buildTree(this.entitiesByID[nodeID]);
+        this.selectedTreeNode = buildTree(this.entitiesByID, this.entitiesByID[nodeID]);
         this.showTree = true;
     }
 
@@ -836,9 +733,9 @@ export class MaterialEditorComponent extends ResourceEditor {
     onRightClick(nodeID) {
         d3.event.preventDefault();
         let node = this.entitiesByID[nodeID];
-        let type = CLASS.UNDEFINED;
+        let type = MAT_NODE_CLASS.UNDEFINED;
         if (!node._generated) {
-            type = node._class === $SchemaClass.Material ? CLASS.MATERIAL : node.isTemplate ? CLASS.TEMPLATE : CLASS.LYPH;
+            type = node._class === $SchemaClass.Material ? MAT_NODE_CLASS.MATERIAL : node.isTemplate ? MAT_NODE_CLASS.TEMPLATE : MAT_NODE_CLASS.LYPH;
         }
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
@@ -863,7 +760,7 @@ export class MaterialEditorComponent extends ResourceEditor {
 
     onEmptyRightClick() {
         d3.event.preventDefault();
-        let type = EDGE_CLASS.NEW;
+        let type = MAT_EDGE_CLASS.NEW;
         this.menuTopLeftPosition.x = d3.event.clientX + 'px';
         this.menuTopLeftPosition.y = d3.event.clientY + 'px';
         this.matMenuTrigger.menuData = {item: [d3.event.clientX, d3.event.clientY - 48], type: type}
@@ -958,10 +855,10 @@ export class MaterialEditorComponent extends ResourceEditor {
         }
         this.graphD3.setNode(newMat.id, {
             label: newMat.name || newMat.id,
-            class: CLASS.MATERIAL
+            class: MAT_NODE_CLASS.MATERIAL
         });
         this.inner.call(this.render, this.graphD3);
-        let newNode = MaterialNode.createInstance(newMat, CLASS.MATERIAL);
+        let newNode = MaterialNode.createInstance(newMat, MAT_NODE_CLASS.MATERIAL);
         this.nodes.push(newNode);
         let node = this.graphD3.node(newMat.id);
         if (node) {
@@ -1011,11 +908,11 @@ export class MaterialEditorComponent extends ResourceEditor {
             delete this.entitiesByID[nodeID]._class;
             let node = this.graphD3.node(nodeID);
             if (node) {
-                node.class = CLASS.UNDEFINED;
+                node.class = MAT_NODE_CLASS.UNDEFINED;
                 let val = d3.select(node.elem).attr("class")
-                    .replace(CLASS.MATERIAL, CLASS.UNDEFINED)
-                    .replace(CLASS.LYPH, CLASS.UNDEFINED)
-                    .replace(CLASS.TEMPLATE, CLASS.UNDEFINED);
+                    .replace(MAT_NODE_CLASS.MATERIAL, MAT_NODE_CLASS.UNDEFINED)
+                    .replace(MAT_NODE_CLASS.LYPH, MAT_NODE_CLASS.UNDEFINED)
+                    .replace(MAT_NODE_CLASS.TEMPLATE, MAT_NODE_CLASS.UNDEFINED);
                 d3.select(node.elem).attr("class", val);
             }
             this.saveStep("Delete definition " + nodeID);
@@ -1027,8 +924,8 @@ export class MaterialEditorComponent extends ResourceEditor {
         lyph.isTemplate = true;
         let node = this.graphD3.node(nodeID);
         if (node) {
-            node.class = CLASS.TEMPLATE;
-            let val = d3.select(node.elem).attr("class").replace(CLASS.UNDEFINED, CLASS.TEMPLATE);
+            node.class = MAT_NODE_CLASS.TEMPLATE;
+            let val = d3.select(node.elem).attr("class").replace(MAT_NODE_CLASS.UNDEFINED, MAT_NODE_CLASS.TEMPLATE);
             d3.select(node.elem).attr("class", val);
         }
         this.saveStep("Define as lyph " + nodeID);
@@ -1038,8 +935,8 @@ export class MaterialEditorComponent extends ResourceEditor {
         this.addDefinition($Field.materials, nodeID);
         let node = this.graphD3.node(nodeID);
         if (node) {
-            node.class = CLASS.MATERIAL;
-            let val = d3.select(node.elem).attr("class").replace(CLASS.UNDEFINED, CLASS.MATERIAL);
+            node.class = MAT_NODE_CLASS.MATERIAL;
+            let val = d3.select(node.elem).attr("class").replace(MAT_NODE_CLASS.UNDEFINED, MAT_NODE_CLASS.MATERIAL);
             d3.select(node.elem).attr("class", val);
         }
         this.saveStep("Define as material " + nodeID);
@@ -1141,9 +1038,9 @@ export class MaterialEditorComponent extends ResourceEditor {
             if (!node && mat._class === $SchemaClass.Lyph) {
                 this.graphD3.setNode(matID, {
                     label: mat.name,
-                    class: mat.isTemplate ? CLASS.TEMPLATE : CLASS.LYPH
+                    class: mat.isTemplate ? MAT_NODE_CLASS.TEMPLATE : MAT_NODE_CLASS.LYPH
                 });
-                let newNode = MaterialNode.createInstance(mat, CLASS.LYPH);
+                let newNode = MaterialNode.createInstance(mat, MAT_NODE_CLASS.LYPH);
                 this.nodes.push(newNode);
                 this.inner.call(this.render, this.graphD3);
                 node = this.graphD3.node(matID);

@@ -41,11 +41,11 @@ export function prepareContext(context){
 
 export const systemPrompt = 'You are an assistant helping edit and validate JSON model with ' +
         'physiology definitions such as lyphs (compartments), materials, chains, and coalescences.' +
-        'Provide precise, actionable answers. When a user ask to create a new resource, use only properties defined in ' +
+        'Provide precise, actionable answers. When a user asks to create a new resource, use only properties defined in ' +
         'the JSON Schema (if included to the context). ' +
         'If the definition requires several new resources, avoid creating nested JSON objects, ' +
         'instead list all of them and refer from one resource to another by its identifier.' +
-        'When model is not included to the context and the users asks a generic question, answer to the question.';
+        'When model is not included to the context and the user asks a generic question, answer to the question.';
 
 /**
  * Very lightweight intent detector for "create new" resource flows that should open editors.

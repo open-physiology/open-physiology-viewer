@@ -312,4 +312,10 @@ export class Node extends Vertice {
             }
         });
     }
+
+     getIncidentLinks() {
+        const src = Array.isArray(this.sourceOf) ? this.sourceOf : [];
+        const tgt = Array.isArray(this.targetOf) ? this.targetOf : [];
+        return src.concat(tgt).filter(l => !!l);
+    }
 }
