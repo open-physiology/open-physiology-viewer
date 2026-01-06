@@ -1,4 +1,4 @@
-import {Component, Inject, NgModule} from '@angular/core';
+import {Component, Inject, NgModule, ViewChild, ElementRef} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
@@ -14,10 +14,10 @@ import {MaterialGraphViewerModule} from "../editors/materialGraphViewer";
             </button>
         </div>
         <b mat-dialog-title>{{data?.title}}</b>
-        <div mat-dialog-content class="content">
+        <div mat-dialog-content class="content" #contentContainer>
             <ng-container *ngIf="roots && roots.length > 0; else noData">
                 <div class="graph" *ngFor="let root of roots">
-                    <materialGraphViewer [rootNode]="root" (onNodeSelect)="onSelect($event)"></materialGraphViewer>
+                    <materialGraphViewer [rootNode]="roots[0]" [minWidth]="width" [minHeight]="height" (onNodeSelect)="onSelect($event)"></materialGraphViewer>
                 </div>
             </ng-container>
             <ng-template #noData>
@@ -53,6 +53,9 @@ export class MaterialTreeDialog {
     dialogRef;
     data;
     roots = [];
+    @ViewChild('contentContainer') contentContainer: ElementRef;
+    width = 0;
+    height = 0;
 
     constructor(dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
@@ -68,6 +71,16 @@ export class MaterialTreeDialog {
         };
         const inputRoots = (data && data.roots) ? data.roots : [];
         this.roots = inputRoots.map(normalize).filter(x => x);
+    }
+
+    ngAfterViewInit() {
+        this.width = this.contentContainer.nativeElement.clientWidth;
+        this.height = this.contentContainer.nativeElement.clientHeight;
+
+        window.addEventListener('resize', () => {
+            this.width = this.contentContainer.nativeElement.clientWidth;
+            this.height = this.contentContainer.nativeElement.clientHeight;
+        }, false);
     }
 
     onSelect(nodeId){

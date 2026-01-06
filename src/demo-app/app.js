@@ -21,7 +21,7 @@ import "@fortawesome/fontawesome-free/css/all.css";
 import "@fortawesome/fontawesome-free/js/v4-shims";
 import "@fortawesome/fontawesome-free/css/v4-shims.css";
 
-import {MatSnackBar, MatSnackBarConfig, MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 import {ImportDialog} from "../components/dialogs/importDialog";
 import {WebGLSceneModule} from '../components/webGLScene';
 import {enableProdMode} from '@angular/core';
@@ -29,6 +29,8 @@ import {enableProdMode} from '@angular/core';
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {AppCommon} from "../components/appCommon";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
+import config from "../data/config.json";
+import {processImports} from "../model";
 
 enableProdMode();
 
@@ -203,7 +205,53 @@ export class DemoApp extends AppCommon {
     }
 
     ngAfterViewInit() {
-        this.model = defaultTestModel;
+        const fileName = 'renal-wbkg-scaffold-snapshot-v1.json';
+        const metaUrl = `${config.storageContentURL}${fileName}`;
+        try {
+            this.http.get(metaUrl).subscribe((meta) => {
+                const downloadUrl = meta && meta.download_url ? meta.download_url : null;
+                if (!downloadUrl) {
+                    this.showErrorMessage('Failed to resolve model download URL');
+                    return;
+                }
+                this.http.get(downloadUrl).subscribe((model) => {
+                    // Set main model
+                    this.model = model;
+                    // Load and import dependencies if any
+                    const imports = (model && model.imports) ? model.imports : [];
+                    if (imports.length > 0) {
+                        const getJSON = (url) => new Promise((resolve, reject) => {
+                            try {
+                                this.http.get(url).subscribe(resolve, reject);
+                            } catch (e) {
+                                reject(e);
+                            }
+                        });
+                        Promise.all(imports.map(u => getJSON(u)))
+                            .then(values => {
+                                if (values && values.length > 0) {
+                                    processImports(this._model, values);
+                                    // Re-assign to trigger graph regeneration and UI update
+                                    this.model = this._model;
+                                }
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                this.showWarningMessage('Some imports failed to load');
+                            });
+                    }
+                }, err => {
+                    console.error(err);
+                    this.showErrorMessage('Failed to download model');
+                });
+            }, err => {
+                console.error(err);
+                this.showErrorMessage('Failed to access model metadata');
+            });
+        } catch (e) {
+            console.error(e);
+            this.showErrorMessage('Unexpected error while loading model');
+        }
     }
 }
 

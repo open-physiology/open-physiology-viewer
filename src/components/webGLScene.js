@@ -763,7 +763,8 @@ export class WebGLSceneComponent {
                     child.material.color.setHex(color);
                 }
             });
-            this._highlightCoalescenceLinks(entity, this.highlightColor);
+
+            this._highlightCoalescenceLinks(entity, color);
         }
     }
 

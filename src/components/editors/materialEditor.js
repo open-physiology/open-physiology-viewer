@@ -83,6 +83,7 @@ import {MaterialNode, Edge, MAT_NODE_CLASS, MAT_EDGE_CLASS, buildTree} from "../
                 </section>
                 <section [hidden]="!showTree">
                     <materialGraphViewer
+                            [minWidth]="screenWidth" [minHeight]="screenHeight"
                             [rootNode]="selectedTreeNode"
                             (onNodeSelect)="onNodeClick($event)"
                     >
