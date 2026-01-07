@@ -75,6 +75,7 @@ const WindowResize = require('three-window-resize');
                         </mat-slider>
                     </section>
                 </section>
+                <div class="scene-tooltips" #auxTips></div>
                 <canvas #canvas></canvas>
             </section>
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
@@ -113,10 +114,24 @@ const WindowResize = require('three-window-resize');
             height: 100%;
         }
 
+        #apiLayoutContainer {
+            position: relative;
+        }
+
         #apiLayoutSettingsPanel {
             height: 100%;
             overflow-y: scroll;
             overflow-x: auto;
+        }
+
+        .scene-tooltips {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
         }
     `]
 })
@@ -127,7 +142,10 @@ const WindowResize = require('three-window-resize');
  * @property {Object} camera
  */
 export class WebGLSceneComponent {
+    auxTips = [];
+    _auxTipNodes = [];
     @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('auxTips') auxTipsRef: ElementRef;
     showPanel = false;
     // Assistant visibility is controlled by parent; propagate to toolbar
     @Input() showAssistant;
@@ -708,6 +726,52 @@ export class WebGLSceneComponent {
         this.controls.enabled = !this.lockControls;
     }
 
+    _clearAuxTips() {
+        this.auxTips = [];
+        this._auxTipNodes = [];
+        const container = this.auxTipsRef && this.auxTipsRef.nativeElement;
+        if (container) {
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+        }
+    }
+
+    _setAuxTipsForCoalescence(node) {
+        if (!node || !node.representsCoalescence) return;
+        const container = this.auxTipsRef && this.auxTipsRef.nativeElement;
+        if (!container) return;
+        this._clearAuxTips();
+        const width = this.renderer.domElement.clientWidth;
+        const height = this.renderer.domElement.clientHeight;
+        const links = node.getIncidentLinks ? (node.getIncidentLinks() || []) : [];
+
+        let prevY = 0;
+        links.forEach((link) => {
+            let lyph = link.target.internalIn;
+            if (!lyph) return;
+            const div = document.createElement('div');
+            div.className = 'aux-tip';
+            div.textContent = lyph.name || lyph.id;
+            //div.style.position = 'absolute';
+
+            const W = new THREE.Vector3(link.target.x, link.target.y, link.target.z);
+            const w = W.project(this.camera); // now x,y,z ∈ [-1,1]
+            const x = (w.x * 0.5 + 0.5) * width;
+            const sign = (link.target.y > node.y)? 1: -1;
+            const delta = 20;
+            let y = (1 - (w.y * 0.5 + 0.5)) * height - delta * sign;
+            if (Math.abs(prevY-y) < 5) y -= delta * sign;
+            prevY = y;
+
+            div.style.left = x+'px';
+            div.style.top = y+'px';
+            container.appendChild(div);
+
+            this.auxTips.push({div, node: lyph});
+        });
+    }
+
     getMouseOverEntity() {
         if (!this.graph) return;
 
@@ -765,6 +829,9 @@ export class WebGLSceneComponent {
             });
 
             this._highlightCoalescenceLinks(entity, color);
+            if (entity?.representsCoalescence) {
+                this._setAuxTipsForCoalescence(entity);
+            }
         }
     }
 
@@ -783,6 +850,9 @@ export class WebGLSceneComponent {
                 }
             });
             this._unhighlightCoalescenceLinks(entity);
+            if (entity?.representsCoalescence) {
+                this._clearAuxTips();
+            }
         }
     }
 
@@ -962,14 +1032,14 @@ export class WebGLSceneComponent {
         if (this._materialTreeDialogRef) {
             try {
                 this._materialTreeDialogRef.close();
-            } catch (e) { /* ignore */ }
+            } catch (e) { /* ignore */
+            }
             this._materialTreeDialogRef = undefined;
         }
         this.openMaterialTreeLyphId = undefined;
     }
 
     onMouseMove(evt) {
-        // calculate mouse position in normalized device coordinates
         let rect = this.renderer.domElement.getBoundingClientRect();
         this.mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;

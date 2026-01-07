@@ -240,5 +240,17 @@ tree-node-checkbox {
     z-index: 1000;
 }
 
+.aux-tip {
+    position: absolute;
+    background: #ffdde5; /* light pink */
+    color: #000;
+    border: 1px solid #cc6699;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    transform: translate(-50%, -100%);
+}
+
 
 
