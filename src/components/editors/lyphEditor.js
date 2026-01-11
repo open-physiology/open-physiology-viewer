@@ -150,14 +150,14 @@ const TREE = {
                 </lyphDeclaration>
 
 
-                <div *ngIf="selectedLyph.supertype">
-                    <span class="title w3-margin-left">Supertype</span>
-                    <linkedResource
-                            [resource]="selectedLyph.supertype"
-                            [color]="COLORS.tooltipBorder"
-                            [highlightColor]="COLORS.template">
-                    </linkedResource>
-                </div>
+<!--                <div *ngIf="selectedLyph.supertype">-->
+<!--                    <span class="title w3-margin-left">Supertype</span>-->
+<!--                    <linkedResource-->
+<!--                            [resource]="selectedLyph.supertype"-->
+<!--                            [color]="COLORS.tooltipBorder"-->
+<!--                            [highlightColor]="COLORS.template">-->
+<!--                    </linkedResource>-->
+<!--                </div>-->
 <!--                <searchAddBar-->
 <!--                        [searchOptions]="externalLyphTemplateOptions"-->
 <!--                        [selected]="selectedLyph.supertype"-->
