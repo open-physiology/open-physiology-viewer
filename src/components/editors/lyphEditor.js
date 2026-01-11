@@ -150,6 +150,21 @@ const TREE = {
                 </lyphDeclaration>
 
 
+                <div *ngIf="selectedLyph.supertype">
+                    <span class="title w3-margin-left">Supertype</span>
+                    <linkedResource
+                            [resource]="selectedLyph.supertype"
+                            [color]="COLORS.tooltipBorder"
+                            [highlightColor]="COLORS.template">
+                    </linkedResource>
+                </div>
+<!--                <searchAddBar-->
+<!--                        [searchOptions]="externalLyphTemplateOptions"-->
+<!--                        [selected]="selectedLyph.supertype"-->
+<!--                        (selectedItemChange)="selectExternalSupertype($event)"-->
+<!--                        (addSelectedItem)="addExternalSupertype($event)"-->
+<!--                >-->
+                
                 <mat-tab-group animationDuration="0ms" #tabChainMethod>
                     <mat-tab class="w3-margin">
                         <!-- Chains -->

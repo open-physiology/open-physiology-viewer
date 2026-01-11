@@ -112,7 +112,7 @@
     "kapsule": "^1.13.3",
     "lodash-bound": "^1.1.2",
     "ngx-color-picker": "^14.0.0",
-    "ngx-diff": "^5.0.0",
+    "ngx-diff": "^3.0.0",
     "object-hash": "^3.0.0",
     "rdflib": "^2.2.35",
     "reflect-metadata": "^0.1.13",
