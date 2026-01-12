@@ -1,0 +1,39 @@
+{
+  "name": "basicStratification",
+  "created": "2026-01-12",
+  "lastUpdated": "2026-01-12",
+  "stratifications": [
+    {
+      "id": "st1",
+      "strata": [
+        "m1",
+        "m2",
+        "m3"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "id": "lnk1",
+      "conveysStratification": "st1"
+    }
+  ],
+  "materials": [
+    {
+      "id": "m1",
+      "color": "red"
+    },
+    {
+      "id": "m2",
+      "color": "yellow"
+    },
+    {
+      "id": "m3",
+      "color": "green"
+    }
+  ],
+  "version": "975807d5dee04394a3c4e084431ec2b614e7204e",
+  "id": "main",
+  "namespace": "nm_basic",
+  "schemaVersion": "69015a000e859c27fcade3513164849ed7329dbb"
+}

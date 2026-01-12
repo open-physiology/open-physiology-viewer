@@ -183,6 +183,10 @@ Link.prototype.updateViewObjects = function(state) {
     this.viewObjects['icon']      = this.conveyingLyph?.viewObjects["main"];
     this.viewObjects['iconLabel'] = this.conveyingLyph?.viewObjects["label"];
 
+    // Update conveyed stratification (2D simplified icon)
+    this.conveyingStratification?.updateViewObjects(state);
+    this.viewObjects['stratification'] = this.conveyingStratification?.viewObjects["main"];
+
     // let edgeObj = this.viewObjects["edge"];
     // if (edgeObj){
     //     copyCoords(edgeObj.position, this.conveyingLyph.center);

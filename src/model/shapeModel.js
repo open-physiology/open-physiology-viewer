@@ -1,4 +1,5 @@
 import {VisualResource} from './visualResourceModel';
+import {Resource} from './resourceModel';
 import {Node} from './verticeModel';
 import {Edge, Link} from './edgeModel';
 import {clone, merge, pick, isObject, isNumber, mergeWith, values} from 'lodash-bound';
@@ -840,5 +841,23 @@ export class Border extends VisualResource {
 
     get isVisible(){
         return this.host? this.host.isVisible: super.isVisible;
+    }
+}
+
+
+/**
+ * Stratification model
+ * @property strata
+ * @property conveys
+ */
+export class Stratification extends Resource {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+        json.class = json.class || $SchemaClass.Stratification;
+        // Support alias: some inputs may specify `materials` instead of `strata`
+        if (!json.strata && json.materials) {
+            json.strata = json.materials;
+        }
+        json.strata = json.strata || [];
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
 }

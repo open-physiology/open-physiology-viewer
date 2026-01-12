@@ -53,6 +53,7 @@ export const ModelType = {
  * @property Border
  * @property Shape
  * @property Lyph
+ * @property Stratification
  * @property Region
  * @property Anchor
  * @property Wire

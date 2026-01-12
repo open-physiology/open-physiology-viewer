@@ -12,7 +12,7 @@ import {VarianceSpec} from "./varianceSpecModel";
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
-import {Shape, Lyph, Region, Border} from './shapeModel'
+import {Shape, Lyph, Region, Border, Stratification} from './shapeModel'
 import {Coalescence} from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
 import {isString, keys, assign, isObject, merge} from "lodash-bound";
@@ -47,6 +47,7 @@ export const modelClasses = {
     [$SchemaClass.OntologyTerm]: OntologyTerm,
     [$SchemaClass.VarianceSpec]: VarianceSpec,
     [$SchemaClass.Coalescence]: Coalescence,
+    [$SchemaClass.Stratification]: Stratification,
     [$SchemaClass.Channel]: Channel,
     [$SchemaClass.Chain]: Chain,
     [$SchemaClass.Tree]: Tree,

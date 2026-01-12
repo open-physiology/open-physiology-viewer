@@ -12,10 +12,10 @@ import {
     lyphShape,
     extractCoords,
     isInRange,
-    THREE
+    THREE, direction
 } from "./utils";
 
-const {Region, Lyph, Border, Wire, VisualResource, Shape} = modelClasses;
+const {Region, Lyph, Border, Wire, VisualResource, Shape, Stratification} = modelClasses;
 
 /**
  * Create visual object for shape
@@ -306,6 +306,76 @@ Lyph.prototype.updateViewObjects = function(state) {
     if (this.layerIn || this.internalIn) { return; }
 
     this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Lyph));
+};
+
+/**
+ * Create visual objects for a stratification (2D only)
+ */
+Stratification.prototype.createViewObjects = function(state) {
+    VisualResource.prototype.createViewObjects.call(this, state);
+
+    if (this.viewObjects["2d"]) { return; }
+
+    // Parent group for all strata rectangles
+    const group = new THREE.Group();
+    group.userData = this;
+
+    const strata = this.strata || [];
+    const n = Math.max(1, strata.length);
+
+    // Determine total visual dimensions relative to conveying link if present
+    const link = this.conveys;
+    const totalWidth = 20; // fixed visual width in world units (simplified)
+    const totalHeight = link && link.length ? Math.max(20, link.length * 0.6) : 60; // proportional to link length if available
+
+    // Create equal-height rectangles stacked along Y (height split), same width for all
+    const rectWidth = totalWidth;
+    const rectHeight = totalHeight / n;
+
+    for (let i = 0; i < n; i++) {
+        const mat = strata[i];
+        const color = (mat && mat.color) ? mat.color : "#cccccc";
+        const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: true });
+        const geometry = new THREE.PlaneGeometry(rectWidth, rectHeight);
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.userData = { host: this, stratum: mat };
+        // Position each rectangle so the stack is centered vertically around origin
+        mesh.position.y = (i + 0.5) * rectHeight - totalHeight / 2;
+        // Border (optional): simple line outline using EdgesGeometry
+        const edgeGeo = new THREE.EdgesGeometry(geometry);
+        const edgeMat = new THREE.LineBasicMaterial({ color: "#333333" });
+        const edges = new THREE.LineSegments(edgeGeo, edgeMat);
+        mesh.add(edges);
+        group.add(mesh);
+    }
+
+    this.viewObjects["2d"] = group;
+    this.viewObjects["main"] = group;
+};
+
+/**
+ * Update visual objects for a stratification
+ */
+Stratification.prototype.updateViewObjects = function(state) {
+    VisualResource.prototype.updateViewObjects.call(this, state);
+
+    this.createViewObjects(state);
+    const obj = this.viewObjects["2d"];
+    if (!obj) { return; }
+
+    // Visibility: tie to showLyphs (no dedicated toggle exists)
+    obj.visible = this.isVisible && state.showLyphs;
+
+    // Center around the conveying link if available, but keep in world XY plane
+    const link = this.conveys;
+    if (link && link.viewObjects && link.viewObjects["main"]) {
+        copyCoords(obj.position, link.center || link.viewObjects["main"].position);
+        let axis = direction(link.source, link.target).normalize();
+        obj.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), axis);
+    } else
+        if (this.center) {
+            copyCoords(obj.position, this.center);
+        }
 };
 
 /**
