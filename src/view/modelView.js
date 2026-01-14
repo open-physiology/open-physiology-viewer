@@ -7,7 +7,7 @@ import './verticeView';
 import './edgeView';
 import './shapeView';
 
-const {Group, Link, Coalescence, Component, Chain, Node} = modelClasses;
+const {Group, Link, Coalescence, Component, Chain, Node, Lyph, Stratification} = modelClasses;
 
 
 //Update chain with dynamic ends
@@ -112,17 +112,13 @@ Chain.prototype.update = function () {
  */
 Group.prototype.createViewObjects = function (state) {
     (this.scaffolds || []).forEach(scaffold => {
-        if (!(scaffold instanceof Component)) {
-            return;
-        }
+        if (!(scaffold instanceof Component)) return;
         scaffold.createViewObjects(state);
         scaffold.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
     this.visibleNodes.forEach(node => {
-        if (!(node instanceof Node)) {
-            return;
-        }
+        if (!(node instanceof Node)) return;
         node.createViewObjects(state);
         node.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
@@ -130,14 +126,18 @@ Group.prototype.createViewObjects = function (state) {
     (this.chains || []).forEach(chain => chain.update && chain.update());
 
     this.visibleLinks.forEach(link => {
-        if (!(link instanceof Link)) {
-            return;
-        }
+        if (!(link instanceof Link)) return;
         link.createViewObjects(state);
         link.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE) {
             link.viewObjects["main"].material.visible = false;
         }
+    });
+
+    this.visibleLyphs.forEach(lyph => {
+        if (!(lyph instanceof Lyph)) return;
+        lyph.createViewObjects(state);
+        lyph.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 };
 
@@ -219,7 +219,7 @@ Group.prototype.updateViewObjects = function (state) {
  * @param state
  */
 Component.prototype.createViewObjects = function (state) {
-    [this.visibleAnchors, this.visibleWires, this.visibleRegions].forEach(resArray =>
+    [this.visibleAnchors, this.visibleWires, this.visibleRegions, this.visibleStratifications].forEach(resArray =>
         resArray.forEach(res => {
             res.createViewObjects(state);
             res.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));

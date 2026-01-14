@@ -1,0 +1,57 @@
+{
+  "name": "basicStratification",
+  "created": "2026-01-12",
+  "lastUpdated": "2026-01-14",
+  "stratifications": [
+    {
+      "id": "st1",
+      "strata": [
+        "m1",
+        "m2",
+        "m3"
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "id": "a",
+      "layout": {
+        "x": -10,
+        "y": 0
+      }
+    },
+    {
+      "id": "b",
+      "layout": {
+        "x": 10,
+        "y": 0
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "w1",
+      "source": "a",
+      "target": "b",
+      "hasStratification": "st1"
+    }
+  ],
+  "materials": [
+    {
+      "id": "m1",
+      "color": "red"
+    },
+    {
+      "id": "m2",
+      "color": "yellow"
+    },
+    {
+      "id": "m3",
+      "color": "green"
+    }
+  ],
+  "version": "d791b98098a0279dab59d004bc19b891683d3c83",
+  "id": "main",
+  "namespace": "nm_basic",
+  "schemaVersion": "b81026cf7f5f33f08dd2ad23221976b9fd662056"
+}

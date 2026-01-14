@@ -133,11 +133,6 @@ export class Link extends Edge {
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
 
-        // Accept alias field `conveysStratification` used in some inputs
-        if (json.conveysStratification && !json.conveyingStratification) {
-            json.conveyingStratification = json.conveysStratification;
-        }
-
         [$Field.source, $Field.target].forEach(prop => json[prop] = json[prop] || getGenID($Prefix[prop], json.id));
 
         json.class = json.class || $SchemaClass.Link;

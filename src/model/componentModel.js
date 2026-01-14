@@ -136,6 +136,10 @@ export class Component extends Resource {
         return (this.regions||[]).filter(e => e.isVisible);
     }
 
+    get visibleStratifications(){
+        return (this.stratifications||[]).filter(e => e.isVisible);
+    }
+
     markImported(){
         if (this.imported) {
             let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();

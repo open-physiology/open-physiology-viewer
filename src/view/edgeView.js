@@ -183,16 +183,6 @@ Link.prototype.updateViewObjects = function(state) {
     this.viewObjects['icon']      = this.conveyingLyph?.viewObjects["main"];
     this.viewObjects['iconLabel'] = this.conveyingLyph?.viewObjects["label"];
 
-    // Update conveyed stratification (2D simplified icon)
-    this.conveyingStratification?.updateViewObjects(state);
-    this.viewObjects['stratification'] = this.conveyingStratification?.viewObjects["main"];
-
-    // let edgeObj = this.viewObjects["edge"];
-    // if (edgeObj){
-    //     copyCoords(edgeObj.position, this.conveyingLyph.center);
-    // }
-
-
     //Update buffered geometries
     //Do not update links with fixed node positions
     if (this.geometry === Link.LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
@@ -314,6 +304,11 @@ Wire.prototype.updateViewObjects = function(state) {
         (anchor.targetOf||[]).forEach(w => w.updateViewObjects(state));
 
     });
+
+    // Update stratification (2D simplified icon)
+    this.hasStratification?.updateViewObjects(state);
+    this.viewObjects['icon']      = this.hasStratification?.viewObjects["main"];
+    this.viewObjects['iconLabel'] = this.hasStratification?.viewObjects["label"];
 
     this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Edge));
 

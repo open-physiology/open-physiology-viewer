@@ -23,11 +23,11 @@ import {LogInfoModule, LogInfoDialog} from "./dialogs/logInfoDialog";
 import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field, $SchemaClass} from "../model";
+import {$Field, $SchemaClass, isScaffold} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./dialogs/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
-import {$Color, getFullID, VARIANCE_PRESENCE} from "../model/utils";
+import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
 import {LyphDialog} from "./dialogs/lyphDialog";
@@ -383,7 +383,10 @@ export class WebGLSceneComponent {
                     fn.call(this.graph, this._config.layout[prop]);
                 }
             });
-            this.graphData.showGroups(this._graphData.visibleGroups.map(g => g.id));
+            let visibleGroups = isScaffold(this._graphData)?
+                (this._graphData.visibleComponents||[]).map(g => g.id):
+                (this._graphData.visibleGroups||[]).map(g => g.id);
+            this.graphData.showGroups(visibleGroups);
         }
     }
 

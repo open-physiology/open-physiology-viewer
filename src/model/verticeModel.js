@@ -37,6 +37,9 @@ export class Anchor extends Vertice {
         json.class = json.class || $SchemaClass.Anchor;
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
     }
+
+    // Empty function needed to suppress warning from Resource that includeRelated is not available
+    includeRelated(group){}
 }
 
 /**

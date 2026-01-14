@@ -245,7 +245,7 @@ export class Graph extends Group {
             //Collect inherited externals
             (res.lyphs || []).forEach(lyph => {
                 if (!lyph.collectInheritedExternals) {
-                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph.id, lyph.class, "collectInheritedExternals");
+                    logger.error($LogMsg.CLASS_ERROR_RESOURCE, "collectInheritedExternals", lyph.id, lyph.class);
                 } else {
                     lyph.collectInheritedExternals();
                 }
@@ -490,7 +490,7 @@ export class Graph extends Group {
         };
         noAxisLyphs.forEach(lyph => {
             if (!lyph.createAxis) {
-                logger.error($LogMsg.CLASS_ERROR_RESOURCE, lyph);
+                logger.error($LogMsg.CLASS_ERROR_RESOURCE, "createAxis", lyph);
                 return;
             }
             let link = lyph.createAxis(modelClasses, entitiesByID, lyph.namespace);

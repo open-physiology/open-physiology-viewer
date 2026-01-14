@@ -98,15 +98,15 @@
         },
         "anchoredNode": {
           "description": "Nodes anchored by the current anchor point",
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Node"
-              }
-            ],
-            "relatedTo": "anchoredTo"
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Node"
+            }
+          ],
+          "relatedTo": "anchoredTo"
         }
       }
     },
@@ -483,7 +483,7 @@
               "$ref": "#/definitions/Chain"
             }
           ],
-           "relatedTo": "specializations"
+          "relatedTo": "specializations"
         }
       }
     },
@@ -687,6 +687,34 @@
               },
               {
                 "$ref": "#/definitions/Region"
+              }
+            ]
+          }
+        },
+        "materials": {
+          "description": "Biological materials, chemical elements and compounds, used in the model",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Material"
+              }
+            ]
+          }
+        },
+        "stratifications": {
+          "description": "Stratifications define arrangement of materials in multiple layers (strata). This architectural feature is a key classification criterion, primarily for epithelial tissues, where cells are stacked on top of each other.",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Stratification"
               }
             ]
           }
@@ -1089,20 +1117,6 @@
           },
           "default": []
         },
-        "stratifications": {
-          "description": "Stratifications define arrangement of materials in multiple layers (strata). This architectural feature is a key classification criterion, primarily for epithelial tissues, where cells are stacked on top of each other.",
-          "type": "array",
-          "items": {
-            "anyOf": [
-              {
-                "$ref": "#/definitions/IdentifierScheme"
-              },
-              {
-                "$ref": "#/definitions/Stratification"
-              }
-            ]
-            }
-        },
         "lyphs": {
           "description": "Lyphs provide schematic explanation of physiology structures, i.e., tissue layers that constitute a certain organ. By rotating the lyph shape around its axis, we can create a tube (open, semi-closed or closed on both sides) that structurally resembles a meaningful physiological element, i.e., a blood vessel or a neural cell.",
           "type": "array",
@@ -1378,18 +1392,6 @@
             },
             {
               "$ref": "#/definitions/Lyph"
-            }
-          ],
-          "relatedTo": "conveys"
-        },
-        "conveyingStratification": {
-          "description": "Conveying stratification for the process represented by the link",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Stratification"
             }
           ],
           "relatedTo": "conveys"
@@ -2130,17 +2132,21 @@
           },
           "default": []
         },
-        "conveys": {
-          "description": "A link conveying the stratification",
+        "isTemplate": {
+          "description": "Indicates that the lyph defines layers for its subtypes",
+          "type": "boolean"
+        },
+        "wiredTo": {
+          "description": "A wire to position the stratification",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
             },
             {
-              "$ref": "#/definitions/Link"
+              "$ref": "#/definitions/Wire"
             }
           ],
-          "relatedTo": "conveyingStratification"
+          "relatedTo": "hasStratification"
         }
       }
     },
@@ -3173,6 +3179,18 @@
               }
             ]
           },
+          "relatedTo": "wiredTo"
+        },
+        "hasStratification": {
+          "description": "Conveying stratification for the process represented by the link",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Stratification"
+            }
+          ],
           "relatedTo": "wiredTo"
         }
       },
