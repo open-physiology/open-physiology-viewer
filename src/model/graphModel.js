@@ -22,7 +22,7 @@ import {
     isIncluded, includeRef,
     collectNestedResources,
     getFullID, genResource,
-    pickColor, deleteRecursively, findResourceByID,
+    pickColor, deleteRecursively, findResourceByID, isScaffold
 } from "./utils";
 import {
     extractLocalConventions,
@@ -41,7 +41,6 @@ import {createBG} from "./bondGraphRDF";
 import {addJSONLDType, getJSONLDContext} from "./utilsJSONLD";
 
 export {schema};
-
 
 
 /**
@@ -157,7 +156,7 @@ export class Graph extends Group {
             inputModel.groups = inputModel.groups || [];
 
             //Collect resources necessary for template expansion from all groups
-            let relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels,
+            const relFieldNames = [$Field.nodes, $Field.links, $Field.lyphs, $Field.materials, $Field.groups, $Field.channels,
                 $Field.varianceSpecs];
             collectNestedResources(inputModel, relFieldNames, $Field.groups);
 

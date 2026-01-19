@@ -322,7 +322,8 @@ export class Resource{
     /**
      * Prepare a circular resource object to be serialized in JSON.
      * @param depth - number of nested objects that are exported in full, helps to output resources with recursive dependencies
-     * @param inlineResources - a set of properties that refer to inline resources that should not be replaced with their identifiers
+     * @param inlineResources - a set of properties that refer to inline resources that should not be replaced
+     * with their identifiers
      * @returns JSON object with serializable properties of current the resource
      */
     toJSON(depth = 1, inlineResources = {}){
@@ -343,15 +344,20 @@ export class Resource{
          */
         function fieldToJSON(value, depth) { return value::isArray()? value.map(e => valueToJSON(e, depth)): valueToJSON(value, depth); }
 
-        if (depth <= 0) {
+        if (!depth || depth <= 0) {
             return this.fullID || this.id || null;
         }
 
         let res = {};
-        const omitKeys = (this::keys())::difference(schemaClassModels[this.class].fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
-        this::keys().filter(key => this[key] !== undefined && !omitKeys.includes(key)).forEach(key => {
-            res[key] = fieldToJSON(this[key], (inlineResources[key] || depth) - 1);
-        });
+        const fieldNames = schemaClassModels[this.class].fieldNames;
+        const omitKeys = (this::keys())::difference(fieldNames).concat([$Field.viewObjects, $Field.infoFields, $Field.labels]);
+        const includedKeys = this::keys().filter(key => this[key] !== undefined && !omitKeys.includes(key));
+        includedKeys.forEach(key => {
+            if (inlineResources[key]){
+                depth += 1;
+            }
+            res[key] = fieldToJSON(this[key],  depth - 1);}
+        );
         return res;
     }
 

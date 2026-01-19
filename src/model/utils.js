@@ -54,6 +54,7 @@ export const ModelType = {
  * @property Shape
  * @property Lyph
  * @property Stratification
+ * @property StratifiedRegion
  * @property Region
  * @property Anchor
  * @property Wire
@@ -108,8 +109,35 @@ export const $Color = {
     Node: "#000",
     Region: "#c0c0c0",
     InternalNode: "#ccc",
-    Coalescence: "#ff8844"
 };
+
+/**
+ * Determines whether the given JSON specification defines a scaffold
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isScaffold(inputModel) {
+    return !!(inputModel.components || inputModel.anchors || inputModel.wires
+        || inputModel.regions || inputModel.stratifications);
+}
+
+/**
+ * Determines whether the given JSON specification defines a snapshot model
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isSnapshot(inputModel) {
+    return !!(inputModel.model && inputModel.states);
+}
+
+/**
+ * Determines whether the given JSON specification defines a connectivity model
+ * @param inputModel
+ * @returns {boolean}
+ */
+export function isGraph(inputModel) {
+    return !!(inputModel.lyphs || inputModel.links || inputModel.nodes);
+}
 
 export const $Prefix = {
     node: "node",   //generated node

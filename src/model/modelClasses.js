@@ -12,7 +12,7 @@ import {VarianceSpec} from "./varianceSpecModel";
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
-import {Shape, Lyph, Region, Border, Stratification} from './shapeModel'
+import {Shape, Lyph, Region, Border, Stratification, StratifiedRegion} from './shapeModel'
 import {Coalescence} from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
 import {isString, keys, assign, isObject, merge} from "lodash-bound";
@@ -27,7 +27,8 @@ import {
     assignEntityByID,
     $SchemaType,
     getGenID,
-    getGenName, $Prefix
+    getGenName, $Prefix,
+    isScaffold, isSnapshot, isGraph
 } from "./utils";
 
 const hash = require('object-hash');
@@ -47,7 +48,6 @@ export const modelClasses = {
     [$SchemaClass.OntologyTerm]: OntologyTerm,
     [$SchemaClass.VarianceSpec]: VarianceSpec,
     [$SchemaClass.Coalescence]: Coalescence,
-    [$SchemaClass.Stratification]: Stratification,
     [$SchemaClass.Channel]: Channel,
     [$SchemaClass.Chain]: Chain,
     [$SchemaClass.Tree]: Tree,
@@ -65,9 +65,11 @@ export const modelClasses = {
 
     /* Shapes */
     [$SchemaClass.Material]: Material,
+    [$SchemaClass.Stratification]: Stratification,
     [$SchemaClass.Region]: Region,
     [$SchemaClass.Lyph]: Lyph,
     [$SchemaClass.Border]: Border,
+    [$SchemaClass.StratifiedRegion]: StratifiedRegion,
 
     /* Scaffold */
     [$SchemaClass.State]: State,
@@ -108,32 +110,6 @@ export function loadModel(content, name, extension, isBinary = true) {
     return newModel;
 }
 
-/**
- * Determines whether the given JSON specification defines a scaffold
- * @param inputModel
- * @returns {boolean}
- */
-export function isScaffold(inputModel) {
-    return !!(inputModel.components || inputModel.anchors || inputModel.wires);
-}
-
-/**
- * Determines whether the given JSON specification defines a snapshot model
- * @param inputModel
- * @returns {boolean}
- */
-export function isSnapshot(inputModel) {
-    return !!(inputModel.model && inputModel.states);
-}
-
-/**
- * Determines whether the given JSON specification defines a connectivity model
- * @param inputModel
- * @returns {boolean}
- */
-export function isGraph(inputModel) {
-    return !!(inputModel.lyphs || inputModel.links || inputModel.nodes);
-}
 
 /**
  * Convert model from Excel template to JSON input specification

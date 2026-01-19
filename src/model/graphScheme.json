@@ -706,7 +706,7 @@
           }
         },
         "stratifications": {
-          "description": "Stratifications define arrangement of materials in multiple layers (strata). This architectural feature is a key classification criterion, primarily for epithelial tissues, where cells are stacked on top of each other.",
+          "description": "Stratifications define abstract arrangement of materials in multiple layers (strata)",
           "type": "array",
           "items": {
             "anyOf": [
@@ -715,6 +715,20 @@
               },
               {
                 "$ref": "#/definitions/Stratification"
+              }
+            ]
+          }
+        },
+        "stratifiedRegions": {
+          "description": "Regions generated from abstract stratifications assigned to wired",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/StratifiedRegion"
               }
             ]
           }
@@ -2113,7 +2127,7 @@
       "description": "Defines a stratification composed of layers of materials",
       "allOf": [
         {
-          "$ref": "#/definitions/Shape"
+          "$ref": "#/definitions/VisualResource"
         }
       ],
       "properties": {
@@ -2132,21 +2146,35 @@
           },
           "default": []
         },
-        "isTemplate": {
-          "description": "Indicates that the lyph defines layers for its subtypes",
-          "type": "boolean"
+        "subtypes": {
+          "description": "Regions in the stratification to position lyphs",
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/StratifiedRegion"
+              }
+            ]
+          },
+          "default": []
         },
-        "wiredTo": {
+        "axisWires": {
           "description": "A wire to position the stratification",
-          "anyOf": [
-            {
-              "$ref": "#/definitions/IdentifierScheme"
-            },
-            {
-              "$ref": "#/definitions/Wire"
-            }
-          ],
-          "relatedTo": "hasStratification"
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/IdentifierScheme"
+              },
+              {
+                "$ref": "#/definitions/Wire"
+              }
+            ],
+            "relatedTo": "stratification"
+          }
         }
       }
     },
@@ -2651,10 +2679,40 @@
             ]
           },
           "relatedTo": "internalIn"
+        }
+      }
+    },
+    "StratifiedRegion": {
+      "description": "Area occupied by bordy part of subsystem",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Shape"
+        }
+      ],
+      "properties": {
+        "supertype": {
+          "description": "Lyph which is an anatomical supertype of the given lyph",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Stratification"
+            }
+          ],
+          "relatedTo": "subtypes"
         },
-        "depth": {
-          "description": "Can be used to order flat shapes on the same plane (polygonOffsetFactor, currently only applies to regions)",
-          "type": "number"
+        "axisWire": {
+          "description": "Scaffold wire that defines layout of the chain",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/Wire"
+            }
+          ],
+          "relatedTo": "stratifiedRegion"
         }
       }
     },
@@ -2858,6 +2916,10 @@
             "$ref": "#/definitions/Point2Scheme"
           },
           "readOnly": true
+        },
+        "depth": {
+          "description": "Can be used to change default order of flat shapes on the same plane (polygonOffsetFactor)",
+          "type": "number"
         }
       }
     },
@@ -3181,8 +3243,8 @@
           },
           "relatedTo": "wiredTo"
         },
-        "hasStratification": {
-          "description": "Conveying stratification for the process represented by the link",
+        "stratification": {
+          "description": "Stratification of materials surrounding the wire",
           "anyOf": [
             {
               "$ref": "#/definitions/IdentifierScheme"
@@ -3191,7 +3253,19 @@
               "$ref": "#/definitions/Stratification"
             }
           ],
-          "relatedTo": "wiredTo"
+          "relatedTo": "wires"
+        },
+        "stratifiedRegion": {
+          "description": "Stratification of materials surrounding the wire",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/StratifiedRegion"
+            }
+          ],
+          "relatedTo": "axisWire"
         }
       },
       "dependencies": {

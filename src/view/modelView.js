@@ -219,7 +219,7 @@ Group.prototype.updateViewObjects = function (state) {
  * @param state
  */
 Component.prototype.createViewObjects = function (state) {
-    [this.visibleAnchors, this.visibleWires, this.visibleRegions, this.visibleStratifications].forEach(resArray =>
+    [this.visibleAnchors, this.visibleWires, this.visibleRegions, this.visibleStratifiedRegions].forEach(resArray =>
         resArray.forEach(res => {
             res.createViewObjects(state);
             res.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));

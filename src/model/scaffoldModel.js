@@ -102,13 +102,21 @@ export class Scaffold extends Component {
         let namespace = inputModel.namespace || defaultNamespace;
 
         if (!inputModel.generated) {
-            let relFieldNames = [$Field.anchors, $Field.wires, $Field.regions];
+            const relFieldNames = [$Field.anchors, $Field.wires, $Field.regions, $Field.components,
+                $Field.stratifications
+                //$Field.stratifiedRegions - usually generated, no need to collect
+            ];
             collectNestedResources(inputModel, relFieldNames, $Field.components);
 
             replaceReferencesToExternal(inputModel, inputModel.localConventions);
             inputModel.componentsByID::values().forEach(json => {
                 json.class = json.class || $SchemaClass.Component;
                 replaceReferencesToExternal(json, json.localConventions || inputModel.localConventions);
+            });
+
+            modelClasses.Component.createStratifiedRegions(inputModel, modelClasses);
+            inputModel.componentsByID::values().forEach(json => {
+                modelClasses.Component.createStratifiedRegions(json, modelClasses);
             });
         }
 
@@ -212,6 +220,7 @@ export class Scaffold extends Component {
         return model;
     }
 
+
     static jsonToExcel(json) {
         const propNames = schemaClassModels[$SchemaClass.Scaffold].propertyNames;
         const sheetNames = schemaClassModels[$SchemaClass.Scaffold].relationshipNames;
@@ -235,7 +244,8 @@ export class Scaffold extends Component {
             "resources": {}
         };
         (this.entitiesByID||{})::entries().forEach(([id,obj]) =>
-            res.resources[id] = (obj instanceof Resource) ? obj.toJSON() : obj);
+            res.resources[id] = (obj instanceof Resource) ? obj.toJSON() : obj
+        );
         return res;
     }
 

@@ -8,7 +8,7 @@ import {
     isIncluded,
     mergeRecursively,
     schemaClassModels,
-    showGroups
+    showGroups, getID, getRefID, getGenID, refToResource
 } from "./utils";
 import {logger, $LogMsg} from "./logger";
 import {Anchor} from './verticeModel';
@@ -20,7 +20,9 @@ import {Region} from './shapeModel';
  * @property anchors
  * @property wires
  * @property regions
- * @property components
+ * @property components,
+ * @property stratifications,
+ * @property stratifiedRegions
  */
 export class Component extends Resource {
 
@@ -136,8 +138,8 @@ export class Component extends Resource {
         return (this.regions||[]).filter(e => e.isVisible);
     }
 
-    get visibleStratifications(){
-        return (this.stratifications||[]).filter(e => e.isVisible);
+    get visibleStratifiedRegions(){
+        return (this.stratifiedRegions||[]).filter(e => e.isVisible);
     }
 
     markImported(){
@@ -164,5 +166,11 @@ export class Component extends Resource {
         } else {
             this.show();
         }
+    }
+
+    static createStratifiedRegions(parentGroup, modelClasses) {
+        (parentGroup.stratifications || []).forEach(template => {
+                modelClasses.Stratification.createStratifiedRegions(parentGroup, template);
+        });
     }
 }

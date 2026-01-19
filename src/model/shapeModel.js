@@ -703,6 +703,8 @@ export class Lyph extends Shape {
  * @property {Array<Anchor>} internalAnchors
  * @property {Array<Region>} internalRegions
  * @property {Region} internalIn
+ * @property {Array<Region>} layers
+ * @property {Region} layerIn
  * @property {Group} hostedGroup
  */
 export class Region extends Shape {
@@ -846,6 +848,18 @@ export class Border extends VisualResource {
 
 
 /**
+ * Stratified Region model
+ * @property supertype
+ * @property axisWire
+ */
+export class StratifiedRegion extends Shape {
+    static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
+        json.class = $SchemaClass.StratifiedRegion;
+        return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+}
+
+/**
  * Stratification model
  * @property strata
  * @property conveys
@@ -859,5 +873,23 @@ export class Stratification extends Resource {
         }
         json.strata = json.strata || [];
         return super.fromJSON(json, modelClasses, entitiesByID, namespace);
+    }
+
+    static createStratifiedRegions(parentGroup, template){
+        (template.axisWires||[]).forEach(wire => {
+            const wireID = getID(wire);
+            const templateID = getID(template);
+            const res = genResource({
+                [$Field.id]: getGenID(wireID, templateID),
+                [$Field.class]: $SchemaClass.StratifiedRegion,
+                [$Field.supertype]: templateID,
+                [$Field.axisWire]: wireID
+            }, "shapeModel.createStratifiedRegions");
+            mergeGenResource(undefined, parentGroup, res, $Field.stratifiedRegions);
+            template.subtypes = template.subtypes || [];
+            if (!isIncluded(template.subtypes, res.id)) {
+                template.subtypes.push(res.id);
+            }
+        });
     }
 }

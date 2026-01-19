@@ -123,6 +123,7 @@ export const $LogMsg = {
     REGION_FACET_NO_ANCHORS     : "Incorrectly defined region facet, source or target anchors not defined, skipping definition",
     REGION_FACET_NO_LAYOUT      : "Incorrectly defined region facet, source or target anchor layout not defined, skipping definition",
     REGION_BORDER_ERROR         : "Incorrectly defined region: cannot identify border points or anchors. At least 3 border points are needed to define a region",
+    REGION_SUBTYPE_NOT_FOUND    : "Region subtype not found",
 
     RESOURCE_JSON_PATH          : "Created relationship via dynamic assignment (JSONPath expression)",
     RESOURCE_TO_LAYER           : "Placed resource into layer",

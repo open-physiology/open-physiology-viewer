@@ -306,9 +306,9 @@ Wire.prototype.updateViewObjects = function(state) {
     });
 
     // Update stratification (2D simplified icon)
-    this.hasStratification?.updateViewObjects(state);
-    this.viewObjects['icon']      = this.hasStratification?.viewObjects["main"];
-    this.viewObjects['iconLabel'] = this.hasStratification?.viewObjects["label"];
+    this.stratifiedRegion?.updateViewObjects(state);
+    this.viewObjects['icon']      = this.stratifiedRegion?.viewObjects["main"];
+    this.viewObjects['iconLabel'] = this.stratifiedRegion?.viewObjects["label"];
 
     this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Edge));
 

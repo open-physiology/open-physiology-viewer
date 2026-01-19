@@ -1,7 +1,7 @@
 {
   "name": "basicStratification",
   "created": "2026-01-12",
-  "lastUpdated": "2026-01-14",
+  "lastUpdated": "2026-01-19",
   "stratifications": [
     {
       "id": "st1",
@@ -9,6 +9,22 @@
         "m1",
         "m2",
         "m3"
+      ],
+      "axisWires": [
+        "w1",
+        "w2"
+      ]
+    },
+    {
+      "id": "st2",
+      "strata": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "axisWires": [
+        "w3", "w4", "w5"
       ]
     }
   ],
@@ -17,14 +33,42 @@
       "id": "a",
       "layout": {
         "x": -10,
-        "y": 0
+        "y": 10
       }
     },
     {
       "id": "b",
       "layout": {
         "x": 10,
-        "y": 0
+        "y": 10
+      }
+    },
+    {
+      "id": "c",
+      "layout": {
+        "x": -10,
+        "y": 30
+      }
+    },
+    {
+      "id": "d",
+      "layout": {
+        "x": 10,
+        "y": 30
+      }
+    },
+    {
+      "id": "e",
+      "layout": {
+        "x": -10,
+        "y": 50
+      }
+    },
+    {
+      "id": "f",
+      "layout": {
+        "x": 10,
+        "y": 50
       }
     }
   ],
@@ -32,8 +76,27 @@
     {
       "id": "w1",
       "source": "a",
-      "target": "b",
-      "hasStratification": "st1"
+      "target": "b"
+    },
+    {
+      "id": "w2",
+      "source": "b",
+      "target": "c"
+    },
+    {
+      "id": "w3",
+      "source": "c",
+      "target": "d"
+    },
+    {
+      "id": "w4",
+      "source": "d",
+      "target": "e"
+    },
+        {
+      "id": "w5",
+      "source": "e",
+      "target": "f"
     }
   ],
   "materials": [
@@ -48,10 +111,14 @@
     {
       "id": "m3",
       "color": "green"
+    },
+    {
+      "id": "m4",
+      "color": "purple"
     }
   ],
-  "version": "d791b98098a0279dab59d004bc19b891683d3c83",
+  "version": "98fe990804c69d562ec78dc1d3d3bede2861765f",
   "id": "main",
   "namespace": "nm_basic",
-  "schemaVersion": "b81026cf7f5f33f08dd2ad23221976b9fd662056"
+  "schemaVersion": "e87f8f96c9c6c8bd4e7f0b60b03da47e896b689e"
 }

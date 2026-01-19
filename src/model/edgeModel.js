@@ -88,6 +88,11 @@ export class Wire extends Edge {
                 }
             )
         }
+        if (this.stratifiedRegion) {
+            if (!component.contains(this.stratifiedRegion)) {
+                component.stratifiedRegions.push(this.stratifiedRegion);
+            }
+        }
     }
 }
 
