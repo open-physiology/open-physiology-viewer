@@ -1,5 +1,7 @@
 # open-physiology-viewer  
 
+![example workflow](https://github.com/MetaCell/open-physiology-viewer/actions/workflows/tests.yml/badge.svg)
+
 ## Overview
 Physiology deals with the body in terms of anatomical compartments that delineate portions of  interest. The compartments can be defined at various anatomical scales, from organs to cells.  Clinical and bioengineering experts are interested to see records of physical measurements  associated with certain anatomical compartments.  
 
