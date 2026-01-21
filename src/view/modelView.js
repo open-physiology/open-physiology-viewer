@@ -5,7 +5,13 @@ import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
 import './verticeView';
 import './edgeView';
+import './linkView';
+import './wireView';
 import './shapeView';
+import './lyphView';
+import './regionView';
+import './stratification.js';
+import './stratifiedRegion.js';
 
 const {Group, Link, Coalescence, Component, Chain, Node, Lyph, Stratification} = modelClasses;
 
@@ -132,12 +138,6 @@ Group.prototype.createViewObjects = function (state) {
         if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE) {
             link.viewObjects["main"].material.visible = false;
         }
-    });
-
-    this.visibleLyphs.forEach(lyph => {
-        if (!(lyph instanceof Lyph)) return;
-        lyph.createViewObjects(state);
-        lyph.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 };
 

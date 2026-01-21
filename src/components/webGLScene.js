@@ -383,9 +383,7 @@ export class WebGLSceneComponent {
                     fn.call(this.graph, this._config.layout[prop]);
                 }
             });
-            let visibleGroups = isScaffold(this._graphData)?
-                (this._graphData.visibleComponents||[]).map(g => g.id):
-                (this._graphData.visibleGroups||[]).map(g => g.id);
+            let visibleGroups = (this._graphData.visibleGroups||[]).map(g => g.id);
             this.graphData.showGroups(visibleGroups);
         }
     }

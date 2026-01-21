@@ -1,0 +1,854 @@
+{
+  "name": "newModel-2",
+  "created": "2026-01-20",
+  "lastUpdated": "2026-01-20",
+  "materials": [
+    {
+      "id": "m1",
+      "color": "red"
+    },
+    {
+      "id": "m2",
+      "color": "yellow"
+    },
+    {
+      "id": "m3",
+      "color": "green"
+    },
+    {
+      "id": "m4",
+      "color": "purple"
+    }
+  ],
+  "stratifications": [
+    {
+      "id": "st1",
+      "axisWires": [
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8",
+        "w9",
+        "w10",
+        "w11",
+        "w12",
+        "w13",
+        "w14",
+        "w15",
+        "w16",
+        "w17",
+        "w18",
+        "w19",
+        "w20",
+        "w21",
+        "w22",
+        "w23",
+        "w24",
+        "w25",
+        "w26",
+        "w27",
+        "w28",
+        "w29",
+        "w30",
+        "w31",
+        "w32",
+        "w33",
+        "w34",
+        "w35",
+        "w36",
+        "w37",
+        "w38",
+        "w39",
+        "w40",
+        "w41",
+        "w42",
+        "w43",
+        "w44",
+        "w45",
+        "w46",
+        "w47",
+        "w48",
+        "w49",
+        "w50",
+        "w51",
+        "w52",
+        "w53",
+        "w54",
+        "w55",
+        "w56",
+        "w57",
+        "w58",
+        "w59",
+        "w60",
+        "w61",
+        "w62",
+        "w63",
+        "w64",
+        "w65",
+        "w66",
+        "w67",
+        "w68",
+        "w69",
+        "w70",
+        "w71",
+        "w72",
+        "w73",
+        "w74",
+        "w75",
+        "w76",
+        "w77",
+        "w78",
+        "w79"
+      ],
+      "strata": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ]
+    }
+  ],
+  "anchors": [
+    {
+      "id": "NODEA",
+      "layout": {
+        "x": 11.526479750778819,
+        "y": -100.0
+      }
+    },
+    {
+      "id": "NODEB",
+      "layout": {
+        "x": 16.01246105919003,
+        "y": -99.83633387888707
+      }
+    },
+    {
+      "id": "NODEC",
+      "layout": {
+        "x": 70.46728971962617,
+        "y": -78.72340425531915
+      }
+    },
+    {
+      "id": "NODED",
+      "layout": {
+        "x": -39.31464174454828,
+        "y": -74.63175122749591
+      }
+    },
+    {
+      "id": "NODEE",
+      "layout": {
+        "x": 74.45482866043614,
+        "y": -72.50409165302783
+      }
+    },
+    {
+      "id": "NODEF",
+      "layout": {
+        "x": -48.78504672897196,
+        "y": -71.19476268412438
+      }
+    },
+    {
+      "id": "NODEG",
+      "layout": {
+        "x": 65.60747663551402,
+        "y": -70.37643207855973
+      }
+    },
+    {
+      "id": "NODEH",
+      "layout": {
+        "x": 76.57320872274144,
+        "y": -66.44844517184943
+      }
+    },
+    {
+      "id": "NODEI",
+      "layout": {
+        "x": -57.009345794392516,
+        "y": -65.95744680851064
+      }
+    },
+    {
+      "id": "NODEJ",
+      "layout": {
+        "x": -53.27102803738319,
+        "y": -62.02945990180033
+      }
+    },
+    {
+      "id": "NODEK",
+      "layout": {
+        "x": 93.02180685358256,
+        "y": -57.93780687397709
+      }
+    },
+    {
+      "id": "NODEL",
+      "layout": {
+        "x": 85.42056074766356,
+        "y": -55.64648117839607
+      }
+    },
+    {
+      "id": "NODEM",
+      "layout": {
+        "x": 84.54828660436137,
+        "y": -49.09983633387889
+      }
+    },
+    {
+      "id": "NODEN",
+      "layout": {
+        "x": 100.0,
+        "y": -45.662847790507364
+      }
+    },
+    {
+      "id": "NODEO",
+      "layout": {
+        "x": -72.58566978193147,
+        "y": -44.189852700490995
+      }
+    },
+    {
+      "id": "NODEP",
+      "layout": {
+        "x": -70.46728971962617,
+        "y": -32.24222585924714
+      }
+    },
+    {
+      "id": "NODEQ",
+      "layout": {
+        "x": -100.0,
+        "y": -19.31260229132569
+      }
+    },
+    {
+      "id": "NODER",
+      "layout": {
+        "x": -2.554517133956381,
+        "y": 9.328968903436987
+      }
+    },
+    {
+      "id": "NODES",
+      "layout": {
+        "x": -81.43302180685359,
+        "y": 10.147299509001641
+      }
+    },
+    {
+      "id": "NODET",
+      "layout": {
+        "x": -74.57943925233644,
+        "y": 10.63829787234043
+      }
+    },
+    {
+      "id": "NODEU",
+      "layout": {
+        "x": 26.728971962616825,
+        "y": 16.53027823240589
+      }
+    },
+    {
+      "id": "NODEV",
+      "layout": {
+        "x": -35.32710280373831,
+        "y": 39.60720130932896
+      }
+    },
+    {
+      "id": "NODEW",
+      "layout": {
+        "x": -5.171339563862929,
+        "y": 40.09819967266776
+      }
+    },
+    {
+      "id": "NODEX",
+      "layout": {
+        "x": -7.040498442367607,
+        "y": 44.8445171849427
+      }
+    },
+    {
+      "id": "NODEY",
+      "layout": {
+        "x": 24.236760124610598,
+        "y": 45.66284779050736
+      }
+    },
+    {
+      "id": "NODEZ",
+      "layout": {
+        "x": 46.41744548286604,
+        "y": 50.9001636661211
+      }
+    },
+    {
+      "id": "NODA0",
+      "layout": {
+        "x": -1.806853582554524,
+        "y": 51.88216039279868
+      }
+    },
+    {
+      "id": "NODA1",
+      "layout": {
+        "x": 28.59813084112149,
+        "y": 52.20949263502456
+      }
+    },
+    {
+      "id": "NODA2",
+      "layout": {
+        "x": -55.38940809968847,
+        "y": 53.682487725040914
+      }
+    },
+    {
+      "id": "NODA3",
+      "layout": {
+        "x": -62.49221183800623,
+        "y": 54.17348608837972
+      }
+    },
+    {
+      "id": "NODA4",
+      "layout": {
+        "x": -4.299065420560751,
+        "y": 55.31914893617022
+      }
+    },
+    {
+      "id": "NODA5",
+      "layout": {
+        "x": 20.996884735202485,
+        "y": 56.79214402618658
+      }
+    },
+    {
+      "id": "NODA6",
+      "layout": {
+        "x": -61.99376947040497,
+        "y": 59.083469721767585
+      }
+    },
+    {
+      "id": "NODA7",
+      "layout": {
+        "x": -0.8099688473520246,
+        "y": 60.88379705400982
+      }
+    },
+    {
+      "id": "NODA8",
+      "layout": {
+        "x": -70.34267912772586,
+        "y": 61.04746317512274
+      }
+    },
+    {
+      "id": "NODA9",
+      "layout": {
+        "x": -40.06230529595015,
+        "y": 61.8657937806874
+      }
+    },
+    {
+      "id": "NODB0",
+      "layout": {
+        "x": 80.06230529595015,
+        "y": 62.520458265139126
+      }
+    },
+    {
+      "id": "NODB1",
+      "layout": {
+        "x": 16.01246105919003,
+        "y": 62.68412438625205
+      }
+    },
+    {
+      "id": "NODB2",
+      "layout": {
+        "x": -50.280373831775705,
+        "y": 63.0114566284779
+      }
+    },
+    {
+      "id": "NODB3",
+      "layout": {
+        "x": 72.71028037383178,
+        "y": 71.84942716857611
+      }
+    },
+    {
+      "id": "NODB4",
+      "layout": {
+        "x": 69.09657320872275,
+        "y": 76.75941080196398
+      }
+    },
+    {
+      "id": "NODB5",
+      "layout": {
+        "x": 54.6417445482866,
+        "y": 78.23240589198036
+      }
+    },
+    {
+      "id": "NODB6",
+      "layout": {
+        "x": 63.2398753894081,
+        "y": 79.86906710310964
+      }
+    },
+    {
+      "id": "NODB7",
+      "layout": {
+        "x": 88.28660436137072,
+        "y": 81.34206219312603
+      }
+    },
+    {
+      "id": "NODB8",
+      "layout": {
+        "x": 4.922118380062301,
+        "y": 86.90671031096562
+      }
+    },
+    {
+      "id": "NODB9",
+      "layout": {
+        "x": -44.04984423676012,
+        "y": 90.34369885433716
+      }
+    },
+    {
+      "id": "NODC0",
+      "layout": {
+        "x": -2.679127725856702,
+        "y": 98.8543371522095
+      }
+    },
+    {
+      "id": "NODC1",
+      "layout": {
+        "x": 12.024922118380061,
+        "y": 100.0
+      }
+    }
+  ],
+  "wires": [
+    {
+      "id": "w1",
+      "source": "NODA0",
+      "target": "NODA5"
+    },
+    {
+      "id": "w2",
+      "source": "NODA0",
+      "target": "NODA7"
+    },
+    {
+      "id": "w3",
+      "source": "NODA0",
+      "target": "NODB8"
+    },
+    {
+      "id": "w4",
+      "source": "NODA0",
+      "target": "NODC1"
+    },
+    {
+      "id": "w5",
+      "source": "NODA1",
+      "target": "NODEY"
+    },
+    {
+      "id": "w6",
+      "source": "NODA2",
+      "target": "NODA9"
+    },
+    {
+      "id": "w7",
+      "source": "NODA2",
+      "target": "NODB2"
+    },
+    {
+      "id": "w8",
+      "source": "NODA2",
+      "target": "NODB9"
+    },
+    {
+      "id": "w9",
+      "source": "NODA2",
+      "target": "NODED"
+    },
+    {
+      "id": "w10",
+      "source": "NODA2",
+      "target": "NODER"
+    },
+    {
+      "id": "w11",
+      "source": "NODA2",
+      "target": "NODET"
+    },
+    {
+      "id": "w12",
+      "source": "NODA2",
+      "target": "NODEV"
+    },
+    {
+      "id": "w13",
+      "source": "NODA2",
+      "target": "NODEX"
+    },
+    {
+      "id": "w14",
+      "source": "NODA3",
+      "target": "NODA6"
+    },
+    {
+      "id": "w15",
+      "source": "NODA3",
+      "target": "NODES"
+    },
+    {
+      "id": "w16",
+      "source": "NODA4",
+      "target": "NODA5"
+    },
+    {
+      "id": "w17",
+      "source": "NODA4",
+      "target": "NODB8"
+    },
+    {
+      "id": "w18",
+      "source": "NODA4",
+      "target": "NODC1"
+    },
+    {
+      "id": "w19",
+      "source": "NODA5",
+      "target": "NODA7"
+    },
+    {
+      "id": "w20",
+      "source": "NODA5",
+      "target": "NODB1"
+    },
+    {
+      "id": "w21",
+      "source": "NODA5",
+      "target": "NODB8"
+    },
+    {
+      "id": "w22",
+      "source": "NODA5",
+      "target": "NODC1"
+    },
+    {
+      "id": "w23",
+      "source": "NODA5",
+      "target": "NODEX"
+    },
+    {
+      "id": "w24",
+      "source": "NODA6",
+      "target": "NODA8"
+    },
+    {
+      "id": "w25",
+      "source": "NODA7",
+      "target": "NODB1"
+    },
+    {
+      "id": "w26",
+      "source": "NODA7",
+      "target": "NODB8"
+    },
+    {
+      "id": "w27",
+      "source": "NODA7",
+      "target": "NODC1"
+    },
+    {
+      "id": "w28",
+      "source": "NODA9",
+      "target": "NODB2"
+    },
+    {
+      "id": "w29",
+      "source": "NODA9",
+      "target": "NODEV"
+    },
+    {
+      "id": "w30",
+      "source": "NODB0",
+      "target": "NODEM"
+    },
+    {
+      "id": "w31",
+      "source": "NODB1",
+      "target": "NODB8"
+    },
+    {
+      "id": "w32",
+      "source": "NODB1",
+      "target": "NODC1"
+    },
+    {
+      "id": "w33",
+      "source": "NODB2",
+      "target": "NODB9"
+    },
+    {
+      "id": "w34",
+      "source": "NODB2",
+      "target": "NODER"
+    },
+    {
+      "id": "w35",
+      "source": "NODB2",
+      "target": "NODET"
+    },
+    {
+      "id": "w36",
+      "source": "NODB2",
+      "target": "NODEV"
+    },
+    {
+      "id": "w37",
+      "source": "NODB2",
+      "target": "NODEX"
+    },
+    {
+      "id": "w38",
+      "source": "NODB3",
+      "target": "NODB4"
+    },
+    {
+      "id": "w39",
+      "source": "NODB3",
+      "target": "NODEU"
+    },
+    {
+      "id": "w40",
+      "source": "NODB3",
+      "target": "NODEZ"
+    },
+    {
+      "id": "w41",
+      "source": "NODB5",
+      "target": "NODB6"
+    },
+    {
+      "id": "w42",
+      "source": "NODB5",
+      "target": "NODEY"
+    },
+    {
+      "id": "w43",
+      "source": "NODB6",
+      "target": "NODB7"
+    },
+    {
+      "id": "w44",
+      "source": "NODB7",
+      "target": "NODEN"
+    },
+    {
+      "id": "w45",
+      "source": "NODB8",
+      "target": "NODC1"
+    },
+    {
+      "id": "w46",
+      "source": "NODB8",
+      "target": "NODEX"
+    },
+    {
+      "id": "w47",
+      "source": "NODB9",
+      "target": "NODEV"
+    },
+    {
+      "id": "w48",
+      "source": "NODC1",
+      "target": "NODEX"
+    },
+    {
+      "id": "w49",
+      "source": "NODEA",
+      "target": "NODED"
+    },
+    {
+      "id": "w50",
+      "source": "NODEB",
+      "target": "NODEH"
+    },
+    {
+      "id": "w51",
+      "source": "NODEB",
+      "target": "NODEL"
+    },
+    {
+      "id": "w52",
+      "source": "NODEB",
+      "target": "NODEM"
+    },
+    {
+      "id": "w53",
+      "source": "NODEC",
+      "target": "NODEH"
+    },
+    {
+      "id": "w54",
+      "source": "NODEC",
+      "target": "NODEL"
+    },
+    {
+      "id": "w55",
+      "source": "NODEC",
+      "target": "NODEM"
+    },
+    {
+      "id": "w56",
+      "source": "NODEE",
+      "target": "NODEH"
+    },
+    {
+      "id": "w57",
+      "source": "NODEE",
+      "target": "NODEL"
+    },
+    {
+      "id": "w58",
+      "source": "NODEE",
+      "target": "NODEM"
+    },
+    {
+      "id": "w59",
+      "source": "NODEF",
+      "target": "NODEI"
+    },
+    {
+      "id": "w60",
+      "source": "NODEF",
+      "target": "NODEJ"
+    },
+    {
+      "id": "w61",
+      "source": "NODEH",
+      "target": "NODEK"
+    },
+    {
+      "id": "w62",
+      "source": "NODEH",
+      "target": "NODEL"
+    },
+    {
+      "id": "w63",
+      "source": "NODEH",
+      "target": "NODEM"
+    },
+    {
+      "id": "w64",
+      "source": "NODEH",
+      "target": "NODEN"
+    },
+    {
+      "id": "w65",
+      "source": "NODEI",
+      "target": "NODEJ"
+    },
+    {
+      "id": "w66",
+      "source": "NODEK",
+      "target": "NODEL"
+    },
+    {
+      "id": "w67",
+      "source": "NODEK",
+      "target": "NODEM"
+    },
+    {
+      "id": "w68",
+      "source": "NODEL",
+      "target": "NODEM"
+    },
+    {
+      "id": "w69",
+      "source": "NODEL",
+      "target": "NODEN"
+    },
+    {
+      "id": "w70",
+      "source": "NODEM",
+      "target": "NODEN"
+    },
+    {
+      "id": "w71",
+      "source": "NODER",
+      "target": "NODEU"
+    },
+    {
+      "id": "w72",
+      "source": "NODER",
+      "target": "NODEV"
+    },
+    {
+      "id": "w73",
+      "source": "NODER",
+      "target": "NODEX"
+    },
+    {
+      "id": "w74",
+      "source": "NODER",
+      "target": "NODEZ"
+    },
+    {
+      "id": "w75",
+      "source": "NODET",
+      "target": "NODEV"
+    },
+    {
+      "id": "w76",
+      "source": "NODEU",
+      "target": "NODEV"
+    },
+    {
+      "id": "w77",
+      "source": "NODEU",
+      "target": "NODEY"
+    },
+    {
+      "id": "w78",
+      "source": "NODEU",
+      "target": "NODEZ"
+    },
+    {
+      "id": "w79",
+      "source": "NODEV",
+      "target": "NODEX"
+    }
+  ],
+  "version": "cb0d971f9468c6b7aa5c55b1bbadd6307a3f5922",
+  "id": "main",
+  "namespace": "nm_main",
+  "schemaVersion": "e87f8f96c9c6c8bd4e7f0b60b03da47e896b689e"
+}
