@@ -27,9 +27,9 @@ module.exports = {
         new CopyWebpackPlugin({
             "patterns": [
                 { from: 'demo-app/index.html',  to: 'demo-app/index.html' },
-                { from: 'demo-app/favicon.ico', to: 'demo-app/favicon.ico' },
-                { from: 'demo-app/styles',      to: 'demo-app/styles'},
-                { from: 'demo-app/styles/images', to: 'demo-app/styles/images'}
+                { from: 'common/favicon.ico', to: 'demo-app/favicon.ico' },
+                { from: 'common/styles',      to: 'demo-app/styles'},
+                { from: 'common/styles/images', to: 'demo-app/styles/images'}
             ]
         })
     ])

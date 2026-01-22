@@ -27,9 +27,9 @@ module.exports = {
         new CopyWebpackPlugin({
             "patterns": [
                 { from: 'hubmap-app/index.html',  to: 'hubmap-app/index.html' },
-                { from: 'hubmap-app/favicon.ico', to: 'hubmap-app/favicon.ico' },
-                { from: 'hubmap-app/styles',      to: 'hubmap-app/styles'},
-                { from: 'hubmap-app/styles/images', to: 'hubmap-app/styles/images'}
+                { from: 'common/favicon.ico', to: 'hubmap-app/favicon.ico' },
+                { from: 'common/styles',      to: 'hubmap-app/styles'},
+                { from: 'common/styles/images', to: 'hubmap-app/styles/images'}
             ]
         })
     ])

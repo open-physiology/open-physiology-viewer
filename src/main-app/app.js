@@ -28,7 +28,7 @@ import {
 
 import 'hammerjs';
 
-import "./styles/material.scss";
+import "../common/styles/material.scss";
 import 'jsoneditor/dist/jsoneditor.min.css';
 import "@fortawesome/fontawesome-free/js/all.js";
 import "@fortawesome/fontawesome-free/css/all.css";
