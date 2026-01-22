@@ -301,7 +301,9 @@ export default Kapsule({
         if (state.graphData.visibleNodes || state.graphData.visibleLinks) {
             console.info('force-graph loading',
                 (state.graphData.visibleNodes||[]).length + ' nodes',
-                (state.graphData.visibleLinks||[]).length + ' links');
+                (state.graphData.visibleLinks||[]).length + ' links',
+                (state.graphData.visibleLyphs||[]).length + ' lyphs'
+            );
         }
 
         while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place

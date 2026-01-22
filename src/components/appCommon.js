@@ -470,7 +470,7 @@ export class AppCommon {
                 } else {
                     this._graphData.logger.info($LogMsg.SNAPSHOT_NO_SCAFFOLD, scaffold.id);
                 }
-            })
+            });
         }
         this._webGLScene.updateGraph();
         // If the snapshot state contains an open coalescence dialog id, open it now; otherwise close any open coalescence dialog

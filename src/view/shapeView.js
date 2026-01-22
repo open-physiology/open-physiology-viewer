@@ -179,16 +179,16 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
     if (this.viewObjects["2d"]) {
         const mat = this.viewObjects["2d"].material;
         mat.visible = isVisible;
-        mat.depthWrite = !isVisible;
-        mat.depthTest = !isVisible;
-        mat.needsUpdate = isVisible;
+        mat.depthTest = isVisible;
+        mat.opacity = isVisible? 1: 0;
+        mat.colorWrite = isVisible;
         let children = this.viewObjects["2d"].children;
         if (children?.length > 0){
             const mat = children[0].material;
             mat.visible = isVisible;
-            mat.depthWrite = !isVisible;
-            mat.depthTest = !isVisible;
-            mat.needsUpdate = isVisible;
+            mat.depthTest = isVisible;
+            mat.opacity = isVisible? 1: 0;
+            mat.colorWrite = isVisible;
         }
     }
 };

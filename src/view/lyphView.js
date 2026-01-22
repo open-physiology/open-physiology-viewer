@@ -119,6 +119,7 @@ Lyph.prototype.createViewObjects = function(state) {
             params);
         obj.userData = this;
         this.viewObjects['main'] = this.viewObjects['2d'] = obj;
+        state.graphScene.add(obj);
 
         if (this.create3d){
             params.opacity = 0.5;
@@ -131,6 +132,7 @@ Lyph.prototype.createViewObjects = function(state) {
             this.viewObjects["3d"] = obj3d;
             if (state.showLyphs3d){
                 this.viewObjects["main"] = this.viewObjects["3d"];
+                state.graphScene.add(obj3d);
             }
         }
 
