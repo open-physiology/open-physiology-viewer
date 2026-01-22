@@ -1,4 +1,4 @@
-FROM node:13-alpine as base
+FROM node:16-alpine as base
 ENV BUILDDIR=/builddir
 
 COPY package.json ${BUILDDIR}/package.json
