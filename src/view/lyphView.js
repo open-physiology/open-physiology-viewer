@@ -51,22 +51,27 @@ Object.defineProperty(Lyph.prototype, "points", {
  * @param isVisible
  */
 Lyph.prototype.setMaterialVisibility = function(isVisible){
-    if (this.viewObjects["2d"]) {
-        const mat = this.viewObjects["2d"].material;
-        mat.visible = isVisible;
-        mat.depthWrite = !isVisible;
-        mat.depthTest = !isVisible;
-        mat.needsUpdate = isVisible;
-        let children = this.viewObjects["2d"].children;
-        if (children?.length > 0){
-            const mat = children[0].material;
-            mat.visible = isVisible;
-            mat.depthWrite = !isVisible;
-            mat.depthTest = !isVisible;
-            mat.needsUpdate = isVisible;
+    const obj = this.viewObjects["2d"];
+    if (obj) {
+        obj.material.visible = isVisible;
+        if (obj.children?.length > 0){
+            obj.children[0].material.visible = isVisible;
         }
     }
 };
+
+Lyph.prototype.setVisibility = function(isVisible){
+    const obj = this.viewObjects["2d"];
+    if (obj) {
+        obj.visible = isVisible;
+        if (!obj.visible || !obj.material.visible) {
+            obj.material.transparent = false;
+            obj.material.depthWrite = false;
+            obj.material.depthTest = true;
+        }
+    }
+};
+
 
 /**
  * Positions the point on the lyph surface
@@ -189,11 +194,9 @@ Lyph.prototype.updateViewObjects = function(state) {
     Shape.prototype.updateViewObjects.call(this, state);
 
     if (!this.axis) { return; }
-
     this.createViewObjects(state);
 
     let obj = this.viewObjects["main"] = this.viewObjects["2d"];
-
     if (state.showLyphs3d && this.viewObjects["3d"]){
         obj = this.viewObjects["main"] = this.viewObjects["3d"];
     }
@@ -208,10 +211,9 @@ Lyph.prototype.updateViewObjects = function(state) {
                 this.createViewObjects(this.state);
             }
         }
-        //update lyph
-        obj.visible = this.isVisible && state.showLyphs;
-        this.setMaterialVisibility(!this.layers || this.layers.length === 0 || !state.showLayers); //do not show lyph if its layers are non-empty and are shown
-
+        this.setVisibility(this.isVisible && state.showLyphs);
+        //Show lyph with no layers or when layers setting is switched off
+        this.setMaterialVisibility((this.layers||[]).length === 0 || !state.showLayers);
         copyCoords(obj.position, this.center);
 
         //https://stackoverflow.com/questions/56670782/using-quaternions-for-rotation-causes-my-object-to-scale-at-specific-angle
@@ -222,7 +224,7 @@ Lyph.prototype.updateViewObjects = function(state) {
             this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180);
         }
     } else {
-        obj.visible = this.state.showLayers;
+        this.setVisibility(this.state.showLayers);
     }
 
     //update layers

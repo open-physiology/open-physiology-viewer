@@ -12,7 +12,8 @@ import {VarianceSpec} from "./varianceSpecModel";
 import {VisualResource, Material} from './visualResourceModel';
 import {Vertice, Anchor, Node} from './verticeModel';
 import {Edge, Wire, Link} from './edgeModel';
-import {Shape, Lyph, Region, Border, Stratification, StratifiedRegion} from './shapeModel'
+import {Shape, Region, Border, Stratification, StratifiedRegion} from './shapeModel'
+import {Lyph} from './lyphModel'
 import {Coalescence} from './coalescenceModel';
 import {State, Snapshot} from "./snapshotModel";
 import {isString, keys, assign, isObject, merge} from "lodash-bound";

@@ -1,7 +1,7 @@
 import {Resource} from './resourceModel';
 import {Node} from './verticeModel';
 import {Link} from './edgeModel';
-import {Lyph} from './shapeModel';
+import {Lyph} from './lyphModel';
 import * as colorSchemes from 'd3-scale-chromatic';
 
 import {isObject, unionBy, merge, keys, entries, isArray, pick, flatten} from 'lodash-bound';

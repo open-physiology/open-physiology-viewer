@@ -1,5 +1,5 @@
 import {GroupTemplate} from './groupTemplateModel';
-import {Lyph} from "./shapeModel";
+import {Lyph} from "./lyphModel";
 import {Link} from "./edgeModel";
 import {
     mergeGenResource,
