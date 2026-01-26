@@ -46,6 +46,13 @@ Object.defineProperty(Lyph.prototype, "points", {
     }
 });
 
+Lyph.prototype.setVisibility = function(isVisible){
+    const obj = this.viewObjects["main"];
+    if (obj) {
+        obj.visible = isVisible;
+    }
+};
+
 /**
  * Set visibility of object's material (children may remain visible even if the object is hidden)
  * @param isVisible
@@ -56,18 +63,6 @@ Lyph.prototype.setMaterialVisibility = function(isVisible){
         obj.material.visible = isVisible;
         if (obj.children?.length > 0){
             obj.children[0].material.visible = isVisible;
-        }
-    }
-};
-
-Lyph.prototype.setVisibility = function(isVisible){
-    const obj = this.viewObjects["2d"];
-    if (obj) {
-        obj.visible = isVisible;
-        if (!obj.visible || !obj.material.visible) {
-            obj.material.transparent = false;
-            obj.material.depthWrite = false;
-            obj.material.depthTest = true;
         }
     }
 };
@@ -224,7 +219,7 @@ Lyph.prototype.updateViewObjects = function(state) {
             this.viewObjects["2d"].rotateZ(Math.PI * this.angle / 180);
         }
     } else {
-        this.setVisibility(this.state.showLayers);
+        this.setVisibility(this.layerIn.isVisible && state.showLayers);
     }
 
     //update layers

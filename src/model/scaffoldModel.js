@@ -70,9 +70,23 @@ export class Scaffold extends Component {
         res.syncRelationships(modelClasses, entitiesByID);
 
         res.entitiesByID = entitiesByID;
+        res.assignScaffoldComponents();
         delete res.waitingList;
     }
 
+
+    /**
+     * Groups that can be toggled on or off in the global graph
+     * @returns {*[]}
+     */
+    assignScaffoldComponents() {
+        const res = [this];
+        (this.components || []).forEach(component => {
+            component._parent = this;
+            res.push(component);
+        });
+        this.scaffoldComponents = res;
+    }
 
     /**
      * Create expanded Graph model from the given JSON input model

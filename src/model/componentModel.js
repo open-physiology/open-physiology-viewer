@@ -62,6 +62,10 @@ export class Component extends Resource {
         return [...(this.components||[])];
     }
 
+    get visibleGroups() {
+        return [...(this.components || [])].filter(e => !e.hidden);
+    }
+
     /**
      * Show sub-components of the current component. A resources is shown if it belongs to at least one visible component
      * @param ids - selected component IDs

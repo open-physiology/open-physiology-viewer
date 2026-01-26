@@ -364,8 +364,8 @@ export class Lyph extends Shape {
      * @returns {boolean}
      */
     get isVisible() {
-        return super.isVisible &&
-            (this.layerIn && this.layerIn.isVisible || this.conveys && this.conveys.isVisible); //either a visible layer or must convey a visible link
+        //either a visible layer or must convey a visible link
+        return super.isVisible && (this.layerIn?.isVisible || this.conveys?.isVisible);
     }
 
     /**
@@ -417,16 +417,6 @@ export class Lyph extends Shape {
         res.width  *= (this.scale.width / 100);
         res.height *= (this.scale.height / 100);
         return res;
-    }
-
-    get avgThickness(){
-        let {min, max} = this.thickness || {"min" : 1, "max": 1};
-        return ((min||1) + (max||1)) / 2;
-    }
-
-    get avgLength(){
-        let {min, max} = this.length|| {"min" : 1, "max": 1};
-        return ((min||1) + (max||1)) / 2;
     }
 
     get offset(){

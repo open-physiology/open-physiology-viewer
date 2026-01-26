@@ -218,7 +218,7 @@ const COLORS = {
                 <mat-expansion-panel [expanded]="true">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            Groups
+                            {{ (scaffolds && scaffolds.length > 0) ? 'Components' : 'Groups' }}
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
@@ -226,7 +226,8 @@ const COLORS = {
                         <div class="default-box-header">
                             <div class="search-bar">
                                 <img src="./styles/images/search.svg"/>
-                                <input type="text" class="w3-input search-input" placeholder="Search for a group"
+                                <input type="text" class="w3-input search-input"
+                                       [placeholder]="(scaffolds && scaffolds.length > 0) ? 'Search for a component' : 'Search for a group'"
                                        name="searchTerm" [(ngModel)]="searchTerm"
                                        (input)="search($event.target.value, 'filteredGroups', 'groups')"/>
                                 <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
@@ -756,8 +757,9 @@ export class SettingsPanel {
     }
 
     toggleAllDynamicGroup = () => {
-        let allVisible = this.dynamicGroups.filter(group => group.hidden || group.undefined);
+        if (!this.dynamicGroups) return;
 
+        let allVisible = this.dynamicGroups.filter(group => group.hidden || group.undefined);
         for (let group of this.dynamicGroups) {
             if (group.hidden || allVisible.length == 0) {
                 this.onToggleGroup.emit(group);

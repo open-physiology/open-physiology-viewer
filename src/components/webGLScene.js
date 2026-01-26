@@ -109,6 +109,7 @@ const WindowResize = require('three-window-resize');
         </section>
     `,
     styles: [`
+       
         #apiLayoutPanel {
             min-height: 90vh;
             height: 100%;
@@ -403,9 +404,10 @@ export class WebGLSceneComponent {
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas.nativeElement,
             antialias: true,
-            alpha: true
+            alpha: true,
+            premultipliedAlpha: false
         });
-        this.renderer.setClearColor(0xffffff, 0.5);
+        this.renderer.setClearColor(0xffffff, 1);
 
         this.container = document.getElementById('apiLayoutContainer');
         let width = this.container.clientWidth;
@@ -576,6 +578,7 @@ export class WebGLSceneComponent {
             this.graph.tickFrame();
         }
         this.controls.update();
+        this.renderer.clear(true, true, true);
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(() => this.animate());
     }
