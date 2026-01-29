@@ -80,7 +80,11 @@ import {MatSelectModule} from "@angular/material/select";
             <button id="showReportBtn" *ngIf="loggerColor === 'green' && !hidden('showReportBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onShowReport.emit()" title="Show logs">
                 <i class="fa fa-check-circle" style="color:green"> </i>
-            </button>            
+            </button>
+            <button id="testWebGLBtn" *ngIf="!hidden('testWebGLBtn')" class="w3-bar-item w3-hover-light-grey"
+                    (click)="onTestWebGLObjects.emit()" title="Test WebGL Objects">
+                <i class="fa fa-vial"> </i>
+            </button>
         </section>
     `,
     styles: [`
@@ -105,6 +109,7 @@ export class ModelToolbar {
     @Output() onExportResource = new EventEmitter();
     @Output() onShowReport = new EventEmitter();
     @Output() onToggleAssistant = new EventEmitter();
+    @Output() onTestWebGLObjects = new EventEmitter();
 
     _skip = new Set();
     @Input() set skip(value){

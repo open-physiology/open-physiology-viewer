@@ -20,10 +20,9 @@ import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
 
 import {LogInfoModule, LogInfoDialog} from "./dialogs/logInfoDialog";
-import {SettingsPanelModule} from "./settingsPanel";
 
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {$Field, $SchemaClass, isScaffold} from "../model";
+import {$Field, $SchemaClass, isScaffold, isGraph} from "../model";
 import {QuerySelectModule, QuerySelectDialog} from "./dialogs/querySelectDialog";
 import {HotkeyModule, HotkeysService, Hotkey} from 'angular2-hotkeys';
 import {$LogMsg} from "../model/logger";
@@ -35,6 +34,7 @@ import {MaterialTreeDialog, MaterialTreeDialogModule} from "./dialogs/materialTr
 import {ModelToolbarModule} from "./toolbars/modelToolbar";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {buildTree} from "./structs/materialNode";
+import {SettingsPanelModule} from './settingsPanel';
 
 const WindowResize = require('three-window-resize');
 
@@ -65,6 +65,7 @@ const WindowResize = require('three-window-resize');
                                 (onExportResource)="exportResource($event)"
                                 (onShowReport)="showReport()"
                                 (onToggleAssistant)="onToggleAssistant.emit()"
+                                (onTestWebGLObjects)="testWebGLObjects()"
                         >
                         </model-toolbar>
                         <mat-slider vertical class="w3-grey"
@@ -78,7 +79,7 @@ const WindowResize = require('three-window-resize');
                 <div class="scene-tooltips" #auxTips></div>
                 <canvas #canvas></canvas>
             </section>
-            <section id="apiLayoutSettingsPanel" *ngIf="showPanel && isConnectivity" class="w3-quarter">
+            <section id="apiLayoutSettingsPanel" *ngIf="showPanel" class="w3-quarter">
                 <settingsPanel
                         [config]="_config"
                         [selected]="_selected"
@@ -106,10 +107,9 @@ const WindowResize = require('three-window-resize');
                         (onEditResource)="editResource.emit($event)"
                 ></settingsPanel>
             </section>
-        </section>
     `,
     styles: [`
-       
+
         #apiLayoutPanel {
             min-height: 90vh;
             height: 100%;
@@ -175,6 +175,9 @@ export class WebGLSceneComponent {
     labelRelSize = 0.1 * this.scaleFactor;
     lockControls = false;
     isConnectivity = true;
+    isScaffold = false;
+
+    _backgroundMesh = null;
 
     queryCounter = 0;
 
@@ -185,6 +188,8 @@ export class WebGLSceneComponent {
     @Input('graphData') set graphData(newGraphData) {
         if (this._graphData !== newGraphData) {
             this._graphData = newGraphData;
+            this.isConnectivity = isGraph(newGraphData);
+            this.isScaffold = isScaffold(newGraphData);
             this.searchOptions = SearchOptions.all(this._graphData);
 
             this.selected = null;
@@ -384,7 +389,7 @@ export class WebGLSceneComponent {
                     fn.call(this.graph, this._config.layout[prop]);
                 }
             });
-            let visibleGroups = (this._graphData.visibleGroups||[]).map(g => g.id);
+            let visibleGroups = (this._graphData.visibleGroups || []).map(g => g.id);
             this.graphData.showGroups(visibleGroups);
         }
     }
@@ -706,6 +711,68 @@ export class WebGLSceneComponent {
         }
     }
 
+    updateBackground(scaffolds = []) {
+        if (!this.scene) {
+            return;
+        }
+        console.log("Updating scaffold background...", scaffolds.map(x => x.id));
+
+        const visibleScaffolds = (scaffolds || []).filter(s => s.class === $SchemaClass.Scaffold && !s.hidden);
+
+        const removeBackground = () => {
+            if (this._backgroundMesh) {
+                this.scene.remove(this._backgroundMesh);
+                this._backgroundMesh.geometry.dispose();
+                this._backgroundMesh.material.dispose();
+                this._backgroundMesh = null;
+            }
+        };
+
+        if (visibleScaffolds.length === 1) {
+            const scaffold = visibleScaffolds[0];
+            if (scaffold.background) {
+                let background = scaffold.background;
+                // If it's a reference to an external, find it in graphData.externals or scaffold.externals
+                if (typeof background === 'string') {
+                    const findExternal = (externals) => (externals || []).find(e => e.id === background || e.fullID === background);
+                    background = findExternal(this._graphData.externals) || findExternal(scaffold.externals);
+                }
+
+                if (background && background.path) {
+                    const loader = new THREE.TextureLoader();
+                    loader.load(background.path, (texture) => {
+                        removeBackground();
+                        const geometry = new THREE.PlaneGeometry(texture.image.width, texture.image.height);
+                        const material = new THREE.MeshBasicMaterial({
+                            map: texture,
+                            transparent: true,
+                            side: THREE.DoubleSide
+                        });
+                        this._backgroundMesh = new THREE.Mesh(geometry, material);
+
+                        // Set Z to min of anchor Zs
+                        let minZ = Infinity;
+                        (scaffold.anchors || []).forEach(a => {
+                            if (a.layout && a.layout.z !== undefined) {
+                                if (a.layout.z < minZ) {
+                                    minZ = a.layout.z;
+                                }
+                            }
+                        });
+                        if (minZ === Infinity) {
+                            minZ = 0;
+                        }
+
+                        this._backgroundMesh.position.z = minZ * this.scaleFactor;
+                        this.scene.add(this._backgroundMesh);
+                    });
+                    return;
+                }
+            }
+        }
+        removeBackground();
+    }
+
     openExternal(resource) {
         if (!resource || !this._graphData.localConventions) {
             return;
@@ -728,6 +795,68 @@ export class WebGLSceneComponent {
     toggleLockControls() {
         this.lockControls = !this.lockControls;
         this.controls.enabled = !this.lockControls;
+    }
+
+    testWebGLObjects() {
+        let allLyphs = [];
+        const collectLyphs = (groups) => {
+            (groups || []).forEach(g => {
+                if (g.lyphs) {
+                    allLyphs.push(...g.lyphs);
+                }
+            });
+        };
+        collectLyphs(this._graphData.activeGroups);
+        collectLyphs(this._graphData.dynamicGroups);
+        collectLyphs(this._graphData.scaffoldComponents);
+
+        // Filter out duplicates if any (e.g. lyphs appearing in multiple groups)
+        allLyphs = [...new Set(allLyphs)];
+
+        let counts = {
+            visibleWebGL: 0,
+            visibleMaterials: 0,
+            invisibleWithVisibleMaterials: 0,
+            explicitlyVisible: 0,
+            isVisible: 0
+        };
+
+        let problematicLyphs = [];
+
+        allLyphs.forEach(lyph => {
+            const obj = lyph.viewObjects ? lyph.viewObjects["main"] : null;
+            if (obj) {
+                if (obj.visible) {
+                    counts.visibleWebGL++;
+                }
+                if (obj.material && obj.material.visible) {
+                    counts.visibleMaterials++;
+                }
+                if (!obj.visible && (obj.material && obj.material.visible)) {
+                    counts.invisibleWithVisibleMaterials++;
+                    problematicLyphs.push(lyph);
+                }
+            }
+            if (!lyph.hidden) {
+                counts.explicitlyVisible++;
+            }
+            if (lyph.isVisible) {
+                counts.isVisible++;
+            }
+        });
+
+        if (problematicLyphs.length > 0) {
+            console.log("Lyphs with invisible webGL objects that have visible materials:");
+            problematicLyphs.forEach(lyph => {
+                console.log(`ID: ${lyph.id}, Name: ${lyph.name}`);
+            });
+        }
+
+        alert(`Number of visible webGL objects corresponding to lyphs: ${counts.visibleWebGL}
+Number of webGL lyph objects with visible materials: ${counts.visibleMaterials}
+Number of WebGL objects that are invisible but have visible materials: ${counts.invisibleWithVisibleMaterials}
+Number of explicitly visible lyphs (hidden is not true): ${counts.explicitlyVisible}
+Number of visible lyphs (isVisible is true): ${counts.isVisible}`);
     }
 
     _clearAuxTips() {
@@ -762,14 +891,14 @@ export class WebGLSceneComponent {
             const W = new THREE.Vector3(link.target.x, link.target.y, link.target.z);
             const w = W.project(this.camera); // now x,y,z ∈ [-1,1]
             const x = (w.x * 0.5 + 0.5) * width;
-            const sign = (link.target.y > node.y)? 1: -1;
+            const sign = (link.target.y > node.y) ? 1 : -1;
             const delta = 20;
             let y = (1 - (w.y * 0.5 + 0.5)) * height - delta * sign;
-            if (Math.abs(prevY-y) < 5) y -= delta * sign;
+            if (Math.abs(prevY - y) < 5) y -= delta * sign;
             prevY = y;
 
-            div.style.left = x+'px';
-            div.style.top = y+'px';
+            div.style.left = x + 'px';
+            div.style.top = y + 'px';
             container.appendChild(div);
 
             this.auxTips.push({div, node: lyph});
@@ -1150,7 +1279,8 @@ export class WebGLSceneComponent {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule, QuerySelectModule,
+    imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule,
+        SettingsPanelModule, QuerySelectModule,
         ModelToolbarModule, MaterialTreeDialogModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog, MaterialTreeDialog],

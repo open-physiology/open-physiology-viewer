@@ -634,6 +634,7 @@ export class SettingsPanel {
     @Output() onCladeChange = new EventEmitter();
     @Output() onCladeReset = new EventEmitter();
     @Output() onUpdateCoalescenceLayout = new EventEmitter();
+    @Output() onUpdateRenderedResources = new EventEmitter();
 
     constructor() {
         this._labelProps = [$Field.id, $Field.name];
@@ -714,6 +715,7 @@ export class SettingsPanel {
                 this[prop] = undefined;
             }
         });
+        this.onUpdateRenderedResources.emit(this.scaffolds);
     }
 
     updateShowLabels(labelClass) {
@@ -810,6 +812,5 @@ export class SettingsPanel {
     entryComponents: [LogInfoDialog],
     exports: [SettingsPanel]
 })
-
 export class SettingsPanelModule {
 }

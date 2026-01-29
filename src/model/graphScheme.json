@@ -747,6 +747,17 @@
             ]
           },
           "default": []
+        },
+        "background": {
+          "description": "Background for the component",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/IdentifierScheme"
+            },
+            {
+              "$ref": "#/definitions/External"
+            }
+          ]
         }
       }
     },
@@ -833,6 +844,10 @@
       "properties": {
         "uri": {
           "description": "Reference to an external resource",
+          "type": "string"
+        },
+        "path": {
+          "description": "Path to an external resource",
           "type": "string"
         },
         "type": {

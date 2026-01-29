@@ -14,7 +14,7 @@ import JSONEditor from "jsoneditor/dist/jsoneditor.min.js";
 import {MainToolbarModule} from "../components/toolbars/mainToolbar";
 import {SnapshotToolbarModule} from "../components/toolbars/snapshotToolbar";
 import {StateToolbarModule} from "../components/toolbars/stateToolbar";
-// import {LayoutEditorModule} from "../components/layoutEditor";
+// import {LayoutEditorModule} from "../components/editors/layoutEditor";
 // import {RelGraphModule} from "../components/relationGraph";
 import {ModelRepoPanelModule} from "../components/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
@@ -23,7 +23,8 @@ import {AppCommon} from '../components/appCommon';
 import {
     schema,
     generateFromJSON,
-    $SchemaClass
+    $SchemaClass,
+    isScaffold
 } from '../model/index';
 
 import 'hammerjs';
@@ -46,11 +47,13 @@ import {MaterialEditorModule} from "../components/editors/materialEditor";
 import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
+import {StratificationEditorModule} from "../components/editors/stratificationEditor";
 import {AssistantPanelModule} from "../components/assistantPanel";
 import {MaterialEditorComponent} from "../components/editors/materialEditor";
 import {LyphEditorComponent} from "../components/editors/lyphEditor";
 import {ChainEditorComponent} from "../components/editors/chainEditor";
 import {CoalescenceEditorComponent} from "../components/editors/coalescenceEditor";
+import {StratificationEditorComponent} from "../components/editors/stratificationEditor";
 import {HttpClient, HttpClientModule} from '@angular/common/http';
 
 enableProdMode();
@@ -64,7 +67,8 @@ const TAB_INDEX = {
     lyph: 3,
     chain: 4,
     coalescence: 5,
-    // relation: 6
+    stratification: 6,
+    // relation: 7
 }
 
 @Component({
@@ -229,7 +233,7 @@ const TAB_INDEX = {
                         </mat-tab>
 
                         <!--Lyph editor-->
-                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
+                        <mat-tab *ngIf="!isScaffold" class="w3-margin" [class.w3-threequarter]="showRepoPanel" #lyphEditTab>
                             <ng-template mat-tab-label><i class="fa fa-cubes"></i> Lyph editor</ng-template>
                             <lyphEditor #lyphEd
                                     [model]="_model"
@@ -242,7 +246,7 @@ const TAB_INDEX = {
                         </mat-tab>
 
                         <!--Chain editor-->
-                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
+                        <mat-tab *ngIf="!isScaffold" class="w3-margin" [class.w3-threequarter]="showRepoPanel" #chainEditTab>
                             <ng-template mat-tab-label><i class="fa fa-chain"></i> Chain editor</ng-template>
                             <chainEditor #chainEd
                                     [model]="_model"
@@ -255,7 +259,7 @@ const TAB_INDEX = {
                         </mat-tab>
 
                         <!--Coalescence editor-->
-                        <mat-tab class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
+                        <mat-tab *ngIf="!isScaffold" class="w3-margin" [class.w3-threequarter]="showRepoPanel" #clsEditTab>
                             <ng-template mat-tab-label><i class="fa fa-ring"></i> Coalescence editor</ng-template>
                             <coalescenceEditor #coalEd
                                     [model]="_model"
@@ -263,6 +267,17 @@ const TAB_INDEX = {
                                     (onChangesSave)="applyEditorChanges($event, 'coalescence')"
                                     (onSwitchEditor)="switchEditor($event)">
                             </coalescenceEditor>
+                        </mat-tab>
+
+                        <!--Stratification editor-->
+                        <mat-tab *ngIf="isScaffold" class="w3-margin" [class.w3-threequarter]="showRepoPanel" #stEditTab>
+                            <ng-template mat-tab-label><i class="fa fa-layer-group"></i> Stratification editor</ng-template>
+                            <stratificationEditor #stratEd
+                                    [model]="_model"
+                                    [selectedNode]="_selectedResources['stratification']"
+                                    (onChangesSave)="applyEditorChanges($event, 'stratification')"
+                                    (onSwitchEditor)="switchEditor($event)">
+                            </stratificationEditor>
                         </mat-tab>
                     </mat-tab-group>
                 </section>
@@ -422,6 +437,11 @@ export class MainApp extends AppCommon {
     @ViewChild('lyphEd') lyphEd: LyphEditorComponent;
     @ViewChild('chainEd') chainEd: ChainEditorComponent;
     @ViewChild('coalEd') coalEd: CoalescenceEditorComponent;
+    @ViewChild('stratEd') stratEd: StratificationEditorComponent;
+
+    get isScaffold() {
+        return isScaffold(this._model);
+    }
 
     constructor(dialog: MatDialog, snackBar: MatSnackBar, http: HttpClient) {
         super(dialog, snackBar, http);
@@ -530,14 +550,14 @@ export class MainApp extends AppCommon {
 
     switchEditor({editor, node}) {
         this._selectedResources[editor] = node;
-        if (['material', 'lyph', 'chain', 'coalescence'].includes(editor)) {
+        if (['material', 'lyph', 'chain', 'coalescence', 'stratification'].includes(editor)) {
             this._tabGroup.selectedIndex = TAB_INDEX[editor];
         }
     }
 
     openEditor({editor}) {
         if (!editor) return;
-        if (['material','lyph','chain','coalescence'].includes(editor)){
+        if (['material','lyph','chain','coalescence', 'stratification'].includes(editor)){
             this._selectedResources[editor] = null; // new item workflow
             this._tabGroup.selectedIndex = TAB_INDEX[editor];
         }
@@ -549,7 +569,7 @@ export class MainApp extends AppCommon {
         if (!mode) return;
 
         const ensureUniqueId = (arr, baseId, type) => {
-            let candidate = baseId || {lyph:'newLyph1', material:'newMat1', chain:'newChain1', coalescence:'newCoalescence1'}[type];
+            let candidate = baseId || {lyph:'newLyph1', material:'newMat1', chain:'newChain1', coalescence:'newCoalescence1', stratification: 'newStrat1'}[type];
             let idx = 1;
             while ((arr || []).some(x => x.id === candidate)) {
                 const m = (candidate.match(/^(.*?)(\d+)$/) || []);
@@ -557,7 +577,7 @@ export class MainApp extends AppCommon {
                     candidate = `${m[1]}${parseInt(m[2],10)+1}`;
                 } else {
                     idx += 1;
-                    const prefix = {lyph:'newLyph', material:'newMat', chain:'newChain', coalescence:'newCoalescence'}[type];
+                    const prefix = {lyph:'newLyph', material:'newMat', chain:'newChain', coalescence:'newCoalescence', stratification: 'newStrat'}[type];
                     candidate = `${prefix}${idx}`;
                 }
             }
@@ -565,10 +585,10 @@ export class MainApp extends AppCommon {
         };
 
         const addOneToModel = (type, object) => {
-            const plural = {lyph:'lyphs', material:'materials', chain:'chains', coalescence:'coalescences'}[type];
+            const plural = {lyph:'lyphs', material:'materials', chain:'chains', coalescence:'coalescences', stratification: 'stratifications'}[type];
             if (!plural) return;
             this._model[plural] = this._model[plural] || [];
-            const cls = {lyph:'Lyph', material:'Material', chain:'Chain', coalescence:'Coalescence'}[type];
+            const cls = {lyph:'Lyph', material:'Material', chain:'Chain', coalescence:'Coalescence', stratification: 'Stratification'}[type];
             object._class = object._class || cls;
             object.id = ensureUniqueId(this._model[plural], object.id, type);
             this._model[plural].push(object);
@@ -650,6 +670,11 @@ export class MainApp extends AppCommon {
                     this.coalEd.createCoalescence(object);
                     return;
                 }
+                if (type === 'stratification' && this.stratEd && this.stratEd.createStratification) {
+                    this._tabGroup.selectedIndex = TAB_INDEX['stratification'];
+                    this.stratEd.createStratification(object);
+                    return;
+                }
                 // Fallback to model if no editor method
                 addOneToModel(type, object);
                 this.applyChanges();
@@ -686,7 +711,7 @@ export class MainApp extends AppCommon {
         ModelRepoPanelModule, MainToolbarModule, SnapshotToolbarModule, StateToolbarModule,
         //LayoutEditorModule, RelGraphModule,
         MatDialogModule, MatTabsModule, MatListModule, MatFormFieldModule, MatSnackBarModule, MaterialEditorModule,
-        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, AssistantPanelModule, MatProgressSpinnerModule, HttpClientModule],
+        LyphEditorModule, ChainEditorModule, CoalescenceEditorModule, StratificationEditorModule, AssistantPanelModule, MatProgressSpinnerModule, HttpClientModule],
     declarations: [MainApp, ImportDialog],
     bootstrap: [MainApp],
     entryComponents: [ImportDialog],

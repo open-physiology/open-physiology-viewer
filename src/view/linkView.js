@@ -37,9 +37,9 @@ Link.prototype.createViewObjects = function(state){
     this.createLabels();
 
     //Icon (lyph)
-    if (this.conveyingLyph) {
-        this.conveyingLyph.createViewObjects(state);
-    }
+    // if (this.conveyingLyph) {
+    //     this.conveyingLyph.createViewObjects(state);
+    // }
 
     // Note: we do not make conveying lyphs children of links to include them to the scene
     // because we want to have them in the main scene for highlighting

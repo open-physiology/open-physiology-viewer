@@ -175,6 +175,11 @@ Group.prototype.updateViewObjects = function (state) {
         }
     });
 
+    this.lyphs.forEach(lyph => {
+        if (!(lyph instanceof Lyph)) return;
+        lyph.setVisibility(false);
+    });
+
     this.visibleLinks.forEach(link => link.updateViewObjects(state));
 
     (this.coalescences || []).forEach(coalescence => {
