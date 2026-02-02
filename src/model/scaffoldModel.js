@@ -379,4 +379,13 @@ export class Scaffold extends Component {
             }
         })
     }
+    hide() {
+        this.hidden = true;
+        (this.components || []).forEach(component => component.hide());
+    }
+
+    show() {
+        delete this.hidden;
+        (this.components || []).forEach(component => component.show());
+    }
 }

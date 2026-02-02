@@ -10,7 +10,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MainToolbarModule} from "../components/toolbars/mainToolbar";
 import {SnapshotToolbarModule} from "../components/toolbars/snapshotToolbar";
 import {StateToolbarModule} from "../components/toolbars/stateToolbar";
-import {ModelRepoPanelModule} from "../components/modelRepoPanel";
+import {ModelRepoPanelModule} from "../components/panels/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
 import 'hammerjs';
 import defaultTestModel from '../data/graph.json';

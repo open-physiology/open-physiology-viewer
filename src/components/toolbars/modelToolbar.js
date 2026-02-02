@@ -81,10 +81,10 @@ import {MatSelectModule} from "@angular/material/select";
                     (click)="onShowReport.emit()" title="Show logs">
                 <i class="fa fa-check-circle" style="color:green"> </i>
             </button>
-            <button id="testWebGLBtn" *ngIf="!hidden('testWebGLBtn')" class="w3-bar-item w3-hover-light-grey"
-                    (click)="onTestWebGLObjects.emit()" title="Test WebGL Objects">
-                <i class="fa fa-vial"> </i>
-            </button>
+<!--            <button id="testWebGLBtn" *ngIf="!hidden('testWebGLBtn')" class="w3-bar-item w3-hover-light-grey"-->
+<!--                    (click)="onTestWebGLObjects.emit()" title="Test WebGL Objects">-->
+<!--                <i class="fa fa-vial"> </i>-->
+<!--            </button>-->
         </section>
     `,
     styles: [`

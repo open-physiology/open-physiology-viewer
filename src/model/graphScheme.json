@@ -3120,7 +3120,10 @@
                 "$ref": "#/definitions/IdentifierScheme"
               },
               {
-                "$ref": "#/definitions/VisualResource"
+                "$ref": "#/definitions/Group"
+              },
+              {
+                "$ref": "#/definitions/Component"
               }
             ]
           },

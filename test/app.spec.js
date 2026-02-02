@@ -22,7 +22,7 @@ import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
 import {LogInfoModule} from "../src/components/dialogs/logInfoDialog";
-import {SettingsPanelModule} from "../src/components/settingsPanel";
+import {SettingsPanelGraphModule} from "../src/components/panels/settingsPanelGraph";
 //import {WebGLSceneComponent} from "../src/components/webGLScene";
 
 import {MainToolbar} from "../src/components/toolbars/mainToolbar";
@@ -123,7 +123,7 @@ describe("SettingsPanel component", () => {
 //             platformBrowserDynamicTesting());
 //
 //         TestBed.configureTestingModule({
-//             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelModule,
+//             imports     : [CommonModule, FormsModule, BrowserModule, MatSliderModule, MatDialogModule, LogInfoModule, SettingsPanelGraphModule,
 //                 BrowserAnimationsModule, HotkeyModule.forRoot()],
 //             declarations: [
 //                 WebGLSceneComponent

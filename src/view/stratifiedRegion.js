@@ -69,8 +69,7 @@ StratifiedRegion.prototype.updateViewObjects = function(state) {
        this.createViewObjects(state);
     }
 
-    // Visibility: tie to showLyphs (no dedicated toggle exists)
-    obj.visible = this.isVisible && state.showLyphs;
+    obj.visible = this.isVisible && state.showStratifiedRegions;
 
     // Center around the conveying link if available, but keep in world XY plane
     const wire = this.axisWire;

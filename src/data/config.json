@@ -13,5 +13,60 @@
   "sparcContentURL": "https://api.github.com/repos/open-physiology/apinatomy-models/contents/models",
   "testContentURL": "https://api.github.com/repos/open-physiology/open-physiology-viewer/contents/test/data",
   "storageContentURL": "https://api.github.com/repos/albatros13/apinatomy-models/contents/",
-  "storageURL": "https://api.github.com/repos/albatros13/apinatomy-models"
+  "storageURL": "https://api.github.com/repos/albatros13/apinatomy-models",
+  "defaultConfig": {
+    "graph": {
+      "layout": {
+        "showLyphs": true,
+        "showLayers": true,
+        "showLyphs3d": false,
+        "showCoalescences": false,
+        "numDimensions": 3,
+        "coalescenceLayout": {
+          "startX": -50,
+          "baseY": 25,
+          "groupYOffset": 5,
+          "distance": 5
+        }
+      },
+      "showLabels": {
+        "Node": false,
+        "Link": false,
+        "Lyph": false,
+        "Anchor": true,
+        "Wire": false,
+        "Region": false
+      },
+      "labels": {
+        "Node": "id",
+        "Link": "id",
+        "Lyph": "id",
+        "Anchor": "id",
+        "Wire": "id",
+        "Region": "id"
+      },
+      "groups": true,
+      "highlighted": true,
+      "selected": true
+    },
+    "scaffold": {
+      "layout": {
+        "showStratifiedRegions": true,
+        "showPlaceholders": true
+      },
+      "showLabels": {
+        "Wire": false,
+        "Anchor": true,
+        "Region": false
+      },
+      "labels": {
+        "Wire": "id",
+        "Anchor": "id",
+        "Region": "id"
+      },
+      "components": true,
+      "highlighted": true,
+      "selected": true
+    }
+  }
 }

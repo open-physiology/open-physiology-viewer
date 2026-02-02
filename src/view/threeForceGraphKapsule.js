@@ -184,6 +184,7 @@ export default Kapsule({
         showLayers       : { default: true},
         showLyphs3d      : { default: false},
         showCoalescences : { default: false},
+        showStratifiedRegions: { default: true},
         showLabels       : { default: {}},
         coalescenceLayout: { 
             default: { startX: -50, baseY: 25, groupYOffset: 5, distance: 5 },

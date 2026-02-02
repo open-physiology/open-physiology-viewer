@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter, Input, NgModule, ChangeDetectionStrategy} from '@angular/core';
 
-import {jsonToExcel, loadModel} from '../../model';
+import {loadModel} from '../../model';
 import {ImportExcelModelDialog} from "../dialogs/importExcelModelDialog";
 import {MatDialog,MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -19,11 +19,11 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
        <section class="w3-sidebar w3-bar-block vertical-toolbar">
-           <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'" 
+           <input #fileInput type="file" accept=".json,.xlsx" [style.display]="'none'" multiple 
                    (change)="load(fileInput, onLoadModel)"/>
-           <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'"
+           <input #fileInput1 type="file" accept=".json,.xlsx" [style.display]="'none'" multiple
                    (change)="load(fileInput1, onJoinModel)"/>
-           <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'"
+           <input #fileInput2 type="file" accept=".json,.xlsx" [style.display]="'none'" multiple
                    (change)="load(fileInput2, onMergeModel)"/>
            <button id="createBtn" *ngIf="!hidden('createBtn')" class="w3-bar-item w3-hover-light-grey" (click)="onCreateModel.emit()" title="Create model">
                 <i class="fa fa-plus"> </i>
@@ -118,21 +118,69 @@ export class MainToolbar {
 
     load(fileInput, event) {
         let files = fileInput.files;
-        if (files && files[0]){
-            let [name, extension] = fileExtensionRe.exec(files[0].name);
+        if (files && files.length > 0){
+            let modelFile = [...files].find(f => {
+                let [name, extension] = fileExtensionRe.exec(f.name);
+                return ["json", "xlsx"].includes(extension.toLowerCase());
+            });
+
+            if (!modelFile) {
+                fileInput.value = '';
+                return;
+            }
+
+            let [name, extension] = fileExtensionRe.exec(modelFile.name);
             extension = extension.toLowerCase();
 
             const reader = new FileReader();
             reader.onload = () => {
                 let model = loadModel(reader.result, name, extension);
-                event.emit(model);
+                if (extension === "json") {
+                    let externals = model.externals || [];
+                    if (model.scaffolds) {
+                        model.scaffolds.forEach(s => {
+                            if (s.externals) {
+                                externals = externals.concat(s.externals);
+                            }
+                        });
+                    }
+                    const imageExternals = externals.filter(e => e.type === "image" && e.path);
+                    if (imageExternals.length > 0) {
+                        const imageReader = new FileReader();
+                        let index = 0;
+                        const loadNextImage = () => {
+                            if (index < imageExternals.length) {
+                                let external = imageExternals[index];
+                                let imageFile = [...files].find(f => f.name === external.path || f.name === external.path.split(/[\\/]/).pop());
+                                if (imageFile) {
+                                    imageReader.onload = () => {
+                                        external.pathContent = imageReader.result;
+                                        index++;
+                                        loadNextImage();
+                                    };
+                                    imageReader.readAsDataURL(imageFile);
+                                } else {
+                                    index++;
+                                    loadNextImage();
+                                }
+                            } else {
+                                event.emit(model);
+                            }
+                        };
+                        loadNextImage();
+                    } else {
+                        event.emit(model);
+                    }
+                } else {
+                    event.emit(model);
+                }
             }
             try {
                 if (extension === "json"){
-                    reader.readAsText(files[0]);
+                    reader.readAsText(modelFile);
                 } else {
                     if (extension === "xlsx"){
-                        reader.readAsBinaryString(files[0]);
+                        reader.readAsBinaryString(modelFile);
                     }
                 }
             } catch (err){

@@ -8,7 +8,7 @@ import {
     isIncluded,
     mergeRecursively,
     schemaClassModels,
-    showGroups, getID, getRefID, getGenID, refToResource
+    showGroups, getID, getRefID, getGenID, refToResource, includeRef
 } from "./utils";
 import {logger, $LogMsg} from "./logger";
 import {Anchor} from './verticeModel';
@@ -35,7 +35,7 @@ export class Component extends Resource {
      * @returns {Resource}
      */
     static fromJSON(json, modelClasses = {}, entitiesByID, defaultNamespace) {
-        (json.regions||[]).forEach(region => {
+        (json.regions || []).forEach(region => {
             if (region::isObject()) {//process regions, but not references to regions
                 modelClasses.Region.expandTemplate(json, region);
                 modelClasses.Region.validateTemplate(json, region);
@@ -58,8 +58,8 @@ export class Component extends Resource {
      * Groups that can be toggled on or off in the global graph
      * @returns {*[]}
      */
-    get activeGroups(){
-        return [...(this.components||[])];
+    get activeGroups() {
+        return [...(this.components || [])];
     }
 
     get visibleGroups() {
@@ -70,49 +70,33 @@ export class Component extends Resource {
      * Show sub-components of the current component. A resources is shown if it belongs to at least one visible component
      * @param ids - selected component IDs
      */
-    showGroups(ids){
-        showGroups(this.components||[], ids);
+    showGroups(ids) {
+        showGroups(this.components || [], ids);
     }
 
-    /**
-     * Hide current group (=hide all its entities)
-     */
-    hide(){
-        this.hidden = true;
-        this.resources.forEach(entity => entity.hidden = true);
-    }
-
-    /**
-     * Show current group (=show all its entities)
-     */
-    show(){
-        this.hidden = false;
-        this.resources.forEach(entity => delete entity.hidden);
-    }
-
-    get visibleComponents(){
-        return [...(this.components||[])].filter(e => !e.hidden);
+    get visibleComponents() {
+        return [...(this.components || [])].filter(e => !e.hidden);
     }
 
     /**
      * Entities that belong to the component (resources excluding sub-components)
      * @returns {*[]}
      */
-    get resources(){
+    get resources() {
         let res = [];
         let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames([$SchemaClass.Component]);
-        relFieldNames.forEach(prop => res = res::unionBy((this[prop] ||[]), $Field.id));
+        relFieldNames.forEach(prop => res = res::unionBy((this[prop] || []), $Field.id));
         return res.filter(e => !!e && e::isObject());
     }
 
-    contains(resource){
-        if (resource instanceof Anchor){
+    contains(resource) {
+        if (resource instanceof Anchor) {
             return isIncluded(this.anchors, resource.id);
         }
-        if (resource instanceof Wire){
+        if (resource instanceof Wire) {
             return isIncluded(this.wires, resource.id);
         }
-        if (resource instanceof Region){
+        if (resource instanceof Region) {
             return isIncluded(this.regions, resource.id);
         }
         return false;
@@ -122,31 +106,31 @@ export class Component extends Resource {
      * Visible anchors
      * @returns {*[]} visible anchors in a scaffold component
      */
-    get visibleAnchors(){
-        return (this.anchors||[]).filter(e => e.isVisible);
+    get visibleAnchors() {
+        return (this.anchors || []).filter(e => e.isVisible);
     }
 
     /**
      * Visible wires
      * @returns {*[]} visible wires in a scaffold component
      */
-    get visibleWires(){
-        return (this.wires||[]).filter(e => e.isVisible);
+    get visibleWires() {
+        return (this.wires || []).filter(e => e.isVisible);
     }
 
     /**
      * Visible regions
      * @returns {*[]} visible regions in a scaffold component
      */
-    get visibleRegions(){
-        return (this.regions||[]).filter(e => e.isVisible);
+    get visibleRegions() {
+        return (this.regions || []).filter(e => e.isVisible);
     }
 
-    get visibleStratifiedRegions(){
-        return (this.stratifiedRegions||[]).filter(e => e.isVisible);
+    get visibleStratifiedRegions() {
+        return (this.stratifiedRegions || []).filter(e => e.isVisible);
     }
 
-    markImported(){
+    markImported() {
         if (this.imported) {
             let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();
             relFieldNames.forEach(prop => this[prop]?.forEach(r => r.imported = true));
@@ -156,16 +140,21 @@ export class Component extends Resource {
     /**
      * Add resources from sub-components to the current component
      */
-    mergeSubgroupResources(){
+    mergeSubgroupResources() {
         let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();
         mergeRecursively(this, $Field.components, relFieldNames, $LogMsg.COMPONENT_SELF);
     }
 
-    includeRelated(){
-        [$Field.anchors, $Field.wires, $Field.regions].forEach(prop =>
-            (this[prop]||[]).forEach(res => res.includeRelated && res.includeRelated(this))
-        );
-       if (this.hidden){
+    includeRelated() {
+        [$Field.anchors, $Field.wires, $Field.regions, $Field.stratifiedRegions].forEach(prop => prop => {
+            (this[prop] || []).forEach(res => {
+                res.includeRelated && res.includeRelated(this);
+                // This is needed if resources can belong to several components
+                // res.inGroups = res.inGroups || [];
+                // includeRef(res.inGroups, this);
+            });
+        });
+        if (this.hidden) {
             this.hide();
         } else {
             this.show();
@@ -174,7 +163,44 @@ export class Component extends Resource {
 
     static createStratifiedRegions(parentGroup, modelClasses) {
         (parentGroup.stratifications || []).forEach(template => {
-                modelClasses.Stratification.createStratifiedRegions(parentGroup, template);
+            modelClasses.Stratification.createStratifiedRegions(parentGroup, template);
         });
+    }
+
+    // /**
+    //  * Hide current group (=hide all its entities)
+    //  */
+    // hide() {
+    //     this.hidden = true;
+    //     this.resources.forEach(entity => {
+    //         let visibleGroups = (entity.inGroups || []).filter(g => !g.hidden);
+    //         if (visibleGroups.length <= 1) entity.hidden = true;
+    //     });
+    // }
+    //
+    // /**
+    //  * Show current group (=show all its entities)
+    //  */
+    // show() {
+    //     this.hidden = false;
+    //     this.resources.forEach(entity => {
+    //         delete entity.hidden;
+    //     });
+    // }
+    //
+    /**
+     * Hide current group (=hide all its entities)
+     */
+    hide() {
+        this.hidden = true;
+        this.resources.forEach(entity => entity.hidden = true);
+    }
+
+    /**
+     * Show current group (=show all its entities)
+     */
+    show() {
+        this.hidden = false;
+        this.resources.forEach(entity => delete entity.hidden);
     }
 }

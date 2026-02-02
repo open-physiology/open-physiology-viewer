@@ -11,10 +11,10 @@ import {
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatListModule} from '@angular/material/list';
-import graphSchema from '../model/graphScheme.json';
-import {sendOpenAIChat} from '../api/openai';
-import {detectCreateIntent, parseResourceFromText} from '../api/llmUtils';
-import {sendAnthropicChat} from '../api/anthropic';
+import graphSchema from '../../model/graphScheme.json';
+import {sendOpenAIChat} from '../../api/openai';
+import {detectCreateIntent, parseResourceFromText} from '../../api/llmUtils';
+import {sendAnthropicChat} from '../../api/anthropic';
 
 /**
  * AssistantPanel provides a simple panel to compose requests to an AI coding assistant

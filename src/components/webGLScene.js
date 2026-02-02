@@ -34,7 +34,9 @@ import {MaterialTreeDialog, MaterialTreeDialogModule} from "./dialogs/materialTr
 import {ModelToolbarModule} from "./toolbars/modelToolbar";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {buildTree} from "./structs/materialNode";
-import {SettingsPanelModule} from './settingsPanel';
+import {SettingsPanelGraphModule} from './panels/settingsPanelGraph';
+import {SettingsPanelScaffoldModule} from './panels/settingsPanelScaffold';
+import config from '../data/config.json';
 
 const WindowResize = require('three-window-resize');
 
@@ -65,9 +67,9 @@ const WindowResize = require('three-window-resize');
                                 (onExportResource)="exportResource($event)"
                                 (onShowReport)="showReport()"
                                 (onToggleAssistant)="onToggleAssistant.emit()"
-                                (onTestWebGLObjects)="testWebGLObjects()"
                         >
                         </model-toolbar>
+                        <!--                                (onTestWebGLObjects)="testWebGLObjects()"-->
                         <mat-slider vertical class="w3-grey"
                                     [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
                                     [step]="0.05 * scaleFactor" tickInterval="1"
@@ -80,7 +82,8 @@ const WindowResize = require('three-window-resize');
                 <canvas #canvas></canvas>
             </section>
             <section id="apiLayoutSettingsPanel" *ngIf="showPanel" class="w3-quarter">
-                <settingsPanel
+                <settingsPanelGraph
+                        *ngIf="!isScaffold"
                         [config]="_config"
                         [selected]="_selected"
                         [highlighted]="_highlighted"
@@ -105,7 +108,23 @@ const WindowResize = require('three-window-resize');
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
                         (onEditResource)="editResource.emit($event)"
-                ></settingsPanel>
+                ></settingsPanelGraph>
+                <settingsPanelScaffold
+                        *ngIf="isScaffold"
+                        [config]="_config"
+                        [selected]="_selected"
+                        [highlighted]="_highlighted"
+                        [helperKeys]="_helperKeys"
+                        [components]="graphData?.components"
+                        [searchOptions]="searchOptions"
+                        (onSelectBySearch)="selectByName($event)"
+                        (onUpdateShowLabels)="graph?.showLabels($event)"
+                        (onUpdateLabelContent)="graph?.labels($event)"
+                        (onToggleLayout)="toggleLayout($event)"
+                        (onToggleComponent)="toggleGroup($event)"
+                        (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
+                        (onEditResource)="editResource.emit($event)"
+                ></settingsPanelScaffold>
             </section>
     `,
     styles: [`
@@ -191,6 +210,9 @@ export class WebGLSceneComponent {
             this.isConnectivity = isGraph(newGraphData);
             this.isScaffold = isScaffold(newGraphData);
             this.searchOptions = SearchOptions.all(this._graphData);
+
+            this.defaultConfig = this.isScaffold ? config.defaultConfig.scaffold : config.defaultConfig.graph;
+            this._config = this.defaultConfig::cloneDeep();
 
             this.selected = null;
             this._graphData.scale(this.scaleFactor);
@@ -299,36 +321,6 @@ export class WebGLSceneComponent {
     constructor(dialog: MatDialog, hotkeysService: HotkeysService, snackBar: MatSnackBar) {
         this.dialog = dialog;
         this.hotkeysService = hotkeysService;
-        this.defaultConfig = {
-            layout: {
-                showLyphs: true,
-                showLayers: true,
-                showLyphs3d: false,
-                showCoalescences: false,
-                numDimensions: 3,
-                coalescenceLayout: {startX: -50, baseY: 25, groupYOffset: 5, distance: 5}
-            },
-            showLabels: {
-                [$SchemaClass.Wire]: false,
-                [$SchemaClass.Anchor]: true,
-                [$SchemaClass.Node]: false,
-                [$SchemaClass.Link]: false,
-                [$SchemaClass.Lyph]: false,
-                [$SchemaClass.Region]: false
-            },
-            labels: {
-                [$SchemaClass.Wire]: $Field.id,
-                [$SchemaClass.Anchor]: $Field.id,
-                [$SchemaClass.Node]: $Field.id,
-                [$SchemaClass.Link]: $Field.id,
-                [$SchemaClass.Lyph]: $Field.id,
-                [$SchemaClass.Region]: $Field.id
-            },
-            groups: true,
-            highlighted: true,
-            selected: true
-        };
-        this._config = this.defaultConfig::cloneDeep();
         this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
             this.resetCamera();
             return false; // Prevent bubbling
@@ -738,9 +730,9 @@ export class WebGLSceneComponent {
                     background = findExternal(this._graphData.externals) || findExternal(scaffold.externals);
                 }
 
-                if (background && background.path) {
+                if (background && (background.pathContent || background.path)) {
                     const loader = new THREE.TextureLoader();
-                    loader.load(background.path, (texture) => {
+                    loader.load(background.pathContent || background.path, (texture) => {
                         removeBackground();
                         const geometry = new THREE.PlaneGeometry(texture.image.width, texture.image.height);
                         const material = new THREE.MeshBasicMaterial({
@@ -797,67 +789,66 @@ export class WebGLSceneComponent {
         this.controls.enabled = !this.lockControls;
     }
 
-    testWebGLObjects() {
-        let allLyphs = [];
-        const collectLyphs = (groups) => {
-            (groups || []).forEach(g => {
-                if (g.lyphs) {
-                    allLyphs.push(...g.lyphs);
-                }
-            });
-        };
-        collectLyphs(this._graphData.activeGroups);
-        collectLyphs(this._graphData.dynamicGroups);
-        collectLyphs(this._graphData.scaffoldComponents);
-
-        // Filter out duplicates if any (e.g. lyphs appearing in multiple groups)
-        allLyphs = [...new Set(allLyphs)];
-
-        let counts = {
-            visibleWebGL: 0,
-            visibleMaterials: 0,
-            invisibleWithVisibleMaterials: 0,
-            explicitlyVisible: 0,
-            isVisible: 0
-        };
-
-        let problematicLyphs = [];
-
-        allLyphs.forEach(lyph => {
-            const obj = lyph.viewObjects ? lyph.viewObjects["main"] : null;
-            if (obj) {
-                if (obj.visible) {
-                    counts.visibleWebGL++;
-                }
-                if (obj.material && obj.material.visible) {
-                    counts.visibleMaterials++;
-                }
-                if (!obj.visible && (obj.material && obj.material.visible)) {
-                    counts.invisibleWithVisibleMaterials++;
-                    problematicLyphs.push(lyph);
-                }
-            }
-            if (!lyph.hidden) {
-                counts.explicitlyVisible++;
-            }
-            if (lyph.isVisible) {
-                counts.isVisible++;
-            }
-        });
-
-        if (problematicLyphs.length > 0) {
-            console.log("Lyphs with invisible webGL objects that have visible materials:");
-            problematicLyphs.forEach(lyph => {
-                console.log(`ID: ${lyph.id}, Name: ${lyph.name}`);
-            });
-        }
-
-        alert(`Number of visible webGL objects corresponding to lyphs: ${counts.visibleWebGL}
-Number of webGL lyph objects with visible materials: ${counts.visibleMaterials}
-Number of WebGL objects that are invisible but have visible materials: ${counts.invisibleWithVisibleMaterials}
-Number of explicitly visible lyphs (hidden is not true): ${counts.explicitlyVisible}
-Number of visible lyphs (isVisible is true): ${counts.isVisible}`);
-    }
+//     testWebGLObjects() {
+//         let allLyphs = [];
+//         const collectLyphs = (groups) => {
+//             (groups || []).forEach(g => {
+//                 if (g.lyphs) {
+//                     allLyphs.push(...g.lyphs);
+//                 }
+//             });
+//         };
+//         collectLyphs(this._graphData.activeGroups);
+//         collectLyphs(this._graphData.dynamicGroups);
+//
+//         // Filter out duplicates if any (e.g. lyphs appearing in multiple groups)
+//         allLyphs = [...new Set(allLyphs)];
+//
+//         let counts = {
+//             visibleWebGL: 0,
+//             visibleMaterials: 0,
+//             invisibleWithVisibleMaterials: 0,
+//             explicitlyVisible: 0,
+//             isVisible: 0
+//         };
+//
+//         let problematicLyphs = [];
+//
+//         allLyphs.forEach(lyph => {
+//             const obj = lyph.viewObjects ? lyph.viewObjects["main"] : null;
+//             if (obj) {
+//                 if (obj.visible) {
+//                     counts.visibleWebGL++;
+//                 }
+//                 if (obj.material && obj.material.visible) {
+//                     counts.visibleMaterials++;
+//                 }
+//                 if (!obj.visible && (obj.material && obj.material.visible)) {
+//                     counts.invisibleWithVisibleMaterials++;
+//                     problematicLyphs.push(lyph);
+//                 }
+//             }
+//             if (!lyph.hidden) {
+//                 counts.explicitlyVisible++;
+//             }
+//             if (lyph.isVisible) {
+//                 counts.isVisible++;
+//             }
+//         });
+//
+//         if (problematicLyphs.length > 0) {
+//             console.log("Lyphs with invisible webGL objects that have visible materials:");
+//             problematicLyphs.forEach(lyph => {
+//                 console.log(`ID: ${lyph.id}, Name: ${lyph.name}`);
+//             });
+//         }
+//
+//         alert(`Number of visible webGL objects corresponding to lyphs: ${counts.visibleWebGL}
+// Number of webGL lyph objects with visible materials: ${counts.visibleMaterials}
+// Number of WebGL objects that are invisible but have visible materials: ${counts.invisibleWithVisibleMaterials}
+// Number of explicitly visible lyphs (hidden is not true): ${counts.explicitlyVisible}
+// Number of visible lyphs (isVisible is true): ${counts.isVisible}`);
+//     }
 
     _clearAuxTips() {
         this.auxTips = [];
@@ -1280,7 +1271,7 @@ Number of visible lyphs (isVisible is true): ${counts.isVisible}`);
 
 @NgModule({
     imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule,
-        SettingsPanelModule, QuerySelectModule,
+        SettingsPanelGraphModule, SettingsPanelScaffoldModule, QuerySelectModule,
         ModelToolbarModule, MaterialTreeDialogModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog, MaterialTreeDialog],

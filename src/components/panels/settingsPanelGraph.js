@@ -5,23 +5,24 @@ import {MatSliderModule} from '@angular/material/slider'
 import {MatCheckboxModule} from '@angular/material/checkbox'
 import {MatRadioModule} from '@angular/material/radio'
 import {keys} from 'lodash-bound';
-import {SearchBarModule} from './gui/searchBar';
-import {ResourceInfoModule} from './gui/resourceInfo';
-import {LogInfoModule, LogInfoDialog} from "./dialogs/logInfoDialog";
-import {ExternalSearchModule} from "./gui/externalSearchBar";
-import {$Field, $SchemaClass} from "../model";
-import {StopPropagation} from "./gui/stopPropagation";
+import {SearchBarModule} from '../gui/searchBar';
+import {ResourceInfoModule} from '../gui/resourceInfo';
+import {ExternalSearchModule} from "../gui/externalSearchBar";
+import {$Field, $SchemaClass} from "../../model";
+import {StopPropagation} from "../gui/stopPropagation";
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import {ResourceVisibility} from "./gui/resourceVisibility";
+import {ResourceVisibility} from "../gui/resourceVisibility";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MatSelectModule} from "@angular/material/select";
 import {MatTooltipModule} from "@angular/material/tooltip";
+
+import {SettingsPanelModule} from "./settingsPanel";
 
 /**
  * @ignore
@@ -39,10 +40,10 @@ const COLORS = {
 };
 
 @Component({
-    selector: 'settingsPanel',
+    selector: 'settingsPanelGraph',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
-        <section #settingsPanel id="settingsPanel">
+        <section #settingsPanelGraph id="settingsPanelGraph">
             <!-- Settings -->
             <mat-accordion>
                 <mat-expansion-panel>
@@ -139,23 +140,13 @@ const COLORS = {
 <!--                            </div>-->
                         </div>
 
-                        <div class="settings-wrap">
-                            <h5>Labels</h5>
-                            <div class="wrap" *ngFor="let labelClass of _labelClasses">
-                                <mat-slide-toggle matTooltip="Toggle labels"
-                                                  [checked]="config.showLabels[labelClass]"
-                                                  (change)="updateShowLabels(labelClass)"><img
-                                        src="./styles/images/toggle-icon.svg"/>{{ labelClass }}
-                                </mat-slide-toggle>
-                                <mat-radio-group [(ngModel)]="config.labels[labelClass]"
-                                                 *ngIf="config.showLabels[labelClass]">
-                                    <mat-radio-button *ngFor="let labelProp of _labelProps"
-                                                      [value]="labelProp"
-                                                      (change)="updateLabelContent(labelClass, labelProp)"> {{ labelProp }}
-                                    </mat-radio-button>
-                                </mat-radio-group>
-                            </div>
-                        </div>
+                        <settingsLabelsPanel
+                                [config]="config"
+                                [labelClasses]="_labelClasses"
+                                [labelProps]="_labelProps"
+                                (onUpdateShowLabels)="onUpdateShowLabels.emit($event)"
+                                (onUpdateLabelContent)="onUpdateLabelContent.emit($event)"
+                        ></settingsLabelsPanel>
 
                         <div class="settings-wrap">
                             <h5>Helpers</h5>
@@ -168,49 +159,20 @@ const COLORS = {
                     </div>
                 </mat-expansion-panel>
             </mat-accordion>
-            <!--Highlighted entity-->
-            <mat-accordion>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Highlighted
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <div class="default-box pb-0">
-                        <div *ngIf="config.highlighted" class="default-boxContent">
-                            <resourceInfoPanel *ngIf="!!highlighted" [resource]="highlighted"></resourceInfoPanel>
-                        </div>
-                        <div *ngIf="!highlighted" class="default-boxError">
-                            Hover an instance to see its details.
-                        </div>
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
-            <mat-accordion>
-                <mat-expansion-panel>
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            Selected
-                        </mat-panel-title>
-                    </mat-expansion-panel-header>
-                    <div class="default-box pb-0">
-                        <searchBar [selected]="selectedLabel" [searchOptions]="searchOptions"
-                                   (selectedItemChange)="this.onSelectBySearch.emit($event)">
-                        </searchBar>
-                        <div *ngIf="config.selected" class="default-boxContent">
-                            <button *ngIf="_selected && _selected.class === 'Lyph' " title="Edit"
-                                    class="w3-bar-item w3-right w3-hover-light-grey"
-                                    (click)="onEditResource.emit(_selected)">
-                                <i class="fa fa-edit"> </i>
-                            </button>
-                            <resourceInfoPanel *ngIf="!!_selected" [resource]="_selected">
-                            </resourceInfoPanel>
-                            <sciGraphSearch [selected]="_selected">
-                            </sciGraphSearch>
-                        </div>
-                    </div>
-                </mat-expansion-panel>
-            </mat-accordion>
+            
+            <settingsHighlightedPanel
+                [config]="config"
+                [highlighted]="highlighted"
+            ></settingsHighlightedPanel>
+
+            <settingsSelectedPanel
+                [config]="config"
+                [selected]="selected"
+                [selectedLabel]="selectedLabel"
+                [searchOptions]="searchOptions"
+                (onSelectBySearch)="onSelectBySearch.emit($event)"
+                (onEditResource)="onEditResource.emit(_selected)"
+            ></settingsSelectedPanel>
 
             <!--Group controls-->
 
@@ -218,7 +180,7 @@ const COLORS = {
                 <mat-expansion-panel [expanded]="true">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-                            {{ (scaffolds && scaffolds.length > 0) ? 'Components' : 'Groups' }}
+                            Groups
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
@@ -288,24 +250,11 @@ const COLORS = {
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <div class="default-box">
-                        <div class="default-box-header">
-                            <div class="search-bar">
-                                <img src="./styles/images/search.svg"/>
-                                <input type="text" class="search-input" placeholder="Search for a group"
-                                       name="searchTermScaffolds" [(ngModel)]="searchTermScaffolds"
-                                       (input)="searchScaffold($event.target.value)"/>
-                                <img *ngIf="searchTermScaffolds !== ''" src="./styles/images/close.svg"
-                                     class="input-clear"
-                                     (click)="clearSearch('searchTermScaffold', 'filteredScaffolds', 'scaffolds')"/>
-                            </div>
-                        </div>
-                        <div class="wrap" *ngFor="let scaffold of filteredScaffolds">
+                        <div class="wrap" *ngFor="let scaffold of scaffolds">
                             <mat-slide-toggle [checked]="!scaffold.hidden"
-                                              (change)="toggleScaffold(scaffold)">{{ scaffold._parent ? scaffold._parent.id + ":" : "" }}{{ scaffold.name || scaffold.id }}
+                                              (change)='toggleScaffold(scaffold)'>{{ scaffold._parent ? scaffold._parent.id + ":" : "" }}{{ scaffold.name || scaffold.id }}
                             </mat-slide-toggle>
                         </div>
-                    </div>
 
                     <!-- Component visibility -->
                     <resourceVisibility
@@ -557,7 +506,7 @@ const COLORS = {
         }
     `]
 })
-export class SettingsPanel {
+export class SettingsPanelGraph {
     _config;
     _scaffolds;
     _helperKeys;
@@ -567,11 +516,9 @@ export class SettingsPanel {
     selectedLabel;
 
     searchTerm = '';
-    searchTermScaffolds = '';
 
     filteredGroups;
     filteredDynamicGroups;
-    filteredScaffolds;
 
     scaffoldResourceVisibility: Boolean = false;
 
@@ -634,13 +581,11 @@ export class SettingsPanel {
     @Output() onCladeChange = new EventEmitter();
     @Output() onCladeReset = new EventEmitter();
     @Output() onUpdateCoalescenceLayout = new EventEmitter();
-    @Output() onUpdateRenderedResources = new EventEmitter();
 
     constructor() {
         this._labelProps = [$Field.id, $Field.name];
         this._showHelpers = new Set([]);
         this.searchTerm = '';
-        this.searchTermScaffolds = '';
     }
 
     get config() {
@@ -715,17 +660,6 @@ export class SettingsPanel {
                 this[prop] = undefined;
             }
         });
-        this.onUpdateRenderedResources.emit(this.scaffolds);
-    }
-
-    updateShowLabels(labelClass) {
-        this.config.showLabels[labelClass] = !this.config.showLabels[labelClass];
-        this.onUpdateShowLabels.emit(this.config.showLabels || {});
-    }
-
-    updateLabelContent(labelClass, labelProp) {
-        this.config.labels[labelClass] = labelProp;
-        this.onUpdateLabelContent.emit(this.config.labels || {})
     }
 
     emitCoalescenceLayout() {
@@ -746,10 +680,10 @@ export class SettingsPanel {
     }
 
     toggleAllGroups = () => {
-        let allVisible = this.groups.filter(group => group.hidden || group.undefined);
+        let allVisible = this.groups.filter(group => group.hidden);
 
         for (let group of this.groups) {
-            if (group.hidden || allVisible.length == 0) {
+            if (group.hidden || allVisible.length === 0) {
                 this.onToggleGroup.emit(group);
             }
         }
@@ -761,9 +695,9 @@ export class SettingsPanel {
     toggleAllDynamicGroup = () => {
         if (!this.dynamicGroups) return;
 
-        let allVisible = this.dynamicGroups.filter(group => group.hidden || group.undefined);
+        let allVisible = this.dynamicGroups.filter(group => group.hidden);
         for (let group of this.dynamicGroups) {
-            if (group.hidden || allVisible.length == 0) {
+            if (group.hidden || allVisible.length === 0) {
                 this.onToggleGroup.emit(group);
             }
         }
@@ -773,27 +707,16 @@ export class SettingsPanel {
         this[filterOptions] = this[allOptions]?.filter((val) => val.name && val.name.toLowerCase().includes(value?.toLowerCase()));
     }
 
-    searchScaffold(value) {
-        this.filteredScaffolds = this.scaffolds.filter((scaffold) => {
-            const lowerCaseValue = value?.toLowerCase();
-            const displayTerm = ((scaffold._parent ? scaffold._parent.id + ":" : "") + scaffold.name).toLowerCase();
-            return displayTerm.includes(lowerCaseValue) || scaffold?._parent?.id?.toLowerCase()?.includes(lowerCaseValue) || scaffold?.name?.toLowerCase()?.includes(lowerCaseValue);
-        });
-    }
-
     ngOnInit() {
         this.filteredGroups = this.groups;
         this.filteredDynamicGroups = this.dynamicGroups;
-        this.filteredScaffolds = this.scaffolds;
     }
 
     ngOnChanges() {
         this.search(this.searchTerm, 'filteredGroups', 'groups');
         this.search(this.searchTerm, 'filteredDynamicGroups', 'dynamicGroups');
-        this.search(this.searchTerm, 'filteredScaffolds', 'scaffolds');
         this.filteredGroups = this.filteredGroups || this.groups;
         this.filteredDynamicGroups = this.filteredDynamicGroups || this.dynamicGroups;
-        this.filteredScaffolds = this.filteredScaffolds || this.scaffolds;
     }
 
     clearSearch(term, filterOptions, allOptions) {
@@ -804,13 +727,12 @@ export class SettingsPanel {
 
 @NgModule({
     imports: [CommonModule, FormsModule, BrowserAnimationsModule, ReactiveFormsModule, ResourceInfoModule, ExternalSearchModule,
-        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, LogInfoModule,
+        MatSliderModule, SearchBarModule, MatCheckboxModule, MatRadioModule, SettingsPanelModule,
         MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule,
         MatFormFieldModule, MatAutocompleteModule, MatSelectModule, MatTooltipModule
     ],
-    declarations: [SettingsPanel, StopPropagation, ResourceVisibility],
-    entryComponents: [LogInfoDialog],
-    exports: [SettingsPanel]
+    declarations: [SettingsPanelGraph, StopPropagation, ResourceVisibility],
+    exports: [SettingsPanelGraph]
 })
-export class SettingsPanelModule {
+export class SettingsPanelGraphModule {
 }

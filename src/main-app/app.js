@@ -16,7 +16,7 @@ import {SnapshotToolbarModule} from "../components/toolbars/snapshotToolbar";
 import {StateToolbarModule} from "../components/toolbars/stateToolbar";
 // import {LayoutEditorModule} from "../components/editors/layoutEditor";
 // import {RelGraphModule} from "../components/relationGraph";
-import {ModelRepoPanelModule} from "../components/modelRepoPanel";
+import {ModelRepoPanelModule} from "../components/panels/modelRepoPanel";
 import {GlobalErrorHandler} from '../services/errorHandler';
 import {AppCommon} from '../components/appCommon';
 
@@ -48,7 +48,7 @@ import {LyphEditorModule} from "../components/editors/lyphEditor";
 import {ChainEditorModule} from "../components/editors/chainEditor";
 import {CoalescenceEditorModule} from "../components/editors/coalescenceEditor";
 import {StratificationEditorModule} from "../components/editors/stratificationEditor";
-import {AssistantPanelModule} from "../components/assistantPanel";
+import {AssistantPanelModule} from "../components/panels/assistantPanel";
 import {MaterialEditorComponent} from "../components/editors/materialEditor";
 import {LyphEditorComponent} from "../components/editors/lyphEditor";
 import {ChainEditorComponent} from "../components/editors/chainEditor";
