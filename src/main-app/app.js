@@ -541,6 +541,7 @@ export class MainApp extends AppCommon {
         }
     }
 
+
     applyEditorChanges({model, selected}, editor) {
         this._selectedResources[editor] = selected;
         this._model = model;

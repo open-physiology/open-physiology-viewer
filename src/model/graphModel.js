@@ -299,10 +299,11 @@ export class Graph extends Group {
 
         if (res.groups) {
             res.groups.forEach(g => g.markImported());
-            res.groups = res.groups::sortBy([$Field.namespace, $Field.name, $Field.id]);
+            // res.groups = res.groups::sortBy([$Field.namespace, $Field.name, $Field.id]);
         }
         if (res.scaffolds) {
-            res.scaffolds = res.scaffolds::sortBy([$Field.namespace, $Field.name, $Field.id]);
+            res.scaffolds.forEach(s => s.markImported());
+            // res.scaffolds = res.scaffolds::sortBy([$Field.namespace, $Field.name, $Field.id]);
         }
 
         res.generated = true;

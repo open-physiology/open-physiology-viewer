@@ -45,14 +45,14 @@
         "Wire": "id",
         "Region": "id"
       },
-      "groups": true,
       "highlighted": true,
       "selected": true
     },
     "scaffold": {
       "layout": {
         "showStratifiedRegions": true,
-        "showPlaceholders": true
+        "showPlaceholders": true,
+        "showBackground": true
       },
       "showLabels": {
         "Wire": false,
@@ -64,7 +64,6 @@
         "Anchor": "id",
         "Region": "id"
       },
-      "components": true,
       "highlighted": true,
       "selected": true
     }

@@ -67,6 +67,7 @@ const WindowResize = require('three-window-resize');
                                 (onExportResource)="exportResource($event)"
                                 (onShowReport)="showReport()"
                                 (onToggleAssistant)="onToggleAssistant.emit()"
+                                (onLoadImages)="loadImages($event)"
                         >
                         </model-toolbar>
                         <!--                                (onTestWebGLObjects)="testWebGLObjects()"-->
@@ -181,7 +182,6 @@ export class WebGLSceneComponent {
 
     _highlighted = null;
     _selected = null;
-
     _helperKeys = [];
 
     searchOptions;
@@ -197,6 +197,8 @@ export class WebGLSceneComponent {
     isScaffold = false;
 
     _backgroundMesh = null;
+    _backgroundsMap = {};
+    _scaffoldCenter = new THREE.Vector2(0, 0);
 
     queryCounter = 0;
 
@@ -218,6 +220,9 @@ export class WebGLSceneComponent {
             this._graphData.scale(this.scaleFactor);
             if (this._graphData.neurulator) {
                 this._graphData.neurulator();
+            }
+            if (this.isScaffold) {
+                this._computeScaffoldCenter();
             }
             this.updateGraph();
             this.loggerColor = this._graphData.logger?.color;
@@ -276,6 +281,27 @@ export class WebGLSceneComponent {
                 this.updateGraph();
             }
         }
+    }
+
+    loadImages(images) {
+        this._backgroundsMap = images || {};
+        this._computeScaffoldCenter();
+        this.updateBackground();
+    }
+
+    _computeScaffoldCenter() {
+        let sumX = 0;
+        let sumY = 0;
+        let count = 0;
+        (this._graphData.anchors || []).forEach(a => {
+            if (a.layout && a.layout.x !== undefined && a.layout.y !== undefined) {
+                sumX += a.layout.x;
+                sumY += a.layout.y;
+                count++;
+            }
+        });
+        this._scaffoldCenter.x = count > 0 ? sumX / count : 0;
+        this._scaffoldCenter.y = count > 0 ? sumY / count : 0;
     }
 
     /**
@@ -703,13 +729,11 @@ export class WebGLSceneComponent {
         }
     }
 
-    updateBackground(scaffolds = []) {
-        if (!this.scene) {
-            return;
-        }
-        console.log("Updating scaffold background...", scaffolds.map(x => x.id));
+    updateBackground() {
+        if (!this.scene) return;
 
-        const visibleScaffolds = (scaffolds || []).filter(s => s.class === $SchemaClass.Scaffold && !s.hidden);
+        const visibleComponents = ( this._graphData.components || []).filter(s =>
+            (s.class === $SchemaClass.Scaffold || s.class === $SchemaClass.Component) && !s.hidden);
 
         const removeBackground = () => {
             if (this._backgroundMesh) {
@@ -719,32 +743,37 @@ export class WebGLSceneComponent {
                 this._backgroundMesh = null;
             }
         };
-
-        if (visibleScaffolds.length === 1) {
-            const scaffold = visibleScaffolds[0];
-            if (scaffold.background) {
-                let background = scaffold.background;
-                // If it's a reference to an external, find it in graphData.externals or scaffold.externals
-                if (typeof background === 'string') {
-                    const findExternal = (externals) => (externals || []).find(e => e.id === background || e.fullID === background);
-                    background = findExternal(this._graphData.externals) || findExternal(scaffold.externals);
+        
+        if (visibleComponents.length === 1 && this._config.layout.showBackground) {
+            const component = visibleComponents[0];
+            if (component.background) {
+                let background = component.background;
+                if (!background.path) {
+                    console.error("External resource has no path to background image!");
+                    return;
                 }
-
-                if (background && (background.pathContent || background.path)) {
+                const pathContent = this._backgroundsMap[background.path];
+                if (pathContent) {
                     const loader = new THREE.TextureLoader();
-                    loader.load(background.pathContent || background.path, (texture) => {
+                    loader.load(pathContent, (texture) => {
                         removeBackground();
-                        const geometry = new THREE.PlaneGeometry(texture.image.width, texture.image.height);
+                        const image = texture.image;
+                        if (!image.width || !image.height) {
+                            console.warn("Image dimensions not available immediately", image);
+                        }
+                        const geometry = new THREE.PlaneGeometry(image.width, image.height);
                         const material = new THREE.MeshBasicMaterial({
                             map: texture,
                             transparent: true,
-                            side: THREE.DoubleSide
+                            side: THREE.DoubleSide,
+                            depthWrite: false
                         });
                         this._backgroundMesh = new THREE.Mesh(geometry, material);
+                        this._backgroundMesh.renderOrder = -100;
 
-                        // Set Z to min of anchor Zs
+                        // Set Z to min of anchor Zs, and X,Y to center of mass
                         let minZ = Infinity;
-                        (scaffold.anchors || []).forEach(a => {
+                        (component.anchors || []).forEach(a => {
                             if (a.layout && a.layout.z !== undefined) {
                                 if (a.layout.z < minZ) {
                                     minZ = a.layout.z;
@@ -755,10 +784,18 @@ export class WebGLSceneComponent {
                             minZ = 0;
                         }
 
-                        this._backgroundMesh.position.z = minZ * this.scaleFactor;
+                        this._backgroundMesh.position.z = minZ;
+                        this._backgroundMesh.position.x = this._scaffoldCenter.x;
+                        this._backgroundMesh.position.y = this._scaffoldCenter.y;
                         this.scene.add(this._backgroundMesh);
+                        if (this.graph) {
+                            this.graph.tickFrame();
+                        }
+
                     });
                     return;
+                } else {
+                    console.warn("Failed to load background content: ", background.path);
                 }
             }
         }
@@ -1177,6 +1214,9 @@ export class WebGLSceneComponent {
                 fn.call(this.graph, this._config.layout[prop]);
             }
         }
+        if (prop === 'showBackground') {
+            this.updateBackground();
+        }
     }
 
     toggleGroup(group) {
@@ -1187,6 +1227,9 @@ export class WebGLSceneComponent {
             group.hide();
         }
         this.updateGraph();
+        if (this.isScaffold){
+            this.updateBackground();
+        }
     }
 
     resetVariance() {

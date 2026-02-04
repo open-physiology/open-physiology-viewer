@@ -116,6 +116,7 @@ export class MainToolbar {
         });
     }
 
+
     load(fileInput, event) {
         let files = fileInput.files;
         if (files && files.length > 0){
@@ -135,45 +136,7 @@ export class MainToolbar {
             const reader = new FileReader();
             reader.onload = () => {
                 let model = loadModel(reader.result, name, extension);
-                if (extension === "json") {
-                    let externals = model.externals || [];
-                    if (model.scaffolds) {
-                        model.scaffolds.forEach(s => {
-                            if (s.externals) {
-                                externals = externals.concat(s.externals);
-                            }
-                        });
-                    }
-                    const imageExternals = externals.filter(e => e.type === "image" && e.path);
-                    if (imageExternals.length > 0) {
-                        const imageReader = new FileReader();
-                        let index = 0;
-                        const loadNextImage = () => {
-                            if (index < imageExternals.length) {
-                                let external = imageExternals[index];
-                                let imageFile = [...files].find(f => f.name === external.path || f.name === external.path.split(/[\\/]/).pop());
-                                if (imageFile) {
-                                    imageReader.onload = () => {
-                                        external.pathContent = imageReader.result;
-                                        index++;
-                                        loadNextImage();
-                                    };
-                                    imageReader.readAsDataURL(imageFile);
-                                } else {
-                                    index++;
-                                    loadNextImage();
-                                }
-                            } else {
-                                event.emit(model);
-                            }
-                        };
-                        loadNextImage();
-                    } else {
-                        event.emit(model);
-                    }
-                } else {
-                    event.emit(model);
-                }
+                event.emit(model);
             }
             try {
                 if (extension === "json"){

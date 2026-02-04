@@ -154,11 +154,10 @@ export class Scaffold extends Component {
 
          if (res.imported){
              res.markImported();
-         } else {
-             res.components?.forEach(g => g.markImported());
-         }
+         } 
          if (res.components) {
-            res.components = res.components::sortBy([$Field.namespace, $Field.name, $Field.id]);
+             res.components?.forEach(g => g.markImported());
+            // res.components = res.components::sortBy([$Field.namespace, $Field.name, $Field.id]);
         }
 
         //Log info about the number of generated resources

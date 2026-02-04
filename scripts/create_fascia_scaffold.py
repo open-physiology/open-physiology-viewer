@@ -2,60 +2,6 @@ import csv
 import json
 import os
 
-def create_filtered_scaffold(anchors, wires, components, output_path, externals=None):
-    """
-    Creates a filtered version of the scaffold by leaving the first 3 components
-    and placing all other wires and anchors to a "Default" component.
-    """
-    first_3_components = components[:3]
-    other_components = components[3:]
-    
-    default_anchors = set()
-    default_wires = set()
-    
-    # Track which anchors/wires are already in the first 3 components
-    first_3_anchors = set()
-    first_3_wires = set()
-    for comp in first_3_components:
-        first_3_anchors.update(comp['anchors'])
-        first_3_wires.update(comp['wires'])
-    
-    # All anchors and wires from "other" components go to Default
-    for comp in other_components:
-        default_anchors.update(comp['anchors'])
-        default_wires.update(comp['wires'])
-    
-    # Also include any anchors/wires that might not have been in any component
-    all_anchor_ids = {a['id'] for a in anchors}
-    all_wire_ids = {w['id'] for w in wires}
-    
-    default_anchors.update(all_anchor_ids - first_3_anchors)
-    default_wires.update(all_wire_ids - first_3_wires)
-
-    filtered_components = list(first_3_components)
-    if default_anchors or default_wires:
-        filtered_components.append({
-            "id": "comp_default",
-            "name": "Default",
-            "anchors": sorted(list(default_anchors)),
-            "wires": sorted(list(default_wires)),
-            "background": "slice_001"
-        })
-    
-    filtered_scaffold_data = {
-        "anchors": anchors,
-        "wires": wires,
-        "components": filtered_components
-    }
-    if externals:
-        filtered_scaffold_data["externals"] = externals
-
-    with open(output_path, mode='w', encoding='utf-8') as f:
-        json.dump(filtered_scaffold_data, f, indent=2)
-
-    print(f"Successfully created {output_path}")
-    print(f"Filtered Components: {len(filtered_components)}")
-
 def add_externals():
     """
     Adds external resources from scripts/data/output/torso_images.
@@ -69,7 +15,7 @@ def add_externals():
                 externals.append({
                     "id": image_id,
                     "name": filename,
-                    "path": os.path.join('scripts', 'data', 'output', 'torso_images', filename),
+                    "path": filename,
                     "type": "image"
                 })
     return externals
@@ -142,6 +88,12 @@ def create_fascia_scaffold():
     components = []
     # Identify unique z values and their corresponding background images
     sorted_z = sorted(z_groups.keys())
+    
+    externals = add_externals()
+    image_ids = [ext["id"] for ext in externals]
+    # Reverse the image order: first component to the last image
+    image_ids.reverse()
+
     for i, z_val in enumerate(sorted_z):
         group = z_groups[z_val]
         if group['anchors'] or group['wires']:
@@ -151,10 +103,9 @@ def create_fascia_scaffold():
                 "anchors": group['anchors'],
                 "wires": group['wires']
             }
-            # Match background image based on index (1, 3, 5, ...)
-            slice_num = 2 * i + 1
-            image_id = f"slice_{slice_num:03d}"
-            comp["background"] = image_id
+            # Match background image based on reversed index
+            if i < len(image_ids):
+                comp["background"] = image_ids[i]
             components.append(comp)
 
     scaffold_data = {
@@ -163,9 +114,8 @@ def create_fascia_scaffold():
         "components": components
     }
 
-    externals = add_externals()
     if externals:
-        scaffold_data["externals"] = externals
+        scaffold_data["external"] = externals
 
     with open(output_path, mode='w', encoding='utf-8') as f:
         json.dump(scaffold_data, f, indent=2)
@@ -175,9 +125,7 @@ def create_fascia_scaffold():
     print(f"Wires: {len(wires)}")
     print(f"Original Components: {len(components)}")
 
-    # Create filtered version
-    filtered_output_path = os.path.join('scripts', 'data', 'output', 'fascia_scaffold_background.json')
-    # create_filtered_scaffold(anchors, wires, components, filtered_output_path, externals)
-
+    os.path.join('scripts', 'data', 'output', 'fascia_scaffold.json')
+    
 if __name__ == "__main__":
     create_fascia_scaffold()

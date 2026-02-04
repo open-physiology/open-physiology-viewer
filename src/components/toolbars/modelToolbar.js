@@ -7,11 +7,15 @@ import {MatInputModule} from "@angular/material/input";
 import {MatListModule} from "@angular/material/list";
 import {MatSelectModule} from "@angular/material/select";
 
+const fileExtensionRe = /(?:\.([^.]+))?$/;
+
 @Component({
     selector: 'model-toolbar',
     changeDetection: ChangeDetectionStrategy.Default,
     template: `
         <section class="w3-bar-block vertical-toolbar">
+            <input #folderInput type="file" [style.display]="'none'" webkitdirectory directory multiple
+                  (change)="loadFolder(folderInput)"/>
             <!-- AI Assistant toggle -->
             <button id="showAssistantBtn" *ngIf="!showAssistant && !hidden('showAssistantBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onToggleAssistant.emit()" title="Show AI Assistant">
@@ -32,6 +36,9 @@ import {MatSelectModule} from "@angular/material/select";
             <button id="resetCameraBtn" *ngIf="!hidden('resetCameraBtn')" class="w3-bar-item w3-hover-light-grey"
                     (click)="onResetCamera.emit()" title="Reset controls">
                 <i class="fa fa-compass"> </i>
+            </button>
+            <button id="loadFolderBtn" *ngIf="!hidden('loadFolderBtn')" class="w3-bar-item w3-hover-light-grey" (click)="folderInput.click()" title="Load folder with images">
+               <i class="fa fa-folder-open"> </i>
             </button>
             <button id="updateGraphBtn" *ngIf="!hidden('updateGraphBtn')" class="w3-bar-item w3-hover-light-grey" 
                     (click)="onUpdateGraph.emit()" title="Update layout">
@@ -110,6 +117,7 @@ export class ModelToolbar {
     @Output() onShowReport = new EventEmitter();
     @Output() onToggleAssistant = new EventEmitter();
     @Output() onTestWebGLObjects = new EventEmitter();
+    @Output() onLoadImages       = new EventEmitter();
 
     _skip = new Set();
     @Input() set skip(value){
@@ -121,6 +129,41 @@ export class ModelToolbar {
     }
     get skip(){ return this._skip; }
     hidden(id){ return this._skip && this._skip.has(id); }
+
+    loadFolder(fileInput) {
+        let files = fileInput.files;
+        if (files && files.length > 0) {
+            let imageFiles = [...files].filter(f => {
+                let [name, extension] = fileExtensionRe.exec(f.name);
+                return ["png", "jpg", "jpeg", "tif", "tiff"].includes(extension.toLowerCase());
+            });
+
+            if (imageFiles.length === 0) {
+                fileInput.value = '';
+                return;
+            }
+
+            let loadedImages = {};
+            let index = 0;
+            const reader = new FileReader();
+
+            const loadNextImage = () => {
+                if (index < imageFiles.length) {
+                    let file = imageFiles[index];
+                    reader.onload = () => {
+                        loadedImages[file.name] = reader.result;
+                        index++;
+                        loadNextImage();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    this.onLoadImages.emit(loadedImages);
+                }
+            };
+            loadNextImage();
+        }
+        fileInput.value = '';
+    }
 }
 
 @NgModule({

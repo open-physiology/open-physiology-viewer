@@ -63,6 +63,13 @@ const COLORS = {
                                                   [checked]="config.layout.showStratifiedRegions">Stratified regions
                                 </mat-slide-toggle>
                             </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle background"
+                                                  (change)="toggleLayout('showBackground')"
+                                                  [checked]="config.layout.showBackground">Background
+                                </mat-slide-toggle>
+                            </div>
                         </div>
 
                         <settingsLabelsPanel
@@ -102,7 +109,7 @@ const COLORS = {
             <!--Components-->
 
             <mat-accordion *ngIf="components">
-                <mat-expansion-panel>
+                <mat-expansion-panel [expanded]="true">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
                             Components

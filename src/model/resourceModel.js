@@ -393,6 +393,7 @@ export class Resource{
 }
 
 /**
+ * @property path
  * @property uri
  * @property type
  * @property externalTo
