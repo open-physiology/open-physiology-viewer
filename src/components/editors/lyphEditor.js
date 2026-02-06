@@ -12,7 +12,8 @@ import {SearchAddBarModule} from "../gui/searchAddBar";
 import {CheckboxFilterModule} from "../gui/checkboxFilter";
 import {LyphTreeViewModule, LyphTreeNode, ICON} from "./lyphTreeView";
 import {LyphDeclarationModule} from "./lyphDeclarationEditor";
-import {ListNode, ResourceListViewModule} from "./resourceListView";
+import {ResourceListViewModule} from "./resourceListView";
+import {ListNode} from "../structs/listNode";
 
 import {$Field, $SchemaClass} from "../../model";
 import {SearchOptions} from "../utils/searchOptions";

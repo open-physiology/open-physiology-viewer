@@ -7,54 +7,8 @@ import {CommonModule} from "@angular/common";
 import {MatMenuModule, MatMenuTrigger} from "@angular/material/menu";
 import {MatListModule} from '@angular/material/list';
 import {ColorPickerModule} from 'ngx-color-picker';
-import {isObject} from "lodash-bound";
 import {COLORS} from "../utils/colors";
 import {MatTooltipModule} from "@angular/material/tooltip";
-import {limitLabel} from "../utils/helpers";
-
-/**
- * @class
- * @classdesc This is a resource node to display in the list
- * @property id
- * @property label
- * @property class
- * @property length
- * @property isTemplate
- * @property index
- * @property resource
- * @property icons
- */
-export class ListNode {
-    constructor(id, label, cls, length, isTemplate, index, resource) {
-        this.id = id;
-        this.label = limitLabel(label);
-        this.length = length;
-        this.isTemplate = isTemplate;
-        this.class = cls;
-        this.index = index;
-        this.resource = resource;
-        this.icons = [];
-        this.canMoveUp = index > 0 && this.length > 1;
-        this.canMoveDown = index < this.length - 1;
-        this.layerIndex = resource?._layerIndex;
-        this.maxLayerIndex = resource?._maxLayerIndex || (resource?.layers || []).length - 1;
-    }
-
-    /**
-     * @param objOrID - Resource object or its ID
-     * @param idx - position in the list
-     * @param length - length of the list
-     * @returns {ListNode}
-     * @public
-     */
-    static createInstance(objOrID, idx, length = 0) {
-        if (objOrID::isObject()) {
-            return new this(objOrID.id, objOrID.name, objOrID._class, length, objOrID.isTemplate, idx, objOrID);
-        } else {
-            return new this(objOrID, "Generated " + objOrID, "Undefined", length, false, idx, undefined);
-        }
-    }
-}
 
 @Component({
     selector: 'resourceListView',
@@ -93,6 +47,7 @@ export class ListNode {
                                'chain'       : node.class === 'Chain', 
                                'coalescence' : node.class === 'Coalescence',
                                'external'    : node.class === 'ExternalResource',
+                               'wire'        : node.class === 'Wire',
                                'undefined'   : node.class === 'Undefined'}"
                             (click)="selectNode(node)"
                             (contextmenu)="onRightClick($event, node)">
@@ -196,6 +151,10 @@ export class ListNode {
             background-color: ${COLORS.coalescence};
         }
 
+        .wire {
+            background-color: ${COLORS.wire};
+        }
+        
         .external {
             background-color: ${COLORS.external};
         }

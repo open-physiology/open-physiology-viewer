@@ -161,6 +161,7 @@ export const $Prefix = {
     join: "join",   //joint node
     anchor: "a",    //anchor point
     wire: "wire",   //wire
+    component: "comp", //component
     query: "query",  //dynamic query
     default: "default", //default group ID
     autoLinks: "autoLinks", //AUto-generated links

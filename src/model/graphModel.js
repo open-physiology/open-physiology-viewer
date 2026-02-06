@@ -1,11 +1,11 @@
-//Do not include modelClasses here, it creates circular dependency
+//Do not include modelClasses here, it creates a circular dependency
 import {Group} from './groupModel';
 import {Resource} from "./resourceModel";
 import {
     entries, keys, values,
     isNumber, isArray, isObject, isString, isEmpty,
     pick,
-    cloneDeep, unionBy, sortBy
+    cloneDeep, unionBy
 } from 'lodash-bound';
 import {Validator} from 'jsonschema';
 import schema from './graphScheme.json';
@@ -22,7 +22,7 @@ import {
     isIncluded, includeRef,
     collectNestedResources,
     getFullID, genResource,
-    pickColor, deleteRecursively, findResourceByID, isScaffold
+    pickColor, deleteRecursively, findResourceByID
 } from "./utils";
 import {
     extractLocalConventions,
@@ -277,22 +277,8 @@ export class Graph extends Group {
             });
 
             //Set default group resources to hidden
-            const defaultID = getGenID($Prefix.group, $Prefix.default);
-            defaultGroup = modelClasses.Group.fromJSON(genResource({
-                [$Field.id]: defaultID,
-                [$Field.fullID]: getFullID(res.namespace, defaultID),
-                [$Field.namespace]: res.namespace,
-                [$Field.name]: "Ungrouped",
-                [$Field.hidden]: true,
-                [$Field.links]: (res.links || []).filter(e => !res.contains(e, true)),
-                [$Field.nodes]: (res.nodes || []).filter(e => !res.contains(e, true))
-            }, "graphModel.fromJSON (Group)"));
-
-            defaultGroup.includeRelated && defaultGroup.includeRelated();
-            [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
-            if (defaultGroup.links.length && defaultGroup.nodes.length) {
-                res.groups.unshift(defaultGroup);
-            }
+            modelClasses.Group.createDefaultGroup(res, modelClasses);
+            modelClasses.Component.createDefaultComponent(res, modelClasses);
             //res.createForceLinks();
             res.scaleFactor = 1;
         }

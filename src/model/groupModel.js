@@ -75,6 +75,33 @@ export class Group extends Resource {
         return res;
     }
 
+    /**
+     * Create a default group for resources not included in any other group
+     * @param res - graph resource
+     * @param modelClasses - model resource classes
+     * @returns {Group} - default group
+     */
+    static createDefaultGroup(res, modelClasses) {
+        const defaultID = getGenID($Prefix.group, $Prefix.default);
+        let defaultGroup = modelClasses.Group.fromJSON(genResource({
+            [$Field.id]: defaultID,
+            [$Field.fullID]: getFullID(res.namespace, defaultID),
+            [$Field.namespace]: res.namespace,
+            [$Field.name]: "Ungrouped",
+            [$Field.hidden]: true,
+            [$Field.links]: (res.links || []).filter(e => !res.contains(e, true)),
+            [$Field.nodes]: (res.nodes || []).filter(e => !res.contains(e, true))
+        }, "graphModel.fromJSON (Group)"));
+
+        defaultGroup.includeRelated && defaultGroup.includeRelated();
+        [$Field.nodes, $Field.links].forEach(prop => defaultGroup[prop].forEach(e => e.hidden = true));
+        if (defaultGroup.links.length && defaultGroup.nodes.length) {
+            res.groups = res.groups || [];
+            res.groups.unshift(defaultGroup);
+        }
+        return defaultGroup;
+    }
+
     get clades() {
         return Array.from(new Set((this.varianceSpecs || []).map(vs => vs.clades || [])::flatten()));
     }
@@ -97,6 +124,7 @@ export class Group extends Resource {
         }
         if (recursive) {
             (this.groups || []).forEach(g => res = res || (g.contains && g.contains(resource)));
+            (this.scaffolds || []).forEach(s => res = res || (s.contains && s.contains(resource)));
         }
         return res;
     }

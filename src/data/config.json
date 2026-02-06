@@ -21,6 +21,7 @@
         "showLayers": true,
         "showLyphs3d": false,
         "showCoalescences": false,
+        "showPlaceholders": false,
         "numDimensions": 3,
         "coalescenceLayout": {
           "startX": -50,
@@ -51,7 +52,7 @@
     "scaffold": {
       "layout": {
         "showStratifiedRegions": true,
-        "showPlaceholders": true,
+        "showPlaceholders": false,
         "showBackground": true
       },
       "showLabels": {

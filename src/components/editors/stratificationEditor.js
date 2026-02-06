@@ -9,7 +9,8 @@ import {cloneDeep, isObject, values} from 'lodash-bound';
 import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
 import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
-import {ResourceListViewModule, ListNode} from "./resourceListView";
+import {ResourceListViewModule} from "./resourceListView";
+import {ListNode} from "../structs/listNode";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
 import {DiffDialog} from "../dialogs/diffDialog";
 

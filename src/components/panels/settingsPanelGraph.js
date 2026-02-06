@@ -90,6 +90,13 @@ const COLORS = {
                                                   [checked]="config.layout.showCoalescences">Coalescences
                                 </mat-slide-toggle>
                             </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle placeholders"
+                                                  (change)="toggleLayout('showPlaceholders')"
+                                                  [checked]="config.layout.showPlaceholders">Placeholders
+                                </mat-slide-toggle>
+                            </div>
 <!--                            <div class="wrap">-->
 <!--                                <mat-slide-toggle matTooltip="Fixed coalescence node position"-->
 <!--                                                  (change)="toggleLayout('fixedCoalescenceLayout')"-->

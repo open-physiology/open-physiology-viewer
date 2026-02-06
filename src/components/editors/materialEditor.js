@@ -12,7 +12,8 @@ import {cloneDeep, sortBy, isObject} from 'lodash-bound';
 
 import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "../gui/searchAddBar";
-import {ResourceListViewModule, ListNode} from "./resourceListView";
+import {ResourceListViewModule} from "./resourceListView";
+import {ListNode} from "../structs/listNode";
 import {MaterialGraphViewerModule} from "./materialGraphViewer";
 
 import {$Field, $SchemaClass} from "../../model";

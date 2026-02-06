@@ -2,7 +2,7 @@ import {Component, Inject, NgModule, Output, EventEmitter, ViewChild, ElementRef
 import {
     MAT_DIALOG_DATA, MatDialogModule, MatDialogRef
 } from '@angular/material/dialog';
-import {LyphPanelModule} from "../gui/lyphPanel";
+import {LyphPanelModule} from "../panels/lyphPanel";
 import {CommonModule} from "@angular/common";
 import {collectLayerCells, drawLyph, drawCell, showElement, hideElement} from "../utils/svgDraw";
 import * as d3 from "d3";

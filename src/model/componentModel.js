@@ -1,16 +1,18 @@
 import {Resource} from "./resourceModel";
-import {isArray, isObject, unionBy} from "lodash-bound";
+import {isObject, unionBy} from "lodash-bound";
 import {
     $Color,
     $Field,
     $SchemaClass,
+    $Prefix,
+    schemaClassModels,
     addColor,
     isIncluded,
     mergeRecursively,
-    schemaClassModels,
-    showGroups, getID, getRefID, getGenID, refToResource, includeRef
+    genResource,
+    showGroups, getGenID, getFullID, isScaffold
 } from "./utils";
-import {logger, $LogMsg} from "./logger";
+import {$LogMsg} from "./logger";
 import {Anchor} from './verticeModel';
 import {Wire} from './edgeModel';
 import {Region} from './shapeModel';
@@ -20,8 +22,8 @@ import {Region} from './shapeModel';
  * @property anchors
  * @property wires
  * @property regions
- * @property components,
- * @property stratifications,
+ * @property components
+ * @property stratifications
  * @property stratifiedRegions
  */
 export class Component extends Resource {
@@ -99,7 +101,36 @@ export class Component extends Resource {
         if (resource instanceof Region) {
             return isIncluded(this.regions, resource.id);
         }
+        if (this.modelClasses?.Stratification && resource instanceof this.modelClasses.Stratification) {
+            return isIncluded(this.stratifications, resource.id);
+        }
         return false;
+    }
+
+    /**
+     * Create a default group for scaffold resources not included in any other group
+     * @param res - graph resource
+     * @param modelClasses - model resource classes
+     * @returns {Component} - default component
+     */
+    static createDefaultComponent(res, modelClasses) {
+        if (!isScaffold(res)) return;
+        const defaultID = getGenID($Prefix.component, $Prefix.default, "component");
+        let defaultComponent = modelClasses.Component.fromJSON(genResource({
+            [$Field.id]: defaultID,
+            [$Field.fullID]: getFullID(res.namespace, defaultID),
+            [$Field.namespace]: res.namespace,
+            [$Field.name]: "Ungrouped (Scaffold)",
+            [$Field.hidden]: true,
+            [$Field.stratifications]: (res.stratifications || []).filter(e => !res.contains(e, true))
+        }, "graphModel.fromJSON (Component)"));
+
+        defaultComponent.includeRelated && defaultComponent.includeRelated();
+        if (defaultComponent.stratifications.length) {
+            res.components = res.components || [];
+            res.components.unshift(defaultComponent);
+        }
+        return defaultComponent;
     }
 
     /**

@@ -166,6 +166,7 @@ const TAB_INDEX = {
                                         (highlightedItemChange)="onHighlightedItemChange($event)"
                                         (scaffoldUpdated)="onScaffoldUpdated($event)"
                                         (varianceReset)="applyChanges()"
+                                        (stratificationSelected)="assignStratification($event)"
                                         (editResource)="onEditResource($event)"
                             >
                             </webGLScene>

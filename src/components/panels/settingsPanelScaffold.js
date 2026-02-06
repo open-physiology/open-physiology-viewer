@@ -70,6 +70,13 @@ const COLORS = {
                                                   [checked]="config.layout.showBackground">Background
                                 </mat-slide-toggle>
                             </div>
+
+                            <div class="wrap">
+                                <mat-slide-toggle matTooltip="Toggle placeholders"
+                                                  (change)="toggleLayout('showPlaceholders')"
+                                                  [checked]="config.layout.showPlaceholders">Placeholders
+                                </mat-slide-toggle>
+                            </div>
                         </div>
 
                         <settingsLabelsPanel

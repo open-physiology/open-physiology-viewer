@@ -19,6 +19,8 @@ export const COLORS = {
     region: '#e3e3e3',
     coalescence: '#ffe7e7',
     chain: '#ccddff',
+    wire: '#d0bcd1',
+    anchor: '#97e9f8',
     // Extra
     external: '#b7fae7',
     imported: '#e3e3e3',

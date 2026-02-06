@@ -47360,5 +47360,51 @@
       "path": "slice_061.png",
       "type": "image"
     }
+  ],
+  "materials": [
+    {
+      "id": "m1",
+      "color": "red"
+    },
+    {
+      "id": "m2",
+      "color": "yellow"
+    },
+    {
+      "id": "m3",
+      "color": "green"
+    },
+    {
+      "id": "m4",
+      "color": "purple"
+    }
+  ],
+  "stratifications": [
+    {
+      "id": "st1",
+      "strata": [
+        "m1",
+        "m2",
+        "m3"
+      ],
+      "axisWires": [
+        "w_1",
+        "w_2"
+      ]
+    },
+    {
+      "id": "st2",
+      "strata": [
+        "m1",
+        "m2",
+        "m3",
+        "m4"
+      ],
+      "axisWires": [
+        "w_3",
+        "w_4",
+        "w_5"
+      ]
+    }
   ]
 }

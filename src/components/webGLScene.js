@@ -31,6 +31,7 @@ import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
 import {LyphDialog} from "./dialogs/lyphDialog";
 import {MaterialTreeDialog, MaterialTreeDialogModule} from "./dialogs/materialTreeDialog";
+import {StratificationDialog, StratificationDialogModule} from "./dialogs/stratificationDialog";
 import {ModelToolbarModule} from "./toolbars/modelToolbar";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {buildTree} from "./structs/materialNode";
@@ -337,6 +338,11 @@ export class WebGLSceneComponent {
      * @type {EventEmitter<T> | EventEmitter<any>}
      */
     @Output() varianceReset = new EventEmitter();
+
+    /**
+     * @emits stratificationSelected - user selected a stratification for a wire
+     */
+    @Output() stratificationSelected = new EventEmitter();
 
     /**
      * @emits onImportExternal - import of external models is requested
@@ -980,14 +986,22 @@ export class WebGLSceneComponent {
                         child.currentHex = child.material.color.getHex();
                     }
                 });
+                let placeholder = entity.viewObjects["placeholder"];
+                if (placeholder && placeholder.material) {
+                    placeholder.currentHex = placeholder.material.color.getHex();
+                }
             }
-            // set a new color for closest object
+            // set a new color for the closest object
             obj.material.color.setHex(color);
             (obj.children || []).forEach(child => {
                 if (child.material) {
                     child.material.color.setHex(color);
                 }
             });
+            let placeholder = entity.viewObjects["placeholder"];
+            if (placeholder && placeholder.material) {
+                placeholder.material.color.setHex(color);
+            }
 
             this._highlightCoalescenceLinks(entity, color);
             if (entity?.representsCoalescence) {
@@ -1010,6 +1024,10 @@ export class WebGLSceneComponent {
                     child.material.color.setHex(child.currentHex || this.defaultColor);
                 }
             });
+            let placeholder = entity.viewObjects["placeholder"];
+            if (placeholder && placeholder.material) {
+                placeholder.material.color.setHex(placeholder.currentHex || this.defaultColor);
+            }
             this._unhighlightCoalescenceLinks(entity);
             if (entity?.representsCoalescence) {
                 this._clearAuxTips();
@@ -1103,6 +1121,7 @@ export class WebGLSceneComponent {
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
         window.addEventListener('dblclick', () => this.onDblClick(), false);
+        window.addEventListener('contextmenu', evt => this.onContextMenu(evt), false);
     }
 
     _unhighlightCoalescenceLinks(node) {
@@ -1198,6 +1217,40 @@ export class WebGLSceneComponent {
             this._materialTreeDialogRef = undefined;
         }
         this.openMaterialTreeLyphId = undefined;
+    }
+
+    onContextMenu(evt) {
+        // Right-click handler: open stratification selection for a wire/placeholder
+        evt.preventDefault && evt.preventDefault();
+        if (!this.graph) return;
+
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse = this.mouse || new THREE.Vector2(0, 0);
+        this.mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+
+        this.ray.setFromCamera(this.mouse, this.camera);
+        const intersects = this.ray.intersectObjects(this.graph.children);
+        if (!intersects || intersects.length === 0) { return; }
+        const hit = intersects[0].object;
+        const entity = hit && hit.userData;
+        if (!entity) { return; }
+
+        // Check if the entity is a Wire (or placeholder userData points to Wire)
+        if (!(entity instanceof this.modelClasses.Wire)) { return; }
+
+        const candidates = (this._graphData?.stratifications || []);
+
+        const dialogRef = this.dialog.open(StratificationDialog, {
+            width: '60%', data: { stratifications: candidates }
+        });
+        dialogRef.afterClosed().subscribe(res => {
+            if (res) {
+                // Emit selection back to parent/consumers
+                // TODO: create stratifiedRegion without model regeneration
+                this.stratificationSelected.emit({ wire: entity, stratification: res });
+            }
+        });
     }
 
     onMouseMove(evt) {
@@ -1315,9 +1368,9 @@ export class WebGLSceneComponent {
 @NgModule({
     imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule,
         SettingsPanelGraphModule, SettingsPanelScaffoldModule, QuerySelectModule,
-        ModelToolbarModule, MaterialTreeDialogModule, HotkeyModule.forRoot()],
+        ModelToolbarModule, MaterialTreeDialogModule, StratificationDialogModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
-    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog, MaterialTreeDialog],
+    entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog, MaterialTreeDialog, StratificationDialog],
     exports: [WebGLSceneComponent]
 })
 export class WebGLSceneModule {

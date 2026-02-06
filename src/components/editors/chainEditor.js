@@ -12,7 +12,8 @@ import {cloneDeep, isObject, isNumber, sortBy, isArray, keys, entries} from 'lod
 import {ChainDeclarationModule} from "./chainDeclarationEditor";
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
-import {ResourceListViewModule, ListNode} from "./resourceListView";
+import {ResourceListViewModule} from "./resourceListView";
+import {ListNode} from "../structs/listNode";
 import {COLORS} from '../utils/colors.js'
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";

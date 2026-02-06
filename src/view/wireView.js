@@ -22,6 +22,23 @@ Wire.prototype.createViewObjects = function(state){
         obj.userData = this;   // Attach link data
         this.viewObjects["main"] = obj;
     }
+
+    // Create placeholder rectangle (once) — visibility controlled in updateViewObjects
+    if (!this.viewObjects["placeholder"]) {
+        const size = 10; // small square
+        const geom = new THREE.PlaneGeometry(size, size);
+        const mat = new THREE.MeshBasicMaterial({ color: this.color, side: THREE.DoubleSide });
+        const rect = new THREE.Mesh(geom, mat);
+        rect.renderOrder = 20; // render above wire to be visible
+        rect.userData = this;
+        this.viewObjects["placeholder"] = rect;
+    } else {
+        // keep color in sync if recreated elsewhere
+        if (this.viewObjects["placeholder"].material && this.viewObjects["placeholder"].material.color){
+            this.viewObjects["placeholder"].material.color.set(this.color);
+        }
+    }
+
     this.createLabels();
 };
 
@@ -92,6 +109,19 @@ Wire.prototype.updateViewObjects = function(state) {
     this.viewObjects['iconLabel'] = this.stratifiedRegion?.viewObjects["label"];
 
     this.updateLabels(this.center.clone().addScalar(this.state.labelOffset.Edge));
+
+    // Update placeholder rectangle position/visibility/color
+    const placeholder = this.viewObjects["placeholder"]; 
+    if (placeholder){
+        placeholder.visible = !!state.showPlaceholders;
+        if (placeholder.visible){
+            if (placeholder.material && placeholder.material.color){
+                placeholder.material.color.set(this.color);
+            }
+            const pos = new THREE.Vector3(this.center.x, this.center.y, this.center.z || 0);
+            copyCoords(placeholder.position, pos);
+        }
+    }
 
     if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
 

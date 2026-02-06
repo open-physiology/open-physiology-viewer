@@ -342,6 +342,10 @@ export class AppCommon {
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
+    assignStratification({wire, stratification}){
+        //console.log(wire, stratification);
+    }
+
     onSelectedItemChange(item) {
     }
 

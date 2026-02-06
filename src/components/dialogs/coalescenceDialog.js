@@ -3,7 +3,7 @@ import {
     MAT_DIALOG_DATA, MatDialogModule,
     MatDialogRef
 } from '@angular/material/dialog';
-import {CoalescencePanelModule} from "../gui/coalescencePanel";
+import {CoalescencePanelModule} from "../panels/coalescencePanel";
 import {CommonModule} from "@angular/common";
 import {MatTabsModule} from '@angular/material/tabs';
 
