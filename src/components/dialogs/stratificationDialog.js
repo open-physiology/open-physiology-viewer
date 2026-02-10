@@ -9,7 +9,7 @@ import {MatButtonModule} from '@angular/material/button';
         <h1 mat-dialog-title>Select stratification</h1>
         <div mat-dialog-content class="dialog-content">
             <div class="list">
-                <button mat-button *ngFor="let st of stratifications"
+                <button mat-button *ngFor="let st of stratifiedTemplates"
                         class="option-button"
                         [class.selected]="st === selected"
                         (click)="select(st)">
@@ -78,7 +78,7 @@ import {MatButtonModule} from '@angular/material/button';
 export class StratificationDialog {
     dialogRef;
     data;
-    stratifications = [];
+    stratifiedTemplates = [];
     selected;
 
     vizRectWidth = 20;
@@ -87,7 +87,7 @@ export class StratificationDialog {
     constructor(dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
         this.data = data || {};
-        this.stratifications = (this.data.stratifications || []).map(st => {
+        this.stratifiedTemplates =  (this.data.stratifications || []).map((st, index) => {
             const strata = st.strata || [];
             const vizStrata = strata.map((stratum, i) => ({
                 x: i * this.vizRectWidth,
@@ -108,16 +108,17 @@ export class StratificationDialog {
             }
 
             return {
-                ...st,
+                id: st.id,
+                index: index,
                 vizStrata,
                 vizWidth: vizStrata.length * this.vizRectWidth
             };
         });
-        this.selected = this.stratifications && this.stratifications.length > 0 ? this.stratifications[0] : undefined;
+        this.selected = this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined;
     }
 
     select(st){
-        this.selected = st;
+        this.selected = st
     }
 
     onNoClick(){
@@ -125,7 +126,7 @@ export class StratificationDialog {
     }
 
     onOkClick(){
-        this.dialogRef.close(this.selected);
+        this.dialogRef.close(this.data.stratifications[this.selected.index]);
     }
 }
 

@@ -1,11 +1,11 @@
- import {
+import {
     forceSimulation,
     forceLink,
     forceManyBody,
     forceCollide
 } from 'd3-force-3d';
-import {select as d3Select } from 'd3-selection';
-import {drag as d3Drag } from 'd3-drag';
+import {select as d3Select} from 'd3-selection';
+import {drag as d3Drag} from 'd3-drag';
 
 import Kapsule from 'kapsule';
 import {modelClasses} from '../model/index';
@@ -21,7 +21,7 @@ const {Graph} = modelClasses;
 export default Kapsule({
     props: {
         graphData: {
-            default: Graph.fromJSON({"id":"Empty"}, modelClasses),
+            default: Graph.fromJSON({"id": "Empty"}, modelClasses),
             onChange(value, state) {
                 state.onFrame = null;
             }
@@ -30,24 +30,26 @@ export default Kapsule({
             default: 3,
             onChange(numDim, state) {
                 if (numDim < 3) {
-                    eraseDimension(state.graphData.visibleNodes||[], 'z');
+                    eraseDimension(state.graphData.visibleNodes || [], 'z');
                 }
 
                 function eraseDimension(nodes, dim) {
-                    (nodes||[]).forEach(node => {
+                    (nodes || []).forEach(node => {
                         node[dim] = 0;          // position, set to 0 instead of deleting
                         delete node[`v${dim}`]; // velocity
                     });
                 }
             }
         },
-        scaleFactor: { default: 10 },
+        scaleFactor: {default: 10},
         canvas: {
             default: undefined,
             triggerUpdate: false,
-            onChange(canvas, state){
+            onChange(canvas, state) {
                 state.canvas = canvas;
-                if (!state.canvas){ return;}
+                if (!state.canvas) {
+                    return;
+                }
 
                 state.toolTipElem = document.createElement('div');
                 state.toolTipElem.classList.add('graph-tooltip');
@@ -66,13 +68,17 @@ export default Kapsule({
                         })
                         .on('start', ev => {
                             const obj = ev.subject;
-                            if (!obj){ return; }
+                            if (!obj) {
+                                return;
+                            }
                             obj.__initialDragPos = extractCoords(ev);
                             state.canvas.classList.add('grabbable');
                         })
                         .on('drag', ev => {
                             const obj = ev.subject;
-                            if (!obj){ return; }
+                            if (!obj) {
+                                return;
+                            }
                             const currentPos = extractCoords(ev);
                             const translate = currentPos.clone().sub(obj.__initialDragPos);
                             translate.y = -translate.y;
@@ -84,7 +90,9 @@ export default Kapsule({
                         })
                         .on('end', ev => {
                             const obj = ev.subject;
-                            if (!obj){ return; }
+                            if (!obj) {
+                                return;
+                            }
                             const currentPos = extractCoords(ev);
                             const translate = currentPos.clone().sub(obj.__initialDragPos);
                             translate.y = -translate.y;
@@ -92,7 +100,7 @@ export default Kapsule({
                             if (obj.__dragged) {
                                 const fn = state[`on${obj.userData.class}DragEnd`];
                                 fn && fn(obj, translate);
-                                delete(obj.__dragged);
+                                delete (obj.__dragged);
                             }
                             state.canvas.classList.remove('grabbable');
                             state.isPointerDragging = false;
@@ -118,9 +126,9 @@ export default Kapsule({
                             const rect = el.getBoundingClientRect(),
                                 scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
                                 scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                            return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
+                            return {top: rect.top + scrollTop, left: rect.left + scrollLeft};
                         }
-                    }, { passive: true })
+                    }, {passive: true})
                 );
 
                 state.canvas.addEventListener('pointerup', ev => {
@@ -147,23 +155,25 @@ export default Kapsule({
                             }
                         }
                     });
-                }, { passive: true });
+                }, {passive: true});
             }
         },
         select: {
             default: undefined,
             triggerUpdate: false,
-            onChange(obj, state){
+            onChange(obj, state) {
                 if (state.hoverObj) {
                     delete state.hoverObj.__isDraggable;
                 }
                 state.hoverObj = obj;
                 obj && (obj.__isDraggable = state.enableDrag && obj && (
-                        obj.userData instanceof modelClasses.Anchor ||
-                        obj.userData instanceof modelClasses.Wire ||
-                        obj.userData instanceof modelClasses.Region));
-                state.canvas && (state.canvas.style.cursor = obj && obj.__isDraggable? 'pointer' : null);
-                const tooltipContent = obj? (obj.userData.name || obj.userData.id || '?') : '';
+                    obj.userData instanceof modelClasses.Anchor ||
+                    obj.userData instanceof modelClasses.Wire ||
+                    obj.userData instanceof modelClasses.Region ||
+                    obj.userData instanceof modelClasses.StratifiedRegion
+                ));
+                state.canvas && (state.canvas.style.cursor = obj && obj.__isDraggable ? 'pointer' : null);
+                const tooltipContent = obj ? (obj.userData.name || obj.userData.id || '?') : '';
                 if (state.toolTipElem) {
                     state.toolTipElem.style.visibility = tooltipContent ? 'visible' : 'hidden';
                     state.toolTipElem.innerHTML = tooltipContent;
@@ -171,36 +181,40 @@ export default Kapsule({
             }
         },
 
-        verticeRelSize   : { default: 4 },     // volume per val unit
-        verticeResolution: { default: 8 },     // how many slice segments in the sphere's circumference
+        verticeRelSize: {default: 4},     // volume per val unit
+        verticeResolution: {default: 8},     // how many slice segments in the sphere's circumference
 
-        nodeVal          : { default: 1 },
-        anchorVal        : { default: 3 },
+        nodeVal: {default: 1},
+        anchorVal: {default: 3},
 
-        edgeResolution   : { default: 32 },     // number of points on curved link
-        arrowLength      : { default: 40 },     // arrow length for directed links
+        edgeResolution: {default: 32},     // number of points on curved link
+        arrowLength: {default: 40},     // arrow length for directed links
 
-        showLyphs        : { default: true},
-        showLayers       : { default: true},
-        showLyphs3d      : { default: false},
-        showCoalescences : { default: false},
-        showStratifiedRegions: { default: true},
-        showPlaceholders :{default: false},
-        showLabels       : { default: {}},
-        coalescenceLayout: { 
-            default: { startX: -50, baseY: 25, groupYOffset: 5, distance: 5 },
-            onChange(layout, state){
+        showLyphs: {default: true},
+        showLayers: {default: true},
+        showLyphs3d: {default: false},
+        showCoalescences: {default: false},
+        showStratifiedRegions: {default: true},
+        showPlaceholders: {default: false},
+        showLabels: {default: {}},
+        coalescenceLayout: {
+            default: {startX: -50, baseY: 25, groupYOffset: 5, distance: 5},
+            onChange(layout, state) {
                 // apply defaults if some values are missing or not finite
-                const cfg = Object.assign({ startX: -50, baseY: 25, groupYOffset: 5, distance: 5 }, layout || {});
+                const cfg = Object.assign({startX: -50, baseY: 25, groupYOffset: 5, distance: 5}, layout || {});
                 const graph = state.graphData;
-                if (!graph){ return; }
+                if (!graph) {
+                    return;
+                }
                 const applyToGroup = (group, groupIdx) => {
-                    if (!group){ return; }
+                    if (!group) {
+                        return;
+                    }
                     const list = (group.coalescences || []).filter(cls => cls && cls.topology !== modelClasses.Coalescence.COALESCENCE_TOPOLOGY.EMBEDDING);
                     list.forEach((cls, i) => {
                         const repId = cls.fullID || cls.id;
                         const node = (group.nodes || []).find(n => n && n.representsCoalescence === repId);
-                        if (node){
+                        if (node) {
                             node.layout = node.layout || {};
                             node.layout.x = Number(cfg.startX) + i * Number(cfg.distance);
                             node.layout.y = Number(cfg.baseY) + Number(groupIdx) * Number(cfg.groupYOffset);
@@ -208,27 +222,45 @@ export default Kapsule({
                         }
                     });
                 };
-                // root graph may also have coalescences
+                // the root graph may also have coalescences
                 applyToGroup(graph, -1);
                 // apply to subgroups if present
                 (graph.groups || []).forEach((g, idx) => applyToGroup(g, idx));
             }
         },
-        
-        labels           : { default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
-        labelRelSize     : { default: 0.1},
-        labelOffset      : { default: {Vertice: 10, Edge: 5, Lyph: 0, Region: 0}},
-        fontParams       : { default: { font: '24px Arial', fillStyle: '#000', antialias: true}},
+        addStratifiedRegion: {
+            default: undefined,
+            triggerUpdate: false,
+            onChange(region, state) {
+                if (!region) { return; }
+                try {
+                    region.updateViewObjects && region.updateViewObjects(state);
+                } catch (e) {
+                    console.warn('addStratifiedRegion failed:', e);
+                }
+            }
+        },
 
-        d3AlphaDecay     : { default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},
-        d3AlphaTarget    : { default: 0}, //triggerUpdate: false, onChange(alphaTarget, state) { state.simulation.alphaTarget(alphaTarget) }},
-        d3VelocityDecay  : { default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
+        labels: {default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
+        labelRelSize: {default: 0.1},
+        labelOffset: {default: {Vertice: 10, Edge: 5, Lyph: 0, Region: 0}},
+        fontParams: {default: {font: '24px Arial', fillStyle: '#000', antialias: true}},
 
-        warmupTicks      : { default: 10 }, // how many times to tick the force engine at init before starting to render
-        cooldownTicks    : { default: 100 },
-        cooldownTime     : { default: 1000 }, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
-        onLoading        : { default: () => {}, triggerUpdate: false },
-        onFinishLoading  : { default: () => {}, triggerUpdate: false },
+        d3AlphaDecay: {default: 0.045}, //triggerUpdate: false, onChange(alphaDecay, state) { state.simulation.alphaDecay(alphaDecay) }},
+        d3AlphaTarget: {default: 0}, //triggerUpdate: false, onChange(alphaTarget, state) { state.simulation.alphaTarget(alphaTarget) }},
+        d3VelocityDecay: {default: 0.45}, //triggerUpdate: false, onChange(velocityDecay, state) { state.simulation.velocityDecay(velocityDecay) } },
+
+        warmupTicks: {default: 10}, // how many times to tick the force engine at init before starting to render
+        cooldownTicks: {default: 100},
+        cooldownTime: {default: 1000}, // in milliseconds. Graph UI Events  need wait for this period of time before  webgl interaction is processed. (E.g. hideHighlighted() in WebGLComponent.)
+        onLoading: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onFinishLoading: {
+            default: () => {
+            }, triggerUpdate: false
+        },
 
         enablePointerInteraction: {
             default: true,
@@ -238,44 +270,83 @@ export default Kapsule({
             triggerUpdate: false
         },
 
-        enableDrag        : { default: true, triggerUpdate: false },
+        enableDrag: {default: true, triggerUpdate: false},
 
-        onAnchorDrag      : { default: () => {}, triggerUpdate: false },
-        onAnchorDragEnd   : { default: () => {}, triggerUpdate: false },
-        onAnchorClick     : { default: () => {}, triggerUpdate: false },
-        onAnchorRightClick: { default: () => {}, triggerUpdate: false },
+        onAnchorDrag: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onAnchorDragEnd: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onAnchorClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onAnchorRightClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
 
-        onWireDrag        : { default: () => {}, triggerUpdate: false },
-        onWireDragEnd     : { default: () => {}, triggerUpdate: false },
-        onWireClick       : { default: () => {}, triggerUpdate: false },
-        onWireRightClick  : { default: () => {}, triggerUpdate: false },
+        onWireDrag: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onWireDragEnd: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onWireClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onWireRightClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
 
-        onRegionDrag       : { default: () => {}, triggerUpdate: false },
-        onRegionDragEnd    : { default: () => {}, triggerUpdate: false },
-        onRegionClick      : { default: () => {}, triggerUpdate: false },
-        onRegionRightClick : { default: () => {}, triggerUpdate: false },
+        onRegionDrag: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onRegionDragEnd: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onRegionClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onRegionRightClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
 
-        onBackgroundClick : { default: () => {}, triggerUpdate: false },
-        onBackgroundRightClick: { triggerUpdate: false }
+        onBackgroundClick: {
+            default: () => {
+            }, triggerUpdate: false
+        },
+        onBackgroundRightClick: {triggerUpdate: false}
     },
 
     methods: {
         // Expose d3 forces for external manipulation
-        d3Force: function(state, forceName, forceFn) {
+        d3Force: function (state, forceName, forceFn) {
             if (forceFn === undefined) {
                 return state.simulation.force(forceName); // Force getter
             }
             state.simulation.force(forceName, forceFn); // Force setter
             return this;
         },
-        tickFrame: function(state) {
+        tickFrame: function (state) {
             if (state.onFrame) {
                 state.onFrame();
             }
             return this;
         },
         // reset cooldown state
-        resetCountdown: function(state) {
+        resetCountdown: function (state) {
             state.cntTicks = 0;
             state.startTickTime = new Date();
             state.engineRunning = true;
@@ -289,7 +360,7 @@ export default Kapsule({
             //.force('radial', forceRadial(100))
             .force('charge', forceManyBody(d => d.charge || 0))
             .force('collide', forceCollide(d => d.collide || 0))
-        .stop()
+            .stop()
     }),
 
     init(threeObj, state) {
@@ -302,13 +373,24 @@ export default Kapsule({
 
         if (state.graphData.visibleNodes || state.graphData.visibleLinks) {
             console.info('force-graph loading',
-                (state.graphData.visibleNodes||[]).length + ' nodes',
-                (state.graphData.visibleLinks||[]).length + ' links',
-                (state.graphData.visibleLyphs||[]).length + ' lyphs'
+                (state.graphData.visibleNodes || []).length + ' nodes',
+                (state.graphData.visibleLinks || []).length + ' links',
+                (state.graphData.visibleLyphs || []).length + ' lyphs'
             );
         }
 
-        while (state.graphScene.children.length) { state.graphScene.remove(state.graphScene.children[0]) } // Clear the place
+        if (state.graphData.visibleAnchors || state.graphData.visibleWires) {
+            console.info('force-graph loading',
+                (state.graphData.visibleAnchors || []).length + ' anchors',
+                (state.graphData.visibleWires || []).length + ' wires',
+                (state.graphData.visibleRegions || []).length + ' regions',
+                (state.graphData.visibleStratifiedRegions || []).length + ' stratified regions'
+            );
+        }
+
+        while (state.graphScene.children.length) {
+            state.graphScene.remove(state.graphScene.children[0])
+        } // Clear the place
 
         // Add WebGL objects
         state.graphData.createViewObjects(state);
@@ -322,12 +404,14 @@ export default Kapsule({
             .alphaDecay(state.d3AlphaDecay)
             .velocityDecay(state.d3VelocityDecay)
             .numDimensions(state.numDimensions)
-            .nodes(state.graphData.visibleNodes||[]);
+            .nodes(state.graphData.visibleNodes || []);
 
-        layout.force('link').id(d => d.id).links(state.graphData.visibleLinks||[]);
+        layout.force('link').id(d => d.id).links(state.graphData.visibleLinks || []);
 
         // Initial ticks before starting to render
-        for (let i = 0; i < state.warmupTicks; i++) { layout['tick'](); }
+        for (let i = 0; i < state.warmupTicks; i++) {
+            layout['tick']();
+        }
 
         state.cntTicks = 0;
         const startTickTime = new Date();
@@ -335,13 +419,15 @@ export default Kapsule({
         state.onFinishLoading();
 
         function layoutTick() {
-          if (++state.cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
-              // Stop ticking graph
-              state.onFrame = null;
-          } else { layout['tick'](); }
+            if (++state.cntTicks > state.cooldownTicks || (new Date()) - startTickTime > state.cooldownTime) {
+                // Stop ticking graph
+                state.onFrame = null;
+            } else {
+                layout['tick']();
+            }
 
-          state.graphData.updateViewObjects(state);
-          // autoLayout(state.graphScene, state.graphData);
+            state.graphData.updateViewObjects(state);
+            // autoLayout(state.graphScene, state.graphData);
         }
     }
 });

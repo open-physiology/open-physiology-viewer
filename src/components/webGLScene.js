@@ -1247,8 +1247,8 @@ export class WebGLSceneComponent {
         dialogRef.afterClosed().subscribe(res => {
             if (res) {
                 // Emit selection back to parent/consumers
-                // TODO: create stratifiedRegion without model regeneration
-                this.stratificationSelected.emit({ wire: entity, stratification: res });
+                this.stratificationSelected.emit({ wire: entity, stratification: res,
+                    callback: (st) => this.graph.addStratifiedRegion(st) });
             }
         });
     }
@@ -1294,7 +1294,7 @@ export class WebGLSceneComponent {
     updateVariance(clade) {
         //The current model is general, we can alter it without regeneration
         if (this._graphData) {
-            //We find the first variance with given clade and presence set to 'absent'
+            //We find the first variance with a given clade and presence set to 'absent'
             let variance = (this._graphData.varianceSpecs || []).find(vs =>
                 vs.presence && vs.presence === VARIANCE_PRESENCE.ABSENT
                 && (vs.clades || []).find(c => c === clade || c.id && c.id === clade));

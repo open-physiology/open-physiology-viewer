@@ -10,12 +10,12 @@ import {
     isIncluded,
     mergeRecursively,
     genResource,
-    showGroups, getGenID, getFullID, isScaffold
+    showGroups, getGenID, getFullID, isScaffold, includeRef
 } from "./utils";
 import {$LogMsg} from "./logger";
 import {Anchor} from './verticeModel';
 import {Wire} from './edgeModel';
-import {Region} from './shapeModel';
+import {Region} from './regionModel';
 
 /**
  * @class
@@ -177,12 +177,11 @@ export class Component extends Resource {
     }
 
     includeRelated() {
-        [$Field.anchors, $Field.wires, $Field.regions, $Field.stratifiedRegions].forEach(prop => prop => {
+        [$Field.anchors, $Field.wires, $Field.regions, $Field.stratifiedRegions].forEach(prop => {
             (this[prop] || []).forEach(res => {
                 res.includeRelated && res.includeRelated(this);
-                // This is needed if resources can belong to several components
-                // res.inGroups = res.inGroups || [];
-                // includeRef(res.inGroups, this);
+                res.inGroups = res.inGroups || [];
+                includeRef(res.inGroups, this);
             });
         });
         if (this.hidden) {
@@ -198,29 +197,8 @@ export class Component extends Resource {
         });
     }
 
-    // /**
-    //  * Hide current group (=hide all its entities)
-    //  */
-    // hide() {
-    //     this.hidden = true;
-    //     this.resources.forEach(entity => {
-    //         let visibleGroups = (entity.inGroups || []).filter(g => !g.hidden);
-    //         if (visibleGroups.length <= 1) entity.hidden = true;
-    //     });
-    // }
-    //
-    // /**
-    //  * Show current group (=show all its entities)
-    //  */
-    // show() {
-    //     this.hidden = false;
-    //     this.resources.forEach(entity => {
-    //         delete entity.hidden;
-    //     });
-    // }
-    //
     /**
-     * Hide current group (=hide all its entities)
+     * Hide the current group (=hide all its entities)
      */
     hide() {
         this.hidden = true;
@@ -228,7 +206,7 @@ export class Component extends Resource {
     }
 
     /**
-     * Show current group (=show all its entities)
+     * Show the current group (=show all its entities)
      */
     show() {
         this.hidden = false;

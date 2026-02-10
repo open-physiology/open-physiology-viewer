@@ -16,7 +16,7 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {HttpClient} from "@angular/common/http";
 import config from "../data/config.json";
 import {layouts} from "../layouts/layouts";
-import {findResourceByID, mergeResources} from "../model/utils";
+import {findResourceByID, mergeGenResource, mergeResources} from "../model/utils";
 import {clone, cloneDeep, keys, merge, pick, isArray, omit} from "lodash-bound";
 import {$LogMsg, logger} from "../model/logger";
 import {addJSONLDTypeDef, getJSONLDContext} from "../model/utilsJSONLD";
@@ -26,6 +26,7 @@ import {modelClasses,} from '../model/index';
 import FileSaver from 'file-saver';
 import {ImportDialog} from "./dialogs/importDialog";
 import {DiffDialog} from "./dialogs/diffDialog";
+import {StratifiedRegion} from "../model/stratificationModel";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -342,8 +343,19 @@ export class AppCommon {
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
-    assignStratification({wire, stratification}){
-        //console.log(wire, stratification);
+    assignStratification({wire, stratification, callback}){
+        // Find definitions in the input model
+        const inputStratification = (this._model.stratifications||[]).find(e => e.id === stratification.id);
+        const inputWire = (this._model.wires||[]).find(e => e.id === wire.id);
+        // Revise input model
+        const inputStratifiedRegion = this.modelClasses.Stratification.createStratifiedRegion(this._model, inputStratification, inputWire);
+        // Generate class instance for the generated model
+        const stratifiedRegion = this.modelClasses.StratifiedRegion.fromJSON(
+            inputStratifiedRegion, this.modelClasses, this._graphData.entitiesByID, this._graphData.namespace
+        );
+        // (wire.inGroups||[]).forEach(component => mergeGenResource(component, this._model, stratifiedRegion, $Field.stratifiedRegions));
+        // Create visual objects for the new stratified region
+        callback(stratifiedRegion);
     }
 
     onSelectedItemChange(item) {

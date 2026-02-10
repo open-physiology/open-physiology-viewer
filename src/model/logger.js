@@ -129,6 +129,7 @@ export const $LogMsg = {
     RESOURCE_TO_LAYER           : "Placed resource into layer",
     RESOURCE_ARRAY_EXPECTED     : "Resource property should contain an array",
     RESOURCE_CLASS_UNKNOWN      : "Cannot create a relationship: unknown resource class",
+    RESOURCE_CLASS_UNRECOGNIZED : "Object not recognized as a resource with a known class",
     RESOURCE_COLOR_UNKNOWN      : "Unrecognized color scheme",
     RESOURCE_COLOR_NO_OBJECT    : "Cannot assign color to a non-object value",
     RESOURCE_DOUBLE_REF         : "Resource property should not refer to two distinct resources",

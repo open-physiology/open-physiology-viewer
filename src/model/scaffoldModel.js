@@ -5,12 +5,11 @@ import schema from "./graphScheme";
 import {logger, $LogMsg} from "./logger";
 import {
     cloneDeep,
-    defaults,
     entries, isEmpty,
     isNumber,
     isObject,
     keys,
-    pick, sortBy, values
+    pick, values
 } from "lodash-bound";
 import {
     $Field,
@@ -44,7 +43,9 @@ export class Scaffold extends Component {
             let [obj, key] = refs[0];
             if (obj && obj.class) {
                 //Only create missing scaffold resources
-                if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor].includes(obj.class)){
+                if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor,
+                    $SchemaClass.Stratification, $SchemaClass.StratifiedRegion].includes(obj.class)){
+                    logger.warn($LogMsg.RESOURCE_CLASS_UNRECOGNIZED, obj);
                     return;
                 }
                 let clsName = schemaClassModels[obj.class].relClassNames[key];

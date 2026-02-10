@@ -55,11 +55,12 @@ StratifiedRegion.prototype.createViewObjects = function(state) {
         // Use a consistent color for all regions with the same supertype if not specified
         this.color = this.color || this.supertype.color;
         this.viewObjects['main'] = Stratification.prototype.createViewObjects.call(this.supertype, state);
+        state.graphScene.add(this.viewObjects['main']);
     }
 };
 
 /**
- * Update visual objects for a stratification
+ * Update visual objects for the stratification
  */
 StratifiedRegion.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
@@ -68,17 +69,11 @@ StratifiedRegion.prototype.updateViewObjects = function(state) {
     if (!obj) {
        this.createViewObjects(state);
     }
-
     obj.visible = this.isVisible && state.showStratifiedRegions;
-
-    // Center around the conveying link if available, but keep in world XY plane
     const wire = this.axisWire;
     if (wire && wire.viewObjects && wire.viewObjects["main"]) {
         copyCoords(obj.position, wire.center || wire.viewObjects["main"].position);
         let axis = direction(wire.source, wire.target).normalize();
         obj.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), axis);
-    } else
-        if (this.center) {
-            copyCoords(obj.position, this.center);
-        }
+    }
 };
