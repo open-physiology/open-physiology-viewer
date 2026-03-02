@@ -81,6 +81,11 @@ export class SearchOptions {
         return searchOptions;
     }
 
+     static materials(model, searchOptions = [], prefix = "") {
+        this.addOptions(model.materials, searchOptions, $SchemaClass.Material, prefix);
+        return searchOptions;
+    }
+
 
     /**
      * Returns a list of lyph and material names joint with identifiers for search boxes in the GUI components

@@ -5,9 +5,9 @@ import {
     $SchemaClass,
     getGenID,
     getID,
-    mergeGenResource,
-    genResource, isIncluded
+    genResource, isIncluded, mergeGenResource
 } from './utils';
+import {isObject} from "lodash-bound";
 
 /**
  * Stratified Region model
@@ -37,7 +37,10 @@ export class Stratification extends Resource {
     }
 
     static createStratifiedRegions(component, template){
-        (template.axisWires||[]).forEach(wire => this.createStratifiedRegion(component,template,wire));
+        (template.axisWires||[]).forEach(wire => {
+            const stratifiedRegion = this.createStratifiedRegion(component,template,wire);
+            mergeGenResource(undefined, component, stratifiedRegion, $Field.stratifiedRegions);
+        });
     }
 
     static createStratifiedRegion(component, stratification, wire){
@@ -49,11 +52,17 @@ export class Stratification extends Resource {
             [$Field.supertype]: stratificationID,
             [$Field.axisWire]: wireID
         }, "shapeModel.createStratifiedRegions");
-        // Generated stratifiedRegions will be placed to groups by the method inludeRelated
-        mergeGenResource(undefined, component, stratifiedRegion, $Field.stratifiedRegions);
         stratification.subtypes = stratification.subtypes || [];
         if (!isIncluded(stratification.subtypes, stratifiedRegion.id)) {
             stratification.subtypes.push(stratifiedRegion.id);
+        }
+        stratification.axisWires = stratification.axisWires || [];
+        if (!isIncluded(stratification.axisWires, wireID)) {
+            stratification.axisWires.push(wireID);
+        }
+        if (wire::isObject()){
+            wire.stratifiedRegion = stratifiedRegion.id;
+            wire.stratification = stratificationID;
         }
         return stratifiedRegion;
     }

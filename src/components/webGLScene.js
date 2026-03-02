@@ -1247,8 +1247,12 @@ export class WebGLSceneComponent {
         dialogRef.afterClosed().subscribe(res => {
             if (res) {
                 // Emit selection back to parent/consumers
-                this.stratificationSelected.emit({ wire: entity, stratification: res,
-                    callback: (st) => this.graph.addStratifiedRegion(st) });
+                this.stratificationSelected.emit({
+                    wire: entity,
+                    stratification: res.stratification,
+                    reversed: res.reversed,
+                    callback: (st) => this.graph.addStratifiedRegion(st)
+                });
             }
         });
     }

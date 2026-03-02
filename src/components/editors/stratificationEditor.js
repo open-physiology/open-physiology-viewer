@@ -5,18 +5,17 @@ import {ResourceDeclarationModule} from "./resourceDeclarationEditor";
 import {SearchAddBarModule} from "../gui/searchAddBar";
 import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from "@angular/material/divider";
-import {cloneDeep, isObject, values} from 'lodash-bound';
-import {MatSnackBar, MatSnackBarConfig} from '@angular/material/snack-bar';
+import {cloneDeep, isObject} from 'lodash-bound';
+import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from "@angular/material/dialog";
 import {MatListModule} from '@angular/material/list';
 import {ResourceListViewModule} from "./resourceListView";
 import {ListNode} from "../structs/listNode";
 import {ICON, LyphTreeNode, LyphTreeViewModule} from "./lyphTreeView";
-import {DiffDialog} from "../dialogs/diffDialog";
 
 import {SearchOptions} from "../utils/searchOptions";
 import {ResourceMaps} from "../utils/resourceMaps";
-import {$Field, $SchemaClass, getGenName} from "../../model";
+import {$Field, $SchemaClass} from "../../model";
 import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 import {defineNewResource} from "../../model/utils";
@@ -51,7 +50,6 @@ import {defineNewResource} from "../../model/utils";
                 <section class="w3-col">
                     <resourceListView *ngIf="selectedStratification"
                                       listTitle="Wires"
-                                      ordered=true
                                       expectedClass="Wire"
                                       [listData]="stratificationWires"
                                       (onNodeClick)="selectWire($event)"
@@ -174,13 +172,10 @@ export class StratificationEditorComponent extends ResourceEditor {
         this.currentStep = 0;
         this.entitiesByID = {};
         this.prepareStratificationList();
-        ResourceMaps.materialsAndLyphs(this._model, this.entitiesByID);
+        ResourceMaps.wires(this._model, this.entitiesByID);
+        ResourceMaps.materialsAndStratifications(this._model, this.entitiesByID);
         // Prepare resources from imported models
-        (this._model.groups || []).forEach(g => {
-            if (g.imported && g.namespace !== this._model.namespace) {
-                ResourceMaps.importedMaterialsAndLyphs(g, this.entitiesByID);
-            }
-        });
+        // NK - not supported / needed at the moment
         this.updateSearchOptions();
         this.updateView((this._model?.stratifications || [])[0]);
         this.saveStep('Initial model');
@@ -333,7 +328,7 @@ export class StratificationEditorComponent extends ResourceEditor {
      * Prepare a list of material/lyph id-name pairs for search box
      */
     updateSearchOptions() {
-        this.searchOptions = SearchOptions.materialsAndLyphs(this._model);
+        this.searchOptions = SearchOptions.materials(this._model);
     }
 
     /**
@@ -476,12 +471,6 @@ export class StratificationEditorComponent extends ResourceEditor {
                 break;
             case 'select':
                 this.selectWire(node);
-                break;
-            case 'up':
-                this.moveWireUp(node, index);
-                break;
-            case 'down':
-                this.moveWireDown(node, index);
                 break;
         }
     }

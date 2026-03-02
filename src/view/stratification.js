@@ -31,7 +31,9 @@ Stratification.prototype.createViewObjects = function(state) {
     const rectHeight = totalHeight / n;
 
     for (let i = 0; i < n; i++) {
-        const mat = strata[i];
+        // If the wire is reversed, we draw strata in reverse order
+        const index = (state.reversed) ? n - 1 - i : i;
+        const mat = strata[index];
         const color = (mat && mat.color) ? mat.color : "#cccccc";
         const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: true });
         const geometry = new THREE.PlaneGeometry(rectWidth, rectHeight);

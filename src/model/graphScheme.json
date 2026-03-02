@@ -823,6 +823,10 @@
             }
           ],
           "relatedTo": "borders"
+        },
+        "reversed": {
+          "description": "When set to true, used to turn the edge's associated resource (e.g., conveying lyph or stratified region) by 180 degrees",
+          "type": "boolean"
         }
       },
       "dependencies": {
@@ -1527,10 +1531,6 @@
           "description": "When set to true, defines a directed edge with arrow at the end",
           "type": "boolean",
           "default": false
-        },
-        "reversed": {
-          "description": "When set to true, used to turn the link's conveying lyph by 180 degrees",
-          "type": "boolean"
         },
         "strength": {
           "description": "Link's strength reflects how strongly the link tries to satisfy its length constraint in the force-directed layout",

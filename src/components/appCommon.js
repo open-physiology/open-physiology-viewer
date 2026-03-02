@@ -14,9 +14,8 @@ import {removeDisconnectedObjects} from "../view/render/autoLayout";
 import {MatDialog} from "@angular/material/dialog";
 import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {HttpClient} from "@angular/common/http";
-import config from "../data/config.json";
 import {layouts} from "../layouts/layouts";
-import {findResourceByID, mergeGenResource, mergeResources} from "../model/utils";
+import {findResourceByID, mergeResources} from "../model/utils";
 import {clone, cloneDeep, keys, merge, pick, isArray, omit} from "lodash-bound";
 import {$LogMsg, logger} from "../model/logger";
 import {addJSONLDTypeDef, getJSONLDContext} from "../model/utilsJSONLD";
@@ -26,7 +25,7 @@ import {modelClasses,} from '../model/index';
 import FileSaver from 'file-saver';
 import {ImportDialog} from "./dialogs/importDialog";
 import {DiffDialog} from "./dialogs/diffDialog";
-import {StratifiedRegion} from "../model/stratificationModel";
+import {GitHubClient} from "../api/githubClient";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -190,12 +189,19 @@ export class AppCommon {
         }
     }
 
+
     commit() {
         const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
         if (!GITHUB_TOKEN) {
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
-        const BRANCH = "main";
+        const client = new GitHubClient(GITHUB_TOKEN);
+
+        if (isScaffold(this._model)) {
+            this.commitScaffold(client);
+            return;
+        }
+
         // Build model for commit based on whether to omit collections (groups/scaffolds/snapshots)
         const props = [$Field.groups, $Field.scaffolds, $Field.snapshots];
         const buildModelForCommit = (omitCollections = true) => {
@@ -215,101 +221,277 @@ export class AppCommon {
         const initialModel = buildModelForCommit(true); // default: omit collections
         const FILE_CONTENT_OMIT = JSON.stringify(initialModel, null, 4);
         const DEFAULT_COMMIT_MESSAGE = "Add/update JSON file via API";
-        const BASE_URL = config.storageURL;
-
-        // Helper function to make API requests with XMLHttpRequest
-        function makeRequest(method, url, body = null, callback) {
-            const xhr = new XMLHttpRequest();
-            xhr.open(method, url, true);
-            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
-            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        callback(null, JSON.parse(xhr.responseText));
-                    } else {
-                        callback(`Error: ${xhr.status} - ${xhr.responseText}`, null);
-                    }
-                }
-            };
-            xhr.send(body ? JSON.stringify(body) : null);
-        }
-
         const FILE_PATH = this._model.id + ".json";
 
         // Step 1: Get existing file (if any) to retrieve SHA and old content for diff
-        makeRequest(
-            "GET",
-            `${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`,
-            null,
-            (err, fileData) => {
-                let fileSHA = null;
-                let oldContentText = "";
-                if (!err && fileData && fileData.content) {
-                    fileSHA = fileData.sha;
-                    try {
-                        // GitHub API returns base64 with possible newlines
-                        const cleaned = fileData.content.replace(/\n/g, "");
-                        oldContentText = atob(cleaned);
-                    } catch (e) {
-                        console.warn("Could not decode existing file content", e);
-                        oldContentText = "";
-                    }
-                } else if (err && err.includes("404")) {
-                    this.showMessage("File does not exist. A new one will be created.");
-                } else if (err) {
-                    console.error("❌ Error checking file existence:", err);
-                    this.showErrorMessage("Error checking file existence!");
+        client.getFile(FILE_PATH).then(fileData => {
+            let fileSHA = fileData.sha;
+            let oldContentText = "";
+            if (fileData.content) {
+                try {
+                    oldContentText = client.fromBase64(fileData.content);
+                } catch (e) {
+                    console.warn("Could not decode existing file content", e);
+                    oldContentText = "";
+                }
+            }
+
+            // Open diff dialog to show differences and ask for an optional commit message
+            const dialogRef = this._dialog.open(DiffDialog, {
+                width: '75%',
+                data: {
+                    oldContent: oldContentText,
+                    newContent: FILE_CONTENT_OMIT,
+                    askCommitMessage: true,
+                    defaultMessage: DEFAULT_COMMIT_MESSAGE
+                }
+            });
+
+            dialogRef.afterClosed().subscribe(result => {
+                // If dialog was closed without result or user cancelled, abort
+                if (!result || result.proceed === false) {
+                    this.showWarningMessage("Commit canceled.");
                     return;
                 }
+                const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
+                const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
 
-                // Open diff dialog to show differences and ask for an optional commit message
+                const modelForCommit = buildModelForCommit(omitCollections);
+                const fileContent = JSON.stringify(modelForCommit, null, 4);
+
+                // Step 2: Create or update the file
+                client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage, fileSHA).then(() => {
+                    this.showMessage("Model file committed successfully!");
+                }).catch(commitErr => {
+                    console.error("❌ Error committing file:", commitErr);
+                    this.showErrorMessage("Error committing file!");
+                });
+            });
+        }).catch(err => {
+            if (err.status === 404) {
+                this.showMessage("File does not exist. A new one will be created.");
+                // Same logic as above but with empty oldContent
                 const dialogRef = this._dialog.open(DiffDialog, {
                     width: '75%',
                     data: {
-                        oldContent: oldContentText,
+                        oldContent: "",
                         newContent: FILE_CONTENT_OMIT,
                         askCommitMessage: true,
                         defaultMessage: DEFAULT_COMMIT_MESSAGE
                     }
                 });
-
                 dialogRef.afterClosed().subscribe(result => {
-                    // If dialog was closed without result or user cancelled, abort
                     if (!result || result.proceed === false) {
-                        this.showMessage("Commit canceled.");
+                        this.showWarningMessage("Commit canceled.");
                         return;
                     }
                     const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
                     const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
-
                     const modelForCommit = buildModelForCommit(omitCollections);
                     const fileContent = JSON.stringify(modelForCommit, null, 4);
 
-                    // Step 2: Create or update the file
-                    makeRequest(
-                        "PUT",
-                        `${BASE_URL}/contents/${FILE_PATH}`,
-                        {
-                            message: commitMessage,
-                            content: Buffer.from(fileContent).toString("base64"), // Convert to Base64
-                            branch: BRANCH,
-                            sha: fileSHA,
-                        },
-                        (commitErr, response) => {
-                            if (commitErr) {
-                                console.error("❌ Error committing file:", commitErr);
-                                this.showErrorMessage("Error committing file!");
-                                return;
-                            }
-                            this.showMessage("Model file committed successfully!")
+                    client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage).then(() => {
+                        this.showMessage("Model file committed successfully!");
+                    }).catch(putErr => {
+                        console.error("❌ Error committing file:", putErr);
+                        this.showErrorMessage("Error committing file!");
+                    });
+                });
+            } else {
+                console.error("❌ Error checking file existence:", err);
+                this.showErrorMessage("Error checking file existence!");
+            }
+        });
+    }
+
+    commitScaffold(client) {
+        const scaffold = this._model;
+        const FILE_PATH_NO_IMAGES = `scaffolds/${scaffold.id}.json`;
+        const FILE_PATH_WITH_IMAGES = `scaffolds/${scaffold.id}/${scaffold.id}.json`;
+
+        const getScaffoldFile = () => {
+            return client.getFile(FILE_PATH_WITH_IMAGES).catch(err => {
+                if (err.status === 404) {
+                    return client.getFile(FILE_PATH_NO_IMAGES);
+                }
+                throw err;
+            });
+        };
+
+        getScaffoldFile().then(fileData => {
+            let oldContentText = "";
+            if (fileData.content) {
+                try {
+                    oldContentText = client.fromBase64(fileData.content);
+                } catch (e) {
+                    console.warn("Could not decode existing scaffold content", e);
+                }
+            }
+            this.showDiffAndCommitScaffold(client, oldContentText, fileData.sha);
+        }).catch(err => {
+            if (err.status === 404) {
+                this.showMessage("Scaffold file does not exist. A new one will be created.");
+                this.showDiffAndCommitScaffold(client, "", null);
+            } else {
+                console.error("❌ Error checking scaffold existence:", err);
+                this.showErrorMessage("Error checking scaffold existence!");
+            }
+        });
+    }
+
+    showDiffAndCommitScaffold(client, oldContentText, fileSHA) {
+        const scaffold = this._model;
+        const DEFAULT_COMMIT_MESSAGE = `Update scaffold ${scaffold.id}`;
+        const BRANCH = client.branch;
+        const scaffoldJSON = JSON.stringify(scaffold, null, 2);
+
+        const dialogRef = this._dialog.open(DiffDialog, {
+            width: '75%',
+            data: {
+                oldContent: oldContentText,
+                newContent: scaffoldJSON,
+                askCommitMessage: true,
+                defaultMessage: DEFAULT_COMMIT_MESSAGE,
+                showIncludeImages: true
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (!result || result.proceed === false) {
+                this.showWarningMessage("Scaffold commit canceled.");
+                return;
+            }
+            const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
+            const includeImages = !!result.includeImages;
+
+            const imagesToCommit = {}; // name -> dataURL
+            let totalImagesSize = 0;
+            const backgroundsMap = this._webGLScene?._backgroundsMap || {};
+
+            if (includeImages) {
+                const collectImages = (component) => {
+                    if (component.background) {
+                        const bg = component.background;
+                        const path = bg.path || bg.uri;
+                        if (path && backgroundsMap[path]) {
+                            imagesToCommit[path] = backgroundsMap[path];
+                            // Estimate size: base64 string length * 0.75 is approx byte size
+                            const base64Data = backgroundsMap[path].split(',')[1] || "";
+                            totalImagesSize += base64Data.length * 0.75;
                         }
-                    );
+                    }
+                    (component.components || []).forEach(collectImages);
+                };
+                collectImages(scaffold);
+
+                if (totalImagesSize > 1024 * 1024) {
+                    this.showErrorMessage("Cannot commit background images - too large!");
+                    return;
+                }
+            }
+
+            const hasImages = Object.keys(imagesToCommit).length > 0;
+            const FILE_PATH = hasImages
+                ? `scaffolds/${scaffold.id}/${scaffold.id}.json`
+                : `scaffolds/${scaffold.id}.json`;
+
+            let modelForCommit = cloneDeep(scaffold);
+            if (hasImages) {
+                const updateImagePaths = (component) => {
+                    if (component.background) {
+                        const bg = component.background;
+                        const path = bg.path || bg.uri;
+                        if (path && imagesToCommit[path]) {
+                            if (bg.path) { bg.path = `backgrounds/${path}`; }
+                            if (bg.uri)  { bg.uri  = `backgrounds/${path}`; }
+                        }
+                    }
+                    (component.components || []).forEach(updateImagePaths);
+                };
+                updateImagePaths(modelForCommit);
+            }
+            const finalScaffoldJSON = JSON.stringify(modelForCommit, null, 2);
+
+            if (!hasImages) {
+                client.putFile(FILE_PATH, client.toBase64(finalScaffoldJSON), commitMessage, fileSHA).then(() => {
+                    this.showMessage("Scaffold committed successfully!");
+                }).catch(err => {
+                    console.error("❌ Error committing scaffold:", err);
+                    this.showErrorMessage("Error committing scaffold!");
+                });
+            } else {
+                // Complex commit with images using Trees API
+                const repoURL = client.getRepoUrl();
+                client.makeRequest("GET", `${repoURL}/branches/${BRANCH}`).then(branchData => {
+                    const baseTreeSHA = branchData.commit.commit.tree.sha;
+                    const parentCommitSHA = branchData.commit.sha;
+
+                    const filesToCommit = [
+                        {
+                            path: FILE_PATH,
+                            content: finalScaffoldJSON,
+                            encoding: 'utf-8'
+                        }
+                    ];
+                    Object.entries(imagesToCommit).forEach(([name, dataURL]) => {
+                        filesToCommit.push({
+                            path: `scaffolds/${scaffold.id}/backgrounds/${name}`,
+                            content: dataURL.split(',')[1],
+                            encoding: 'base64'
+                        });
+                    });
+
+                    const treeItems = [];
+                    const blobPromises = filesToCommit.map(file => {
+                        return client.makeRequest("POST", `${repoURL}/git/blobs`, {
+                            content: file.content,
+                            encoding: file.encoding
+                        }).then(blobData => {
+                            treeItems.push({
+                                path: file.path,
+                                mode: "100644",
+                                type: "blob",
+                                sha: blobData.sha
+                            });
+                        });
+                    });
+
+                    Promise.all(blobPromises).then(() => {
+                        client.makeRequest("POST", `${repoURL}/git/trees`, {
+                            base_tree: baseTreeSHA,
+                            tree: treeItems
+                        }).then(treeData => {
+                            client.makeRequest("POST", `${repoURL}/git/commits`, {
+                                message: commitMessage,
+                                tree: treeData.sha,
+                                parents: [parentCommitSHA]
+                            }).then(commitData => {
+                                client.makeRequest("PATCH", `${repoURL}/git/refs/heads/${BRANCH}`, {
+                                    sha: commitData.sha
+                                }).then(() => {
+                                    this.showMessage("Scaffold and images committed successfully!");
+                                }).catch(refErr => {
+                                    console.error("❌ Error updating branch reference:", refErr);
+                                    this.showErrorMessage("Error updating branch reference!");
+                                });
+                            }).catch(commitErr => {
+                                console.error("❌ Error creating commit:", commitErr);
+                                this.showErrorMessage("Error creating commit!");
+                            });
+                        }).catch(treeErr => {
+                            console.error("❌ Error creating tree:", treeErr);
+                            this.showErrorMessage("Error creating tree!");
+                        });
+                    }).catch(blobErr => {
+                        console.error("❌ Error creating blob:", blobErr);
+                        this.showErrorMessage(`Error creating blob!`);
+                    });
+                }).catch(branchErr => {
+                    console.error("❌ Error getting branch info:", branchErr);
+                    this.showErrorMessage("Error getting branch info!");
                 });
             }
-        );
+        });
     }
 
     showMessage(message) {
@@ -343,19 +525,28 @@ export class AppCommon {
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
-    assignStratification({wire, stratification, callback}){
+    assignStratification({wire, stratification, reversed, callback}){
         // Find definitions in the input model
         const inputStratification = (this._model.stratifications||[]).find(e => e.id === stratification.id);
         const inputWire = (this._model.wires||[]).find(e => e.id === wire.id);
+        if (inputWire) {
+            inputWire.reversed = reversed;
+        }
         // Revise input model
         const inputStratifiedRegion = this.modelClasses.Stratification.createStratifiedRegion(this._model, inputStratification, inputWire);
+        //mergeGenResource(undefined, this._model, inputStratifiedRegion, $Field.stratifiedRegions);
+
         // Generate class instance for the generated model
         const stratifiedRegion = this.modelClasses.StratifiedRegion.fromJSON(
             inputStratifiedRegion, this.modelClasses, this._graphData.entitiesByID, this._graphData.namespace
         );
-        // (wire.inGroups||[]).forEach(component => mergeGenResource(component, this._model, stratifiedRegion, $Field.stratifiedRegions));
         // Create visual objects for the new stratified region
         callback(stratifiedRegion);
+
+        if (this._editor) {
+            this._editor.set(this._model);
+        }
+        //
     }
 
     onSelectedItemChange(item) {
@@ -563,144 +754,158 @@ export class AppCommon {
     }
 
     commitSnapshot() {
-        if (!this._snapshot) {
-            this.showErrorMessage("No snapshot to commit!");
-            return;
-        }
         const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
         if (!GITHUB_TOKEN) {
             throw Error("Set the GITHUB_TOKEN environment variable!");
         }
-        const BRANCH = "main";
+        const client = new GitHubClient(GITHUB_TOKEN);
+        const BRANCH = client.branch;
 
         // Serialize snapshot similar to saveSnapshot()
         const snapshotJSON = JSON.stringify(this._snapshot.toJSON(2, { [$Field.states]: 4 }), null, 2);
         const DEFAULT_COMMIT_MESSAGE = `Update snapshot ${this._snapshot.id}`;
-        const BASE_URL = config.storageURL;
-
-        function makeRequest(method, url, body = null, callback) {
-            const xhr = new XMLHttpRequest();
-            xhr.open(method, url, true);
-            xhr.setRequestHeader("Authorization", `token ${GITHUB_TOKEN}`);
-            xhr.setRequestHeader("Accept", "application/vnd.github.v3+json");
-            xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        callback(null, JSON.parse(xhr.responseText));
-                    } else {
-                        callback(`Error: ${xhr.status} - ${xhr.responseText}`, null);
-                    }
-                }
-            };
-            xhr.send(body ? JSON.stringify(body) : null);
-        }
 
         // Store snapshots in a snapshots/ folder next to models in the repo
         const FILE_PATH = `snapshots/${this._snapshot.id}.json`;
 
         // Step 1: Get existing file to retrieve SHA and old content
-        makeRequest(
-            "GET",
-            `${BASE_URL}/contents/${FILE_PATH}?ref=${BRANCH}`,
-            null,
-            (err, fileData) => {
-                let fileSHA = null;
-                let oldContentText = "";
-                if (!err && fileData && fileData.content) {
-                    fileSHA = fileData.sha;
-                    try {
-                        const cleaned = fileData.content.replace(/\n/g, "");
-                        oldContentText = atob(cleaned);
-                    } catch (e) {
-                        console.warn("Could not decode existing snapshot content", e);
-                        oldContentText = "";
-                    }
-                } else if (err && err.includes("404")) {
-                    this.showMessage("Snapshot file does not exist. A new one will be created.");
-                } else if (err) {
-                    console.error("❌ Error checking snapshot existence:", err);
-                    this.showErrorMessage("Error checking snapshot existence!");
+        client.getFile(FILE_PATH).then(fileData => {
+            let fileSHA = fileData.sha;
+            let oldContentText = "";
+            if (fileData.content) {
+                try {
+                    oldContentText = client.fromBase64(fileData.content);
+                } catch (e) {
+                    console.warn("Could not decode existing snapshot content", e);
+                    oldContentText = "";
+                }
+            }
+
+            // Show diff and ask for commit message
+            const dialogRef = this._dialog.open(DiffDialog, {
+                width: '75%',
+                data: {
+                    oldContent: oldContentText,
+                    newContent: snapshotJSON,
+                    askCommitMessage: true,
+                    defaultMessage: DEFAULT_COMMIT_MESSAGE
+                }
+            });
+
+            dialogRef.afterClosed().subscribe(result => {
+                if (!result || result.proceed === false) {
+                    this.showMessage("Snapshot commit canceled.");
                     return;
                 }
+                const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
 
-                // Show diff and ask for commit message
+                client.putFile(FILE_PATH, client.toBase64(snapshotJSON), commitMessage, fileSHA).then(() => {
+                    // Build raw GitHub URL for the committed snapshot and copy to clipboard
+                    const {owner, repo} = client.getOwnerRepo();
+                    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${BRANCH}/${FILE_PATH}`;
+
+                    const copyToClipboard = async (text) => {
+                        try {
+                            if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+                                await navigator.clipboard.writeText(text);
+                                return true;
+                            }
+                        } catch (e) { /* fall back below */ }
+                        try {
+                            const ta = document.createElement('textarea');
+                            ta.value = text;
+                            ta.style.position = 'fixed';
+                            ta.style.top = '0';
+                            ta.style.left = '0';
+                            ta.style.opacity = '0';
+                            document.body.appendChild(ta);
+                            ta.focus();
+                            ta.select();
+                            const success = document.execCommand('copy');
+                            document.body.removeChild(ta);
+                            return !!success;
+                        } catch (e) {
+                            return false;
+                        }
+                    };
+
+                    copyToClipboard(rawUrl).then(ok => {
+                        if (ok) {
+                            this.showMessage("Snapshot committed successfully! location copied to clipboard");
+                        } else {
+                            this.showMessage(`Snapshot committed successfully! Raw location: ${rawUrl}`);
+                        }
+                    });
+                }).catch(commitErr => {
+                    console.error("❌ Error committing snapshot:", commitErr);
+                    this.showErrorMessage("Error committing snapshot!");
+                });
+            });
+        }).catch(err => {
+            if (err.status === 404) {
+                this.showMessage("Snapshot file does not exist. A new one will be created.");
                 const dialogRef = this._dialog.open(DiffDialog, {
                     width: '75%',
                     data: {
-                        oldContent: oldContentText,
+                        oldContent: "",
                         newContent: snapshotJSON,
                         askCommitMessage: true,
                         defaultMessage: DEFAULT_COMMIT_MESSAGE
                     }
                 });
-
                 dialogRef.afterClosed().subscribe(result => {
                     if (!result || result.proceed === false) {
                         this.showMessage("Snapshot commit canceled.");
                         return;
                     }
                     const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
+                    client.putFile(FILE_PATH, client.toBase64(snapshotJSON), commitMessage).then(() => {
+                         // Build raw GitHub URL for the committed snapshot and copy to clipboard
+                        const {owner, repo} = client.getOwnerRepo();
+                        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${BRANCH}/${FILE_PATH}`;
 
-                    makeRequest(
-                        "PUT",
-                        `${BASE_URL}/contents/${FILE_PATH}`,
-                        {
-                            message: commitMessage,
-                            content: Buffer.from(snapshotJSON).toString("base64"),
-                            branch: BRANCH,
-                            sha: fileSHA,
-                        },
-                        (commitErr) => {
-                            if (commitErr) {
-                                console.error("❌ Error committing snapshot:", commitErr);
-                                this.showErrorMessage("Error committing snapshot!");
-                                return;
+                        const copyToClipboard = async (text) => {
+                             try {
+                                if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+                                    await navigator.clipboard.writeText(text);
+                                    return true;
+                                }
+                            } catch (e) { /* fall back below */ }
+                            try {
+                                const ta = document.createElement('textarea');
+                                ta.value = text;
+                                ta.style.position = 'fixed';
+                                ta.style.top = '0';
+                                ta.style.left = '0';
+                                ta.style.opacity = '0';
+                                document.body.appendChild(ta);
+                                ta.focus();
+                                ta.select();
+                                const success = document.execCommand('copy');
+                                document.body.removeChild(ta);
+                                return !!success;
+                            } catch (e) {
+                                return false;
                             }
-                            // Build raw GitHub URL for the committed snapshot and copy to clipboard
-                            const storageURL = config.storageURL || '';
-                            const match = storageURL.match(/repos\/([^/]+)\/([^/]+)/);
-                            const owner = match ? match[1] : 'open-physiology';
-                            const repo  = match ? match[2] : 'apinatomy-models';
-                            const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${BRANCH}/${FILE_PATH}`;
+                        };
 
-                            const copyToClipboard = async (text) => {
-                                try {
-                                    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-                                        await navigator.clipboard.writeText(text);
-                                        return true;
-                                    }
-                                } catch (e) { /* fall back below */ }
-                                try {
-                                    const ta = document.createElement('textarea');
-                                    ta.value = text;
-                                    ta.style.position = 'fixed';
-                                    ta.style.top = '0';
-                                    ta.style.left = '0';
-                                    ta.style.opacity = '0';
-                                    document.body.appendChild(ta);
-                                    ta.focus();
-                                    ta.select();
-                                    const success = document.execCommand('copy');
-                                    document.body.removeChild(ta);
-                                    return !!success;
-                                } catch (e) {
-                                    return false;
-                                }
-                            };
-
-                            copyToClipboard(rawUrl).then(ok => {
-                                if (ok) {
-                                    this.showMessage("Snapshot committed successfully! location copied to clipboard");
-                                } else {
-                                    this.showMessage(`Snapshot committed successfully! Raw location: ${rawUrl}`);
-                                }
-                            });
-                        }
-                    );
+                        copyToClipboard(rawUrl).then(ok => {
+                            if (ok) {
+                                this.showMessage("Snapshot committed successfully! location copied to clipboard");
+                            } else {
+                                this.showMessage(`Snapshot committed successfully! Raw location: ${rawUrl}`);
+                            }
+                        });
+                    }).catch(putErr => {
+                        console.error("❌ Error committing snapshot:", putErr);
+                        this.showErrorMessage("Error committing snapshot!");
+                    });
                 });
+            } else {
+                console.error("❌ Error checking snapshot existence:", err);
+                this.showErrorMessage("Error checking snapshot existence!");
             }
-        );
+        });
     }
 
 

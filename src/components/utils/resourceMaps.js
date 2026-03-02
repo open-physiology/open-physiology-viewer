@@ -103,4 +103,46 @@ export class ResourceMaps {
             }
         });
     }
+
+    static wires(model, entitiesByID) {
+        (model.wires || []).forEach(st => {
+            if (st::isObject()) {
+                if (!st.id) {
+                    this.assignID(st, "tmpWireID", entitiesByID);
+                }
+                st._class = $SchemaClass.Wire;
+                entitiesByID[st.id] = st;
+            }
+        });
+    }
+
+    static materialsAndStratifications(model, entitiesByID) {
+        (model.stratifications || []).forEach(st => {
+            if (st::isObject()) {
+                if (!st.id) {
+                    this.assignID(st, "tmpStID", entitiesByID);
+                }
+                st._class = $SchemaClass.Stratification;
+                entitiesByID[st.id] = st;
+            }
+        });
+        (model.stratifedRegions || []).forEach(st => {
+            if (st::isObject()) {
+                if (!st.id) {
+                    this.assignID(st, "tmpStRegID", entitiesByID);
+                }
+                st._class = $SchemaClass.StratifiedRegion;
+                entitiesByID[st.id] = st;
+            }
+        });
+        (model.materials || []).forEach(material => {
+            if (material::isObject()) {
+                if (!material.id) {
+                    this.assignID(material, "tmpMatID", entitiesByID);
+                }
+                material._class = $SchemaClass.Material;
+                entitiesByID[material.id] = material;
+            }
+        });
+    }
 }

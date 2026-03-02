@@ -2,6 +2,8 @@ import {Component, Inject, NgModule} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {MatDialogRef, MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {FormsModule} from "@angular/forms";
 
 @Component({
     selector: 'stratificationDialog',
@@ -24,6 +26,7 @@ import {MatButtonModule} from '@angular/material/button';
                     <span class="label">{{st.name || st.id}}</span>
                 </button>
             </div>
+            <mat-checkbox [(ngModel)]="reversed" style="margin-top: 8px;">Reverse</mat-checkbox>
         </div>
         <div mat-dialog-actions align="end">
             <button mat-button (click)="onNoClick()">Cancel</button>
@@ -80,6 +83,7 @@ export class StratificationDialog {
     data;
     stratifiedTemplates = [];
     selected;
+    reversed = false;
 
     vizRectWidth = 20;
     vizHeight = 30;
@@ -126,12 +130,15 @@ export class StratificationDialog {
     }
 
     onOkClick(){
-        this.dialogRef.close(this.data.stratifications[this.selected.index]);
+        this.dialogRef.close({
+            stratification: this.data.stratifications[this.selected.index],
+            reversed: this.reversed
+        });
     }
 }
 
 @NgModule({
-    imports: [CommonModule, MatDialogModule, MatButtonModule],
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatCheckboxModule, FormsModule],
     declarations: [StratificationDialog],
     exports: [StratificationDialog]
 })

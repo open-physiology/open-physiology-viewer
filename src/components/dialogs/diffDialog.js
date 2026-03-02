@@ -15,8 +15,11 @@ import { FormsModule } from '@angular/forms';
             <div *ngIf="data && data.askCommitMessage" style="margin-top: 12px;">
                 <label for="commitMsg"><b>Commit message (optional):</b></label>
                 <textarea id="commitMsg" [(ngModel)]="commitMessage" rows="3" style="width: 100%;"></textarea>
-                <mat-checkbox [(ngModel)]="omitCollections" style="margin-top: 8px; display: block;">
+                <mat-checkbox *ngIf="!data || !data.showIncludeImages" [(ngModel)]="omitCollections" style="margin-top: 8px; display: block;">
                     Omit imported groups, scaffolds and snapshots from commit
+                </mat-checkbox>
+                <mat-checkbox *ngIf="data && data.showIncludeImages" [(ngModel)]="includeImages" style="margin-top: 8px; display: block;">
+                    Include background images
                 </mat-checkbox>
             </div>
         </div>
@@ -34,9 +37,10 @@ import { FormsModule } from '@angular/forms';
 })
 export class DiffDialog {
     dialogRef;
-    data = { 'oldContent': "", 'newContent': "", 'askCommitMessage': false, 'defaultMessage': "" };
+    data = { 'oldContent': "", 'newContent': "", 'askCommitMessage': false, 'defaultMessage': "", 'showIncludeImages': false };
     commitMessage = "";
     omitCollections = true; // default behavior: omit groups/scaffolds/snapshots
+    includeImages = false;
 
     constructor( dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
@@ -53,7 +57,7 @@ export class DiffDialog {
     }
 
     proceed(){
-        this.dialogRef.close({ proceed: true, message: this.commitMessage, omitCollections: this.omitCollections });
+        this.dialogRef.close({ proceed: true, message: this.commitMessage, omitCollections: this.omitCollections, includeImages: this.includeImages });
     }
 }
 
