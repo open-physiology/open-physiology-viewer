@@ -534,7 +534,6 @@ export class AppCommon {
         }
         // Revise input model
         const inputStratifiedRegion = this.modelClasses.Stratification.createStratifiedRegion(this._model, inputStratification, inputWire);
-        //mergeGenResource(undefined, this._model, inputStratifiedRegion, $Field.stratifiedRegions);
 
         // Generate class instance for the generated model
         const stratifiedRegion = this.modelClasses.StratifiedRegion.fromJSON(
@@ -546,7 +545,9 @@ export class AppCommon {
         if (this._editor) {
             this._editor.set(this._model);
         }
-        //
+        if (this.stratEd) {
+            this.stratEd.model = this._model;
+        }
     }
 
     onSelectedItemChange(item) {

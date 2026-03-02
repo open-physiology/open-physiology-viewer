@@ -28,6 +28,7 @@ import {LinkedResourceModule} from "../gui/linkedResource";
 import {ResourceEditor} from "./resourceEditor";
 import mprintResources from "../../data/mprint.json";
 import {MatTabsModule} from "@angular/material/tabs";
+import {ColorPickerModule} from 'ngx-color-picker';
 import {MaterialNode, Edge, MAT_NODE_CLASS, MAT_EDGE_CLASS, buildTree} from "../structs/materialNode";
 
 @Component({
@@ -137,6 +138,19 @@ import {MaterialNode, Edge, MAT_NODE_CLASS, MAT_EDGE_CLASS, buildTree} from "../
                 </mat-tab-group>
             </section>
         </section>
+        <input #hiddenColorPicker type="button"
+               [colorPicker]="selectedColor"
+               [cpOKButton]="true"
+               [cpCancelButton]="true"
+               [cpRemoveColorButton]="true"
+               [cpSaveClickOutside]="false"
+               [cpPosition]="'bottom'"
+               [cpPositionOffset]="'50%'"
+               (colorPickerSelect)="applyColor($event)"
+               style="position: fixed; width: 0; height: 0; opacity: 0;"
+               [style.left]="colorPickerPosition.x"
+               [style.top]="colorPickerPosition.y"
+        />
         <section #tooltip class="tooltip"></section>
 
         <!--Right click-->
@@ -310,6 +324,11 @@ export class MaterialEditorComponent extends ResourceEditor {
     edges = [];
     menuTopLeftPosition = {x: '0', y: '0'}
 
+    // Color picker support
+    selectedColor = '#ffffff';
+    colorPickerPosition = {x: '50%', y: '50%'};
+    @ViewChild('hiddenColorPicker') hiddenColorPicker: ElementRef
+
     //Drag & drop
     selected_node;
     source_node;
@@ -410,6 +429,7 @@ export class MaterialEditorComponent extends ResourceEditor {
         if (!this.svg) {
             return;
         }
+
         this.svg.select('g').remove();
 
         this.inner = this.svg.append("g");
@@ -447,10 +467,24 @@ export class MaterialEditorComponent extends ResourceEditor {
         let nodes = this.inner.selectAll("g.node");
         this.appendNodeEvents(nodes);
 
+        //Color rectangles for material nodes
+        nodes.append("rect")
+            .attr("width", 10)
+            .attr("height", 30)
+            .attr("x", d => - (this.graphD3.node(d).x + 12))
+            .attr("y", -15)
+            .style("fill", d => this.entitiesByID[d]?.color || "white")
+            .style("stroke", "black")
+            .style("cursor", "pointer")
+            .on("click", (d) => {
+                d3.event.stopPropagation();
+                this.openColorPicker(d, d3.event);
+            });
+
         let edges = this.inner.selectAll("g.edgePath");
         this.appendEdgeEvents(edges);
 
-        // Draw temporary edge when creating a new relationship
+        // Draw a temporary edge when creating a new relationship
 
         this.inner.append('svg:defs').append('svg:marker')
             .attr('id', 'end-arrow')
@@ -594,6 +628,7 @@ export class MaterialEditorComponent extends ResourceEditor {
         (this._model.materials || []).forEach(m => {
             let node = MaterialNode.createInstance(m);
             this.nodes.push(node);
+            this.entitiesByID[m.id] = m;
             this.entitiesByID[m.id]._class = $SchemaClass.Material;
         });
         (this._model.lyphs || []).forEach(m => {
@@ -602,12 +637,14 @@ export class MaterialEditorComponent extends ResourceEditor {
                 this.nodes.push(node);
                 m._included = true;
             }
+            this.entitiesByID[m.id] = m;
             this.entitiesByID[m.id]._class = $SchemaClass.Lyph;
         });
         (created || []).forEach(m => {
             if (m.id) {
                 let node = MaterialNode.createInstance(m, MAT_NODE_CLASS.UNDEFINED);
                 this.nodes.push(node);
+                this.entitiesByID[m.id] = m;
             }
         });
 
@@ -666,6 +703,37 @@ export class MaterialEditorComponent extends ResourceEditor {
 
     onNodeClick(nodeID) {
         this.selectedNode = nodeID;
+    }
+
+    openColorPicker(nodeID, event) {
+        // select the node and open hidden color picker
+        this.onNodeClick(nodeID);
+        this.selectedColor = this.entitiesByID[nodeID]?.color || '#ffffff';
+        if (event) {
+            this.colorPickerPosition.x = event.clientX + 'px';
+            this.colorPickerPosition.y = event.clientY + 'px';
+        }
+        setTimeout(() => {
+            try {
+                if (this.hiddenColorPicker && this.hiddenColorPicker.nativeElement) {
+                    // trigger color picker open
+                    this.hiddenColorPicker.nativeElement.click();
+                }
+            } catch (e) {
+                this.showWarning(`Color picker is not available!`);            
+            }
+        }, 0);
+    }
+
+    applyColor(color) {
+        if (!this._selectedNode) { return; }
+        const res = this.entitiesByID[this._selectedNode];
+        if (res) {
+            res.color = color;
+            this.saveStep(`Update color of material ${this._selectedNode}`);
+            // Redraw to update color rectangles
+            this.draw();
+        }
     }
 
     @Input('selectedNode') set selectedNode(nodeID) {
@@ -867,6 +935,8 @@ export class MaterialEditorComponent extends ResourceEditor {
             let elem = d3.select(node.elem);
             this.appendNodeEvents(elem);
         }
+        // Ensure color rectangle is added for the new node
+        this.draw();
         this.updateSearchOptions();
         this.selectedNode = newMat.id;
         this.saveStep("Create material " + newMat.id);
@@ -1077,7 +1147,7 @@ export class MaterialEditorComponent extends ResourceEditor {
 
 @NgModule({
     imports: [CommonModule, MatMenuModule, ResourceDeclarationModule, SearchAddBarModule, MatButtonModule, MatTabsModule,
-        MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule, LinkedResourceModule],
+        MatDividerModule, ResourceListViewModule, MaterialGraphViewerModule, LinkedResourceModule, ColorPickerModule],
     declarations: [MaterialEditorComponent],
     exports: [MaterialEditorComponent]
 })
