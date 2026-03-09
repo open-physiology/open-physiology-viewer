@@ -115,7 +115,7 @@ const COLORS = {
 
             <!--Components-->
 
-            <mat-accordion *ngIf="components">
+            <mat-accordion>
                 <mat-expansion-panel [expanded]="true">
                     <mat-expansion-panel-header>
                         <mat-panel-title>

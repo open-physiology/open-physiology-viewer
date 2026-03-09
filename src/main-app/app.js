@@ -546,6 +546,9 @@ export class MainApp extends AppCommon {
     applyEditorChanges({model, selected}, editor) {
         this._selectedResources[editor] = selected;
         this._model = model;
+        if (isScaffold(this._model)) {
+            this._model.scaleFactor = 1; // this is not to scale scaffold model
+        }
         this.applyChanges();
         this._tabGroup.selectedIndex = TAB_INDEX[editor];
     }
@@ -598,7 +601,7 @@ export class MainApp extends AppCommon {
             this._tabGroup.selectedIndex = TAB_INDEX[type];
         };
 
-        // MODE: add directly to model (supports mixed types and batches)
+        // MODE: add directly to the model (supports mixed types and batches)
         if (mode === 'model') {
             try {
                 if (payload.items && payload.items.length) {

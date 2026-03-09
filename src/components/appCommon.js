@@ -80,8 +80,6 @@ export class AppCommon {
             this.model = removeDisconnectedObjects(this._model, newModel);
             this.applyScaffold(this._model, newModel);
         } else {
-            //The code below joins 2 connectivity models or 2 scaffolds, your method breaks the join
-            //this.model = removeDisconnectedObjects(this._model, newModel);
             let jointModel = joinModels(this._model, newModel, this._flattenGroups);
             //NK config property is deprecated, merging with it was a bug caused by Master+Metacell conflict resolution mistake
             jointModel::merge({[$Field.created]: this.currentDate, [$Field.lastUpdated]: this.currentDate});
@@ -345,11 +343,15 @@ export class AppCommon {
         const BRANCH = client.branch;
         const scaffoldJSON = JSON.stringify(scaffold, null, 2);
 
+        const MAX_LINES = 10000;
+        const lineCount = scaffoldJSON.split('\n').length;
+        const tooLarge = lineCount > MAX_LINES;
+
         const dialogRef = this._dialog.open(DiffDialog, {
             width: '75%',
             data: {
-                oldContent: oldContentText,
-                newContent: scaffoldJSON,
+                oldContent: tooLarge ? "Content too large to display diff" : oldContentText,
+                newContent: tooLarge ? "Content too large to display diff" : scaffoldJSON,
                 askCommitMessage: true,
                 defaultMessage: DEFAULT_COMMIT_MESSAGE,
                 showIncludeImages: true
@@ -362,55 +364,62 @@ export class AppCommon {
                 return;
             }
             const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-            const includeImages = !!result.includeImages;
+            // const includeImages = !!result.includeImages;
 
             const imagesToCommit = {}; // name -> dataURL
-            let totalImagesSize = 0;
-            const backgroundsMap = this._webGLScene?._backgroundsMap || {};
+            // let totalImagesSize = 0;
+            // const backgroundsMap = this._webGLScene?._backgroundsMap || {};
 
-            if (includeImages) {
-                const collectImages = (component) => {
-                    if (component.background) {
-                        const bg = component.background;
-                        const path = bg.path || bg.uri;
-                        if (path && backgroundsMap[path]) {
-                            imagesToCommit[path] = backgroundsMap[path];
-                            // Estimate size: base64 string length * 0.75 is approx byte size
-                            const base64Data = backgroundsMap[path].split(',')[1] || "";
-                            totalImagesSize += base64Data.length * 0.75;
-                        }
-                    }
-                    (component.components || []).forEach(collectImages);
-                };
-                collectImages(scaffold);
+            // if (includeImages) {
+            //     const collectImages = (component) => {
+            //         if (component.background) {
+            //             const bg = component.background;
+            //             const path = (typeof bg === 'string') ? bg : (bg.path || bg.uri);
+            //             if (path && backgroundsMap[path]) {
+            //                 imagesToCommit[path] = backgroundsMap[path];
+            //                 // Estimate size: base64 string length * 0.75 is approx byte size
+            //                 const base64Data = backgroundsMap[path].split(',')[1] || "";
+            //                 totalImagesSize += base64Data.length * 0.75;
+            //             }
+            //         }
+            //         (component.components || []).forEach(collectImages);
+            //     };
+            //     collectImages(scaffold);
+            //
+            //     if (totalImagesSize > 1024 * 1024 * 10) { // Increased limit to 10MB
+            //         this.showErrorMessage("Cannot commit background images - too large (>10MB)!");
+            //         return;
+            //     }
+            // }
+            // const hasImages = Object.keys(imagesToCommit).length > 0;
+            const hasImages = false;
 
-                if (totalImagesSize > 1024 * 1024) {
-                    this.showErrorMessage("Cannot commit background images - too large!");
-                    return;
-                }
-            }
-
-            const hasImages = Object.keys(imagesToCommit).length > 0;
             const FILE_PATH = hasImages
                 ? `scaffolds/${scaffold.id}/${scaffold.id}.json`
                 : `scaffolds/${scaffold.id}.json`;
 
-            let modelForCommit = cloneDeep(scaffold);
+            let finalScaffoldJSON = scaffoldJSON;
+
             if (hasImages) {
+                let modelForCommit = cloneDeep(scaffold);
                 const updateImagePaths = (component) => {
                     if (component.background) {
                         const bg = component.background;
-                        const path = bg.path || bg.uri;
+                        const path = (typeof bg === 'string') ? bg : (bg.path || bg.uri);
                         if (path && imagesToCommit[path]) {
-                            if (bg.path) { bg.path = `backgrounds/${path}`; }
-                            if (bg.uri)  { bg.uri  = `backgrounds/${path}`; }
+                            if (typeof bg === 'string') {
+                                component.background = `backgrounds/${path}`;
+                            } else {
+                                if (bg.path) { bg.path = `backgrounds/${path}`; }
+                                if (bg.uri)  { bg.uri  = `backgrounds/${path}`; }
+                            }
                         }
                     }
                     (component.components || []).forEach(updateImagePaths);
                 };
                 updateImagePaths(modelForCommit);
+                finalScaffoldJSON = JSON.stringify(modelForCommit, null, 2);
             }
-            const finalScaffoldJSON = JSON.stringify(modelForCommit, null, 2);
 
             if (!hasImages) {
                 client.putFile(FILE_PATH, client.toBase64(finalScaffoldJSON), commitMessage, fileSHA).then(() => {
@@ -419,78 +428,79 @@ export class AppCommon {
                     console.error("❌ Error committing scaffold:", err);
                     this.showErrorMessage("Error committing scaffold!");
                 });
-            } else {
-                // Complex commit with images using Trees API
-                const repoURL = client.getRepoUrl();
-                client.makeRequest("GET", `${repoURL}/branches/${BRANCH}`).then(branchData => {
-                    const baseTreeSHA = branchData.commit.commit.tree.sha;
-                    const parentCommitSHA = branchData.commit.sha;
-
-                    const filesToCommit = [
-                        {
-                            path: FILE_PATH,
-                            content: finalScaffoldJSON,
-                            encoding: 'utf-8'
-                        }
-                    ];
-                    Object.entries(imagesToCommit).forEach(([name, dataURL]) => {
-                        filesToCommit.push({
-                            path: `scaffolds/${scaffold.id}/backgrounds/${name}`,
-                            content: dataURL.split(',')[1],
-                            encoding: 'base64'
-                        });
-                    });
-
-                    const treeItems = [];
-                    const blobPromises = filesToCommit.map(file => {
-                        return client.makeRequest("POST", `${repoURL}/git/blobs`, {
-                            content: file.content,
-                            encoding: file.encoding
-                        }).then(blobData => {
-                            treeItems.push({
-                                path: file.path,
-                                mode: "100644",
-                                type: "blob",
-                                sha: blobData.sha
-                            });
-                        });
-                    });
-
-                    Promise.all(blobPromises).then(() => {
-                        client.makeRequest("POST", `${repoURL}/git/trees`, {
-                            base_tree: baseTreeSHA,
-                            tree: treeItems
-                        }).then(treeData => {
-                            client.makeRequest("POST", `${repoURL}/git/commits`, {
-                                message: commitMessage,
-                                tree: treeData.sha,
-                                parents: [parentCommitSHA]
-                            }).then(commitData => {
-                                client.makeRequest("PATCH", `${repoURL}/git/refs/heads/${BRANCH}`, {
-                                    sha: commitData.sha
-                                }).then(() => {
-                                    this.showMessage("Scaffold and images committed successfully!");
-                                }).catch(refErr => {
-                                    console.error("❌ Error updating branch reference:", refErr);
-                                    this.showErrorMessage("Error updating branch reference!");
-                                });
-                            }).catch(commitErr => {
-                                console.error("❌ Error creating commit:", commitErr);
-                                this.showErrorMessage("Error creating commit!");
-                            });
-                        }).catch(treeErr => {
-                            console.error("❌ Error creating tree:", treeErr);
-                            this.showErrorMessage("Error creating tree!");
-                        });
-                    }).catch(blobErr => {
-                        console.error("❌ Error creating blob:", blobErr);
-                        this.showErrorMessage(`Error creating blob!`);
-                    });
-                }).catch(branchErr => {
-                    console.error("❌ Error getting branch info:", branchErr);
-                    this.showErrorMessage("Error getting branch info!");
-                });
             }
+            // else {
+            //     // Complex commit with images using Trees API
+            //     const repoURL = client.getRepoUrl();
+            //     client.makeRequest("GET", `${repoURL}/branches/${BRANCH}`).then(branchData => {
+            //         const baseTreeSHA = branchData.commit.commit.tree.sha;
+            //         const parentCommitSHA = branchData.commit.sha;
+            //
+            //         const filesToCommit = [
+            //             {
+            //                 path: FILE_PATH,
+            //                 content: finalScaffoldJSON,
+            //                 encoding: 'utf-8'
+            //             }
+            //         ];
+            //         Object.entries(imagesToCommit).forEach(([name, dataURL]) => {
+            //             filesToCommit.push({
+            //                 path: `scaffolds/${scaffold.id}/backgrounds/${name}`,
+            //                 content: dataURL.split(',')[1],
+            //                 encoding: 'base64'
+            //             });
+            //         });
+            //
+            //         const treeItems = [];
+            //         const blobPromises = filesToCommit.map(file => {
+            //             return client.makeRequest("POST", `${repoURL}/git/blobs`, {
+            //                 content: file.content,
+            //                 encoding: file.encoding
+            //             }).then(blobData => {
+            //                 treeItems.push({
+            //                     path: file.path,
+            //                     mode: "100644",
+            //                     type: "blob",
+            //                     sha: blobData.sha
+            //                 });
+            //             });
+            //         });
+            //
+            //         Promise.all(blobPromises).then(() => {
+            //             client.makeRequest("POST", `${repoURL}/git/trees`, {
+            //                 base_tree: baseTreeSHA,
+            //                 tree: treeItems
+            //             }).then(treeData => {
+            //                 client.makeRequest("POST", `${repoURL}/git/commits`, {
+            //                     message: commitMessage,
+            //                     tree: treeData.sha,
+            //                     parents: [parentCommitSHA]
+            //                 }).then(commitData => {
+            //                     client.makeRequest("PATCH", `${repoURL}/git/refs/heads/${BRANCH}`, {
+            //                         sha: commitData.sha
+            //                     }).then(() => {
+            //                         this.showMessage("Scaffold and images committed successfully!");
+            //                     }).catch(refErr => {
+            //                         console.error("❌ Error updating branch reference:", refErr);
+            //                         this.showErrorMessage("Error updating branch reference!");
+            //                     });
+            //                 }).catch(commitErr => {
+            //                     console.error("❌ Error creating commit:", commitErr);
+            //                     this.showErrorMessage("Error creating commit!");
+            //                 });
+            //             }).catch(treeErr => {
+            //                 console.error("❌ Error creating tree:", treeErr);
+            //                 this.showErrorMessage("Error creating tree!");
+            //             });
+            //         }).catch(blobErr => {
+            //             console.error("❌ Error creating blob:", blobErr);
+            //             this.showErrorMessage(`Error creating blob!`);
+            //         });
+            //     }).catch(branchErr => {
+            //         console.error("❌ Error getting branch info:", branchErr);
+            //         this.showErrorMessage("Error getting branch info!");
+            //     });
+            // }
         });
     }
 
@@ -521,7 +531,12 @@ export class AppCommon {
 
     applyChanges() {
         logger.clear();
+        this._unsavedState = this.getCurrentState();
+        //This is to reset model to triger update
         this._graphData = generateFromJSON({"id": "Empty"});
+        // if (isScaffold(this._model)) {
+        //     this._model.scaleFactor = 1; // Do not scale scaffolds after editting
+        // }
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
 
@@ -560,7 +575,6 @@ export class AppCommon {
         this.loading = true;
         setTimeout(() => {
             this._model = model;
-
             //Call dynamic layout
             this._modelName = this._model.name || this._model.id || "?";
             const scaffold = (this._model.scaffolds?.length > 0) ? this._model.scaffolds[0] : null;
@@ -577,9 +591,11 @@ export class AppCommon {
                 this._editor.set(this._model);
             }
             this.loading = false;
+            if (this._unsavedState){
+                this.loadState(this._unsavedState);
+            }
         }, 0);
     }
-
 
     get graphData() {
         return this._graphData;
@@ -623,8 +639,9 @@ export class AppCommon {
     }
 
     getCurrentState() {
+        const model_state = this._graphData.getCurrentState();
         let state_json = {
-            [$Field.id]: getGenID(this._snapshot.id, "state", (this._snapshot.states || []).length),
+            [$Field.id]: getGenID(this._snapshot?.id, "state", (this._snapshot?.states || []).length),
             [$Field.camera]: {
                 position: this._webGLScene.camera.position::pick(["x", "y", "z"]),
                 up: this._webGLScene.camera.up::pick(["x", "y", "z"]),
@@ -634,7 +651,7 @@ export class AppCommon {
             [$Field.layout]: this._config.layout::cloneDeep(),
             [$Field.showLabels]: this._config.showLabels::cloneDeep(),
             [$Field.labelContent]: this._config.labels::cloneDeep()
-        }::merge(this._graphData.getCurrentState());
+        }::merge(model_state);
         // Include open coalescence dialog node id if any
         if (this._webGLScene && this._webGLScene.openCoalescenceNodeId) {
             state_json.openCoalescenceNodeId = this._webGLScene.openCoalescenceNodeId;
@@ -654,6 +671,9 @@ export class AppCommon {
     loadState(activeState) {
         if (activeState.visibleGroups) {
             this._graphData.showGroups(activeState.visibleGroups);
+        }
+        if (activeState.visibleComponents) {
+            this._graphData.showGroups(activeState.visibleComponents);
         }
         if (activeState.camera) {
             this._webGLScene.resetCamera(activeState.camera.position, activeState.camera.up, activeState.camera.target);
@@ -697,6 +717,7 @@ export class AppCommon {
                 this._webGLScene.closeMaterialTreeDialog();
             }
         }
+        console.log("State loaded", activeState.visibleGroups);
     }
 
     previousState() {

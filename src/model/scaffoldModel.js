@@ -379,6 +379,7 @@ export class Scaffold extends Component {
             }
         })
     }
+
     hide() {
         this.hidden = true;
         (this.components || []).forEach(component => component.hide());

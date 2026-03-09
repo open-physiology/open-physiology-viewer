@@ -4,26 +4,36 @@ import os
 
 def add_externals():
     """
-    Adds external resources from scripts/data/output/torso_images.
+    Adds external resources from scripts/data/output/3DSFiducial.
     """
-    torso_images_path = os.path.join('scripts', 'data', 'output', 'torso_images')
+    fiducial_images_path = os.path.join('scripts', 'data', 'output', '3DSFiducial')
     externals = []
-    if os.path.exists(torso_images_path):
-        for filename in sorted(os.listdir(torso_images_path)):
+    if os.path.exists(fiducial_images_path):
+        for filename in sorted(os.listdir(fiducial_images_path)):
             if filename.endswith(".png"):
                 image_id = filename.split(".")[0]
+                # Extract z-coordinate from filename, e.g., "-25mm_mT7-T8.png" -> -25.0
+                try:
+                    z_str = filename.split("mm")[0]
+                    z_val = float(z_str)
+                except (ValueError, IndexError):
+                    z_val = None
+
                 externals.append({
                     "id": image_id,
                     "name": filename,
                     "path": filename,
-                    "type": "image"
+                    "type": "image",
+                    "z": z_val
                 })
     return externals
 
-def create_fascia_scaffold():
-    input_nodes_path = os.path.join('scripts', 'data', 'input', 'fascia_nodes_v1.csv')
-    input_edges_path = os.path.join('scripts', 'data', 'input', 'fascia_edges_v1.csv')
-    output_path = os.path.join('scripts', 'data', 'output', 'fascia_scaffold.json')
+def create_fascia_scaffold(input_nodes_path=None, output_path=None):
+    if not input_nodes_path:
+        input_nodes_path = os.path.join('scripts', 'data', 'input', 'fascia_nodes.csv')
+    input_edges_path = os.path.join('scripts', 'data', 'input', 'fascia_edges.csv')
+    if not output_path:
+        output_path = os.path.join('scripts', 'data', 'output', 'fascia_scaffold.json')
 
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
@@ -90,9 +100,6 @@ def create_fascia_scaffold():
     sorted_z = sorted(z_groups.keys())
     
     externals = add_externals()
-    image_ids = [ext["id"] for ext in externals]
-    # Reverse the image order: first component to the last image
-    image_ids.reverse()
 
     for i, z_val in enumerate(sorted_z):
         group = z_groups[z_val]
@@ -103,10 +110,17 @@ def create_fascia_scaffold():
                 "anchors": group['anchors'],
                 "wires": group['wires']
             }
-            # Match background image based on reversed index
-            if i < len(image_ids):
-                comp["background"] = image_ids[i]
+            # Match background image based on z-coordinate
+            for ext in externals:
+                if ext.get("z") == z_val:
+                    comp["background"] = ext["id"]
+                    break
             components.append(comp)
+
+    # Clean up z coordinate from externals before saving
+    for ext in externals:
+        if "z" in ext:
+            del ext["z"]
 
     scaffold_data = {
         "anchors": anchors,
@@ -125,7 +139,11 @@ def create_fascia_scaffold():
     print(f"Wires: {len(wires)}")
     print(f"Original Components: {len(components)}")
 
-    os.path.join('scripts', 'data', 'output', 'fascia_scaffold.json')
-    
 if __name__ == "__main__":
-    create_fascia_scaffold()
+    # Process both fascia_nodes_1.csv and fascia_nodes_2.csv
+    nodes_files = ['fascia_nodes_1.csv', 'fascia_nodes_2.csv']
+    for nodes_file in nodes_files:
+        input_path = os.path.join('scripts', 'data', 'input', nodes_file)
+        output_filename = nodes_file.replace('.csv', '_scaffold.json')
+        output_path = os.path.join('scripts', 'data', 'output', output_filename)
+        create_fascia_scaffold(input_path, output_path)

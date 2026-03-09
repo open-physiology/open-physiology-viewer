@@ -37,6 +37,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {buildTree} from "./structs/materialNode";
 import {SettingsPanelGraphModule} from './panels/settingsPanelGraph';
 import {SettingsPanelScaffoldModule} from './panels/settingsPanelScaffold';
+import {BackgroundToolbarModule} from "./toolbars/backgroundToolbar";
 import config from '../data/config.json';
 
 const WindowResize = require('three-window-resize');
@@ -78,6 +79,18 @@ const WindowResize = require('three-window-resize');
                                     [value]="labelRelSize" title="Label size"
                                     (change)="onScaleChange($event.value)">
                         </mat-slider>
+                        <background-toolbar
+                                *ngIf="_backgroundMesh"
+                                [offsetX]="_backgroundOffsetX"
+                                [offsetY]="_backgroundOffsetY"
+                                [scale]="_backgroundScale"
+                                [rotate]="_backgroundRotate"
+                                (onUpdateOffsetX)="updateBackgroundOffsetX($event)"
+                                (onUpdateOffsetY)="updateBackgroundOffsetY($event)"
+                                (onUpdateScale)="updateBackgroundScale($event)"
+                                (onUpdateRotate)="updateBackgroundRotate($event)"
+                        >
+                        </background-toolbar>
                     </section>
                 </section>
                 <div class="scene-tooltips" #auxTips></div>
@@ -199,6 +212,10 @@ export class WebGLSceneComponent {
 
     _backgroundMesh = null;
     _backgroundsMap = {};
+    _backgroundScale = 0.6;
+    _backgroundOffsetX = -10;
+    _backgroundOffsetY = 195;
+    _backgroundRotate = 0;
     _scaffoldCenter = new THREE.Vector2(0, 0);
 
     queryCounter = 0;
@@ -218,7 +235,8 @@ export class WebGLSceneComponent {
             this._config = this.defaultConfig::cloneDeep();
 
             this.selected = null;
-            this._graphData.scale(this.scaleFactor);
+            this._graphData.scale(this._graphData.scaleFactor? this._graphData.scaleFactor: this.scaleFactor);
+            // this._graphData.scale(this.scaleFactor);
             if (this._graphData.neurulator) {
                 this._graphData.neurulator();
             }
@@ -735,6 +753,32 @@ export class WebGLSceneComponent {
         }
     }
 
+    updateBackgroundOffsetX(value) {
+        this._backgroundOffsetX = value;
+        if (this._backgroundMesh) {
+            this._backgroundMesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
+        }
+    }
+
+    updateBackgroundOffsetY(value) {
+        this._backgroundOffsetY = value;
+        if (this._backgroundMesh) {
+            this._backgroundMesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
+        }
+    }
+
+    updateBackgroundScale(value) {
+        this._backgroundScale = value;
+        this.updateBackground();
+    }
+
+    updateBackgroundRotate(value) {
+        this._backgroundRotate = value;
+        if (this._backgroundMesh) {
+            this._backgroundMesh.rotation.z = this._backgroundRotate;
+        }
+    }
+
     updateBackground() {
         if (!this.scene) return;
 
@@ -767,7 +811,7 @@ export class WebGLSceneComponent {
                         if (!image.width || !image.height) {
                             console.warn("Image dimensions not available immediately", image);
                         }
-                        const geometry = new THREE.PlaneGeometry(image.width, image.height);
+                        const geometry = new THREE.PlaneGeometry(image.width * this._backgroundScale, image.height * this._backgroundScale);
                         const material = new THREE.MeshBasicMaterial({
                             map: texture,
                             transparent: true,
@@ -791,8 +835,11 @@ export class WebGLSceneComponent {
                         }
 
                         this._backgroundMesh.position.z = minZ;
-                        this._backgroundMesh.position.x = this._scaffoldCenter.x;
-                        this._backgroundMesh.position.y = this._scaffoldCenter.y;
+                        this._backgroundMesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
+                        this._backgroundMesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
+                        if (this._backgroundRotate) {
+                            this._backgroundMesh.rotation.z = this._backgroundRotate;
+                        }
                         this.scene.add(this._backgroundMesh);
                         if (this.graph) {
                             this.graph.tickFrame();
@@ -1371,7 +1418,7 @@ export class WebGLSceneComponent {
 
 @NgModule({
     imports: [CommonModule, FormsModule, MatSliderModule, MatDialogModule, LogInfoModule,
-        SettingsPanelGraphModule, SettingsPanelScaffoldModule, QuerySelectModule,
+        SettingsPanelGraphModule, SettingsPanelScaffoldModule, QuerySelectModule, BackgroundToolbarModule,
         ModelToolbarModule, MaterialTreeDialogModule, StratificationDialogModule, HotkeyModule.forRoot()],
     declarations: [WebGLSceneComponent],
     entryComponents: [LogInfoDialog, QuerySelectDialog, CoalescenceDialog, LyphDialog, MaterialTreeDialog, StratificationDialog],

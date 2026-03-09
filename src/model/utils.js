@@ -117,8 +117,10 @@ export const $Color = {
  * @returns {boolean}
  */
 export function isScaffold(inputModel) {
-    return !!(inputModel.components || inputModel.anchors || inputModel.wires
-        || inputModel.regions || inputModel.stratifications);
+    //If a model has lyph definitions, it is not a scaffold - in the generated model,
+    // integrated scaffold elements may get copied to the top group.
+    return (!inputModel.lyphs && !inputModel.links && !inputModel.chains)
+        && !!(inputModel.components || inputModel.anchors || inputModel.wires || inputModel.regions || inputModel.stratifications);
 }
 
 /**

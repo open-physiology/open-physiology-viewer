@@ -97,54 +97,6 @@ const COLORS = {
                                                   [checked]="config.layout.showPlaceholders">Placeholders
                                 </mat-slide-toggle>
                             </div>
-<!--                            <div class="wrap">-->
-<!--                                <mat-slide-toggle matTooltip="Fixed coalescence node position"-->
-<!--                                                  (change)="toggleLayout('fixedCoalescenceLayout')"-->
-<!--                                                  [checked]="config.layout.fixedCoalescenceLayout">Fixed coalescence-->
-<!--                                    node position-->
-<!--                                </mat-slide-toggle>-->
-
-<!--                                <div class="w3-row-padding">-->
-<!--                                    <div class="w3-half">-->
-<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
-<!--                                            <mat-label>Start X</mat-label>-->
-<!--                                            <input matInput type="number"-->
-<!--                                                   [(ngModel)]="config.coalescenceLayout.startX"-->
-<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
-<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
-<!--                                        </mat-form-field>-->
-<!--                                    </div>-->
-<!--                                    <div class="w3-half">-->
-<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
-<!--                                            <mat-label>Base Y</mat-label>-->
-<!--                                            <input matInput type="number"-->
-<!--                                                   [(ngModel)]="config.coalescenceLayout.baseY"-->
-<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
-<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
-<!--                                        </mat-form-field>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                                <div class="w3-row-padding">-->
-<!--                                    <div class="w3-half">-->
-<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
-<!--                                            <mat-label>Group Y offset</mat-label>-->
-<!--                                            <input matInput type="number"-->
-<!--                                                   [(ngModel)]="config.coalescenceLayout.groupYOffset"-->
-<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
-<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
-<!--                                        </mat-form-field>-->
-<!--                                    </div>-->
-<!--                                    <div class="w3-half">-->
-<!--                                        <mat-form-field appearance="outline" style="width:100%;">-->
-<!--                                            <mat-label>Distance</mat-label>-->
-<!--                                            <input matInput type="number"-->
-<!--                                                   [(ngModel)]="config.coalescenceLayout.distance"-->
-<!--                                                   [disabled]="!config.layout.fixedCoalescenceLayout"-->
-<!--                                                   (ngModelChange)="emitCoalescenceLayout()">-->
-<!--                                        </mat-form-field>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
                         </div>
 
                         <settingsLabelsPanel
@@ -183,7 +135,7 @@ const COLORS = {
 
             <!--Group controls-->
 
-            <mat-accordion *ngIf="!!groups">
+            <mat-accordion>
                 <mat-expansion-panel [expanded]="true">
                     <mat-expansion-panel-header>
                         <mat-panel-title>

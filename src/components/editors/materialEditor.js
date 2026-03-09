@@ -470,9 +470,9 @@ export class MaterialEditorComponent extends ResourceEditor {
         //Color rectangles for material nodes
         nodes.append("rect")
             .attr("width", 10)
-            .attr("height", 30)
-            .attr("x", d => - (this.graphD3.node(d).x + 12))
-            .attr("y", -15)
+            .attr("height", 10)
+            .attr("x", -5)
+            .attr("y", -23)
             .style("fill", d => this.entitiesByID[d]?.color || "white")
             .style("stroke", "black")
             .style("cursor", "pointer")

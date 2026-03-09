@@ -280,7 +280,7 @@ export class Graph extends Group {
             modelClasses.Group.createDefaultGroup(res, modelClasses);
             modelClasses.Component.createDefaultComponent(res, modelClasses);
             //res.createForceLinks();
-            res.scaleFactor = 1;
+            //res.scaleFactor = 1;
         }
 
         if (res.groups) {
@@ -726,11 +726,16 @@ export class Graph extends Group {
     }
 
     getCurrentState() {
-        let json = {
-            [$Field.visibleGroups]: this.visibleGroups.map(g => g.id)
+        const json = {
+            [$Field.visibleGroups]: (this.visibleGroups||[]).map(g => g.id)
         }
-        json.scaffolds = [];
-        (this.scaffolds || []).forEach(s => json.scaffolds.push(s.getCurrentState()));
+        if (this.visibleComponents){
+            json.visibleComponents = (this.visibleComponents||[]).map(g => g.id)
+        }
+        if (this.scaffolds) {
+            json.scaffolds = [];
+            (this.scaffolds || []).forEach(s => json.scaffolds.push(s.getCurrentState()));
+        }
         return json;
     }
 
