@@ -843,7 +843,7 @@ export class ChainEditorComponent extends ResourceEditor {
         const N = chainPrototype.numLevels;
 
         const chainDef = defineNewResource({
-            [$Field.id]: chainPrototype.id, //The identifier is auto-created by appending counter
+            [$Field.id]: chainPrototype.id, //The identifier is auto-created by appending the counter
             [$Field.name]: chainPrototype.name,
             [$Field.lyphs]: new Array(N),
             [$Field.specializationOf]: chainPrototype.id, //Keep the reference to the original chain

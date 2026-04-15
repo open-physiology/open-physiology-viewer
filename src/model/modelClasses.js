@@ -170,7 +170,8 @@ export function generateFromJSON(inputModel) {
                 }
             });
         });
-        return Graph.fromJSON(inputModel, modelClasses);
+        let res = Graph.fromJSON(inputModel, modelClasses);
+        return res;
     }
 }
 

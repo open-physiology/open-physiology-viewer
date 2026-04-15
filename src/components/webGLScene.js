@@ -57,6 +57,7 @@ const WindowResize = require('three-window-resize');
                         <model-toolbar
                                 [showPanel]="showPanel"
                                 [showImports]="graphData?.imports"
+                                [hasImported]="hasImported"
                                 [lockControls]="lockControls"
                                 [loggerColor]="loggerColor"
                                 [showAssistant]="showAssistant"
@@ -521,6 +522,11 @@ export class WebGLSceneComponent {
                 }
             }
         })
+    }
+
+    get hasImported() {
+        return (this._graphData?.source?.groups || []).some(g => g.imported) ||
+            (this._graphData?.source?.scaffolds || []).some(s => s.imported);
     }
 
     exportResource(target) {

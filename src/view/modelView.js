@@ -1,6 +1,6 @@
 import {values} from 'lodash-bound';
 import {modelClasses} from "../model";
-import {ForceEdgeBundling} from "../algorithms/forceEdgeBundling";
+import {ForceEdgeBundling} from "./algorithms/forceEdgeBundling";
 import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
 import './verticeView';

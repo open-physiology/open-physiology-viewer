@@ -4,7 +4,7 @@ window.d3 = d3;
 import {Component, ElementRef, Input, NgModule, ViewChild, ChangeDetectionStrategy} from "@angular/core";
 import {CommonModule} from "@angular/common";
 import {values, pick, flatten, keys, entries, isObject} from 'lodash-bound';
-import forceInABox from '../algorithms/forceInABox';
+import forceInABox from '../view/algorithms/forceInABox';
 import FileSaver from "file-saver";
 import {ResourceInfoModule} from "./gui/resourceInfo";
 import {MatSliderModule} from "@angular/material/slider";

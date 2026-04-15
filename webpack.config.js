@@ -11,7 +11,7 @@ module.exports = {
         'main-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './main-app/index.js'],
         'open-physiology-viewer': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './index.js' ],
         'open-physiology-viewer-minimal':                                                        [ './index.js' ],
-	    'converter': ['@babel/polyfill', 'reflect-metadata', './converter/converter.js']
+	    'converter': ['@babel/polyfill', 'reflect-metadata', '../wrapper/src/converter.js']
     },
 	output: {
 		path: __dirname + '/dist',

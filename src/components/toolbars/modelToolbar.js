@@ -103,6 +103,7 @@ const fileExtensionRe = /(?:\.([^.]+))?$/;
 export class ModelToolbar {
     @Input() showPanel;
     @Input() showImports;
+    @Input() hasImported;
     @Input() lockControls;
     @Input() loggerColor;
     @Input() showAssistant;

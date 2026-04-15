@@ -26,6 +26,7 @@ import FileSaver from 'file-saver';
 import {ImportDialog} from "./dialogs/importDialog";
 import {DiffDialog} from "./dialogs/diffDialog";
 import {GitHubClient} from "../api/githubClient";
+import {gcsClient} from "../api/googleCloud";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -253,17 +254,33 @@ export class AppCommon {
                 }
                 const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
                 const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
+                const includeImages = !!result.includeImages;
 
                 const modelForCommit = buildModelForCommit(omitCollections);
                 const fileContent = JSON.stringify(modelForCommit, null, 4);
 
-                // Step 2: Create or update the file
-                client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage, fileSHA).then(() => {
+                const commitAction = () => client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage, fileSHA).then(() => {
                     this.showMessage("Model file committed successfully!");
                 }).catch(commitErr => {
                     console.error("❌ Error committing file:", commitErr);
                     this.showErrorMessage("Error committing file!");
                 });
+
+                if (includeImages) {
+                    const backgroundsMap = this._webGLScene?._backgroundsMap || {};
+                    const uploadPromises = Object.entries(backgroundsMap).map(([name, dataURL]) => 
+                        gcsClient.uploadImage(name, dataURL)
+                    );
+                    Promise.all(uploadPromises).then(() => {
+                        commitAction();
+                    }).catch(err => {
+                        console.error("❌ Error uploading images to GCS:", err);
+                        this.showErrorMessage("Error uploading images to GCS! Model commit proceeded.");
+                        commitAction();
+                    });
+                } else {
+                    commitAction();
+                }
             });
         }).catch(err => {
             if (err.status === 404) {
@@ -285,15 +302,33 @@ export class AppCommon {
                     }
                     const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
                     const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
+                    const includeImages = !!result.includeImages;
+
                     const modelForCommit = buildModelForCommit(omitCollections);
                     const fileContent = JSON.stringify(modelForCommit, null, 4);
 
-                    client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage).then(() => {
+                    const commitAction = () => client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage).then(() => {
                         this.showMessage("Model file committed successfully!");
                     }).catch(putErr => {
                         console.error("❌ Error committing file:", putErr);
                         this.showErrorMessage("Error committing file!");
                     });
+
+                    if (includeImages) {
+                        const backgroundsMap = this._webGLScene?._backgroundsMap || {};
+                        const uploadPromises = Object.entries(backgroundsMap).map(([name, dataURL]) => 
+                            gcsClient.uploadImage(name, dataURL)
+                        );
+                        Promise.all(uploadPromises).then(() => {
+                            commitAction();
+                        }).catch(err => {
+                            console.error("❌ Error uploading images to GCS:", err);
+                            this.showErrorMessage("Error uploading images to GCS! Model commit proceeded.");
+                            commitAction();
+                        });
+                    } else {
+                        commitAction();
+                    }
                 });
             } else {
                 console.error("❌ Error checking file existence:", err);
@@ -364,143 +399,33 @@ export class AppCommon {
                 return;
             }
             const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-            // const includeImages = !!result.includeImages;
+            const includeImages = !!result.includeImages;
 
-            const imagesToCommit = {}; // name -> dataURL
-            // let totalImagesSize = 0;
-            // const backgroundsMap = this._webGLScene?._backgroundsMap || {};
-
-            // if (includeImages) {
-            //     const collectImages = (component) => {
-            //         if (component.background) {
-            //             const bg = component.background;
-            //             const path = (typeof bg === 'string') ? bg : (bg.path || bg.uri);
-            //             if (path && backgroundsMap[path]) {
-            //                 imagesToCommit[path] = backgroundsMap[path];
-            //                 // Estimate size: base64 string length * 0.75 is approx byte size
-            //                 const base64Data = backgroundsMap[path].split(',')[1] || "";
-            //                 totalImagesSize += base64Data.length * 0.75;
-            //             }
-            //         }
-            //         (component.components || []).forEach(collectImages);
-            //     };
-            //     collectImages(scaffold);
-            //
-            //     if (totalImagesSize > 1024 * 1024 * 10) { // Increased limit to 10MB
-            //         this.showErrorMessage("Cannot commit background images - too large (>10MB)!");
-            //         return;
-            //     }
-            // }
-            // const hasImages = Object.keys(imagesToCommit).length > 0;
-            const hasImages = false;
-
-            const FILE_PATH = hasImages
-                ? `scaffolds/${scaffold.id}/${scaffold.id}.json`
-                : `scaffolds/${scaffold.id}.json`;
-
-            let finalScaffoldJSON = scaffoldJSON;
-
-            if (hasImages) {
-                let modelForCommit = cloneDeep(scaffold);
-                const updateImagePaths = (component) => {
-                    if (component.background) {
-                        const bg = component.background;
-                        const path = (typeof bg === 'string') ? bg : (bg.path || bg.uri);
-                        if (path && imagesToCommit[path]) {
-                            if (typeof bg === 'string') {
-                                component.background = `backgrounds/${path}`;
-                            } else {
-                                if (bg.path) { bg.path = `backgrounds/${path}`; }
-                                if (bg.uri)  { bg.uri  = `backgrounds/${path}`; }
-                            }
-                        }
-                    }
-                    (component.components || []).forEach(updateImagePaths);
-                };
-                updateImagePaths(modelForCommit);
-                finalScaffoldJSON = JSON.stringify(modelForCommit, null, 2);
-            }
-
-            if (!hasImages) {
-                client.putFile(FILE_PATH, client.toBase64(finalScaffoldJSON), commitMessage, fileSHA).then(() => {
+            const commitAction = () => {
+                const FILE_PATH = `scaffolds/${scaffold.id}.json`;
+                client.putFile(FILE_PATH, client.toBase64(scaffoldJSON), commitMessage, fileSHA).then(() => {
                     this.showMessage("Scaffold committed successfully!");
                 }).catch(err => {
                     console.error("❌ Error committing scaffold:", err);
                     this.showErrorMessage("Error committing scaffold!");
                 });
+            };
+
+            if (includeImages) {
+                const backgroundsMap = this._webGLScene?._backgroundsMap || {};
+                const uploadPromises = Object.entries(backgroundsMap).map(([name, dataURL]) => 
+                    gcsClient.uploadImage(name, dataURL)
+                );
+                Promise.all(uploadPromises).then(() => {
+                    commitAction();
+                }).catch(err => {
+                    console.error("❌ Error uploading images to GCS:", err);
+                    this.showErrorMessage("Error uploading images to GCS! Scaffold commit proceeded.");
+                    commitAction();
+                });
+            } else {
+                commitAction();
             }
-            // else {
-            //     // Complex commit with images using Trees API
-            //     const repoURL = client.getRepoUrl();
-            //     client.makeRequest("GET", `${repoURL}/branches/${BRANCH}`).then(branchData => {
-            //         const baseTreeSHA = branchData.commit.commit.tree.sha;
-            //         const parentCommitSHA = branchData.commit.sha;
-            //
-            //         const filesToCommit = [
-            //             {
-            //                 path: FILE_PATH,
-            //                 content: finalScaffoldJSON,
-            //                 encoding: 'utf-8'
-            //             }
-            //         ];
-            //         Object.entries(imagesToCommit).forEach(([name, dataURL]) => {
-            //             filesToCommit.push({
-            //                 path: `scaffolds/${scaffold.id}/backgrounds/${name}`,
-            //                 content: dataURL.split(',')[1],
-            //                 encoding: 'base64'
-            //             });
-            //         });
-            //
-            //         const treeItems = [];
-            //         const blobPromises = filesToCommit.map(file => {
-            //             return client.makeRequest("POST", `${repoURL}/git/blobs`, {
-            //                 content: file.content,
-            //                 encoding: file.encoding
-            //             }).then(blobData => {
-            //                 treeItems.push({
-            //                     path: file.path,
-            //                     mode: "100644",
-            //                     type: "blob",
-            //                     sha: blobData.sha
-            //                 });
-            //             });
-            //         });
-            //
-            //         Promise.all(blobPromises).then(() => {
-            //             client.makeRequest("POST", `${repoURL}/git/trees`, {
-            //                 base_tree: baseTreeSHA,
-            //                 tree: treeItems
-            //             }).then(treeData => {
-            //                 client.makeRequest("POST", `${repoURL}/git/commits`, {
-            //                     message: commitMessage,
-            //                     tree: treeData.sha,
-            //                     parents: [parentCommitSHA]
-            //                 }).then(commitData => {
-            //                     client.makeRequest("PATCH", `${repoURL}/git/refs/heads/${BRANCH}`, {
-            //                         sha: commitData.sha
-            //                     }).then(() => {
-            //                         this.showMessage("Scaffold and images committed successfully!");
-            //                     }).catch(refErr => {
-            //                         console.error("❌ Error updating branch reference:", refErr);
-            //                         this.showErrorMessage("Error updating branch reference!");
-            //                     });
-            //                 }).catch(commitErr => {
-            //                     console.error("❌ Error creating commit:", commitErr);
-            //                     this.showErrorMessage("Error creating commit!");
-            //                 });
-            //             }).catch(treeErr => {
-            //                 console.error("❌ Error creating tree:", treeErr);
-            //                 this.showErrorMessage("Error creating tree!");
-            //             });
-            //         }).catch(blobErr => {
-            //             console.error("❌ Error creating blob:", blobErr);
-            //             this.showErrorMessage(`Error creating blob!`);
-            //         });
-            //     }).catch(branchErr => {
-            //         console.error("❌ Error getting branch info:", branchErr);
-            //         this.showErrorMessage("Error getting branch info!");
-            //     });
-            // }
         });
     }
 
@@ -803,7 +728,7 @@ export class AppCommon {
                 }
             }
 
-            // Show diff and ask for commit message
+            // Show diff and ask for a commit message
             const dialogRef = this._dialog.open(DiffDialog, {
                 width: '75%',
                 data: {
