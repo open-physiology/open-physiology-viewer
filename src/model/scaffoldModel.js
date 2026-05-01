@@ -45,7 +45,7 @@ export class Scaffold extends Component {
                 //Only create missing scaffold resources
                 if (![$SchemaClass.Component, $SchemaClass.Region, $SchemaClass.Wire, $SchemaClass.Anchor,
                     $SchemaClass.Stratification, $SchemaClass.StratifiedRegion].includes(obj.class)){
-                    logger.warn($LogMsg.RESOURCE_CLASS_UNRECOGNIZED, obj);
+                    logger.warn($LogMsg.RESOURCE_CLASS_UNRECOGNIZED, obj, res);
                     return;
                 }
                 let clsName = schemaClassModels[obj.class].relClassNames[key];

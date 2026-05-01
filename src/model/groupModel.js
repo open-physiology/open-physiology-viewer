@@ -375,6 +375,7 @@ export class Group extends Resource {
         (parentGroup.chains || []).forEach(chain => {
             //expand chain templates, but not references
             if (chain::isObject()) {
+                if (chain.housingLyphTemplates) return;
                 modelClasses.Chain.expandTemplate(parentGroup, chain);
             } else {
                 logger.info($LogMsg.GROUP_TEMPLATE_OTHER, chain);
@@ -438,13 +439,15 @@ export class Group extends Resource {
      * @param modelClasses - model resource classes
      */
     static embedChainsToHousingLyphs(parentGroup, modelClasses) {
-        (parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
+        //(parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
         (parentGroup.chains || []).forEach(chain => {
             if (chain.housingLyphTemplates) {
                 modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
             } else {
                 if (chain.isTemplate) {
                     logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
+                } else {
+                    modelClasses.Chain.embedToHousingLyphs(parentGroup, chain);
                 }
             }
         });

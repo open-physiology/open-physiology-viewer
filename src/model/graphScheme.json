@@ -1345,8 +1345,8 @@
           "description": "The total length of the maximal path in the group, used to compute the default length of generated subgraph links",
           "type": "number"
         },
-        "fixed": {
-          "description": "A flag that excludes the path length from rescaling (currently not respected by the viewer)",
+        "inactive": {
+          "description": "A boolean flag to indicate that this group template will not be used to generate groups in the model",
           "type": "boolean"
         },
         "conveyingType": {

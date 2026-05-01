@@ -2,11 +2,14 @@ import {$Field, $SchemaClass} from "../../model";
 
 export class SearchOptions {
     static addOptions(resources, searchOptions, clsName, prefix="") {
-        (resources || []).forEach(e => searchOptions.push({
-            id: prefix + e.id,
-            label: (e.name || '?') + ' (' + prefix + e.id + ')',
-            type: e.isTemplate ? 'Template' : clsName
-        }));
+        (resources || []).forEach(e => {
+            if (searchOptions.find(x => x.id === prefix + e.id)) return;
+            searchOptions.push({
+                id: prefix + e.id,
+                label: (e.name || '?') + ' (' + prefix + e.id + ')',
+                type: e.isTemplate ? 'Template' : clsName
+            })
+        });
     }
 
     static wires(scaffold, searchOptions) {

@@ -18,13 +18,13 @@ const {Group, Link, Coalescence, Component, Chain, Node, Lyph, Stratification} =
 
 //Update chain with dynamic ends
 Chain.prototype.update = function () {
-
     //Resize chain lyphs to match the estimated level length
     const resizeLevels = () => {
         let min = {
             width: 40,
             height: 80
         };
+
         for (let i = 0; i < this.levels?.length; i++) {
             const lyph = this.levels[i].conveyingLyph;
             if (this.length) {
@@ -43,6 +43,7 @@ Chain.prototype.update = function () {
                 min.width = Math.min(lyph.width, min.width);
                 min.height = Math.min(lyph.height, min.height);
             }
+
         }
         // Make chain lyphs all the same size
         for (let i = 0; i < this.levels?.length; i++) {
@@ -56,6 +57,7 @@ Chain.prototype.update = function () {
     if (!this.root || !this.leaf || !this.levels) {
         return;
     }
+
     // Update anchored or wired chain
     let {start, end} = this.getScaffoldChainEnds();
     start = extractCoords(start);
@@ -66,33 +68,22 @@ Chain.prototype.update = function () {
             curve = this.startFromLeaf ? this.wiredTo.getCurve(end, start) : this.wiredTo.getCurve(start, end);
         }
         let length = curve && curve.getLength ? curve.getLength() : end.distanceTo(start);
-        const delta = 5;
-        if (length < delta || (this.length && Math.abs(this.length - length) < delta)) {
-            return;
-        }
-
         let N = this.levels.length;
 
         // Adjust to recognize wireStart and wireEnd properties
         const from = this.wireStart ? this.wireStart : 0;
         const to = this.wireEnd ? (this.wireEnd < 0 ? N + this.wireEnd : this.wireEnd) : N;
-        if (to - from === 0) {
-            return;
-        } else {
-            if (to - from < 0) {
-                this.startFromLeaf = true;
-            }
+        if (to - from < 0) {
+            this.startFromLeaf = true;
         }
         //NK why excluding fixed links breaks the layout???
         this.length = length * N / (to - from);
-
-        resizeLevels();
 
         N = to - from;
         let wiredRoot = from > 0 ? this.levels[from].source : this.root;
         copyCoords(wiredRoot.layout, start);
         wiredRoot.fixed = true;
-        //Interpolate node positions for quicker layout of a chain with anchored nodes
+        //Interpolate node positions for a quicker layout of a chain with anchored nodes
         for (let i = from; i < to - 1; i++) {
             let node = this.levels[i].target;
             if (!node?.anchoredTo) {
@@ -107,9 +98,9 @@ Chain.prototype.update = function () {
         let wiredLeaf = to < N ? this.levels[to].target : this.leaf;
         copyCoords(wiredLeaf.layout, end);
         wiredLeaf.fixed = true;
-    } else {
-        resizeLevels();
     }
+    resizeLevels();
+
 }
 
 /**

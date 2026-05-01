@@ -9,6 +9,9 @@ export const $LogMsg = {
     CHAIN_CONFLICT3             : `Conflicting specification of housing layer: layer's bundlesChains property disagrees with the chain's housingLayers property`,
     CHAIN_CONFLICT_GEN          : `Conflicting chain specification: both "lyphTemplate" and "lyphs" are given. Prioritizing "lyphTemplate"`,
 
+    CHAIN_INACTIVE              : `Skipped inactive chain`,
+    CHAIN_INVALID               : `Chain template validation failed, chain skipped`,
+
     CHAIN_CONFLICT_ROOT         : `Conflicting anchoring: the chain's root anchor is not the end of a chain it is wired to:`,
     CHAIN_CONFLICT_LEAF         : `Conflicting anchoring: the chain's leaf anchor is not the end of a chain it is wired to:`,
     CHAIN_HOUSING_TEMPLATE      : "Chain's housing lyph or its layer(s) is a template",

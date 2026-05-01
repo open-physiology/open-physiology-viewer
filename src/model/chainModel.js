@@ -99,14 +99,18 @@ export class Chain extends GroupTemplate {
      */
     static expandTemplate(parentGroup, chain) {
         if (!this.validateTemplate(chain)) {
-            logger.error(`Chain template validation failed, chain skipped: ${chain.id}`);
+            logger.error($LogMsg.CHAIN_INVALID, chain.id);
             return;
         }
-        chain.id = chain.id || getGenID($Prefix.chain, getNewID());
-        chain.namespace = chain.namespace || parentGroup.namespace;
-        chain.fullID = chain.fullID || getFullID(chain.namespace, chain.id);
-        chain.name = chain.name || getGenName(chain.name || chain.id, $Prefix.group);
-        chain.group = this.createTemplateGroup(chain, parentGroup);
+
+        if (chain.inactive) {
+            logger.info($LogMsg.CHAIN_INACTIVE, chain.id);
+            return;
+        }
+
+        if ((chain.housingLyphTemplates || []).length > 0) {
+            return;
+        }
 
         function setLinkProps(link, prevLink, N) {
             link.levelIn = link.levelIn || [];
@@ -202,7 +206,7 @@ export class Chain extends GroupTemplate {
          * Generates chain group resources (nodes, links, and lyphs) from chain template with given sequence of lyphs
          */
         function deriveFromLyphs() {
-            if (chain.lyphs && chain.lyphTemplate){
+            if (chain.lyphs && chain.lyphTemplate) {
                 logger.warn($LogMsg.CHAIN_CONFLICT_GEN, chain);
             }
 
@@ -224,7 +228,7 @@ export class Chain extends GroupTemplate {
             const N = chain.numLevels;
 
             for (let i = 0; i < N; i++) {
-                if (!lyphs[i]){
+                if (!lyphs[i]) {
                     logger.error($LogMsg.CHAIN_CRITICAL_ERROR, chain.id);
                     return;
                 }
@@ -302,7 +306,7 @@ export class Chain extends GroupTemplate {
 
             let prevLink;
             for (let i = 0; i < N; i++) {
-                if (!lyphs[i]){
+                if (!lyphs[i]) {
                     logger.error($LogMsg.CHAIN_CRITICAL_ERROR, chain.id);
                     return;
                 }
@@ -321,7 +325,7 @@ export class Chain extends GroupTemplate {
                     }, "chainModel.deriveFromLyphs (Link)"));
                 }
                 mergeGenResource(chain.group, parentGroup, chain.levels[i], $Field.links);
-                includeRef(chain.group.lyphs,lyphs[i].fullID);
+                includeRef(chain.group.lyphs, lyphs[i].fullID);
                 lyphs[i].conveys = lyphs[i].conveys || chain.levels[i].fullID;
                 prevLink = setLinkProps(chain.levels[i], prevLink, N);
                 chain.levels[i] = chain.levels[i].fullID || chain.levels[i].id;
@@ -453,6 +457,12 @@ export class Chain extends GroupTemplate {
                 chain.levels[i] = chain.levels[i].id; //Replace with ID to avoid resource definition duplication
             }
         }
+
+        chain.id = chain.id || getGenID($Prefix.chain, getNewID());
+        chain.namespace = chain.namespace || parentGroup.namespace;
+        chain.fullID = chain.fullID || getFullID(chain.namespace, chain.id);
+        chain.name = chain.name || getGenName(chain.name || chain.id, $Prefix.group);
+        chain.group = this.createTemplateGroup(chain, parentGroup);
 
         if (isDefined(chain.lyphs)) {
             if (isDefined(chain.levels)) {
@@ -617,8 +627,13 @@ export class Chain extends GroupTemplate {
 
     static replicateToHousingLyphSubtypes(parentGroup, chain) {
 
-        if (!chain.lyphTemplate && !chain.lyphs){
+        if (!chain.lyphTemplate && !chain.lyphs) {
             logger.error($LogMsg.CHAIN_TEMPLATE_INCOMPLETE, chain.id);
+            return;
+        }
+
+        if (chain.inactive) {
+            logger.info($LogMsg.CHAIN_INACTIVE, chain.id);
             return;
         }
 
@@ -634,8 +649,9 @@ export class Chain extends GroupTemplate {
             }
             const genChains = [];
             //All descendant specific lyphs
-            let subtypes = housingLyphTemplate.isTemplate? findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID): [housingLyphTemplate];
+            let subtypes = housingLyphTemplate.isTemplate ? findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID) : [housingLyphTemplate];
             subtypes.forEach(lyph => {
+
                 const genChainID = getGenID(chain.id, $Prefix.clone, lyph.id);
                 let genChain = {
                     [$Field.id]: genChainID,
@@ -644,7 +660,7 @@ export class Chain extends GroupTemplate {
                     [$Field.generatedFrom]: chain.id,
                     [$Field.radial]: true
                 };
-                if (chain.lyphTemplate){
+                if (chain.lyphTemplate) {
                     genChain.lyphTemplate = chain.lyphTemplate;
                 } else {
                     if (chain.lyphs) {
@@ -690,23 +706,6 @@ export class Chain extends GroupTemplate {
             }
             processOne(lt, startLayer);
         });
-    }
-
-    // Determines if a chain housed by lyph layers starts from the outermost layer
-    get isHousedReversed(){
-        let [startIdx, endIdx] = [-1, -1];
-        //Determine whether the chains are aligned from root to leaf or from leaf to root;
-        (this.levels || []).forEach((link, i) => {
-            if (link.endsIn) {
-                const hostLyph = link.endsIn;
-                if (i === 0) {
-                    startIdx = hostLyph.getLayerIndex();
-                } else {
-                    endIdx = hostLyph.getLayerIndex();
-                }
-            }
-        });
-        return startIdx > endIdx;
     }
 
     static validateRoots(chains, nodes) {
