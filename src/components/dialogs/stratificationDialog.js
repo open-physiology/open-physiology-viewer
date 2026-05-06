@@ -10,8 +10,20 @@ import {FormsModule} from "@angular/forms";
     template: `
         <h1 mat-dialog-title>Select stratification</h1>
         <div mat-dialog-content class="dialog-content">
+            <div class="search-bar">
+                <img src="./styles/images/search.svg"/>
+                <input type="text" class="search-input"
+                       placeholder="Search for a stratification"
+                       name="searchTerm" [(ngModel)]="searchTerm"
+                       (input)="search($event.target.value)"/>
+                <span class="search-count" *ngIf="searchTerm !== ''">
+                    {{filteredStratifiedTemplates.length}} matches
+                </span>
+                <img *ngIf="searchTerm !== ''" src="./styles/images/close.svg" class="input-clear"
+                     (click)="clearSearch()"/>
+            </div>
             <div class="list">
-                <button mat-button *ngFor="let st of stratifiedTemplates"
+                <button mat-button *ngFor="let st of filteredStratifiedTemplates"
                         class="option-button"
                         [class.selected]="st === selected"
                         (click)="select(st)">
@@ -76,14 +88,71 @@ import {FormsModule} from "@angular/forms";
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .search-bar {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        .search-bar .search-input {
+            background: #FFFFFF;
+            border: 0.067rem solid #E0E0E0;
+            box-sizing: border-box;
+            border-radius: 0.134rem;
+            margin: 0;
+            display: block;
+            width: 100%;
+            height: 2.134rem;
+            color: #797979;
+            padding: 0 5.5rem 0 1.734rem;
+            font-size: 0.75rem;
+        }
+
+        .search-bar img {
+            z-index: 10;
+            position: absolute;
+            left: 0.534rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #797979;
+            font-size: 0.934rem;
+        }
+
+        .search-bar img.input-clear {
+            right: 0.534rem;
+            cursor: pointer;
+            left: auto;
+        }
+
+        .search-bar .search-input:focus {
+            outline: none;
+            border-color: #613DB0;
+            box-shadow: 0 0 0 2px rgba(97, 61, 176, 0.1);
+        }
+
+        .search-bar .search-input::placeholder {
+            color: #C0C0C0;
+        }
+
+        .search-count {
+            position: absolute;
+            right: 2.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            color: #797979;
+            pointer-events: none;
+        }
     `]
 })
 export class StratificationDialog {
     dialogRef;
     data;
     stratifiedTemplates = [];
+    filteredStratifiedTemplates = [];
     selected;
     reversed = false;
+    searchTerm = '';
 
     vizRectWidth = 20;
     vizHeight = 30;
@@ -113,12 +182,27 @@ export class StratificationDialog {
 
             return {
                 id: st.id,
+                name: st.name,
                 index: index,
                 vizStrata,
                 vizWidth: vizStrata.length * this.vizRectWidth
             };
         });
+        this.filteredStratifiedTemplates = this.stratifiedTemplates;
         this.selected = this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined;
+    }
+
+    search(value) {
+        this.searchTerm = value;
+        this.filteredStratifiedTemplates = this.stratifiedTemplates.filter((st) =>
+            (st.name && st.name.toLowerCase().includes(value?.toLowerCase())) ||
+            (st.id && st.id.toLowerCase().includes(value?.toLowerCase()))
+        );
+    }
+
+    clearSearch() {
+        this.searchTerm = '';
+        this.filteredStratifiedTemplates = this.stratifiedTemplates;
     }
 
     select(st){

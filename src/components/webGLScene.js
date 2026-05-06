@@ -266,7 +266,7 @@ export class WebGLSceneComponent {
         this.highlightedItemChange.emit(entity);
 
         if (this.graph) {
-            const obj = entity && entity.viewObjects ? entity.viewObjects["main"] : null;
+            let obj = entity && entity.viewObjects ? entity.viewObjects["main"] : null;
             this.graph.enableDrag = this.lockControls;
             this.graph.select(obj);
         }
@@ -359,9 +359,14 @@ export class WebGLSceneComponent {
     @Output() varianceReset = new EventEmitter();
 
     /**
-     * @emits stratificationSelected - user selected a stratification for a wire
+     * @emits stratificationSelected - user selected stratification for a wire
      */
     @Output() stratificationSelected = new EventEmitter();
+
+    /**
+     * @emits stratifiedRegionDeleted - user deleted stratification for a wire
+     */
+    @Output() stratifiedRegionDeleted = new EventEmitter();
 
     /**
      * @emits onImportExternal - import of external models is requested
@@ -885,67 +890,6 @@ export class WebGLSceneComponent {
         this.controls.enabled = !this.lockControls;
     }
 
-//     testWebGLObjects() {
-//         let allLyphs = [];
-//         const collectLyphs = (groups) => {
-//             (groups || []).forEach(g => {
-//                 if (g.lyphs) {
-//                     allLyphs.push(...g.lyphs);
-//                 }
-//             });
-//         };
-//         collectLyphs(this._graphData.activeGroups);
-//         collectLyphs(this._graphData.dynamicGroups);
-//
-//         // Filter out duplicates if any (e.g. lyphs appearing in multiple groups)
-//         allLyphs = [...new Set(allLyphs)];
-//
-//         let counts = {
-//             visibleWebGL: 0,
-//             visibleMaterials: 0,
-//             invisibleWithVisibleMaterials: 0,
-//             explicitlyVisible: 0,
-//             isVisible: 0
-//         };
-//
-//         let problematicLyphs = [];
-//
-//         allLyphs.forEach(lyph => {
-//             const obj = lyph.viewObjects ? lyph.viewObjects["main"] : null;
-//             if (obj) {
-//                 if (obj.visible) {
-//                     counts.visibleWebGL++;
-//                 }
-//                 if (obj.material && obj.material.visible) {
-//                     counts.visibleMaterials++;
-//                 }
-//                 if (!obj.visible && (obj.material && obj.material.visible)) {
-//                     counts.invisibleWithVisibleMaterials++;
-//                     problematicLyphs.push(lyph);
-//                 }
-//             }
-//             if (!lyph.hidden) {
-//                 counts.explicitlyVisible++;
-//             }
-//             if (lyph.isVisible) {
-//                 counts.isVisible++;
-//             }
-//         });
-//
-//         if (problematicLyphs.length > 0) {
-//             console.log("Lyphs with invisible webGL objects that have visible materials:");
-//             problematicLyphs.forEach(lyph => {
-//                 console.log(`ID: ${lyph.id}, Name: ${lyph.name}`);
-//             });
-//         }
-//
-//         alert(`Number of visible webGL objects corresponding to lyphs: ${counts.visibleWebGL}
-// Number of webGL lyph objects with visible materials: ${counts.visibleMaterials}
-// Number of WebGL objects that are invisible but have visible materials: ${counts.invisibleWithVisibleMaterials}
-// Number of explicitly visible lyphs (hidden is not true): ${counts.explicitlyVisible}
-// Number of visible lyphs (isVisible is true): ${counts.isVisible}`);
-//     }
-
     _clearAuxTips() {
         this.auxTips = [];
         this._auxTipNodes = [];
@@ -1009,9 +953,18 @@ export class WebGLSceneComponent {
             return entity;
         };
 
-        let intersects = this.ray.intersectObjects(this.graph.children);
+        let intersects = this.ray.intersectObjects(this.graph.children, true);
         if (intersects.length > 0) {
-            let entity = intersects[0].object.userData;
+            let hit = intersects[0].object;
+            let entity = hit.userData;
+            if (entity && entity.host && entity.stratum) {
+                // If it's a stratum, return the stratum object but make sure it has viewObjects
+                // Actually, the strata view objects are the meshes themselves.
+                // We can return hit.userData but it needs to behave like a Resource
+                if (!entity.viewObjects) {
+                    entity.viewObjects = { "main": hit };
+                }
+            }
             if (!entity || entity.inactive) {
                 return;
             }
@@ -1028,10 +981,10 @@ export class WebGLSceneComponent {
     }
 
     highlight(entity, color, rememberColor = true) {
-        if (!entity || !entity.viewObjects) return;
-        let obj = entity.viewObjects["main"];
+        if (!entity) return;
+        let obj = entity.viewObjects ? entity.viewObjects["main"] : null;
         if (obj && obj.material) {
-            // store color of closest object (for later restoration)
+            // store color of the closest object (for later restoration)
             if (rememberColor) {
                 obj.currentHex = obj.material.color.getHex();
                 (obj.children || []).forEach(child => {
@@ -1272,6 +1225,44 @@ export class WebGLSceneComponent {
         this.openMaterialTreeLyphId = undefined;
     }
 
+    removeViewObjects(removed) {
+        const dispose = (object) => {
+            if (!object) return;
+            object.visible = false;
+            if (object.children) {
+                object.children.forEach(child => dispose(child));
+            }
+            if (object.geometry) {
+                object.geometry.dispose();
+            }
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(material => material.dispose());
+                } else {
+                    object.material.dispose();
+                }
+            }
+        };
+
+        if ((this.scene.children || []).length > 0) {
+            (removed || []).forEach(res => {
+                (res.viewObjects || {})::values().forEach(viewObj => {
+                    const object = this.scene.getObjectByProperty('uuid', viewObj.uuid);
+                    if (object) {
+                        dispose(object);
+                        if (object.parent) {
+                            object.parent.remove(object);
+                        } else {
+                            this.scene.remove(object);
+                        }
+                    } else {
+                        this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
+                    }
+                });
+            });
+        }
+    }
+
     onContextMenu(evt) {
         // Right-click handler: open stratification selection for a wire/placeholder
         evt.preventDefault && evt.preventDefault();
@@ -1283,31 +1274,35 @@ export class WebGLSceneComponent {
         this.mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
 
         this.ray.setFromCamera(this.mouse, this.camera);
-        const intersects = this.ray.intersectObjects(this.graph.children);
-        if (!intersects || intersects.length === 0) { return; }
-        const hit = intersects[0].object;
-        const entity = hit && hit.userData;
+        const entity = this.getMouseOverEntity();
         if (!entity) { return; }
 
-        // Check if the entity is a Wire (or placeholder userData points to Wire)
-        if (!(entity instanceof this.modelClasses.Wire)) { return; }
-
-        const candidates = (this._graphData?.stratifications || []);
-
-        const dialogRef = this.dialog.open(StratificationDialog, {
-            width: '60%', data: { stratifications: candidates }
-        });
-        dialogRef.afterClosed().subscribe(res => {
-            if (res) {
-                // Emit selection back to parent/consumers
-                this.stratificationSelected.emit({
-                    wire: entity,
-                    stratification: res.stratification,
-                    reversed: res.reversed,
-                    callback: (st) => this.graph.addStratifiedRegion(st)
-                });
+        if (entity.host && entity.stratum) {
+            if (confirm("Delete stratified region?")) {
+                this.stratifiedRegionDeleted.emit({stratifiedRegion: entity.host});
+                this.removeViewObjects([entity.host]);
+                this.updateGraph();
             }
-        });
+        }
+
+        // Check if the entity is a Wire (or placeholder userData points to Wire)
+        if (entity instanceof this.modelClasses.Wire) {
+            const candidates = (this._graphData?.stratifications || []);
+            const dialogRef = this.dialog.open(StratificationDialog, {
+                width: '60%', data: {stratifications: candidates}
+            });
+            dialogRef.afterClosed().subscribe(res => {
+                if (res) {
+                    // Emit selection back to parent/consumers
+                    this.stratificationSelected.emit({
+                        wire: entity,
+                        stratification: res.stratification,
+                        reversed: res.reversed,
+                        callback: (st) => this.graph.addStratifiedRegion(st)
+                    });
+                }
+            });
+        }
     }
 
     onMouseMove(evt) {
@@ -1400,22 +1395,8 @@ export class WebGLSceneComponent {
             this.graphData.logger.info($LogMsg.VARIANCE_REMOVED_LYPHS, lyphsToRemove.lyphs.map(e => e.fullID));
             this.graphData.logger.info($LogMsg.VARIANCE_ALL_REMOVED_LYPHS, removed.map(e => e.fullID));
 
-            if ((this.scene.children || []).length > 0) {
-                removed.forEach(lyph => {
-                    (lyph.viewObjects || {})::values().forEach(viewObj => {
-                        const object = this.scene.getObjectByProperty('uuid', viewObj.uuid);
-                        if (object) {
-                            object.visible = false;
-                            object.geometry.dispose();
-                            object.material.dispose();
-                            this.scene.remove(object);
-                        } else {
-                            this.graphData.logger.error("Failed to locate view object", viewObj.uuid);
-                        }
-                    });
-                });
-                this.renderer.dispose();
-            }
+            this.removeViewObjects(removed);
+
             this.updateGraph();
             this.varianceUpdated.emit(clade, variance);
         }

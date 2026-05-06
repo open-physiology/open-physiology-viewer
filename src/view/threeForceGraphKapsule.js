@@ -173,7 +173,7 @@ export default Kapsule({
                     obj.userData instanceof modelClasses.StratifiedRegion
                 ));
                 state.canvas && (state.canvas.style.cursor = obj && obj.__isDraggable ? 'pointer' : null);
-                const tooltipContent = obj ? (obj.userData.name || obj.userData.id || '?') : '';
+                const tooltipContent = (obj && obj.userData) ? (obj.userData.stratum ? (obj.userData.stratum.name || obj.userData.stratum.id || '?') : (obj.userData.name || obj.userData.id || '?')) : '';
                 if (state.toolTipElem) {
                     state.toolTipElem.style.visibility = tooltipContent ? 'visible' : 'hidden';
                     state.toolTipElem.innerHTML = tooltipContent;

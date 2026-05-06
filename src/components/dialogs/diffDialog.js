@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
                 <label for="commitMsg"><b>Commit message (optional):</b></label>
                 <textarea id="commitMsg" [(ngModel)]="commitMessage" rows="3" style="width: 100%;"></textarea>
                 <mat-checkbox *ngIf="!data || !data.showIncludeImages" [(ngModel)]="omitCollections" style="margin-top: 8px; display: block;">
-                    Omit imported groups, scaffolds and snapshots from commit
+                    {{ (data && data.isScaffold) ? 'Omit imported scaffold resources' : 'Omit imported groups, scaffolds and snapshots' }} from commit
                 </mat-checkbox>
                 <mat-checkbox *ngIf="data && data.showIncludeImages" [(ngModel)]="includeImages" style="margin-top: 8px; display: block;">
                     Include background images
@@ -37,7 +37,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class DiffDialog {
     dialogRef;
-    data = { 'oldContent': "", 'newContent': "", 'askCommitMessage': false, 'defaultMessage': "", 'showIncludeImages': false };
+    data = { 'oldContent': "", 'newContent': "", 'askCommitMessage': false, 'defaultMessage': "", 'showIncludeImages': false, 'isScaffold': false };
     commitMessage = "";
     omitCollections = true; // default behavior: omit groups/scaffolds/snapshots
     includeImages = false;

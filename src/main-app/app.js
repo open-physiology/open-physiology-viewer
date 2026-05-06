@@ -167,6 +167,7 @@ const TAB_INDEX = {
                                         (scaffoldUpdated)="onScaffoldUpdated($event)"
                                         (varianceReset)="applyChanges()"
                                         (stratificationSelected)="assignStratification($event)"
+                                        (stratifiedRegionDeleted)="deleteStratifiedRegion($event.stratifiedRegion, $event.callback)"
                                         (editResource)="onEditResource($event)"
                             >
                             </webGLScene>

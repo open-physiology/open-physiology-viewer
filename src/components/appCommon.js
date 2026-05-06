@@ -24,9 +24,7 @@ import {ElementRef, ViewChild} from "@angular/core";
 import {modelClasses,} from '../model/index';
 import FileSaver from 'file-saver';
 import {ImportDialog} from "./dialogs/importDialog";
-import {DiffDialog} from "./dialogs/diffDialog";
-import {GitHubClient} from "../api/githubClient";
-import {gcsClient} from "../api/googleCloud";
+import {CommitManager} from "../api/commitManager";
 
 const fileExtensionRe = /(?:\.([^.]+))?$/;
 
@@ -57,6 +55,7 @@ export class AppCommon {
 
     _snackBar;
     _snackBarConfig = new MatSnackBarConfig();
+    _commitManager;
 
     version = environment.version;
     @ViewChild('webGLScene') _webGLScene: ElementRef;
@@ -71,6 +70,7 @@ export class AppCommon {
             duration: 2000
         };
         this.http = http;
+        this._commitManager = new CommitManager(this);
     }
 
     join(newModel) {
@@ -190,243 +190,11 @@ export class AppCommon {
 
 
     commit() {
-        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-        if (!GITHUB_TOKEN) {
-            throw Error("Set the GITHUB_TOKEN environment variable!");
-        }
-        const client = new GitHubClient(GITHUB_TOKEN);
-
-        if (isScaffold(this._model)) {
-            this.commitScaffold(client);
-            return;
-        }
-
-        // Build model for commit based on whether to omit collections (groups/scaffolds/snapshots)
-        const props = [$Field.groups, $Field.scaffolds, $Field.snapshots];
-        const buildModelForCommit = (omitCollections = true) => {
-            // Start with model without the heavy collections
-            let base = this._model;
-            if (omitCollections) {
-                base = base::omit(...props);
-                props.forEach(prop => {
-                    if (this._model[prop]) {
-                        base[prop] = this._model[prop].filter(g => !g.imported);
-                    }
-                });
-            }
-            return base;
-        };
-
-        const initialModel = buildModelForCommit(true); // default: omit collections
-        const FILE_CONTENT_OMIT = JSON.stringify(initialModel, null, 4);
-        const DEFAULT_COMMIT_MESSAGE = "Add/update JSON file via API";
-        const FILE_PATH = this._model.id + ".json";
-
-        // Step 1: Get existing file (if any) to retrieve SHA and old content for diff
-        client.getFile(FILE_PATH).then(fileData => {
-            let fileSHA = fileData.sha;
-            let oldContentText = "";
-            if (fileData.content) {
-                try {
-                    oldContentText = client.fromBase64(fileData.content);
-                } catch (e) {
-                    console.warn("Could not decode existing file content", e);
-                    oldContentText = "";
-                }
-            }
-
-            // Open diff dialog to show differences and ask for an optional commit message
-            const dialogRef = this._dialog.open(DiffDialog, {
-                width: '75%',
-                data: {
-                    oldContent: oldContentText,
-                    newContent: FILE_CONTENT_OMIT,
-                    askCommitMessage: true,
-                    defaultMessage: DEFAULT_COMMIT_MESSAGE
-                }
-            });
-
-            dialogRef.afterClosed().subscribe(result => {
-                // If dialog was closed without result or user cancelled, abort
-                if (!result || result.proceed === false) {
-                    this.showWarningMessage("Commit canceled.");
-                    return;
-                }
-                const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-                const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
-                const includeImages = !!result.includeImages;
-
-                const modelForCommit = buildModelForCommit(omitCollections);
-                const fileContent = JSON.stringify(modelForCommit, null, 4);
-
-                const commitAction = () => client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage, fileSHA).then(() => {
-                    this.showMessage("Model file committed successfully!");
-                }).catch(commitErr => {
-                    console.error("❌ Error committing file:", commitErr);
-                    this.showErrorMessage("Error committing file!");
-                });
-
-                if (includeImages) {
-                    const backgroundsMap = this._webGLScene?._backgroundsMap || {};
-                    const uploadPromises = Object.entries(backgroundsMap).map(([name, dataURL]) => 
-                        gcsClient.uploadImage(name, dataURL)
-                    );
-                    Promise.all(uploadPromises).then(() => {
-                        commitAction();
-                    }).catch(err => {
-                        console.error("❌ Error uploading images to GCS:", err);
-                        this.showErrorMessage("Error uploading images to GCS! Model commit proceeded.");
-                        commitAction();
-                    });
-                } else {
-                    commitAction();
-                }
-            });
-        }).catch(err => {
-            if (err.status === 404) {
-                this.showMessage("File does not exist. A new one will be created.");
-                // Same logic as above but with empty oldContent
-                const dialogRef = this._dialog.open(DiffDialog, {
-                    width: '75%',
-                    data: {
-                        oldContent: "",
-                        newContent: FILE_CONTENT_OMIT,
-                        askCommitMessage: true,
-                        defaultMessage: DEFAULT_COMMIT_MESSAGE
-                    }
-                });
-                dialogRef.afterClosed().subscribe(result => {
-                    if (!result || result.proceed === false) {
-                        this.showWarningMessage("Commit canceled.");
-                        return;
-                    }
-                    const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-                    const omitCollections = (result && typeof result.omitCollections === 'boolean') ? result.omitCollections : true;
-                    const includeImages = !!result.includeImages;
-
-                    const modelForCommit = buildModelForCommit(omitCollections);
-                    const fileContent = JSON.stringify(modelForCommit, null, 4);
-
-                    const commitAction = () => client.putFile(FILE_PATH, client.toBase64(fileContent), commitMessage).then(() => {
-                        this.showMessage("Model file committed successfully!");
-                    }).catch(putErr => {
-                        console.error("❌ Error committing file:", putErr);
-                        this.showErrorMessage("Error committing file!");
-                    });
-
-                    if (includeImages) {
-                        const backgroundsMap = this._webGLScene?._backgroundsMap || {};
-                        const uploadPromises = Object.entries(backgroundsMap).map(([name, dataURL]) => 
-                            gcsClient.uploadImage(name, dataURL)
-                        );
-                        Promise.all(uploadPromises).then(() => {
-                            commitAction();
-                        }).catch(err => {
-                            console.error("❌ Error uploading images to GCS:", err);
-                            this.showErrorMessage("Error uploading images to GCS! Model commit proceeded.");
-                            commitAction();
-                        });
-                    } else {
-                        commitAction();
-                    }
-                });
-            } else {
-                console.error("❌ Error checking file existence:", err);
-                this.showErrorMessage("Error checking file existence!");
-            }
-        });
+        this._commitManager.commit();
     }
 
-    commitScaffold(client) {
-        const scaffold = this._model;
-        const FILE_PATH_NO_IMAGES = `scaffolds/${scaffold.id}.json`;
-        const FILE_PATH_WITH_IMAGES = `scaffolds/${scaffold.id}/${scaffold.id}.json`;
-
-        const getScaffoldFile = () => {
-            return client.getFile(FILE_PATH_WITH_IMAGES).catch(err => {
-                if (err.status === 404) {
-                    return client.getFile(FILE_PATH_NO_IMAGES);
-                }
-                throw err;
-            });
-        };
-
-        getScaffoldFile().then(fileData => {
-            let oldContentText = "";
-            if (fileData.content) {
-                try {
-                    oldContentText = client.fromBase64(fileData.content);
-                } catch (e) {
-                    console.warn("Could not decode existing scaffold content", e);
-                }
-            }
-            this.showDiffAndCommitScaffold(client, oldContentText, fileData.sha);
-        }).catch(err => {
-            if (err.status === 404) {
-                this.showMessage("Scaffold file does not exist. A new one will be created.");
-                this.showDiffAndCommitScaffold(client, "", null);
-            } else {
-                console.error("❌ Error checking scaffold existence:", err);
-                this.showErrorMessage("Error checking scaffold existence!");
-            }
-        });
-    }
-
-    showDiffAndCommitScaffold(client, oldContentText, fileSHA) {
-        const scaffold = this._model;
-        const DEFAULT_COMMIT_MESSAGE = `Update scaffold ${scaffold.id}`;
-        const BRANCH = client.branch;
-        const scaffoldJSON = JSON.stringify(scaffold, null, 2);
-
-        const MAX_LINES = 10000;
-        const lineCount = scaffoldJSON.split('\n').length;
-        const tooLarge = lineCount > MAX_LINES;
-
-        const dialogRef = this._dialog.open(DiffDialog, {
-            width: '75%',
-            data: {
-                oldContent: tooLarge ? "Content too large to display diff" : oldContentText,
-                newContent: tooLarge ? "Content too large to display diff" : scaffoldJSON,
-                askCommitMessage: true,
-                defaultMessage: DEFAULT_COMMIT_MESSAGE,
-                showIncludeImages: true
-            }
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-            if (!result || result.proceed === false) {
-                this.showWarningMessage("Scaffold commit canceled.");
-                return;
-            }
-            const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-            const includeImages = !!result.includeImages;
-
-            const commitAction = () => {
-                const FILE_PATH = `scaffolds/${scaffold.id}.json`;
-                client.putFile(FILE_PATH, client.toBase64(scaffoldJSON), commitMessage, fileSHA).then(() => {
-                    this.showMessage("Scaffold committed successfully!");
-                }).catch(err => {
-                    console.error("❌ Error committing scaffold:", err);
-                    this.showErrorMessage("Error committing scaffold!");
-                });
-            };
-
-            if (includeImages) {
-                const backgroundsMap = this._webGLScene?._backgroundsMap || {};
-                const uploadPromises = Object.entries(backgroundsMap).map(([name, dataURL]) => 
-                    gcsClient.uploadImage(name, dataURL)
-                );
-                Promise.all(uploadPromises).then(() => {
-                    commitAction();
-                }).catch(err => {
-                    console.error("❌ Error uploading images to GCS:", err);
-                    this.showErrorMessage("Error uploading images to GCS! Scaffold commit proceeded.");
-                    commitAction();
-                });
-            } else {
-                commitAction();
-            }
-        });
+    showDiffAndCommit(client, oldContentText, fileSHA, buildModelForCommit, newContentInitial, filePath, defaultMessage) {
+        this._commitManager.showDiffAndCommit(client, oldContentText, fileSHA, buildModelForCommit, newContentInitial, filePath, defaultMessage);
     }
 
     showMessage(message) {
@@ -460,7 +228,7 @@ export class AppCommon {
         //This is to reset model to triger update
         this._graphData = generateFromJSON({"id": "Empty"});
         // if (isScaffold(this._model)) {
-        //     this._model.scaleFactor = 1; // Do not scale scaffolds after editting
+        //     this._model.scaleFactor = 1; // Do not scale scaffolds after editing
         // }
         this.model = this._model::merge({[$Field.lastUpdated]: this.currentDate});
     }
@@ -472,8 +240,10 @@ export class AppCommon {
         if (inputWire) {
             inputWire.reversed = reversed;
         }
+
         // Revise input model
-        const inputStratifiedRegion = this.modelClasses.Stratification.createStratifiedRegion(this._model, inputStratification, inputWire);
+        const inputStratifiedRegion = this.modelClasses.Stratification.createStratifiedRegion(
+            this._model, inputStratification, inputWire);
 
         // Generate class instance for the generated model
         const stratifiedRegion = this.modelClasses.StratifiedRegion.fromJSON(
@@ -482,11 +252,74 @@ export class AppCommon {
         // Create visual objects for the new stratified region
         callback(stratifiedRegion);
 
+        // Save assignment for the current model
+        inputWire.stratification = stratification.id;
+
+        wire.stratification = stratification;
+        wire.stratifiedRegion = stratifiedRegion;
+
+        this._graphData.stratifiedRegions = this._graphData.stratifiedRegions || [];
+        this._graphData.stratifiedRegions.push(stratifiedRegion);
+
         if (this._editor) {
             this._editor.set(this._model);
         }
-        if (this.stratEd) {
-            this.stratEd.model = this._model;
+    }
+
+    deleteStratifiedRegion(stratifiedRegion){
+        if (!stratifiedRegion) return;
+        const wire = stratifiedRegion.axisWire;
+        const inputWire = (this._model.wires||[]).find(e => e.id === (wire?.id || wire));
+        if (inputWire) {
+            delete inputWire.stratification;
+            delete inputWire.stratifiedRegion;
+        }
+
+        const stratification = stratifiedRegion.supertype;
+        if (stratification) {
+            const wireID = (wire?.id || wire);
+            const inputStratification = (this._model.stratifications || []).find(e => e.id === (stratification.id || stratification));
+            if (inputStratification && inputStratification.axisWires) {
+                inputStratification.axisWires = inputStratification.axisWires.filter(id => id !== wireID);
+            }
+            if (stratification.axisWires) {
+                stratification.axisWires = stratification.axisWires.filter(id => id !== wireID);
+                if (stratification.axisWires.length === 0) {
+                    delete stratification.axisWires;
+                }
+            }
+        }
+
+        if (this._model.stratifiedRegions) {
+            this._model.stratifiedRegions = this._model.stratifiedRegions.filter(e => e.id !== stratifiedRegion.id);
+        }
+
+        if (wire) {
+            delete wire.stratification;
+            delete wire.stratifiedRegion;
+        }
+        if (this._graphData.stratifiedRegions) {
+            this._graphData.stratifiedRegions = this._graphData.stratifiedRegions.filter(e => e.id !== stratifiedRegion.id);
+        }
+
+        if (this._editor) {
+            this._editor.set(this._model);
+        }
+    }
+
+    deleteStratification(stratification) {
+        if (!stratification) return;
+        const inputStratification = (this._model.stratifications || []).find(e => e.id === (stratification.id || stratification));
+        if (inputStratification) {
+            this._model.stratifications = this._model.stratifications.filter(e => e.id !== (stratification.id || stratification));
+        }
+        if (this._graphData.stratifications) {
+            this._graphData.stratifications = this._graphData.stratifications.filter(e => e.id !== (stratification.id || stratification));
+        }
+        (this._graphData.stratifiedRegions || []).filter(sr => sr.stratification === (stratification.id || stratification)).forEach(sr => this.deleteStratifiedRegion(sr));
+
+        if (this._editor) {
+            this._editor.set(this._model);
         }
     }
 
@@ -642,7 +475,6 @@ export class AppCommon {
                 this._webGLScene.closeMaterialTreeDialog();
             }
         }
-        console.log("State loaded", activeState.visibleGroups);
     }
 
     previousState() {
@@ -701,158 +533,7 @@ export class AppCommon {
     }
 
     commitSnapshot() {
-        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-        if (!GITHUB_TOKEN) {
-            throw Error("Set the GITHUB_TOKEN environment variable!");
-        }
-        const client = new GitHubClient(GITHUB_TOKEN);
-        const BRANCH = client.branch;
-
-        // Serialize snapshot similar to saveSnapshot()
-        const snapshotJSON = JSON.stringify(this._snapshot.toJSON(2, { [$Field.states]: 4 }), null, 2);
-        const DEFAULT_COMMIT_MESSAGE = `Update snapshot ${this._snapshot.id}`;
-
-        // Store snapshots in a snapshots/ folder next to models in the repo
-        const FILE_PATH = `snapshots/${this._snapshot.id}.json`;
-
-        // Step 1: Get existing file to retrieve SHA and old content
-        client.getFile(FILE_PATH).then(fileData => {
-            let fileSHA = fileData.sha;
-            let oldContentText = "";
-            if (fileData.content) {
-                try {
-                    oldContentText = client.fromBase64(fileData.content);
-                } catch (e) {
-                    console.warn("Could not decode existing snapshot content", e);
-                    oldContentText = "";
-                }
-            }
-
-            // Show diff and ask for a commit message
-            const dialogRef = this._dialog.open(DiffDialog, {
-                width: '75%',
-                data: {
-                    oldContent: oldContentText,
-                    newContent: snapshotJSON,
-                    askCommitMessage: true,
-                    defaultMessage: DEFAULT_COMMIT_MESSAGE
-                }
-            });
-
-            dialogRef.afterClosed().subscribe(result => {
-                if (!result || result.proceed === false) {
-                    this.showMessage("Snapshot commit canceled.");
-                    return;
-                }
-                const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-
-                client.putFile(FILE_PATH, client.toBase64(snapshotJSON), commitMessage, fileSHA).then(() => {
-                    // Build raw GitHub URL for the committed snapshot and copy to clipboard
-                    const {owner, repo} = client.getOwnerRepo();
-                    const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${BRANCH}/${FILE_PATH}`;
-
-                    const copyToClipboard = async (text) => {
-                        try {
-                            if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-                                await navigator.clipboard.writeText(text);
-                                return true;
-                            }
-                        } catch (e) { /* fall back below */ }
-                        try {
-                            const ta = document.createElement('textarea');
-                            ta.value = text;
-                            ta.style.position = 'fixed';
-                            ta.style.top = '0';
-                            ta.style.left = '0';
-                            ta.style.opacity = '0';
-                            document.body.appendChild(ta);
-                            ta.focus();
-                            ta.select();
-                            const success = document.execCommand('copy');
-                            document.body.removeChild(ta);
-                            return !!success;
-                        } catch (e) {
-                            return false;
-                        }
-                    };
-
-                    copyToClipboard(rawUrl).then(ok => {
-                        if (ok) {
-                            this.showMessage("Snapshot committed successfully! location copied to clipboard");
-                        } else {
-                            this.showMessage(`Snapshot committed successfully! Raw location: ${rawUrl}`);
-                        }
-                    });
-                }).catch(commitErr => {
-                    console.error("❌ Error committing snapshot:", commitErr);
-                    this.showErrorMessage("Error committing snapshot!");
-                });
-            });
-        }).catch(err => {
-            if (err.status === 404) {
-                this.showMessage("Snapshot file does not exist. A new one will be created.");
-                const dialogRef = this._dialog.open(DiffDialog, {
-                    width: '75%',
-                    data: {
-                        oldContent: "",
-                        newContent: snapshotJSON,
-                        askCommitMessage: true,
-                        defaultMessage: DEFAULT_COMMIT_MESSAGE
-                    }
-                });
-                dialogRef.afterClosed().subscribe(result => {
-                    if (!result || result.proceed === false) {
-                        this.showMessage("Snapshot commit canceled.");
-                        return;
-                    }
-                    const commitMessage = (result && result.message) ? result.message : DEFAULT_COMMIT_MESSAGE;
-                    client.putFile(FILE_PATH, client.toBase64(snapshotJSON), commitMessage).then(() => {
-                         // Build raw GitHub URL for the committed snapshot and copy to clipboard
-                        const {owner, repo} = client.getOwnerRepo();
-                        const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${BRANCH}/${FILE_PATH}`;
-
-                        const copyToClipboard = async (text) => {
-                             try {
-                                if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-                                    await navigator.clipboard.writeText(text);
-                                    return true;
-                                }
-                            } catch (e) { /* fall back below */ }
-                            try {
-                                const ta = document.createElement('textarea');
-                                ta.value = text;
-                                ta.style.position = 'fixed';
-                                ta.style.top = '0';
-                                ta.style.left = '0';
-                                ta.style.opacity = '0';
-                                document.body.appendChild(ta);
-                                ta.focus();
-                                ta.select();
-                                const success = document.execCommand('copy');
-                                document.body.removeChild(ta);
-                                return !!success;
-                            } catch (e) {
-                                return false;
-                            }
-                        };
-
-                        copyToClipboard(rawUrl).then(ok => {
-                            if (ok) {
-                                this.showMessage("Snapshot committed successfully! location copied to clipboard");
-                            } else {
-                                this.showMessage(`Snapshot committed successfully! Raw location: ${rawUrl}`);
-                            }
-                        });
-                    }).catch(putErr => {
-                        console.error("❌ Error committing snapshot:", putErr);
-                        this.showErrorMessage("Error committing snapshot!");
-                    });
-                });
-            } else {
-                console.error("❌ Error checking snapshot existence:", err);
-                this.showErrorMessage("Error checking snapshot existence!");
-            }
-        });
+        this._commitManager.commitSnapshot();
     }
 
 

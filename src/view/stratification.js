@@ -4,7 +4,7 @@ import {THREE} from "./utils";
 const {Stratification, VisualResource} = modelClasses;
 
 /**
- * Update visual objects for a stratification
+ * Update visual objects for stratification
  */
 Stratification.prototype.updateViewObjects = function(state) {
 };

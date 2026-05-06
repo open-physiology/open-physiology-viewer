@@ -87,7 +87,8 @@ export class ModelRepoPanel {
     fileNames = [];
     url = config.storageContentURL;
     repositories = [
-        {name: "GitHub storage", url: config.storageContentURL},
+        {name: "GitHub models", url: config.storageContentURL},
+        {name: "GitHub scaffolds", url: `${config.storageContentURL}scaffolds/`},
         {name: "Test models", url: config.testContentURL},
         {name: "SPARC models", url: config.sparcContentURL}
     ]
