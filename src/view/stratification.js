@@ -23,8 +23,9 @@ Stratification.prototype.createViewObjects = function(state) {
 
     // Determine total visual dimensions relative to conveying link if present
     const link = this.conveys;
-    const totalWidth = 20; // fixed visual width in world units (simplified)
-    const totalHeight = link && link.length ? Math.max(20, link.length * 0.6) : 60; // proportional to link length if available
+    const scale = state.stratifiedRegionSize || 1.0;
+    const totalWidth = 20 * scale; // fixed visual width in world units (simplified)
+    const totalHeight = (link && link.length ? Math.max(20, link.length * 0.6) : 60) * scale; // proportional to link length if available
 
     // Create equal-height rectangles stacked along Y (height split), same width for all
     const rectWidth = totalWidth;

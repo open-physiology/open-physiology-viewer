@@ -259,7 +259,12 @@ export class AppCommon {
         wire.stratifiedRegion = stratifiedRegion;
 
         this._graphData.stratifiedRegions = this._graphData.stratifiedRegions || [];
-        this._graphData.stratifiedRegions.push(stratifiedRegion);
+        if (!this._graphData.stratifiedRegions.find(e => e.id === stratifiedRegion.id)) {
+            this._graphData.stratifiedRegions.push(stratifiedRegion);
+        }
+        if (this._graphData.resources) {
+            this._graphData.resources.push(stratifiedRegion);
+        }
 
         if (this._editor) {
             this._editor.set(this._model);

@@ -8,7 +8,16 @@ const {StratifiedRegion, Stratification, VisualResource} = modelClasses;
  * @param state
  */
 StratifiedRegion.prototype.createViewObjects = function(state) {
-    if (this.supertype) {
+    // Resolve supertype if it's an ID
+    if (typeof this.supertype === 'string' && state.graphData?.entitiesByID) {
+        this.supertype = state.graphData.entitiesByID[this.supertype] || this.supertype;
+    }
+    // Resolve axisWire if it's an ID
+    if (typeof this.axisWire === 'string' && state.graphData?.entitiesByID) {
+        this.axisWire = state.graphData.entitiesByID[this.axisWire] || this.axisWire;
+    }
+
+    if (this.supertype && this.supertype instanceof Stratification) {
         // Use a consistent color for all regions with the same supertype if not specified
         this.color = this.color || this.supertype.color;
         this.viewObjects['main'] = Stratification.prototype.createViewObjects.call(this.supertype, {
@@ -21,7 +30,6 @@ StratifiedRegion.prototype.createViewObjects = function(state) {
                 child.userData.host = this;
             }
         });
-        state.graphScene.add(this.viewObjects['main']);
     }
 };
 
@@ -31,8 +39,19 @@ StratifiedRegion.prototype.createViewObjects = function(state) {
 StratifiedRegion.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
 
+    if (this.viewObjects["main"] && this._stratifiedRegionSize !== state.stratifiedRegionSize) {
+        if (state.graphScene) {
+            state.graphScene.remove(this.viewObjects["main"]);
+        }
+        delete this.viewObjects["main"];
+    }
+
     if (!this.viewObjects["main"]) {
        this.createViewObjects(state);
+       this._stratifiedRegionSize = state.stratifiedRegionSize;
+       if (state.graphScene) {
+           state.graphScene.add(this.viewObjects["main"]);
+       }
     }
     const obj = this.viewObjects["main"];
     if (!obj) { return; }

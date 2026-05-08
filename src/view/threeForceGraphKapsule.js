@@ -235,6 +235,13 @@ export default Kapsule({
                 if (!region) { return; }
                 try {
                     region.updateViewObjects && region.updateViewObjects(state);
+                    if (region.viewObjects) {
+                        Object.values(region.viewObjects).forEach(obj => {
+                            if (obj && state.graphScene) {
+                                state.graphScene.add(obj);
+                            }
+                        });
+                    }
                 } catch (e) {
                     console.warn('addStratifiedRegion failed:', e);
                 }
@@ -243,6 +250,7 @@ export default Kapsule({
 
         labels: {default: {Anchor: 'id', Wire: 'id', Node: 'id', Link: 'id', Lyph: 'id', Region: 'id'}},
         labelRelSize: {default: 0.1},
+        stratifiedRegionSize: {default: 1.0},
         labelOffset: {default: {Vertice: 10, Edge: 5, Lyph: 0, Region: 0}},
         fontParams: {default: {font: '24px Arial', fillStyle: '#000', antialias: true}},
 

@@ -230,4 +230,5 @@ Component.prototype.updateViewObjects = function (state) {
     this.visibleAnchors.forEach(anchor => anchor.updateViewObjects(state));
     this.visibleWires.forEach(wire => wire.updateViewObjects(state));
     this.visibleRegions.forEach(region => region.updateViewObjects(state));
+    this.visibleStratifiedRegions.forEach(region => region.updateViewObjects(state));
 };

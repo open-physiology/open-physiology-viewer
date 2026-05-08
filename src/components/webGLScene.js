@@ -74,12 +74,22 @@ const WindowResize = require('three-window-resize');
                         >
                         </model-toolbar>
                         <!--                                (onTestWebGLObjects)="testWebGLObjects()"-->
-                        <mat-slider vertical class="w3-grey"
-                                    [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
-                                    [step]="0.05 * scaleFactor" tickInterval="1"
-                                    [value]="labelRelSize" title="Label size"
-                                    (change)="onScaleChange($event.value)">
-                        </mat-slider>
+                        <section class="w3-bar-block vertical-toolbar">
+                            <mat-slider
+                                    *ngIf="isScaffold && (graphData?.stratifications?.length > 0 || graphData?.stratifiedRegions?.length > 0)"
+                                    vertical class="w3-grey"
+                                    [min]="0.2" [max]="1.0"
+                                    [step]="0.2" tickvInterval="1"
+                                    [value]="stratifiedRegionSize" title="Stratified region size"
+                                    (change)="onStratifiedRegionSizeChange($event.value)">
+                            </mat-slider>
+                            <mat-slider vertical class="w3-grey"
+                                        [min]="0.1 * scaleFactor" [max]="0.4 * scaleFactor"
+                                        [step]="0.05 * scaleFactor" tickInterval="1"
+                                        [value]="labelRelSize" title="Label size"
+                                        (change)="onScaleChange($event.value)">
+                            </mat-slider>
+                        </section>
                         <background-toolbar
                                 *ngIf="_backgroundMesh"
                                 [offsetX]="_backgroundOffsetX"
@@ -145,6 +155,10 @@ const WindowResize = require('three-window-resize');
     `,
     styles: [`
 
+        .vertical-toolbar {
+            width: 48px;
+        }
+
         #apiLayoutPanel {
             min-height: 90vh;
             height: 100%;
@@ -207,6 +221,7 @@ export class WebGLSceneComponent {
     defaultColor = 0x000000;
     scaleFactor = 10;
     labelRelSize = 0.1 * this.scaleFactor;
+    stratifiedRegionSize = 1.0;
     lockControls = false;
     isConnectivity = true;
     isScaffold = false;
@@ -236,7 +251,7 @@ export class WebGLSceneComponent {
             this._config = this.defaultConfig::cloneDeep();
 
             this.selected = null;
-            this._graphData.scale(this._graphData.scaleFactor? this._graphData.scaleFactor: this.scaleFactor);
+            this._graphData.scale(this._graphData.scaleFactor ? this._graphData.scaleFactor : this.scaleFactor);
             // this._graphData.scale(this.scaleFactor);
             if (this._graphData.neurulator) {
                 this._graphData.neurulator();
@@ -446,6 +461,13 @@ export class WebGLSceneComponent {
         this.labelRelSize = newLabelScale;
         if (this.graph) {
             this.graph.labelRelSize(this.labelRelSize);
+        }
+    }
+
+    onStratifiedRegionSizeChange(newSize) {
+        this.stratifiedRegionSize = newSize;
+        if (this.graph) {
+            this.graph.stratifiedRegionSize(this.stratifiedRegionSize);
         }
     }
 
@@ -700,6 +722,7 @@ export class WebGLSceneComponent {
                 (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
 
         this.graph.labelRelSize(this.labelRelSize);
+        this.graph.stratifiedRegionSize(this.stratifiedRegionSize);
         this.graph.showLabels(this._config.showLabels);
         this.graph.labels(this._config.labels);
         this.scene.add(this.graph);
@@ -793,7 +816,7 @@ export class WebGLSceneComponent {
     updateBackground() {
         if (!this.scene) return;
 
-        const visibleComponents = ( this._graphData.components || []).filter(s =>
+        const visibleComponents = (this._graphData.components || []).filter(s =>
             (s.class === $SchemaClass.Scaffold || s.class === $SchemaClass.Component) && !s.hidden);
 
         const removeBackground = () => {
@@ -804,7 +827,7 @@ export class WebGLSceneComponent {
                 this._backgroundMesh = null;
             }
         };
-        
+
         if (visibleComponents.length === 1 && this._config.layout.showBackground) {
             const component = visibleComponents[0];
             if (component.background) {
@@ -962,7 +985,7 @@ export class WebGLSceneComponent {
                 // Actually, the strata view objects are the meshes themselves.
                 // We can return hit.userData but it needs to behave like a Resource
                 if (!entity.viewObjects) {
-                    entity.viewObjects = { "main": hit };
+                    entity.viewObjects = {"main": hit};
                 }
             }
             if (!entity || entity.inactive) {
@@ -1275,7 +1298,9 @@ export class WebGLSceneComponent {
 
         this.ray.setFromCamera(this.mouse, this.camera);
         const entity = this.getMouseOverEntity();
-        if (!entity) { return; }
+        if (!entity) {
+            return;
+        }
 
         if (entity.host && entity.stratum) {
             if (confirm("Delete stratified region?")) {
@@ -1332,7 +1357,7 @@ export class WebGLSceneComponent {
             group.hide();
         }
         this.updateGraph();
-        if (this.isScaffold){
+        if (this.isScaffold) {
             this.updateBackground();
         }
     }
