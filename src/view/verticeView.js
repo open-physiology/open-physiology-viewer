@@ -45,8 +45,15 @@ Vertice.prototype.createViewObjects = function (state) {
 Vertice.prototype.updateViewObjects = function (state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
     if (!this.invisible) {
-        copyCoords(this.viewObjects["main"].position, this);
-        this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
+        const obj = this.viewObjects["main"];
+        if (obj) {
+            copyCoords(obj.position, this);
+            const scale = (this instanceof Anchor || (this instanceof Node && this.anchoredTo)) ? (state.stratifiedRegionSize || 1) : 1;
+            obj.scale.set(scale, scale, scale);
+        }
+        if (this.viewObjects["main"]) {
+            this.updateLabels(this.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
+        }
     }
 };
 

@@ -11,7 +11,7 @@ module.exports = {
         'main-app/index': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './main-app/index.js'],
         'open-physiology-viewer': [ '@babel/polyfill', 'reflect-metadata', 'zone.js/dist/zone.js', './index.js' ],
         'open-physiology-viewer-minimal':                                                        [ './index.js' ],
-	    'converter': ['@babel/polyfill', 'reflect-metadata', '../wrapper/src/converter.js']
+	    'converter': ['@babel/polyfill', 'reflect-metadata', './index.js']
     },
 	output: {
 		path: __dirname + '/dist',
@@ -30,7 +30,7 @@ module.exports = {
                 { from: 'main-app/index.html',  to: 'main-app/index.html' },
                 { from: 'common/favicon.ico', to: 'main-app/favicon.ico' },
                 { from: 'common/styles',      to: 'main-app/styles'},
-                { from: 'common/styles/images', to: 'main-app/styles/images'}
+                { from: 'common/images',      to: 'main-app/styles/images'}
             ]
         })
     ])

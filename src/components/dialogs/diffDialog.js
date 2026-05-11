@@ -2,7 +2,7 @@ import {Component, Inject, NgModule} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {MatDialogRef,MAT_DIALOG_DATA,MatDialogModule} from '@angular/material/dialog';
 import {MatCheckboxModule} from "@angular/material/checkbox";
-import { InlineDiffComponent } from 'ngx-diff';
+import { NgxDiffModule } from 'ngx-diff';
 import { FormsModule } from '@angular/forms';
 
 
@@ -10,8 +10,8 @@ import { FormsModule } from '@angular/forms';
     selector: 'diffDialog',
     template:`
         <div mat-dialog-content>
-            <inline-diff [oldText]="data.oldContent" [newText]="data.newContent" [lineContextSize]="4">
-            </inline-diff>
+            <ngx-diff [oldText]="data.oldContent" [newText]="data.newContent" [lineContextSize]="4">
+            </ngx-diff>
             <div *ngIf="data && data.askCommitMessage" style="margin-top: 12px;">
                 <label for="commitMsg"><b>Commit message (optional):</b></label>
                 <textarea id="commitMsg" [(ngModel)]="commitMessage" rows="3" style="width: 100%;"></textarea>
@@ -62,7 +62,7 @@ export class DiffDialog {
 }
 
 @NgModule({
-    imports: [CommonModule, FormsModule, MatDialogModule, MatCheckboxModule, InlineDiffComponent],
+    imports: [CommonModule, FormsModule, MatDialogModule, MatCheckboxModule, NgxDiffModule],
     declarations: [DiffDialog],
     exports: [DiffDialog]
 })

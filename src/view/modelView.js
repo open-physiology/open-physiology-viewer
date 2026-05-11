@@ -1,6 +1,5 @@
 import {values} from 'lodash-bound';
 import {modelClasses} from "../model";
-import {ForceEdgeBundling} from "./algorithms/forceEdgeBundling";
 import {copyCoords, extractCoords, getPoint} from "./utils";
 import './visualResourceView';
 import './verticeView';
@@ -143,28 +142,6 @@ Group.prototype.updateViewObjects = function (state) {
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
 
     (this.chains || []).forEach(chain => chain.update && chain.update());
-
-    //Edge bundling
-    const fBundling = ForceEdgeBundling()
-        .nodes(this.visibleNodes)
-        .edges(this.visibleLinks.filter(e => e.geometry === Link.LINK_GEOMETRY.PATH).map(edge => {
-            return {
-                source: this.nodes.indexOf(edge.source),
-                target: this.nodes.indexOf(edge.target)
-            };
-        }));
-    const paths = fBundling();
-
-    (paths || []).forEach(path => {
-        let lnk = this.links.find(e => e.source.id === path[0].id && e.target.id === path[path.length - 1].id);
-        if (lnk) {
-            let dz = (path[path.length - 1].z - path[0].z) / path.length;
-            for (let i = 1; i < path.length - 1; i++) {
-                path[i].z = path[0].z + dz * i;
-            }
-            lnk.path = path.slice(1, path.length - 2).map(p => extractCoords(p));
-        }
-    });
 
     this.lyphs.forEach(lyph => {
         if (!(lyph instanceof Lyph)) return;

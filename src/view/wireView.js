@@ -95,6 +95,8 @@ Wire.prototype.updateViewObjects = function(state) {
         copyCoords(anchor, pos);
         if (anchor.viewObjects["main"]) {
             copyCoords(anchor.viewObjects["main"].position, anchor);
+            const scale = state.stratifiedRegionSize || 1;
+            anchor.viewObjects["main"].scale.set(scale, scale, scale);
             anchor.updateLabels(anchor.viewObjects["main"].position.clone().addScalar(this.state.labelOffset.Vertice));
         }
         //When hosted anchor is repositioned, the wires that end in it should be updated too

@@ -468,6 +468,7 @@ export class WebGLSceneComponent {
         this.stratifiedRegionSize = newSize;
         if (this.graph) {
             this.graph.stratifiedRegionSize(this.stratifiedRegionSize);
+            this.graph.graphData(this.graphData);
         }
     }
 

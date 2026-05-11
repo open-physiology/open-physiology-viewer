@@ -15,7 +15,7 @@ module.exports = [
         test: /\.(svg|eot|woff|woff2|ttf)$/,
         type: 'asset/resource',
         generator: {
-            filename: 'fonts/[hash][ext][query]'
+            filename: 'main-app/fonts/[hash][ext][query]'
         }
     },
     {   test: /\.xlsx$/,
