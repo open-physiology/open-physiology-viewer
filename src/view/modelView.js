@@ -15,43 +15,53 @@ import './stratifiedRegion.js';
 const {Group, Link, Coalescence, Component, Chain, Node, Lyph, Stratification} = modelClasses;
 
 
-//Update chain with dynamic ends
+// Update chain with dynamic ends
 Chain.prototype.update = function () {
-    //Resize chain lyphs to match the estimated level length
+    const MIN_LAYOUT_DELTA = 5;
+
+    // Resize chain lyphs to match the current estimated level length.
+    // During iterative layout `start/end` can temporarily collapse, so we only
+    // use positive chain length values and keep previous level lengths otherwise.
     const resizeLevels = () => {
         let min = {
             width: 40,
             height: 80
         };
+        const levelCount = this.levels?.length || 0;
+        const levelLength = this.length > 0 ? this.length / levelCount : null;
 
-        for (let i = 0; i < this.levels?.length; i++) {
-            const lyph = this.levels[i].conveyingLyph;
-            if (this.length) {
-                this.levels[i].length = this.length / this.levels.length;
+        for (let i = 0; i < levelCount; i++) {
+            const level = this.levels[i];
+            const lyph = level.conveyingLyph;
+
+            if (levelLength) {
+                level.length = levelLength;
             }
             if (lyph) {
                 if (lyph.housingLyph) {
                     if (!lyph.housingLyph.width || !lyph.housingLyph.height) {
                         [lyph.housingLyph.width, lyph.housingLyph.height] = lyph.housingLyph.sizeFromAxis::values();
                     }
-                    this.levels[i].length =
-                        this.radial ? Math.min(this.levels[i].length, lyph.housingLyph.width)
-                            : this.levels[i].length = Math.min(this.levels[i].length, lyph.housingLyph.height);
+                    if (level.length) {
+                        level.length = this.radial
+                            ? Math.min(level.length, lyph.housingLyph.width)
+                            : Math.min(level.length, lyph.housingLyph.height);
+                    }
                 }
                 [lyph.width, lyph.height] = lyph.sizeFromAxis::values();
                 min.width = Math.min(lyph.width, min.width);
                 min.height = Math.min(lyph.height, min.height);
             }
-
         }
-        // Make chain lyphs all the same size
-        for (let i = 0; i < this.levels?.length; i++) {
+
+        // Make chain lyphs all the same size.
+        for (let i = 0; i < levelCount; i++) {
             const lyph = this.levels[i].conveyingLyph;
             if (lyph) {
                 [lyph.width, lyph.height] = [min.width, min.height];
             }
         }
-    }
+    };
 
     if (!this.root || !this.leaf || !this.levels) {
         return;
@@ -66,41 +76,56 @@ Chain.prototype.update = function () {
         if (this.wiredTo && this.wiredTo.getCurve) {
             curve = this.startFromLeaf ? this.wiredTo.getCurve(end, start) : this.wiredTo.getCurve(start, end);
         }
-        let length = curve && curve.getLength ? curve.getLength() : end.distanceTo(start);
-        let N = this.levels.length;
+        const measuredLength = curve && curve.getLength ? curve.getLength() : end.distanceTo(start);
+        const hasUsableLength = measuredLength >= MIN_LAYOUT_DELTA;
 
+        // Degenerate scaffold distance is expected in early layout iterations.
+        // Do not project chain nodes to this collapsed segment, otherwise all
+        // level sources/targets may be forced to (0, 0).
+        if (!hasUsableLength) {
+            resizeLevels();
+            return;
+        }
+        const totalLevels = this.levels.length;
         // Adjust to recognize wireStart and wireEnd properties
         const from = this.wireStart ? this.wireStart : 0;
-        const to = this.wireEnd ? (this.wireEnd < 0 ? N + this.wireEnd : this.wireEnd) : N;
-        if (to - from < 0) {
+        const to = this.wireEnd ? (this.wireEnd < 0 ? totalLevels + this.wireEnd : this.wireEnd) : totalLevels;
+        const activeLevels = to - from;
+        if (activeLevels === 0) {
+            return;
+        }
+        if (activeLevels < 0) {
             this.startFromLeaf = true;
         }
-        //NK why excluding fixed links breaks the layout???
-        this.length = length * N / (to - from);
 
-        N = to - from;
+        // Scale full chain length from measured wired segment length.
+        this.length = measuredLength * totalLevels / activeLevels;
+
+        resizeLevels();
+
         let wiredRoot = from > 0 ? this.levels[from].source : this.root;
         copyCoords(wiredRoot.layout, start);
         wiredRoot.fixed = true;
-        //Interpolate node positions for a quicker layout of a chain with anchored nodes
+
+        // Interpolate node positions to speed up constrained chain layout.
         for (let i = from; i < to - 1; i++) {
             let node = this.levels[i].target;
             if (!node?.anchoredTo) {
-                let p = this.startFromLeaf ?
-                    getPoint(curve, end, start, (to - 1 - i) / N)
-                    : getPoint(curve, start, end, (i + 1) / N);
+                let p = this.startFromLeaf
+                    ? getPoint(curve, end, start, (to - 1 - i) / activeLevels)
+                    : getPoint(curve, start, end, (i + 1) / activeLevels);
                 copyCoords(node.layout, p);
-                //Leave nodes unfixed if we want them to be stretched by the force-directed layout instead
+                // Leave nodes unfixed if we want them to be stretched by the force-directed layout instead
                 node.fixed = true;
             }
         }
-        let wiredLeaf = to < N ? this.levels[to].target : this.leaf;
+        let wiredLeaf = to < totalLevels ? this.levels[to].target : this.leaf;
         copyCoords(wiredLeaf.layout, end);
         wiredLeaf.fixed = true;
+    } else {
+        resizeLevels();
     }
-    resizeLevels();
-
-}
+};
 
 /**
  * Create visual objects for group resources
@@ -138,7 +163,7 @@ Group.prototype.updateViewObjects = function (state) {
     //Update scaffolds
     (this.scaffolds || []).forEach(scaffold => scaffold.updateViewObjects(state));
 
-    //Update nodes positions
+    //Update node positions
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
 
     (this.chains || []).forEach(chain => chain.update && chain.update());

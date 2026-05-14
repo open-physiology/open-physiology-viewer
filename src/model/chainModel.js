@@ -108,9 +108,9 @@ export class Chain extends GroupTemplate {
             return;
         }
 
-        if ((chain.housingLyphTemplates || []).length > 0) {
-            return;
-        }
+        // if ((chain.housingLyphTemplates.filter() || []).length > 0) {
+        //     return;
+        // }
 
         function setLinkProps(link, prevLink, N) {
             link.levelIn = link.levelIn || [];
