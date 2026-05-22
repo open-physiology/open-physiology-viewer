@@ -55,7 +55,9 @@ export function createChainFromPrototype(chainPrototype, entitiesByID, replaceme
         [$Field.specializationOf]: chainPrototype.id, //Keep the reference to the original chain
         "_class": $SchemaClass.Chain
     }, entitiesByID);
-
+    if (chainPrototype.housingLyphTemplates){
+        chainDef.housingLyphTemplates = chainPrototype.housingLyphTemplates;
+    }
     let newLyphs = {};
 
     replacementMapLevels::entries().forEach(([level, replacementMap]) => {

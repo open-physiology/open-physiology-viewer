@@ -3,16 +3,19 @@ import {merge, values} from 'lodash-bound';
 import {
     copyCoords,
     isInRange,
+    starShape,
     THREE
 } from "./utils";
 
+import {MaterialFactory} from "./materialFactory";
 const {Border, VisualResource, Shape} = modelClasses;
 
 /**
- * Create visual object for shape
+ * Create a visual object for shape
  */
 Shape.prototype.createViewObjects = function(state) {
     VisualResource.prototype.createViewObjects.call(this, state);
+    this.drawInactiveChains(state);
 };
 
 /**
@@ -20,6 +23,7 @@ Shape.prototype.createViewObjects = function(state) {
  */
 Shape.prototype.updateViewObjects = function(state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
+    this.drawInactiveChains(state);
 };
 
 /**
@@ -27,12 +31,12 @@ Shape.prototype.updateViewObjects = function(state) {
  * @param node
  * @param offset
  */
-Shape.prototype.placeNodeInside = function (node, offset){
+Shape.prototype.placeNodeInside = function (node, offset, radial = false){
     let V = this.points[2].clone().sub(this.points[1]);
-    let U = this.points[1].clone().sub(this.points[0]).multiplyScalar(0.5);
-    let pos = this.points[0].clone().add(V.clone().multiplyScalar(offset)).add(U);
+    let U = this.points[1].clone().sub(this.points[0]);
+    let pos = radial? this.points[0].clone().add(U.clone().multiplyScalar(offset)).add(V.multiplyScalar(0.5))
+        : this.points[0].clone().add(V.clone().multiplyScalar(offset)).add(U.multiplyScalar(0.5));
     copyCoords(node, pos);
-    node.z += 1;
 }
 
 /**
@@ -124,7 +128,7 @@ Border.prototype.createViewObjects = function(state){
 Border.prototype.updateViewObjects = function(state){
     VisualResource.prototype.updateViewObjects.call(this, state);
 
-    for (let i = 0; i < this.borders.length ; i++){
+    for (let i= 0; i < this.borders.length ; i++){
         copyCoords(this.borders[i].source, this.host.points[ i ]);
         copyCoords(this.borders[i].target, this.host.points[ (i + 1) % this.borders.length]);
         this.borders[i].updateViewObjects(state);
@@ -137,8 +141,7 @@ Border.prototype.updateViewObjects = function(state){
         }
         if (this.borders[i].hostedNodes) {
             //position nodes on the lyph border (exact shape)
-            let n = this.borders[i].hostedNodes.length;
-            const offset = 1 / (n + 1);
+            const offset = 1 / (this.borders[i].hostedNodes.length + 1);
             let V = this.host.points[i + 1].clone().sub(this.host.points[i]);
             this.borders[i].hostedNodes.forEach((node, j) => {
                 //For borders 2 and 3 position nodes in the reversed order to have parallel links
@@ -148,14 +151,18 @@ Border.prototype.updateViewObjects = function(state){
                 }
                 //TODO cysts may have shifted nodes on layer borders
                 copyCoords(node, this.host.points[i].clone().add(V.clone().multiplyScalar(d_i)));
-            })
+            });
         }
     }
 
-    (this.host.internalNodes || []).forEach((node, i) => {
-        let d_i = node.offset !== undefined? node.offset: (i + 1) / (this.host.internalNodes.length + 1);
-        this.host.placeNodeInside(node, d_i);
-    })
+    if (this.host.internalNodes) {
+        const offset = 1 / (this.host.internalNodes.length + 1);
+        const radial = (this.host.bundlesChains||[]).filter (c => c.radial).length > 0;
+        this.host.internalNodes.forEach((node, i) => {
+            let d_i = node.offset !== undefined ? node.offset : (i + 1) * offset;
+            this.host.placeNodeInside(node, d_i, radial);
+        });
+    }
 
     const lyphsToLinks = lyphs => (lyphs || []).filter(lyph => lyph.axis).map(lyph => lyph.axis);
 
@@ -165,7 +172,45 @@ Border.prototype.updateViewObjects = function(state){
     const numCols = this.host.internalLyphColumns || 1;
     const internalLinks = lyphsToLinks(this.host.internalLyphs);
     internalLinks.forEach((link, i) => this.host.placeLinkInside(link, i, numCols, internalLinks.length));
+
+    if (this.host.drawInactiveChains) {
+        this.host.drawInactiveChains(state);
+    }
 };
+
+/**
+ * Places a visual artefact (star) for every inactive chain in "providesChains"
+ * @param state
+ */
+Shape.prototype.drawInactiveChains = function (state) {
+    (this.providesChains || []).forEach((chain, i) => {
+        if (chain.inactive) {
+            const key = `inactive-chain-${chain.id}`;
+            const offset = (i + 1) / (this.providesChains.length + 1);
+            const pos = new THREE.Vector3(this.width / 2 + this.width / 10, (offset - 0.5) * this.height, 1);
+
+            ["2d", "3d"].forEach(view => {
+                if (this.viewObjects[view]) {
+                    let mesh = this.viewObjects[view].children.find(c => c.userData?.key === key);
+                    if (!mesh) {
+                        const star = starShape(this.width / 10, this.width / 20);
+                        const geometry = new THREE.ShapeBufferGeometry(star);
+                        const material = MaterialFactory.createMeshBasicMaterial({
+                            color: chain.color || "#ffcc00",
+                            polygonOffsetFactor: (this.polygonOffsetFactor || 0) - 2
+                        });
+                        mesh = new THREE.Mesh(geometry, material);
+                        mesh.userData = chain;
+                        this.viewObjects[view].add(mesh);
+                        chain.viewObjects = chain.viewObjects || {};
+                        chain.viewObjects["main"] = mesh;
+                    }
+                    copyCoords(mesh.position, pos);
+                }
+            });
+        }
+    });
+}
 
 /**
  * @property polygonOffsetFactor

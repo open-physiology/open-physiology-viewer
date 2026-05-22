@@ -166,6 +166,31 @@ export function layerShape(inner, outer) {
 }
 
 /**
+ * Create a star shape
+ * @param outerRadius
+ * @param innerRadius
+ * @param points
+ * @returns {Shape}
+ */
+export function starShape(outerRadius, innerRadius, points = 5) {
+    const shape = new THREE.Shape();
+    let angle = Math.PI / points;
+    for (let i = 0; i < 2 * points; i++) {
+        let r = (i & 1) ? innerRadius : outerRadius;
+        let currAngle = i * angle + Math.PI / 2;
+        let x = Math.cos(currAngle) * r;
+        let y = Math.sin(currAngle) * r;
+        if (i === 0) {
+            shape.moveTo(x, y);
+        } else {
+            shape.lineTo(x, y);
+        }
+    }
+    shape.closePath();
+    return shape;
+}
+
+/**
  * Create lyph shape
  * @param {Array} params - lyph border shape parameters (thickness and height, corner radius, and boolean values to mark radial border topology: "false" for open and "true" for closed)
  * @returns {Shape}      - lyph shape (rectangle with or without rounded corners depending on its topology)

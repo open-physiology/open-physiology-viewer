@@ -441,8 +441,10 @@ export class Group extends Resource {
     static embedChainsToHousingLyphs(parentGroup, modelClasses) {
         //(parentGroup.chains || []).forEach(chain => modelClasses.Chain.embedToHousingLyphs(parentGroup, chain));
         (parentGroup.chains || []).forEach(chain => {
+
             if (chain.housingLyphTemplates) {
                 modelClasses.Chain.replicateToHousingLyphSubtypes(parentGroup, chain);
+
             } else {
                 if (chain.isTemplate) {
                     logger.error($LogMsg.CHAIN_HOUSING_TEMPLATE, chain.id);
@@ -480,7 +482,7 @@ export class Group extends Resource {
                 coalescenceGroup.groups.push(group.id);
             }
         });
-        if (coalescenceGroup.groups.length > 0){
+        if (coalescenceGroup.groups.length > 0) {
             parentGroup.groups.push(coalescenceGroup);
         }
     }

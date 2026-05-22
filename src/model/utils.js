@@ -166,7 +166,7 @@ export const $Prefix = {
     component: "comp", //component
     query: "query",  //dynamic query
     default: "default", //default group ID
-    autoLinks: "autoLinks", //AUto-generated links
+    autoLinks: "autoLinks", //Auto-generated links
     force: "force",
     lateral: "lateral",
     gParts: "g-parts",

@@ -650,13 +650,33 @@ export class Chain extends GroupTemplate {
             const genChains = [];
             //All descendant specific lyphs
             let subtypes = housingLyphTemplate.isTemplate ? findAllDerived(housingLyphTemplate.id, parentGroup.lyphsByID) : [housingLyphTemplate];
-            subtypes.forEach(lyph => {
 
+            const assignHousingLyphs = (c, lyph) => {
+                let numLayers = (lyph.layers || []).length;
+                let numLevels = numLayers - startLayer;
+                if (c.numLevels) {
+                    numLevels = Math.min(c.numLevels, numLevels);
+                }
+                c.housingLyphs = c.housingLyphs || [];
+                for (let i = startLayer; i < startLayer + numLevels; i++) {
+                    c.housingLyphs.push(getFullID(lyph.namespace, lyph.layers[i]));
+                }
+            }
+
+            // If there is only one housing lyph and it is an instance, do not replicate
+            if (subtypes.length === 1) {
+                assignHousingLyphs(chain, subtypes[0]);
+                chain.radial = true;
+                this.expandTemplate(parentGroup, chain);
+                this.embedToHousingLyphs(parentGroup, chain);
+                return;
+            }
+
+            subtypes.forEach(lyph => {
                 const genChainID = getGenID(chain.id, $Prefix.clone, lyph.id);
                 let genChain = {
                     [$Field.id]: genChainID,
                     [$Field.namespace]: parentGroup.namespace,
-                    [$Field.housingLyphs]: [],
                     [$Field.generatedFrom]: chain.id,
                     [$Field.radial]: true
                 };
@@ -681,16 +701,8 @@ export class Chain extends GroupTemplate {
                 if (chain.levelOntologyTerms) {
                     genChain.levelOntologyTerms = chain.levelOntologyTerms;
                 }
-                let numLayers = (lyph.layers || []).length;
-                let numLevels = numLayers - startLayer;
-                if (chain.numLevels) {
-                    numLevels = Math.min(chain.numLevels, numLevels);
-                }
-                for (let i = startLayer; i < startLayer + numLevels; i++) {
-                    genChain.housingLyphs.push(getFullID(lyph.namespace, lyph.layers[i]));
-                }
+                assignHousingLyphs(genChain, lyph);
                 genChains.push(genChain);
-
             });
             genChains.forEach(genChain => {
                 parentGroup.chains.push(genChain);

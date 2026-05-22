@@ -200,7 +200,7 @@ import {logger} from "../../model/logger";
                             </div>
                         </button>
                         <button class="w3-bar-item w3-hover-light-grey" (click)="rewriteChains()"
-                                title="Rewrite all chains">
+                                title="Rewrite all chains (replace prototypes)">
                             <i class="fa fa-caret-down"> </i>
                         </button>
                         <button [disabled]="currentStep > 0" class="w3-bar-item w3-hover-light-grey"
@@ -653,7 +653,7 @@ export class ChainEditorComponent extends ResourceEditor {
         (this.selectedChain[prop] || []).forEach((resourceID, idx) => {
             let resource = this.entitiesByID[resourceID];
             if (!resource){
-                console.log("No resource found in the entitiesByID map for ", resourceID, " in the ", prop, " list of the chain ", this.selectedChain.id, "." );
+                logger.warn("No resource found in the entitiesByID map for ", resourceID, " in the ", prop, " list of the chain ", this.selectedChain.id, "." );
             } else {
                 if (prop === $Field.housingLyphTemplates || prop === $Field.housingLyphs) {
                     if (this.selectedChain.housingLayers?.length > idx) {
@@ -832,7 +832,7 @@ export class ChainEditorComponent extends ResourceEditor {
                     levels.forEach(level => {
                         replacementMapLevels[level] = {};
                     });
-                    this.createChainFromPrototype(chain, replacementMapLevels);
+                    this.createChainFromPrototype(chain, replacementMapLevels, true);
                 }
             }
         });
@@ -844,7 +844,7 @@ export class ChainEditorComponent extends ResourceEditor {
         return reviseHierarchy(oldLyph, this.entitiesByID, replacementMap, this.defineNewLyph.bind(this));
     }
 
-    createChainFromPrototype(chainPrototype, replacementMapLevels) {
+    createChainFromPrototype(chainPrototype, replacementMapLevels, rewrite = false) {
         createChainFromPrototype(chainPrototype, this.entitiesByID, replacementMapLevels, {
             defineNewLyph: this.defineNewLyph.bind(this),
             createChain: this.createChain.bind(this),

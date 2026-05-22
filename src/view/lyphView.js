@@ -1,4 +1,4 @@
-import {modelClasses} from "../model";
+import {$Field, modelClasses} from "../model";
 import {
     align,
     copyCoords,
@@ -10,6 +10,7 @@ import {
     lyphShape,
     THREE
 } from "./utils";
+import {values} from "lodash-bound";
 
 const {Lyph, Shape} = modelClasses;
 
@@ -181,6 +182,18 @@ Lyph.prototype.createViewObjects = function(state) {
     this.createLabels();
 };
 
+Lyph.prototype.removeViewObjects = function(){
+    if (!this.viewObjects) return;
+    (this.layers||[]).forEach(layer => layer.removeViewObjects());
+    this.viewObjects::values().forEach(obj => {
+        if (obj && obj.parent) {
+            obj.parent.remove(obj);
+        }
+    });
+    delete this.viewObjects["2d"];
+    delete this.viewObjects["3d"];
+    delete this.viewObjects["main"];
+}
 /**
  * Update visual objects for a lyph
  */
@@ -207,7 +220,7 @@ Lyph.prototype.updateViewObjects = function(state) {
             }
         }
         this.setVisibility(this.isVisible && state.showLyphs);
-        //Show lyph with no layers or when layers setting is switched off
+        //Show lyph with no layers or when layer setting is switched off
         this.setMaterialVisibility((this.layers||[]).length === 0 || !state.showLayers);
         copyCoords(obj.position, this.center);
 
@@ -227,6 +240,8 @@ Lyph.prototype.updateViewObjects = function(state) {
 
     this.border.updateViewObjects(state);
 
+    this.drawInactiveChains(state);
+
     //Layers and inner lyphs have no labels
     if (this.layerIn || this.internalIn) { return; }
 
@@ -239,7 +254,9 @@ Lyph.prototype.updateViewObjects = function(state) {
 Object.defineProperty(Lyph.prototype, "polygonOffsetFactor", {
     get: function() {
         return Math.min(
-            ...["axis", "layerIn", "internalIn", "hostedBy"].map(prop => this[prop]?
+            ...["axis", $Field.layerIn, $Field.internalIn, $Field.hostedBy, $Field.housingLyph].map(prop => this[prop]?
                 (this[prop].polygonOffsetFactor || -1) - 1: -1));
     }
 });
+
+

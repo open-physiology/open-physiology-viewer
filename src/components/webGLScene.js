@@ -984,12 +984,12 @@ export class WebGLSceneComponent {
             if (entity && entity.host && entity.stratum) {
                 // If it's a stratum, return the stratum object but make sure it has viewObjects
                 // Actually, the strata view objects are the meshes themselves.
-                // We can return hit.userData but it needs to behave like a Resource
+                // We can return hit.userData, but it needs to behave like a Resource
                 if (!entity.viewObjects) {
                     entity.viewObjects = {"main": hit};
                 }
             }
-            if (!entity || entity.inactive) {
+            if (!entity || (entity.class !== $SchemaClass.Chain && entity.inactive)) {
                 return;
             }
             return selectLayer(entity);

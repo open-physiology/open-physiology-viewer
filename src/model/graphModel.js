@@ -236,8 +236,9 @@ export class Graph extends Group {
             let noAxisLyphsInternal = (res.lyphs || []).filter(lyph => lyph.internalIn && !lyph.axis && !lyph.isTemplate);
             res.createAxes(noAxisLyphsInternal, modelClasses, entitiesByID);
 
-            let noAxisLyphs = (res.lyphs || []).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
-            res.createAxes(noAxisLyphs, modelClasses, entitiesByID);
+            // let noAxisLyphs = (res.lyphs || []).filter(lyph => lyph::isObject() && !lyph.conveys && !lyph.layerIn && !lyph.isTemplate);
+            // res.createAxes(noAxisLyphs, modelClasses, entitiesByID);
+
             (res.groups || []).forEach(group => group.includeRelated && group.includeRelated());
             (res.coalescences || []).forEach(r => r.createInstances(res, modelClasses));
 

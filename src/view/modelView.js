@@ -16,8 +16,12 @@ const {Group, Link, Coalescence, Component, Chain, Node, Lyph, Stratification} =
 
 
 // Update chain with dynamic ends
-Chain.prototype.update = function () {
+Chain.prototype.update = function (state) {
     const MIN_LAYOUT_DELTA = 5;
+    let verbose = false
+    if (this.id === "chain-epithelial-cell-in-inner-medullary-collecting-duct1"){
+        verbose = true;
+    }
 
     // Resize chain lyphs to match the current estimated level length.
     // During iterative layout `start/end` can temporarily collapse, so we only
@@ -32,33 +36,40 @@ Chain.prototype.update = function () {
 
         for (let i = 0; i < levelCount; i++) {
             const level = this.levels[i];
-            const lyph = level.conveyingLyph;
-
             if (levelLength) {
                 level.length = levelLength;
             }
+            const lyph = level.conveyingLyph;
             if (lyph) {
                 if (lyph.housingLyph) {
                     if (!lyph.housingLyph.width || !lyph.housingLyph.height) {
                         [lyph.housingLyph.width, lyph.housingLyph.height] = lyph.housingLyph.sizeFromAxis::values();
                     }
+                    //First and last levels in a chain end in the housing lyph
+                    const delta = (i === 0 || i === levelCount - 1) ? 0.8 : 0.95;
                     if (level.length) {
                         level.length = this.radial
-                            ? Math.min(level.length, lyph.housingLyph.width)
-                            : Math.min(level.length, lyph.housingLyph.height);
+                            ? Math.min(level.length, delta*lyph.housingLyph.width)
+                            : Math.min(level.length, delta*lyph.housingLyph.height);
                     }
                 }
-                [lyph.width, lyph.height] = lyph.sizeFromAxis::values();
-                min.width = Math.min(lyph.width, min.width);
-                min.height = Math.min(lyph.height, min.height);
+                const [width, height] = lyph.sizeFromAxis::values();
+                min.width = Math.min(width, width);
+                min.height = Math.min(height, height);
             }
         }
 
+        const DELTA = 5;
         // Make chain lyphs all the same size.
         for (let i = 0; i < levelCount; i++) {
             const lyph = this.levels[i].conveyingLyph;
-            if (lyph) {
+            if (lyph && (Math.abs(lyph.width - min.width) > DELTA || Math.abs(lyph.height - min.height) > DELTA)) {
                 [lyph.width, lyph.height] = [min.width, min.height];
+                if (lyph.viewObjects["2d"]){
+                    lyph.removeViewObjects();
+                    lyph.updateViewObjects(state);
+                    lyph.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
+                }
             }
         }
     };
@@ -144,7 +155,7 @@ Group.prototype.createViewObjects = function (state) {
         node.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
     });
 
-    (this.chains || []).forEach(chain => chain.update && chain.update());
+    (this.chains || []).forEach(chain => chain.update && chain.update(state));
 
     this.visibleLinks.forEach(link => {
         if (!(link instanceof Link)) return;
@@ -166,7 +177,7 @@ Group.prototype.updateViewObjects = function (state) {
     //Update node positions
     this.visibleNodes.forEach(node => node.updateViewObjects(state));
 
-    (this.chains || []).forEach(chain => chain.update && chain.update());
+    (this.chains || []).forEach(chain => chain.update && chain.update(state));
 
     this.lyphs.forEach(lyph => {
         if (!(lyph instanceof Lyph)) return;
