@@ -205,7 +205,7 @@ export class DemoApp extends AppCommon {
     }
 
     ngAfterViewInit() {
-        const fileName = 'renal-wbkg-scaffold-snapshot-v1.json';
+        const fileName = 'protein_chains_in_cells-inactive.json';
         const metaUrl = `${config.storageContentURL}${fileName}`;
         try {
             this.http.get(metaUrl).subscribe((meta) => {

@@ -5,12 +5,10 @@ import {isArray, isObject} from 'lodash-bound';
 @Component({
     selector: 'resourceInfoPanel',
     template: `
-        <section *ngFor="let property of resource?.infoFields || []">
+        <section *ngFor="let property of _infoFields">
             <section>
                 <label class="w3-label"><b>{{property}}: </b></label>
-                <span *ngIf="_fieldMap[property] === FIELD_TYPES.TEXT">
-                    {{resource[property] || "?"}}
-                </span>
+                <span *ngIf="_fieldMap[property] === FIELD_TYPES.TEXT" style="white-space: pre-wrap;">{{resource[property]}}</span>
                 
                 <span *ngIf="_fieldMap[property] === FIELD_TYPES.OBJECT">
                     {{resource[property]?.id || "?"}} - {{resource[property]?.name || "?"}}
@@ -31,6 +29,7 @@ import {isArray, isObject} from 'lodash-bound';
  */
 export class ResourceInfoPanel {
     _resource;
+    _infoFields = [];
 
     FIELD_TYPES = {
         ARRAY  : "array",
@@ -40,10 +39,13 @@ export class ResourceInfoPanel {
 
     @Input('resource') set resource(newValue){
         this._resource = newValue;
+        this._infoFields = [];
         if (this.resource && this.resource.constructor) {
             this._fieldMap = {};
             (this._resource.infoFields||[]).forEach(key => {
-                if (!key) { return; }
+                if (!key || this._resource[key] === undefined || this._resource[key] === null) { return; }
+                if (this._resource[key]::isArray() && this._resource[key].length === 0) { return; }
+                
                 if (this._resource[key]){
                     if (this._resource[key]::isArray()){
                         this._fieldMap[key] = this.FIELD_TYPES.ARRAY;
@@ -56,6 +58,7 @@ export class ResourceInfoPanel {
                 if (!this._fieldMap[key]){
                     this._fieldMap[key] = this.FIELD_TYPES.TEXT;
                 }
+                this._infoFields.push(key);
             });
         }
     };

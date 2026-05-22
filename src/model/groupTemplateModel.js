@@ -8,7 +8,7 @@ import {
     genResource
 } from "./utils";
 import {logger, $LogMsg} from './logger';
-import {defaults} from 'lodash-bound';
+import {defaults, isObject} from 'lodash-bound';
 
 /**
  * Group template
@@ -16,7 +16,7 @@ import {defaults} from 'lodash-bound';
  */
 export class GroupTemplate extends Resource{
     /**
-     * Create empty group to accumulate resources generated from a template
+     * Create an empty group to accumulate resources generated from a template
      * @param template - tree or channel template
      * @param parentGroup - parent group
      */
@@ -24,7 +24,7 @@ export class GroupTemplate extends Resource{
         let group = template.group || {};
         group.id = group.id || getGenID($Prefix.group, template.id);
         let existing = refToResource(group.id, parentGroup, $Field.groups);
-        if (existing){
+        if (existing && existing::isObject()){
             logger.warn($LogMsg.DYNAMIC_GROUP_EXISTS, group.id);
             group = existing;
         } else {

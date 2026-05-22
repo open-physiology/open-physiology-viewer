@@ -487,7 +487,8 @@ export const refToResource = (ref, parentGroup, prop, generate = false) => {
     }
     //Look for generated resources in the parent group
     res = res || findResourceByID(parentGroup[prop], ref, getRefNamespace(ref, parentGroup.namespace));
-    if (res) {
+
+    if (res && res::isObject()) {
         res.namespace = res.namespace || getRefNamespace(ref, parentGroup.namespace);
     }
     if (!res && generate) {

@@ -236,6 +236,20 @@
         }
       ],
       "properties": {
+        "infoFields": {
+          "description": "Properties shown in the info panel when the resource is highlighted or selected",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "id",
+            "namespace",
+            "name",
+            "description",
+            "class"
+          ]
+        },
         "root": {
           "description": "The source node of the chain (tree root)",
           "anyOf": [
@@ -1510,7 +1524,7 @@
           "default": "link"
         },
         "infoFields": {
-          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "description": "Properties shown in the info panel when the resource is highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"
@@ -2030,7 +2044,7 @@
           "maximum": 360
         },
         "infoFields": {
-          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "description": "Properties shown in the info panel when the resource is highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"
@@ -2041,11 +2055,12 @@
             "name",
             "class",
             "topology",
-            "external",
+            "ontologyTerms",
             "conveys",
+            "supertype",
+            "housingLyph",
             "internalIn",
-            "bundles",
-            "supertype"
+            "bundles"
           ]
         },
         "width": {
@@ -2202,7 +2217,7 @@
       ],
       "properties": {
         "infoFields": {
-          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "description": "Properties shown in the info panel when the resource is highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"
@@ -2211,13 +2226,7 @@
             "id",
             "namespace",
             "name",
-            "class",
-            "sourceOf",
-            "targetOf",
-            "rootOf",
-            "leafOf",
-            "internalIn",
-            "cloneOf"
+            "class"
           ]
         },
         "hostedBy": {
@@ -2811,7 +2820,7 @@
           }
         },
         "infoFields": {
-          "description": "Properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "description": "Properties shown in the info panel when the resource is highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"
@@ -2820,7 +2829,8 @@
             "id",
             "namespace",
             "name",
-            "class"
+            "class",
+            "ontologyTerms"
           ]
         },
         "external": {
@@ -3183,7 +3193,7 @@
           "$ref": "#/definitions/Point2Scheme"
         },
         "infoFields": {
-          "description": "Resource properties shown in the info panel when the resource is active, i.e., highlighted or selected",
+          "description": "Properties shown in the info panel when the resource is highlighted or selected",
           "type": "array",
           "items": {
             "type": "string"

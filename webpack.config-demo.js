@@ -29,7 +29,7 @@ module.exports = {
                 { from: 'demo-app/index.html',  to: 'demo-app/index.html' },
                 { from: 'common/favicon.ico', to: 'demo-app/favicon.ico' },
                 { from: 'common/styles',      to: 'demo-app/styles'},
-                { from: 'common/styles/images', to: 'demo-app/styles/images'}
+                { from: 'common/images', to: 'demo-app/styles/images'}
             ]
         })
     ])
