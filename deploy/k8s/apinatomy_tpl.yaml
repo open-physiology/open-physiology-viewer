@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apinatomy
+spec:
+  selector:
+    matchLabels:
+      app: apinatomy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: apinatomy
+    spec:
+      containers:
+        - name: apinatomy
+          image: "{{REGISTRY}}apinatomy:{{TAG}}"
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apinatomy
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: apinatomy
