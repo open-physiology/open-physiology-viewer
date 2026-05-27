@@ -114,6 +114,38 @@ export function d3_createBagRect(group, x, y, width, height, fill, text, tooltip
     return shape;
 }
 
+export function d3_createStar(group, x, y, outerRadius, innerRadius, points = 5, fill = "#ffcc00", text = "", tooltip = null) {
+    const angle = Math.PI / points;
+    const pathData = [];
+    for (let i = 0; i < 2 * points; i++) {
+        const r = (i & 1) ? innerRadius : outerRadius;
+        const currAngle = i * angle - Math.PI / 2;
+        const px = x + Math.cos(currAngle) * r;
+        const py = y + Math.sin(currAngle) * r;
+        pathData.push((i === 0 ? "M" : "L") + px + "," + py);
+    }
+    pathData.push("Z");
+
+    return group.append("path")
+        .attr("d", pathData.join(" "))
+        .attr("fill", fill)
+        .attr("stroke", "black")
+        .attr("stroke-width", "1")
+        .style("cursor", "pointer")
+        .on("mouseover", d => {
+            if (!tooltip) return;
+            tooltip
+                .style("left", d3.event.pageX + 10 + "px")
+                .style("top", d3.event.pageY + 10 + "px")
+                .style("opacity", "0.9")
+                .html(text);
+        })
+        .on("mouseout", d => {
+            if (!tooltip) return;
+            tooltip.style("opacity", 0)
+        });
+}
+
 function getOffsets(groupA, groupB, rectWidth, rectHeight, centerX) {
     const aRects = groupA.selectAll(":scope > rect").nodes();
     const bRects = groupB.selectAll(":scope > rect").nodes();

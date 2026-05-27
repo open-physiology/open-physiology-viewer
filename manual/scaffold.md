@@ -65,7 +65,7 @@
  Another read-only property `partOf` indicates to which scaffold the wire belongs.
 
  The main use of wires in ApiNATOMY models is to define trajectories for chains. The wire's property
- `wiredChains` shows which chains get governed by the wire.
+ `wiredChains` shows which chains get governed by the wire. Wires can also be used as axes for [stratified regions](./stratification.html).
 
 ## Region
   Regions are flat shapes that help to provide context to the model, e.d., by placing certain process graphs into a region named "Lungs", one can indicate that this process is happening in the lungs.

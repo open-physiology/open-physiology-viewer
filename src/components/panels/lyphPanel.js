@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import {
     d3_createRect,
     d3_createBagRect,
+    d3_createStar,
     drawCellNetwork, generateRandomCellNetwork
 } from '../utils/svgDraw';
 import cellularNetworks from "../../data/cellNetworks.json";
@@ -11,6 +12,13 @@ import cellularNetworks from "../../data/cellNetworks.json";
 @Component({
     selector: 'lyphPanel',
     template: `
+        <div *ngIf="selectedChain" class="w3-container w3-card w3-light-grey 
+             w3-padding-small w3-animate-top"
+             style="position: absolute; top: 0; left: 0; right: 0; z-index: 100;">
+            <span (click)="selectedChain = null" class="w3-button w3-display-topright">&times;</span>
+            <p> {{selectedChain.id}} <b>{{selectedChain.name}}</b> </p>
+            <p *ngIf="selectedChain.description">{{selectedChain.description}}</p>
+        </div>
         <b class="w3-padding">{{lyph?.name || lyph?.id}}</b>
         <div #svgLyphContainer id="svgLyphContainer">
             <svg #svg></svg>
@@ -30,7 +38,8 @@ export class LyphPanel {
     lyphSize = {width: 200, height: 200};
     init = {x: 20, y: 20, width: 100};
     border = 10;
-    placeholder = 40;
+    placeholder = 50;
+    selectedChain = null;
 
     @Input() right;
 
@@ -66,7 +75,12 @@ export class LyphPanel {
         if (!this.svg) return;
         const svgHeight = this.lyphSize.height + 2 * this.init.y;
         const n = (this.lyphs || []).length;
-        const k = (this.lyphs || []).filter(lyph => lyph.placeholder).length;
+        const k = (this.lyphs || []).filter(lyph => {
+            if (Array.isArray(lyph)) {
+                return lyph.every(cell => cell.placeholder);
+            }
+            return lyph.placeholder;
+        }).length;
         let svgWidth = (n - k) * this.lyphSize.width + k * this.placeholder + 2 * n * this.border + 2 * this.init.x;
         this.svg.attr("width", Math.max(svgWidth, this.width)).attr("height", svgHeight);
         this.svg.selectAll('*').remove();
@@ -85,11 +99,12 @@ export class LyphPanel {
                      this.drawLyph(dx, dy, cell, zoomGroup);
                      dy += this.lyphSize.height + 2 * this.border;
                 });
+                dx += (lyph.some(cell => !cell.placeholder) ? this.lyphSize.width : this.placeholder);
             } else {
                 this.drawLyph(dx, dy, lyph, zoomGroup);
+                dx += (lyph.placeholder ? this.placeholder : this.lyphSize.width);
             }
             dy = this.init.y;
-            dx += (lyph.placeholder ? this.placeholder : this.lyphSize.width);
         });
 
         this.svg.attr("height", Math.max(this.svg.attr("height"), max_dy));
@@ -158,9 +173,39 @@ export class LyphPanel {
             });
         }
 
+        if (lyph.providesChains) {
+            const n = rects.length > 1 ? 2: 1;
+            const firstLayerRect = rects[rects.length - n];
+            const nextLayerRect = n > 1 ? rects[rects.length - 1] : null;
+            (lyph.providesChains || []).forEach((chain, i) => {
+                const offset = (i + 1) / (lyph.providesChains.length + 1);
+                let starX, starY;
+                if (firstLayerRect) {
+                    starX = firstLayerRect.x + firstLayerRect.width / 2;
+                    starY = firstLayerRect.y + offset * firstLayerRect.height;
+                    if (nextLayerRect) {
+                        if (firstLayerRect.left) {
+                            starX = (firstLayerRect.x + nextLayerRect.x) / 2;
+                        } else if (firstLayerRect.right) {
+                            starX = (nextLayerRect.x + nextLayerRect.width + firstLayerRect.x + firstLayerRect.width) / 2;
+                        } else {
+                            starX = firstLayerRect.x + offset * firstLayerRect.width;
+                            starY = (firstLayerRect.y + nextLayerRect.y) / 2;
+                        }
+                    }
+                } else {
+                    starX = init_x + width / 2;
+                    starY = init_y + offset * height;
+                }
+                const star = d3_createStar(group, starX, starY, width / 10, width / 20, 5, chain.color || "#ffcc00", chain.name || chain.id, this.tooltip);
+                star.on("click", () => {
+                    this.selectedChain = chain;
+                });
+            });
+        }
         //let [nodes, links] = generateRandomCellNetwork(rects);
-        let [nodes, links] = this.generateCellNetwork(layers, rects);
-        drawCellNetwork(rects, group, nodes, links, this.tooltip);
+        // let [nodes, links] = this.generateCellNetwork(layers, rects);
+        // drawCellNetwork(rects, group, nodes, links, this.tooltip);
     }
 
     generateCellNetwork(layers, rects){
