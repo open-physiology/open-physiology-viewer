@@ -99,7 +99,7 @@ export class LyphPanel {
                      this.drawLyph(dx, dy, cell, zoomGroup);
                      dy += this.lyphSize.height + 2 * this.border;
                 });
-                dx += (lyph.some(cell => !cell.placeholder) ? this.lyphSize.width : this.placeholder);
+                dx += (lyph.some(cell => !cell.placeholder) ? this.lyphSize.width: this.placeholder);
             } else {
                 this.drawLyph(dx, dy, lyph, zoomGroup);
                 dx += (lyph.placeholder ? this.placeholder : this.lyphSize.width);
@@ -126,7 +126,7 @@ export class LyphPanel {
         let height = this.lyphSize.height;
 
         if (lyph.placeholder) {
-            d3_createRect(group, dx, dy - this.border, this.placeholder + 2 * this.border, height + 2 * this.border,
+            d3_createRect(group, dx + this.border, dy - this.border, this.placeholder + 2 * this.border, height + 2 * this.border,
                 lyph.color, lyph.label, this.tooltip);
             return;
         }

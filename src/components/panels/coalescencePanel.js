@@ -1,6 +1,6 @@
 import {Component, ElementRef, Input, NgModule, Output, ViewChild, EventEmitter} from '@angular/core';
 import * as d3 from "d3";
-import {values, entries} from 'lodash-bound';
+import {values, entries, isArray} from 'lodash-bound';
 import {CommonModule} from "@angular/common";
 
 window.d3 = d3;
@@ -25,6 +25,9 @@ import {MatTooltipModule} from "@angular/material/tooltip";
                  style="display: flex; flex-direction: column;">
                 <div style="display: flex; justify-content: flex-end;align-items: center;">
                     <span style="margin-right: 8px;">{{label}}</span>
+                    <span *ngIf="cellChainCount > 0" class="w3-badge w3-margin-right" title="Cell chain count">
+                        {{cellChainCount}}
+                    </span>
                     <mat-slider class="w3-bar-item w3-light-grey"
                                 style="height: 42px; width:100px;"
                                 [min]="0"
@@ -186,9 +189,24 @@ export class CoalescencePanel {
     }
 
     showCellLayers() {
-        let lyphsA = collectLayerCells(this.layerCellLevelMap, this.lyphA.layers);
-        let lyphsB = collectLayerCells(this.layerCellLevelMap, [...this.lyphB.layers].reverse());
-        this.showLyphs([...(lyphsA || []), ...(lyphsB || [])]);
+        const lyphsA = collectLayerCells(this.layerCellLevelMap, this.lyphA.layers) || [];
+        const lyphsB = collectLayerCells(this.layerCellLevelMap, [...this.lyphB.layers].reverse()) || [];
+        this.showLyphs([...lyphsA, ...lyphsB]);
+    }
+
+    get cellChainCount(){
+        const lyphsA = collectLayerCells(this.layerCellLevelMap, this.lyphA.layers) || [];
+        const lyphsB = collectLayerCells(this.layerCellLevelMap, [...this.lyphB.layers].reverse()) || [];
+        const lyphs = [...lyphsA, ...lyphsB];
+        let _cellChainCount = 0;
+        lyphs.forEach(aLyphs => {
+            if (aLyphs::isArray()) {
+                aLyphs.forEach(lyph => {
+                    _cellChainCount += (lyph.providesChains || []).length;
+                });
+            }
+        });
+        return _cellChainCount;
     }
 
     ngAfterViewInit() {
