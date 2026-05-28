@@ -1106,7 +1106,7 @@ export class WebGLSceneComponent {
                     .filter(x => x);
                 this.openMaterialTreeLyphId = this.selected.id;
                 const dialogRef = this.dialog.open(MaterialTreeDialog, {
-                    width: '80vw', height: '70vh', maxWidth: '95vw', data: {
+                    width: '80vw', maxWidth: '95vw', data: {
                         title: `Materials of ${this.selected.name || this.selected.id}`,
                         roots
                     }
@@ -1125,7 +1125,7 @@ export class WebGLSceneComponent {
             //Show coalescence dialog
             this.openCoalescenceNodeId = this.selected.id;
             const dialogRef = this.dialog.open(CoalescenceDialog, {
-                width: '50%', height: '65%', data: {
+                width: '60vw', height: '80vh', data: {
                     coalescence: this.selected.representsCoalescence
                 }
             });
@@ -1134,8 +1134,8 @@ export class WebGLSceneComponent {
                 const componentInstance = dialogRef.componentInstance;
                 componentInstance.resizeDialog.subscribe((maximize: boolean) => {
                     dialogRef.updateSize(
-                        maximize ? '100vw' : '50%',
-                        maximize ? '100vh' : '65%'
+                        maximize ? '95vw' : '60vw',
+                        maximize ? '95vh' : '80vh'
                     );
                 });
             });
@@ -1182,7 +1182,7 @@ export class WebGLSceneComponent {
         }
         this.openCoalescenceNodeId = node.id;
         const dialogRef = this.dialog.open(CoalescenceDialog, {
-            width: '50%', height: '65%', data: {
+            width: '60vw', height: '80vh', data: {
                 coalescence: node.representsCoalescence
             }
         });
@@ -1191,8 +1191,8 @@ export class WebGLSceneComponent {
             const componentInstance = dialogRef.componentInstance;
             componentInstance.resizeDialog.subscribe((maximize: boolean) => {
                 dialogRef.updateSize(
-                    maximize ? '100vw' : '50%',
-                    maximize ? '100vh' : '65%'
+                    maximize ? '95vw' : '60vw',
+                    maximize ? '95vh' : '80vh'
                 );
             });
         });
@@ -1224,7 +1224,7 @@ export class WebGLSceneComponent {
             .filter(x => x);
         this.openMaterialTreeLyphId = lyph.id;
         const dialogRef = this.dialog.open(MaterialTreeDialog, {
-            width: '80vw', height: '70vh', maxWidth: '95vw', data: {
+            width: '80vw', maxWidth: '95vw', data: {
                 title: `Materials of ${lyph.name || lyph.id}`,
                 roots
             }

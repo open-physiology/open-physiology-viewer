@@ -82,14 +82,23 @@ import {MatTooltipModule} from "@angular/material/tooltip";
         </div>
         <div *ngIf="selectedLyphs" class="lyphContainer w3-border">
             <button mat-icon-button class="cross" (click)="selectedLyphs = null">&cross;</button>
-            <lyphPanel [lyphs]=selectedLyphs [right]="right" [tooltipRef]="_tooltipRef"></lyphPanel>
+            <lyphPanel [lyphs]=selectedLyphs [right]="right" [tooltipRef]="_tooltipRef" [containerHeight]="'calc(100% - 10px)'"></lyphPanel>
         </div>
     `,
     styles: [`
-        .lyphContainer {
-            position: relative;
-            width: 100%;
+        :host {
+            display: block;
             height: 100%;
+        }
+
+        .lyphContainer {
+            position: absolute;
+            top: 160px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 160px);
+            background-color: white;
+            z-index: 100;
         }
 
         .cross {
@@ -166,7 +175,7 @@ export class CoalescencePanel {
         return this.cellMap::values();
     }
 
-    get hasCells(){
+    get hasCells() {
         return this.cellChains.length > 0;
     }
 
@@ -229,8 +238,8 @@ export class CoalescencePanel {
     }
 
     pairCoalescingCells() {
-        let lastA = this.lyphA.layers? this.lyphA.layers[this.lyphA.layers.length - 1]: null;
-        let lastB = this.lyphB.layers? this.lyphB.layers[this.lyphB.layers.length - 1]: null;
+        let lastA = this.lyphA.layers ? this.lyphA.layers[this.lyphA.layers.length - 1] : null;
+        let lastB = this.lyphB.layers ? this.lyphB.layers[this.lyphB.layers.length - 1] : null;
         this.pairCellLevelMap = {};
         this.layerCellLevelMap::entries().forEach(([key, value]) => this.pairCellLevelMap[key] = [...value]);
         if (lastA) (this.pairCellLevelMap[lastA.fullID] || []).forEach(cell => updateLyphMap(this.pairCellLevelMap, lastB, cell));

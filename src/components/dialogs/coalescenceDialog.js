@@ -5,7 +5,7 @@ import {
 } from '@angular/material/dialog';
 import {CoalescencePanelModule} from "../panels/coalescencePanel";
 import {CommonModule} from "@angular/common";
-import {MatTabsModule} from '@angular/material/tabs';
+import {MatTabsModule, MatTabGroup} from '@angular/material/tabs';
 
 @Component({
     selector: 'coalescenceDialog',
@@ -17,11 +17,13 @@ import {MatTabsModule} from '@angular/material/tabs';
             <button *ngIf="isMaximized" mat-icon-button (click)="toggleSize()">
                 <i class="fa fa-window-restore"> </i>
             </button>
-            <button mat-icon-button (click)="onNoClick()">
+            <button mat-icon-button (click)='onNoClick()'>
                 <i class="fa fa-window-close"> </i>
             </button>
         </div>
-        <b mat-dialog-title>{{coalescence?.name || coalescence?.id}}</b>
+        <div style="height: 40px; overflow: hidden; padding-left: 10px;">
+            <b mat-dialog-title>{{ coalescence?.name || coalescence?.id }}</b>
+        </div>
         <div mat-dialog-content #contentContainer>
             <mat-tab-group animationDuration="0ms" #lyphPairTabGroup dynamicHeight>
                 <mat-tab *ngIf="lyphPairs.length > 1" class="w3-margin w3-border">
@@ -37,7 +39,7 @@ import {MatTabsModule} from '@angular/material/tabs';
                 </mat-tab>
 
                 <mat-tab *ngFor="let lyphPair of lyphPairs; let i = index" class="w3-margin w3-border">
-                    <ng-template mat-tab-label>{{i + 1}}</ng-template>
+                    <ng-template mat-tab-label>{{ i + 1 }}</ng-template>
                     <coalescence-panel [lyphPair]="lyphPair" [tooltipRef]="tooltipRef"
                                        [width]="width"
                                        [showCells]="true"
@@ -74,32 +76,40 @@ import {MatTabsModule} from '@angular/material/tabs';
             width: 100%;
         }
 
-        .mat-tab-group {
+        ::ng-deep .mat-tab-group {
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
             min-height: 0; /* important for flex children */
+            height: 100%;
+            width: 100%;
         }
 
-        .mat-tab-body-wrapper {
+        ::ng-deep .mat-tab-body-wrapper {
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
             min-height: 0;
-        } 
+            height: 100% !important;
+            width: 100% !important;
+        }
 
-        .mat-tab-body {
+        ::ng-deep .mat-tab-body {
             flex: 1 1 auto;
             overflow: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .mat-dialog-content{
+            display: block;
+            width: 100%;
             height: 100%;
-            max-height:100%;
         }
-        
+
+        .mat-dialog-content {
+            height: calc(100% - 50px);
+            max-height: none;
+            overflow: hidden !important;
+            margin: 0;
+            padding: 0;
+        }
+
         .selected {
             border: 3px solid #000;
         }
@@ -111,7 +121,7 @@ export class CoalescenceDialog {
     lyphPairs = [];
     @ViewChild('contentContainer') contentContainer: ElementRef;
     @ViewChild('tooltip') tooltipRef: ElementRef;
-    @ViewChild('lyphPairTabGroup') _tabGroup: ElementRef;
+    @ViewChild('lyphPairTabGroup') _tabGroup: MatTabGroup;
 
     constructor(dialogRef: MatDialogRef, @Inject(MAT_DIALOG_DATA) data) {
         this.dialogRef = dialogRef;
@@ -123,13 +133,32 @@ export class CoalescenceDialog {
     toggleSize() {
         this.isMaximized = !this.isMaximized;
         this.resizeDialog.emit(this.isMaximized);
+        
+        // Use a recursive timeout to catch any late transitions
+        const update = (count) => {
+            if (this.contentContainer) {
+                this.width = this.contentContainer.nativeElement.clientWidth;
+            }
+            if (this._tabGroup) {
+                this._tabGroup.realignInkBar();
+            }
+            window.dispatchEvent(new Event('resize'));
+            if (count > 0) {
+                setTimeout(() => update(count - 1), 100);
+            }
+        };
+        setTimeout(() => update(3), 150);
     }
 
     ngAfterViewInit() {
-        this.width = this.contentContainer.nativeElement.clientWidth;
+        if (this.contentContainer) {
+            this.width = this.contentContainer.nativeElement.clientWidth;
+        }
 
         window.addEventListener('resize', () => {
-            this.width = this.contentContainer.nativeElement.clientWidth;
+            if (this.contentContainer) {
+                this.width = this.contentContainer.nativeElement.clientWidth;
+            }
         }, false);
 
         this.lyphPairs = this.uniquePairs(this.coalescence.lyphs);

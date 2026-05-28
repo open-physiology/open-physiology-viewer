@@ -20,7 +20,7 @@ import cellularNetworks from "../../data/cellNetworks.json";
             <p *ngIf="selectedChain.description">{{selectedChain.description}}</p>
         </div>
         <b class="w3-padding">{{lyph?.name || lyph?.id}}</b>
-        <div #svgLyphContainer id="svgLyphContainer">
+        <div #svgLyphContainer id="svgLyphContainer" [style.height]="containerHeight">
             <svg #svg></svg>
         </div>
     `,
@@ -42,6 +42,7 @@ export class LyphPanel {
     selectedChain = null;
 
     @Input() right;
+    @Input() containerHeight;
 
     @Input('lyphs') set lyphs(value) {
         if (this.lyphs !== value) {
@@ -62,7 +63,6 @@ export class LyphPanel {
     ngAfterViewInit() {
         let el = this.svgContainer.nativeElement;
         this.width = 0.9 * el.clientWidth;
-        this.heigth = 0.9 * el.clientHeight;
         window.addEventListener('resize', () => {
             this.width = 0.9 * el.clientWidth;
         }, false);
@@ -82,7 +82,7 @@ export class LyphPanel {
             return lyph.placeholder;
         }).length;
         let svgWidth = (n - k) * this.lyphSize.width + k * this.placeholder + 2 * n * this.border + 2 * this.init.x;
-        this.svg.attr("width", Math.max(svgWidth, this.width)).attr("height", svgHeight);
+        this.svg.attr("width", Math.max(svgWidth, this.width)).attr("height", Math.max(svgHeight, this.containerHeight || 0));
         this.svg.selectAll('*').remove();
 
         let zoomGroup = this.svg.append('g');
@@ -126,7 +126,7 @@ export class LyphPanel {
         let height = this.lyphSize.height;
 
         if (lyph.placeholder) {
-            d3_createRect(group, dx - this.border, dy - this.border, this.placeholder + 2 * this.border, height + 2 * this.border,
+            d3_createRect(group, dx, dy - this.border, this.placeholder + 2 * this.border, height + 2 * this.border,
                 lyph.color, lyph.label, this.tooltip);
             return;
         }
