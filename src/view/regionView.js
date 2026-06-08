@@ -6,7 +6,7 @@ import {
     THREE
 } from "./utils";
 
-const {Region, Shape, Wire} = modelClasses;
+const {Region, Shape, Edge} = modelClasses;
 
 /**
  * Positions a point on a region surface
@@ -37,7 +37,7 @@ Region.prototype.updatePoints = function(edgeResolution){
                 start = end;
                 end = tmp;
             }
-            if (wire.geometry !== Wire.WIRE_GEOMETRY.LINK) {
+            if (wire.geometry !== Edge.EDGE_GEOMETRY.LINK) {
                 let curve = wire.getCurve(start, end);
                 if (curve.getPoints) {
                     let points = curve.getPoints(edgeResolution-1);
@@ -115,7 +115,7 @@ Region.prototype.resize = function (anchor, delta, epsilon = 5) {
     ["x", "y"].forEach(dim => {
         //shift straight wires
         function relocateAdjacent(wire, prop){
-            if (wire.geometry === Wire.WIRE_GEOMETRY.LINK &&
+            if (wire.geometry === Edge.EDGE_GEOMETRY.LINK &&
                 Math.abs(wire[prop][dim] - (base[dim] - delta[dim])) < epsilon) {
                 relocate.add(wire[prop]);
             }

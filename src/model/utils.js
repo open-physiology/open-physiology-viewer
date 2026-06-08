@@ -89,8 +89,6 @@ export function isExternal(item){
 export const $Field = $SchemaClass::keys().map(className => schema.definitions[className].properties::keys().map(property => [property, property]))::flatten()::fromPairs();
 
 export const EDGE_GEOMETRY = schema.definitions.EdgeGeometryScheme.enum.map(r => [r.toUpperCase(), r])::fromPairs();
-export const WIRE_GEOMETRY = schema.definitions[$SchemaClass.Wire].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
-export const LINK_GEOMETRY = schema.definitions[$SchemaClass.Link].properties[$Field.geometry].anyOf[1].enum.map(r => [r.toUpperCase(), r])::fromPairs()::merge(EDGE_GEOMETRY);
 export const EDGE_STROKE = schema.definitions[$SchemaClass.Edge].properties[$Field.stroke].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const PROCESS_TYPE = schema.definitions[$SchemaClass.ProcessTypeScheme].enum.map(r => [r.toUpperCase(), r])::fromPairs();
 export const LYPH_TOPOLOGY = schema.definitions[$SchemaClass.Lyph].properties[$Field.topology].enum.map(r => [r.toUpperCase(), r])::fromPairs();

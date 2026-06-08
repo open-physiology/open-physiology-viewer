@@ -28,13 +28,15 @@ import {MatTabsModule, MatTabGroup} from '@angular/material/tabs';
             <mat-tab-group animationDuration="0ms" #lyphPairTabGroup dynamicHeight>
                 <mat-tab *ngIf="lyphPairs.length > 1" class="w3-margin w3-border">
                     <ng-template mat-tab-label>Overview</ng-template>
-                    <div *ngFor="let lyphPair of lyphPairs; let i = index">
-                        <coalescence-panel [lyphPair]="lyphPair" [tooltipRef]="tooltipRef"
-                                           [width]="width"
-                                           [showCells]="false"
-                                           [label]="i+1"
-                                           (onShowTab)="onShowTab(i+1)"
-                        ></coalescence-panel>
+                    <div class="overview-container">
+                        <div *ngFor="let lyphPair of lyphPairs; let i = index">
+                            <coalescence-panel [lyphPair]="lyphPair" [tooltipRef]="tooltipRef"
+                                               [width]="width"
+                                               [showCells]="false"
+                                               [label]="i+1"
+                                               (onShowTab)="onShowTab(i+1)"
+                            ></coalescence-panel>
+                        </div>
                     </div>
                 </mat-tab>
 
@@ -108,6 +110,12 @@ import {MatTabsModule, MatTabGroup} from '@angular/material/tabs';
             overflow: hidden !important;
             margin: 0;
             padding: 0;
+        }
+
+        .overview-container {
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .selected {

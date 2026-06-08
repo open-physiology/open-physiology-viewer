@@ -547,6 +547,7 @@ export class Graph extends Group {
                 e.length = (e.length || $Default.EDGE_LENGTH) * scaleFactor;
                 e.arcCenter && scalePoint(e.arcCenter);
                 e.controlPoint && scalePoint(e.controlPoint);
+                (e.path||[]).forEach(p => scalePoint(p));
             }
         });
         this.scaleFactor = scaleFactor;

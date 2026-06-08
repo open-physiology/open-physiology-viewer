@@ -9,10 +9,10 @@ import './wireView';
 import './shapeView';
 import './lyphView';
 import './regionView';
-import './stratification.js';
-import './stratifiedRegion.js';
+import './stratificationView.js';
+import './stratifiedRegionView.js';
 
-const {Group, Link, Coalescence, Component, Chain, Node, Lyph, Stratification} = modelClasses;
+const {Group, Edge, Link, Coalescence, Component, Chain, Node, Lyph} = modelClasses;
 
 
 // Update chain with dynamic ends
@@ -161,7 +161,7 @@ Group.prototype.createViewObjects = function (state) {
         if (!(link instanceof Link)) return;
         link.createViewObjects(state);
         link.viewObjects::values().forEach(obj => obj && state.graphScene.add(obj));
-        if (link.geometry === Link.LINK_GEOMETRY.INVISIBLE) {
+        if (link.geometry === Edge.EDGE_GEOMETRY.INVISIBLE) {
             link.viewObjects["main"].material.visible = false;
         }
     });

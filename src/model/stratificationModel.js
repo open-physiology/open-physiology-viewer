@@ -50,7 +50,8 @@ export class Stratification extends Resource {
             [$Field.id]: getGenID(wireID, stratificationID),
             [$Field.class]: $SchemaClass.StratifiedRegion,
             [$Field.supertype]: stratificationID,
-            [$Field.axisWire]: wireID
+            [$Field.axisWire]: wireID,
+            [$Field.reversed]: wire?.reversed
         }, "shapeModel.createStratifiedRegions");
         stratification.subtypes = stratification.subtypes || [];
         if (!isIncluded(stratification.subtypes, stratifiedRegion.id)) {

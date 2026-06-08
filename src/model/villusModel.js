@@ -1,6 +1,6 @@
 import {GroupTemplate} from './groupTemplateModel';
 import {Lyph} from "./lyphModel";
-import {Link} from "./edgeModel";
+import {Edge} from "./edgeModel";
 import {
     mergeGenResource,
     getNewID,
@@ -113,7 +113,7 @@ export class Villus extends GroupTemplate{
                 [$Field.source]        : node1.id,
                 [$Field.target]        : node2.id,
                 [$Field.conveyingLyph] : villusLyph.id,
-                [$Field.geometry]      : Link.LINK_GEOMETRY.INVISIBLE,
+                [$Field.geometry]      : Edge.EDGE_GEOMETRY.INVISIBLE,
                 [$Field.skipLabel]     : true
             }, "villusModel.expandTemplate (Link)");
             mergeGenResource(villus.group, parentGroup, link, $Field.links);

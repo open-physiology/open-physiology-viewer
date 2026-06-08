@@ -182,6 +182,7 @@ export class Scaffold extends Component {
             e.arcCenter && scalePoint(e.arcCenter);
             e.controlPoint && scalePoint(e.controlPoint);
             e.radius && scalePoint(e.radius);
+            (e.path||[]).forEach(p => scalePoint(p));
         });
         (this.regions||[]).forEach(e => (e.points||[]).forEach(p => scalePoint(p)));
         this.scaleFactor = scaleFactor;
@@ -370,7 +371,7 @@ export class Scaffold extends Component {
         });
         (this.wires || []).forEach(wire => {
             //Update ellipse radius
-            if (wire.geometry === this.modelClasses.Wire.WIRE_GEOMETRY.ELLIPSE) {
+            if (wire.geometry === this.modelClasses.Edge.EDGE_GEOMETRY.ELLIPSE) {
                 const srcWire = refToResource(wire.id, srcScaffold, $Field.wires);
                 if (srcWire && srcWire::isObject()) {
                     srcWire.radius = srcWire.radius || {};

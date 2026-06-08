@@ -40,6 +40,7 @@ export class LyphPanel {
     border = 10;
     placeholder = 50;
     selectedChain = null;
+    SVG_MIN_HEIGHT = 300;
 
     @Input() right;
     @Input() containerHeight;
@@ -82,7 +83,8 @@ export class LyphPanel {
             return lyph.placeholder;
         }).length;
         let svgWidth = (n - k) * this.lyphSize.width + k * this.placeholder + 2 * n * this.border + 2 * this.init.x;
-        this.svg.attr("width", Math.max(svgWidth, this.width)).attr("height", Math.max(svgHeight, this.containerHeight || 0));
+        this.svg.attr("width", Math.max(svgWidth, this.width))
+            .attr("height", Math.max(svgHeight, this.containerHeight || 0, this.SVG_MIN_HEIGHT));
         this.svg.selectAll('*').remove();
 
         let zoomGroup = this.svg.append('g');

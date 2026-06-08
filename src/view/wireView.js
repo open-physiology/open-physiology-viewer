@@ -16,7 +16,7 @@ const {Wire} = modelClasses;
 Wire.prototype.createViewObjects = function(state){
     Edge.prototype.createViewObjects.call(this, state);
     if (!this.viewObjects["main"]) {
-        if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
+        if (this.geometry === Edge.EDGE_GEOMETRY.INVISIBLE)  { return; }
         let obj = Edge.prototype.getViewObject.call(this, state);
         obj.renderOrder = 10;  // Prevents visual glitches of dark lines on top of nodes by rendering them last
         obj.userData = this;   // Attach link data
@@ -42,18 +42,8 @@ Wire.prototype.createViewObjects = function(state){
     this.createLabels();
 };
 
-Wire.prototype.getCurve = function(start, end){
-    switch (this.geometry) {
-        case Wire.WIRE_GEOMETRY.ELLIPSE:
-            let c = extractCoords(this.arcCenter);
-            return new THREE.EllipseCurve(c.x, c.y, this.radius.x, this.radius.y, 0, 2*Math.PI, false);
-        default:
-            return Edge.prototype.getCurve.call(this, start, end);
-    }
-};
-
 Wire.prototype.relocate = function(delta, epsilon = 5){
-    if (this.geometry === Wire.WIRE_GEOMETRY.LINK) {
+    if (this.geometry === Edge.EDGE_GEOMETRY.LINK) {
         if (Math.abs(this.source.x - this.target.x) < epsilon) {
             delta.y = 0;
         } else {
@@ -62,7 +52,7 @@ Wire.prototype.relocate = function(delta, epsilon = 5){
             }
         }
     }
-    if (this.geometry === Wire.WIRE_GEOMETRY.ELLIPSE){
+    if (this.geometry === Edge.EDGE_GEOMETRY.ELLIPSE){
         this.radius.x = Math.max(10, this.radius.x + delta.x);
         this.radius.y = Math.max(10, this.radius.y + delta.y);
     } else {
@@ -80,11 +70,13 @@ Wire.prototype.updateViewObjects = function(state) {
 
     let start = extractCoords(this.source);
     let end   = extractCoords(this.target);
+
+
     let curve = this.getCurve(start, end);
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
-    if ([Wire.WIRE_GEOMETRY.ARC, Wire.WIRE_GEOMETRY.ELLIPSE].includes(this.geometry)){
+    if ([Edge.EDGE_GEOMETRY.ARC, Edge.EDGE_GEOMETRY.ELLIPSE].includes(this.geometry)){
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y, 0));
     }
 
@@ -125,7 +117,7 @@ Wire.prototype.updateViewObjects = function(state) {
         }
     }
 
-    if (this.geometry === Wire.WIRE_GEOMETRY.INVISIBLE)  { return; }
+    if (this.geometry === Edge.EDGE_GEOMETRY.INVISIBLE)  { return; }
 
     const obj = this.viewObjects["main"];
     if (obj) {

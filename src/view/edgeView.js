@@ -4,7 +4,7 @@ import {
     THREE,
     semicircleCurve,
     rectangleCurve,
-    arcCurve, 
+    arcCurve,
     getDefaultControlPoint
 } from "./utils";
 
@@ -16,18 +16,18 @@ const {VisualResource, Edge, Link, Wire} = modelClasses;
 /**
  * Create visual object for edge
  */
-Edge.prototype.createViewObjects = function(state) {
+Edge.prototype.createViewObjects = function (state) {
     VisualResource.prototype.createViewObjects.call(this, state);
 };
 
 /**
  * Update visual object for edge
  */
-Edge.prototype.updateViewObjects = function(state) {
+Edge.prototype.updateViewObjects = function (state) {
     VisualResource.prototype.updateViewObjects.call(this, state);
 };
 
-Edge.prototype.getViewObject = function (state){
+Edge.prototype.getViewObject = function (state) {
     let material;
     if (this.stroke === Edge.EDGE_STROKE.DASHED) {
         material = MaterialFactory.createLineDashedMaterial({color: this.color});
@@ -57,28 +57,39 @@ Edge.prototype.getViewObject = function (state){
         obj = new THREE.Line(geometry, material);
     }
     // Edge bundling breaks a link into 66 points
-    this.pointLength = (!this.geometry || this.geometry === Edge.EDGE_GEOMETRY.LINK)? 2 : (this.geometry === Link.LINK_GEOMETRY.PATH)? 67 : state.edgeResolution;
+    this.pointLength = (!this.geometry || this.geometry === Edge.EDGE_GEOMETRY.LINK) ? 2 : (this.geometry === Edge.EDGE_GEOMETRY.PATH) ? 67 : state.edgeResolution;
     // We need better resolution for elliptic wires
-    if (this.geometry === Wire.WIRE_GEOMETRY.ELLIPSE){
+    if (this.geometry === Edge.EDGE_GEOMETRY.ELLIPSE) {
         this.pointLength *= 10;
     }
-    if (this.stroke !== Edge.EDGE_STROKE.THICK){
-         geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
+    if (this.stroke !== Edge.EDGE_STROKE.THICK) {
+        geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.pointLength * 3), 3));
     }
     return obj;
 }
 
-Edge.prototype.getCurve = function(start, end) {
+Edge.prototype.getCurve = function (start, end) {
     switch (this.geometry) {
+        case Edge.EDGE_GEOMETRY.PATH:
+            if (this.path){
+                const points = [start];
+                this.path.forEach(p => points.push(new THREE.Vector3(p.x||0, p.y||0, p.z||0)));
+                points.push(end);
+                return new THREE.CatmullRomCurve3(points);
+            }
+            return new THREE.Line3(start, end);
         case Edge.EDGE_GEOMETRY.ARC:
             return arcCurve(start, end, extractCoords(this.arcCenter));
         case Edge.EDGE_GEOMETRY.SEMICIRCLE:
             return semicircleCurve(start, end);
         case Edge.EDGE_GEOMETRY.RECTANGLE:
             return rectangleCurve(start, end);
-        case Wire.WIRE_GEOMETRY.SPLINE:
-            const control = this.controlPoint? extractCoords(this.controlPoint): getDefaultControlPoint(start, end, this.curvature);
+        case Edge.EDGE_GEOMETRY.SPLINE:
+            const control = this.controlPoint ? extractCoords(this.controlPoint) : getDefaultControlPoint(start, end, this.curvature);
             return new THREE.QuadraticBezierCurve3(start, control, end);
+        case Edge.EDGE_GEOMETRY.ELLIPSE:
+            let c = extractCoords(this.arcCenter);
+            return new THREE.EllipseCurve(c.x, c.y, this.radius.x, this.radius.y, 0, 2*Math.PI, false);
         default:
             return new THREE.Line3(start, end);
     }

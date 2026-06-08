@@ -189,7 +189,13 @@ export class StratificationDialog {
             };
         });
         this.filteredStratifiedTemplates = this.stratifiedTemplates;
-        this.selected = this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined;
+
+        const lastSelectedId = localStorage.getItem('lastSelectedStratificationId');
+        if (lastSelectedId) {
+            this.selected = this.stratifiedTemplates.find(st => st.id === lastSelectedId) || (this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined);
+        } else {
+            this.selected = this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined;
+        }
     }
 
     search(value) {
@@ -214,6 +220,9 @@ export class StratificationDialog {
     }
 
     onOkClick(){
+        if (this.selected) {
+            localStorage.setItem('lastSelectedStratificationId', this.selected.id);
+        }
         this.dialogRef.close({
             stratification: this.data.stratifications[this.selected.index],
             reversed: this.reversed

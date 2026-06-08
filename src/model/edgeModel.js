@@ -8,8 +8,6 @@ import {
     EDGE_STROKE,
     EDGE_GEOMETRY,
     PROCESS_TYPE,
-    WIRE_GEOMETRY,
-    LINK_GEOMETRY,
     LYPH_TOPOLOGY, isIncluded
 } from "./utils";
 import {merge, pick, isObject} from "lodash-bound";
@@ -47,19 +45,8 @@ export class Edge extends VisualResource {
  * @class
  * @property {Anchor} source
  * @property {Anchor} target
- * @property {WIRE_GEOMETRY} geometry
  */
 export class Wire extends Edge {
-    /**
-     * @property LINK
-     * @property ARC
-     * @property SPLINE
-     * @property SEMICIRCLE
-     * @property RECTANGLE
-     * @property ELLIPSE
-     * @property INVISIBLE
-     */
-    static WIRE_GEOMETRY = WIRE_GEOMETRY;
 
     static fromJSON(json, modelClasses = {}, entitiesByID, namespace) {
         json.id = json.id || getNewID(entitiesByID);
@@ -79,7 +66,7 @@ export class Wire extends Edge {
 
     includeRelated(component) {
         (this.hostedAnchors || []).forEach(anchor => component.anchors.push(anchor));
-        if (this.geometry !== WIRE_GEOMETRY.ELLIPSE) {
+        if (this.geometry !== EDGE_GEOMETRY.ELLIPSE) {
             this.applyToEndAnchors(
                 (end) => {
                     if (end.generated && !component.contains(end)) {
@@ -117,17 +104,6 @@ export class Wire extends Edge {
  * @property endsIn
  */
 export class Link extends Edge {
-    /**
-     * @property LINK
-     * @property SEMICIRCLE
-     * @property RECTANGLE
-     * @property ARC
-     * @property SPLINE
-     * @property PATH
-     * @property INVISIBLE
-     */
-    static LINK_GEOMETRY = LINK_GEOMETRY;
-
     /**
      * @property ADVECTIVE
      * @property DIFFUSIVE
@@ -275,7 +251,7 @@ export class Link extends Edge {
             return;
         }
         if (this.source.sourceOf.length === 1 && this.target.targetOf === 1) {
-            this.geometry = LINK_GEOMETRY.INVISIBLE;
+            this.geometry = EDGE_GEOMETRY.INVISIBLE;
             this.source.invisible = true;
             this.target.invisible = true;
         }

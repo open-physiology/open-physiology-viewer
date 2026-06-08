@@ -281,7 +281,10 @@ export class WebGLSceneComponent {
         this.highlightedItemChange.emit(entity);
 
         if (this.graph) {
-            let obj = entity && entity.viewObjects ? entity.viewObjects["main"] : null;
+            let obj = entity && entity.viewObjects ? (entity.viewObjects["main"] || entity.viewObjects["placeholder"]) : null;
+            if (obj) {
+                obj.class = entity.class;
+            }
             this.graph.enableDrag = this.lockControls;
             this.graph.select(obj);
         }
@@ -988,6 +991,11 @@ export class WebGLSceneComponent {
                 if (!entity.viewObjects) {
                     entity.viewObjects = {"main": hit};
                 }
+            } else if (hit.userData && hit.userData.class === $SchemaClass.Wire && hit !== hit.userData.viewObjects?.["main"]) {
+                // If hit a placeholder of a wire, we return the wire entity
+                entity = hit.userData;
+                // Add a flag to indicate it's a placeholder if needed for tooltip or highlighting
+                entity.__hitPlaceholder = true;
             }
             if (!entity || (entity.class !== $SchemaClass.Chain && entity.inactive)) {
                 return;
@@ -1007,6 +1015,8 @@ export class WebGLSceneComponent {
     highlight(entity, color, rememberColor = true) {
         if (!entity) return;
         let obj = entity.viewObjects ? entity.viewObjects["main"] : null;
+        let placeholder = entity.viewObjects ? entity.viewObjects["placeholder"] : null;
+
         if (obj && obj.material) {
             // store color of the closest object (for later restoration)
             if (rememberColor) {
@@ -1016,7 +1026,6 @@ export class WebGLSceneComponent {
                         child.currentHex = child.material.color.getHex();
                     }
                 });
-                let placeholder = entity.viewObjects["placeholder"];
                 if (placeholder && placeholder.material) {
                     placeholder.currentHex = placeholder.material.color.getHex();
                 }
@@ -1028,7 +1037,6 @@ export class WebGLSceneComponent {
                     child.material.color.setHex(color);
                 }
             });
-            let placeholder = entity.viewObjects["placeholder"];
             if (placeholder && placeholder.material) {
                 placeholder.material.color.setHex(color);
             }
@@ -1037,6 +1045,11 @@ export class WebGLSceneComponent {
             if (entity?.representsCoalescence) {
                 this._setAuxTipsForCoalescence(entity);
             }
+        } else if (placeholder && placeholder.material) {
+            if (rememberColor) {
+                placeholder.currentHex = placeholder.material.color.getHex();
+            }
+            placeholder.material.color.setHex(color);
         }
     }
 
@@ -1045,6 +1058,7 @@ export class WebGLSceneComponent {
             return;
         }
         let obj = entity.viewObjects["main"];
+        let placeholder = entity.viewObjects["placeholder"];
         if (obj) {
             if (obj.material) {
                 obj.material.color.setHex(obj.currentHex || this.defaultColor);
@@ -1054,7 +1068,6 @@ export class WebGLSceneComponent {
                     child.material.color.setHex(child.currentHex || this.defaultColor);
                 }
             });
-            let placeholder = entity.viewObjects["placeholder"];
             if (placeholder && placeholder.material) {
                 placeholder.material.color.setHex(placeholder.currentHex || this.defaultColor);
             }
@@ -1062,6 +1075,8 @@ export class WebGLSceneComponent {
             if (entity?.representsCoalescence) {
                 this._clearAuxTips();
             }
+        } else if (placeholder && placeholder.material) {
+            placeholder.material.color.setHex(placeholder.currentHex || this.defaultColor);
         }
     }
 
@@ -1335,7 +1350,13 @@ export class WebGLSceneComponent {
         let rect = this.renderer.domElement.getBoundingClientRect();
         this.mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
-        this.highlighted = this.getMouseOverEntity();
+        const entity = this.getMouseOverEntity();
+        if (entity && entity.__hitPlaceholder) {
+            delete entity.__hitPlaceholder;
+            this.highlighted = entity;
+        } else {
+            this.highlighted = entity;
+        }
     }
 
     toggleLayout(prop) {

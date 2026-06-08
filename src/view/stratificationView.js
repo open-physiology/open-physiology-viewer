@@ -33,15 +33,16 @@ Stratification.prototype.createViewObjects = function(state) {
 
     for (let i = 0; i < n; i++) {
         // If the wire is reversed, we draw strata in reverse order
-        const index = (state.reversed) ? n - 1 - i : i;
-        const mat = strata[index];
+        const mat = strata[i];
         const color = (mat && mat.color) ? mat.color : "#cccccc";
         const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: true });
         const geometry = new THREE.PlaneGeometry(rectWidth, rectHeight);
         const mesh = new THREE.Mesh(geometry, material);
         mesh.userData = { host: this, stratum: mat };
         // Position each rectangle so the stack is centered vertically around origin
-        mesh.position.y = (i + 0.5) * rectHeight - totalHeight / 2;
+        // If the wire is reversed, we stack them in reverse order
+        const j = (state.reversed) ? n - 1 - i : i;
+        mesh.position.y = (j + 0.5) * rectHeight - totalHeight / 2;
         // Border (optional): simple line outline using EdgesGeometry
         const edgeGeo = new THREE.EdgesGeometry(geometry);
         const edgeMat = new THREE.LineBasicMaterial({ color: "#333333" });

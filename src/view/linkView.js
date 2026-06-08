@@ -47,20 +47,6 @@ Link.prototype.createViewObjects = function(state){
     // this.viewObjects['iconLabel'] = this.conveyingLyph.viewObjects["label"];
 };
 
-Link.prototype.getCurve = function(start, end){
-    let curve = new THREE.Line3(start, end);
-    switch (this.geometry) {
-        case Link.LINK_GEOMETRY.PATH:
-            if (this.path){
-                curve = new THREE.CatmullRomCurve3(this.path);
-            }
-            break;
-        default:
-            curve = Edge.prototype.getCurve.call(this, start, end);
-    }
-    return curve;
-};
-
 /**
  * Update visual objects for a link
  */
@@ -74,7 +60,7 @@ Link.prototype.updateViewObjects = function(state) {
     this.center = getPoint(curve, start, end, 0.5);
     this.points = curve.getPoints? curve.getPoints(this.pointLength): [start, end];
 
-    if (this.geometry === Link.LINK_GEOMETRY.ARC){
+    if (this.geometry === Edge.EDGE_GEOMETRY.ARC){
         this.points = this.points.map(p => new THREE.Vector3(p.x, p.y,0));
     }
 
@@ -110,7 +96,7 @@ Link.prototype.updateViewObjects = function(state) {
 
     //Update buffered geometries
     //Do not update links with fixed node positions
-    if (this.geometry === Link.LINK_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
+    if (this.geometry === Edge.EDGE_GEOMETRY.INVISIBLE && this.source.fixed && this.target.fixed)  { return; }
 
     if (obj) {
         if (this.directed && obj.children[0] && (obj.children[0] instanceof THREE.ArrowHelper)){

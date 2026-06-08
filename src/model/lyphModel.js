@@ -1,5 +1,5 @@
 import {Node} from './verticeModel';
-import {Link} from './edgeModel';
+import {Edge, Link} from './edgeModel';
 import {Shape} from './shapeModel';
 import {clone, merge, pick, isObject, isNumber, mergeWith, values} from 'lodash-bound';
 import {$LogMsg, logger} from './logger';
@@ -493,7 +493,7 @@ export class Lyph extends Shape {
             [$Field.id]           : getGenID($Prefix.link, this.id),
             [$Field.source]       : sNode.fullID || sNode.id,
             [$Field.target]       : tNode.fullID || tNode.id,
-            [$Field.geometry]     : Link.LINK_GEOMETRY.INVISIBLE,
+            [$Field.geometry]     : Edge.EDGE_GEOMETRY.INVISIBLE,
             [$Field.conveyingLyph]: this.fullID,
             [$Field.skipLabel]    : true
          },"shapeModel.createAxis (Link)"), modelClasses, entitiesByID, namespace);
@@ -503,7 +503,7 @@ export class Lyph extends Shape {
         link.conveyingLyph = this;
 
         if (this.internalIn) {
-            link.geometry = Link.LINK_GEOMETRY.INVISIBLE;
+            link.geometry = Edge.EDGE_GEOMETRY.INVISIBLE;
             link.applyToEndNodes(end => end.color = $Color.InternalNode);
         }
         sNode.sourceOf = [link];

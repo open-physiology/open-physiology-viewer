@@ -22,7 +22,7 @@ StratifiedRegion.prototype.createViewObjects = function(state) {
         this.color = this.color || this.supertype.color;
         this.viewObjects['main'] = Stratification.prototype.createViewObjects.call(this.supertype, {
             ...state,
-            reversed: this.axisWire?.reversed
+            reversed: this.reversed || this.axisWire?.reversed
         });
         this.viewObjects['main'].userData = this;
         (this.viewObjects['main'].children || []).forEach(child => {
@@ -55,7 +55,7 @@ StratifiedRegion.prototype.updateViewObjects = function(state) {
     }
     const obj = this.viewObjects["main"];
     if (!obj) { return; }
-    obj.visible = this.isVisible && state.showStratifiedRegions;
+    obj.visible = this.isVisible && state.showStratifiedRegions && (this.axisWire ? this.axisWire.isVisible : true);
     const wire = this.axisWire;
     if (wire && wire.viewObjects && wire.viewObjects["main"]) {
         copyCoords(obj.position, wire.center || wire.viewObjects["main"].position);
