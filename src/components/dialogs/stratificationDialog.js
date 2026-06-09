@@ -196,6 +196,10 @@ export class StratificationDialog {
         } else {
             this.selected = this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined;
         }
+
+        if (this.selected) {
+            this.search(this.selected.name || this.selected.id);
+        }
     }
 
     search(value) {

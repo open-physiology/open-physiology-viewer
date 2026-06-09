@@ -841,6 +841,11 @@
         "reversed": {
           "description": "When set to true, used to turn the edge's associated resource (e.g., conveying lyph or stratified region) by 180 degrees",
           "type": "boolean"
+        },
+        "geometry": {
+          "description": "Defines the geometry and behavior of the edge in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
+          "$ref": "#/definitions/EdgeGeometryScheme",
+          "default": "link"
         }
       },
       "dependencies": {
@@ -1509,11 +1514,6 @@
           "description": "Indicates that the link disappears when its end nodes are not both constrained",
           "type": "boolean",
           "readOnly": true
-        },
-        "geometry": {
-          "description": "Defines the geometry and  behavior of the link in the model graph: `link` corresponds to a straight line, `semicircle` defines a line that looks like a semicircle, `rectangle` represents a rectangular line with rounded corners, `arc` represents a curve in the shape of an elliptic arc with given center, `path` is a solid path with control points defined by the edge bundling algorithm, `spline` is a link that uses preceding and following nodes on a path to smoothly connect existing links, `invisible` link is a link with a hidden visual object affected by graph forces that helps to position inner lyph content.",
-          "$ref": "#/definitions/EdgeGeometryScheme",
-          "default": "link"
         },
         "infoFields": {
           "description": "Properties shown in the info panel when the resource is highlighted or selected",
