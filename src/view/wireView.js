@@ -121,22 +121,19 @@ Wire.prototype.updateViewObjects = function(state) {
 
     const obj = this.viewObjects["main"];
     if (obj) {
-        if (this.stroke === Wire.EDGE_STROKE.THICK){
-            let coordArray = [];
-            this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
-            obj.geometry.setPositions(coordArray);
+        if (this.isTube()){
+            // Thick wire: rebuild the tube mesh along the current curve
+            this.updateTubeGeometry(obj);
+        } else if (this.stroke === Wire.EDGE_STROKE.DASHED) {
+            obj.geometry.setFromPoints(this.points);
+            obj.geometry.verticesNeedUpdate = true;
+            obj.computeLineDistances();
         } else {
-            if (this.stroke === Wire.EDGE_STROKE.DASHED) {
-                obj.geometry.setFromPoints(this.points);
-                obj.geometry.verticesNeedUpdate = true;
-                obj.computeLineDistances();
-            } else {
-                let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
-                if (linkPos) {
-                    this.points.forEach((p, i) => p && ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
-                    linkPos.needsUpdate = true;
-                    obj.geometry.computeBoundingSphere();
-                }
+            let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
+            if (linkPos) {
+                this.points.forEach((p, i) => p && ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                linkPos.needsUpdate = true;
+                obj.geometry.computeBoundingSphere();
             }
         }
     }

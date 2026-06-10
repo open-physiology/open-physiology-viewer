@@ -6,7 +6,8 @@ import {
     Input,
     Output,
     EventEmitter,
-    ChangeDetectionStrategy
+    ChangeDetectionStrategy,
+    NgZone
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
@@ -393,8 +394,9 @@ export class WebGLSceneComponent {
      */
     @Output() onImportExternal = new EventEmitter();
 
-    constructor(dialog: MatDialog, hotkeysService: HotkeysService, snackBar: MatSnackBar) {
+    constructor(dialog: MatDialog, hotkeysService: HotkeysService, snackBar: MatSnackBar, ngZone: NgZone) {
         this.dialog = dialog;
+        this.ngZone = ngZone;
         this.hotkeysService = hotkeysService;
         this.hotkeysService.add(new Hotkey('shift+meta+r', (event: KeyboardEvent): boolean => {
             this.resetCamera();
@@ -483,7 +485,9 @@ export class WebGLSceneComponent {
     ngAfterViewInit() {
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas.nativeElement,
-            antialias: true,
+            // antialias disabled to test whether the MSAA resolve on Chrome/macOS (ANGLE->Metal)
+            // is the source of the ghost/artifact rectangles.
+            antialias: false,
             alpha: true,
             premultipliedAlpha: false
         });
@@ -526,7 +530,11 @@ export class WebGLSceneComponent {
         this.resizeToDisplaySize();
         this.createHelpers();
         this.createGraph();
-        this.animate();
+        // Run the Three.js render loop OUTSIDE Angular's zone so that requestAnimationFrame (which
+        // zone.js patches) does not trigger Angular change detection on every frame. In-zone rendering
+        // causes per-frame change detection and mid-frame DOM mutations that can interact badly with
+        // the compositor on macOS/ANGLE. rAF callbacks scheduled here stay outside the zone.
+        this.ngZone.runOutsideAngular(() => this.animate());
     }
 
     processQuery() {
@@ -673,7 +681,7 @@ export class WebGLSceneComponent {
         let axisColor = new THREE.Color(0xaaaaaa);
         let axisLength = 100 * this.scaleFactor;
 
-        // x-y plane
+            // x-y plane
         let gridHelper1 = new THREE.GridHelper(2 * axisLength, 10, axisColor, gridColor);
         gridHelper1.geometry.rotateX(Math.PI / 2);
         this.scene.add(gridHelper1);

@@ -24,13 +24,6 @@ const colorStr2Hex = str => isNaN(str) ? parseInt(tinycolor(str).toHex(), 16) : 
  * The class to create materials with predefined default parameters
  */
 export class MaterialFactory {
-    static createLine2Material(params = {}){
-        let p       = defaultParams::clone()::merge(params);
-        p.color     = colorStr2Hex(p.color);
-        p.lineWidth = p.lineWidth || 0.003;
-        return new THREE.LineMaterial(p);
-    }
-
     static createLineBasicMaterial(params = {}) {
         let p       = defaultParams::clone()::merge(params);
         p.color     = colorStr2Hex(p.color);

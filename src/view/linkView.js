@@ -111,22 +111,19 @@ Link.prototype.updateViewObjects = function(state) {
             copyCoords(arrow.position, pos);
             arrow.setDirection(dir.normalize());
         }
-        if (this.stroke === Link.EDGE_STROKE.THICK){
-            let coordArray = [];
-            this.points.forEach(p => coordArray.push(p.x, p.y, p.z));
-            obj.geometry.setPositions(coordArray);
+        if (this.isTube()){
+            // Thick edge: rebuild the tube mesh along the current curve
+            this.updateTubeGeometry(obj);
+        } else if (this.stroke === Link.EDGE_STROKE.DASHED) {
+            obj.geometry.setFromPoints(this.points);
+            obj.geometry.verticesNeedUpdate = true;
+            obj.computeLineDistances();
         } else {
-            if (this.stroke === Link.EDGE_STROKE.DASHED) {
-                obj.geometry.setFromPoints(this.points);
-                obj.geometry.verticesNeedUpdate = true;
-                obj.computeLineDistances();
-            } else {
-                let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
-                if (linkPos) {
-                    this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
-                    linkPos.needsUpdate = true;
-                    obj.geometry.computeBoundingSphere();
-                }
+            let linkPos = obj.geometry.attributes && obj.geometry.attributes.position;
+            if (linkPos) {
+                this.points.forEach((p, i) => ["x", "y", "z"].forEach((dim,j) => linkPos.array[3 * i + j] = p[dim]));
+                linkPos.needsUpdate = true;
+                obj.geometry.computeBoundingSphere();
             }
         }
     }

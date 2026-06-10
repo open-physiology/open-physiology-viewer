@@ -1,12 +1,5 @@
 import {modelClasses} from "../model";
 import {SpriteText2D} from "./text/spriteText2D";
-// import {SpriteText2D} from "three-text2d";
-
-import {
-    copyCoords,
-} from "./utils";
-
-import './lines/Line2.js';
 
 const {VisualResource} = modelClasses;
 
