@@ -485,11 +485,8 @@ export class WebGLSceneComponent {
     ngAfterViewInit() {
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas.nativeElement,
-            // antialias disabled to test whether the MSAA resolve on Chrome/macOS (ANGLE->Metal)
-            // is the source of the ghost/artifact rectangles.
-            antialias: false,
-            alpha: true,
-            premultipliedAlpha: false
+            antialias: true,
+            alpha: true
         });
         this.renderer.setClearColor(0xffffff, 1);
 
