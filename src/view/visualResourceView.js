@@ -1,6 +1,6 @@
 import {modelClasses} from "../model";
-// import {SpriteText2D} from "./text/spriteText2D";
-import {SpriteText2D} from "three-text2d";
+import {SpriteText2D} from "./text/spriteText2D";
+// import {SpriteText2D} from "three-text2d";
 
 import {
     copyCoords,
@@ -41,9 +41,13 @@ VisualResource.prototype.updateLabels = function(position){
     if (this.labels[labelKey]){
         this.labels[labelKey].visible = this.state.showLabels[this.constructor.name];
         if (this.labels[labelKey].visible) {
-            this.labels[labelKey].scale.set(this.state.labelRelSize, this.state.labelRelSize, this.state.labelRelSize);
-            copyCoords(this.labels[labelKey].position, position);
+            const scale = (this.state.labelRelSize || 1) * (this.labels[labelKey].baseScale || 1);
+            this.labels[labelKey].scale.set(this.labels[labelKey].aspect * scale, scale, scale);
+            this.labels[labelKey].position.copy(position);
             this.viewObjects['label'] = this.labels[labelKey];
+            if (this.state.graphScene && !this.state.graphScene.children.includes(this.labels[labelKey])) {
+                this.state.graphScene.add(this.labels[labelKey]);
+            }
         }
     } else {
         delete this.viewObjects['label'];

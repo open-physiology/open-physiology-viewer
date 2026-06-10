@@ -194,7 +194,7 @@ Shape.prototype.drawInactiveChains = function (state) {
                     let mesh = this.viewObjects[view].children.find(c => c.userData?.key === key);
                     if (!mesh) {
                         const star = starShape(this.width / 10, this.width / 20);
-                        const geometry = new THREE.ShapeBufferGeometry(star);
+                        const geometry = new THREE.ShapeGeometry(star);
                         const material = MaterialFactory.createMeshBasicMaterial({
                             color: chain.color || "#ffcc00",
                             polygonOffsetFactor: (this.polygonOffsetFactor || 0) - 2

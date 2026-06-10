@@ -233,12 +233,13 @@ export function lyphShape(params) {
  * @returns {Mesh}   3d object with child object that models its border
  */
 export function createMeshWithBorder(shape, params = {}, includeBorder = true) {
-    let geometry = new THREE.ShapeBufferGeometry(shape);
+    let geometry = new THREE.ShapeGeometry(shape);
     let obj = new THREE.Mesh(geometry, MaterialFactory.createMeshBasicMaterial(params));
     if (includeBorder) {
         let borderGeometry = new THREE.BufferGeometry();
-        shape.getPoints().forEach(point => point.z = 0);
-        borderGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(shape.getPoints() * 3), 3));
+        let points = shape.getPoints();
+        points.forEach(point => point.z = 0);
+        borderGeometry.setFromPoints(points);
         let borderParams = params::defaults({
             color   : tinycolor(params.color).darken(25), //darker border than surface
             opacity : 0.5,

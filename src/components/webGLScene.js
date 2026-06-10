@@ -29,6 +29,7 @@ import {$LogMsg} from "../model/logger";
 import {getFullID, VARIANCE_PRESENCE} from "../model/utils";
 import {SearchOptions} from "./utils/searchOptions";
 import {CoalescenceDialog} from "./dialogs/coalescenceDialog";
+import {SpriteText2D} from "../view/text/spriteText2D";
 import {LyphDialog} from "./dialogs/lyphDialog";
 import {MaterialTreeDialog, MaterialTreeDialogModule} from "./dialogs/materialTreeDialog";
 import {StratificationDialog, StratificationDialogModule} from "./dialogs/stratificationDialog";

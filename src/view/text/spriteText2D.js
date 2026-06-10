@@ -3,14 +3,23 @@ import {THREE} from '../utils';
 //This is an unused class that we may need rto replace SpriteText2D for drawing labels after three.js upgrade
 // (the current version is obsolete)
 
-export class SpriteText2D {
+export class SpriteText2D extends THREE.Sprite {
   constructor(text, fontParams = {}) {
+    super();
     // Default font parameters
+    const fontParts = (fontParams.font || '24px Arial').split(' ');
+    let fontSize = 24;
+    let fontFamily = 'Arial';
+    if (fontParts.length >= 2) {
+      fontSize = parseInt(fontParts[0]) || 24;
+      fontFamily = fontParts.slice(1).join(' ');
+    }
+
     this.fontParams = {
-      fontFamily: fontParams.fontFamily || 'Arial',
-      fontSize: fontParams.fontSize || 32,
+      fontFamily: fontParams.fontFamily || fontFamily,
+      fontSize: fontParams.fontSize || fontSize,
       fontWeight: fontParams.fontWeight || 'normal',
-      color: fontParams.color || '#ffffff',
+      color: fontParams.color || fontParams.fillStyle || '#000000',
       backgroundColor: fontParams.backgroundColor || 'transparent',
       padding: fontParams.padding || 10,
       borderRadius: fontParams.borderRadius || 0,
@@ -23,11 +32,10 @@ export class SpriteText2D {
     this.context = this.canvas.getContext('2d');
 
     // Create the sprite
-    this.sprite = null;
-    this.createSprite();
+    this.updateSprite();
   }
 
-  createSprite() {
+  updateSprite() {
     // Measure text to determine canvas size
     this.context.font = `${this.fontParams.fontWeight} ${this.fontParams.fontSize}px ${this.fontParams.fontFamily}`;
     const metrics = this.context.measureText(this.text);
@@ -87,25 +95,38 @@ export class SpriteText2D {
     );
 
     // Create texture from canvas
+    if (this.material && this.material.map) {
+        this.material.map.dispose();
+    }
     const texture = new THREE.CanvasTexture(this.canvas);
+    texture.colorSpace = THREE.SRGBColorSpace; // render canvas colors correctly under sRGB output (three r152+)
     texture.needsUpdate = true;
 
-    // Create sprite material
-    const material = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      depthTest: true,
-      depthWrite: false
-    });
+    // Create or update sprite material
+    if (this.material && this.material.isSpriteMaterial) {
+        this.material.map = texture;
+        this.material.needsUpdate = true;
+    } else {
+        const oldAlphaTest = (this.material && this.material.alphaTest) || 0;
+        this.material = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: false,
+            depthWrite: false,
+            alphaTest: oldAlphaTest
+        });
+        this.renderOrder = 999;
+    }
 
-    // Create sprite
-    this.sprite = new THREE.Sprite(material);
-
-    // Scale sprite to maintain aspect ratio
-    const aspect = this.canvas.width / this.canvas.height;
-    this.sprite.scale.set(aspect, 1, 1);
-
-    return this.sprite;
+    // Scale sprite to maintain aspect ratio.
+    // Sprites are sized in WORLD units, not pixels. baseScale must be proportional to the
+    // rendered canvas height (tens of units) so the label is visible in a scaleFactor-scaled
+    // scene (objects span ~100*scaleFactor units). This restores the legacy three-text2d
+    // behaviour that labelRelSize (~0.1-4) was tuned to multiply; normalizing to ~1 unit
+    // (fontSize/32) made every label sub-pixel and effectively invisible.
+    this.aspect = this.canvas.width / this.canvas.height;
+    this.baseScale = this.canvas.height; // intrinsic label height in world units
+    this.scale.set(this.aspect * this.baseScale, this.baseScale, 1);
   }
 
   roundRect(x, y, width, height, radius) {
@@ -125,34 +146,32 @@ export class SpriteText2D {
   // Update text content
   setText(newText) {
     this.text = newText;
-    this.createSprite();
+    this.updateSprite();
   }
 
   // Update font parameters
   setFontParams(newParams) {
     this.fontParams = { ...this.fontParams, ...newParams };
-    this.createSprite();
+    this.updateSprite();
   }
 
   // Position the sprite in 3D space
   setPosition(x, y, z) {
-    if (this.sprite) {
-      this.sprite.position.set(x, y, z);
-    }
+    this.position.set(x, y, z);
   }
 
   // Get the Three.js sprite object
   getSprite() {
-    return this.sprite;
+    return this;
   }
 
   // Dispose of resources
   dispose() {
-    if (this.sprite && this.sprite.material) {
-      if (this.sprite.material.map) {
-        this.sprite.material.map.dispose();
+    if (this.material) {
+      if (this.material.map) {
+        this.material.map.dispose();
       }
-      this.sprite.material.dispose();
+      this.material.dispose();
     }
   }
 }
