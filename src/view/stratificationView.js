@@ -35,7 +35,12 @@ Stratification.prototype.createViewObjects = function(state) {
         // If the wire is reversed, we draw strata in reverse order
         const mat = strata[i];
         const color = (mat && mat.color) ? mat.color : "#cccccc";
-        const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: true });
+        // DoubleSide: the group is oriented by aligning local X to the wire axis
+        // (setFromUnitVectors in stratifiedRegionView), which leaves the plane's facing
+        // underconstrained. For some wire orientations (e.g. vertical/antiparallel) the plane
+        // ends up facing away from the camera; with the default FrontSide its colored face would
+        // be back-face culled and the rectangle would vanish. DoubleSide makes it visible either way.
+        const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: true, side: THREE.DoubleSide });
         const geometry = new THREE.PlaneGeometry(rectWidth, rectHeight);
         const mesh = new THREE.Mesh(geometry, material);
         mesh.userData = { host: this, stratum: mat };

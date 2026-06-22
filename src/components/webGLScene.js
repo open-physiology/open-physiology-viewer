@@ -668,7 +668,6 @@ export class WebGLSceneComponent {
             this.graph.tickFrame();
         }
         this.controls.update();
-        this.renderer.clear(true, true, true);
         this.renderer.render(this.scene, this.camera);
         window.requestAnimationFrame(() => this.animate());
     }
@@ -1101,6 +1100,23 @@ export class WebGLSceneComponent {
         }
     }
 
+    onClick(evt) {
+        if (evt.ctrlKey) {
+            const rect = this.renderer.domElement.getBoundingClientRect();
+            this.mouse.x = ((evt.clientX - rect.left) / rect.width) * 2 - 1;
+            this.mouse.y = -((evt.clientY - rect.top) / rect.height) * 2 + 1;
+            this.ray.setFromCamera(this.mouse, this.camera);
+            const entity = this.getMouseOverEntity();
+            if (entity) {
+                const stratifiedRegion = entity.host || (entity instanceof this.modelClasses.StratifiedRegion ? entity : null);
+                if (stratifiedRegion && stratifiedRegion instanceof this.modelClasses.StratifiedRegion) {
+                    stratifiedRegion.reversed = !stratifiedRegion.reversed;
+                    this.updateGraph();
+                }
+            }
+        }
+    }
+
     onDblClick() {
         this.selected = this.getMouseOverEntity();
         if (this.selected instanceof this.modelClasses.Lyph) {
@@ -1171,6 +1187,7 @@ export class WebGLSceneComponent {
 
     createEventListeners() {
         window.addEventListener('mousemove', evt => this.onMouseMove(evt), false);
+        window.addEventListener('click', evt => this.onClick(evt), false);
         window.addEventListener('dblclick', () => this.onDblClick(), false);
         window.addEventListener('contextmenu', evt => this.onContextMenu(evt), false);
     }

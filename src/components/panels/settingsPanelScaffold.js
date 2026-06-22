@@ -123,7 +123,7 @@ const COLORS = {
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <div class="default-box">
+                    <div class="default-box" (wheel)="onMouseWheel($event)">
                         <div class="default-box-header">
                             <div class="search-bar">
                                 <img src="./styles/images/search.svg"/>
@@ -431,6 +431,46 @@ export class SettingsPanelScaffold {
             this._showHelpers.add(helper);
         }
         this.onToggleHelperPlane.emit(helper);
+    }
+
+    onMouseWheel(event) {
+        if (event.ctrlKey) {
+            event.preventDefault();
+            if (!this.filteredComponents || this.filteredComponents.length === 0) return;
+
+            let visibleComponents = this.filteredComponents.filter(c => !c.hidden);
+
+            if (visibleComponents.length > 1) {
+                // If more than one visible, keep the first and hide others
+                for (let i = 1; i < visibleComponents.length; i++) {
+                    this.onToggleComponent.emit(visibleComponents[i]);
+                }
+                return;
+            }
+
+            if (visibleComponents.length === 0) {
+                // If none visible, show the first one
+                this.onToggleComponent.emit(this.filteredComponents[0]);
+                return;
+            }
+
+            // Exactly one visible, toggle it off and toggle next/prev on
+            let currentIndex = this.filteredComponents.indexOf(visibleComponents[0]);
+            let nextIndex;
+
+            if (event.deltaY > 0) {
+                // Scroll down - next component
+                nextIndex = (currentIndex + 1) % this.filteredComponents.length;
+            } else {
+                // Scroll up - previous component
+                nextIndex = (currentIndex - 1 + this.filteredComponents.length) % this.filteredComponents.length;
+            }
+
+            if (currentIndex !== nextIndex) {
+                this.onToggleComponent.emit(this.filteredComponents[currentIndex]);
+                this.onToggleComponent.emit(this.filteredComponents[nextIndex]);
+            }
+        }
     }
 
     search(value, filterOptions, allOptions) {
