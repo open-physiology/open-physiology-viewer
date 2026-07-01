@@ -93,7 +93,7 @@ const WindowResize = require('three-window-resize');
                             </mat-slider>
                         </section>
                         <background-toolbar
-                                *ngIf="_backgroundMesh"
+                                *ngIf="_backgroundMeshes.length"
                                 [offsetX]="_backgroundOffsetX"
                                 [offsetY]="_backgroundOffsetY"
                                 [scale]="_backgroundScale"
@@ -102,6 +102,7 @@ const WindowResize = require('three-window-resize');
                                 (onUpdateOffsetY)="updateBackgroundOffsetY($event)"
                                 (onUpdateScale)="updateBackgroundScale($event)"
                                 (onUpdateRotate)="updateBackgroundRotate($event)"
+                                (onApply)="onBackgroundUpdated.emit($event)"
                         >
                         </background-toolbar>
                     </section>
@@ -228,7 +229,7 @@ export class WebGLSceneComponent {
     isConnectivity = true;
     isScaffold = false;
 
-    _backgroundMesh = null;
+    _backgroundMeshes = [];
     _backgroundsMap = {};
     _backgroundScale = 0.6;
     _backgroundOffsetX = -10;
@@ -260,6 +261,7 @@ export class WebGLSceneComponent {
             }
             if (this.isScaffold) {
                 this._computeScaffoldCenter();
+                this.updateBackground();
             }
             this.updateGraph();
             this.loggerColor = this._graphData.logger?.color;
@@ -324,9 +326,11 @@ export class WebGLSceneComponent {
     }
 
     loadImages(images) {
-        this._backgroundsMap = images || {};
-        this._computeScaffoldCenter();
-        this.updateBackground();
+        this.ngZone.run(() => {
+            this._backgroundsMap = images || {};
+            this._computeScaffoldCenter();
+            this.updateBackground();
+        });
     }
 
     _computeScaffoldCenter() {
@@ -364,6 +368,7 @@ export class WebGLSceneComponent {
      * @type {EventEmitter<any>}
      */
     @Output() scaffoldUpdated = new EventEmitter();
+    @Output() onBackgroundUpdated = new EventEmitter();
 
     /**
      * @emits varianceUpdated - Species variance was changed
@@ -794,108 +799,172 @@ export class WebGLSceneComponent {
             this.graph.graphData(this._graphData);
             this.updateSettings();
         }
+        if (this.isScaffold) {
+            this.updateBackground();
+        }
+    }
+
+    /**
+     * Background position parameters (offset, scale, rotation) are defined once on the main
+     * scaffold component and shared by all background images.
+     * @returns the shared background parameters object or undefined
+     */
+    _getBackgroundParams() {
+        return this._graphData?.backgroundParams;
+    }
+
+    /**
+     * Get the shared background parameters, creating the container on the main scaffold if needed.
+     * @returns the shared background parameters object or undefined when there is no scaffold
+     */
+    _ensureBackgroundParams() {
+        if (!this._graphData) { return undefined; }
+        if (!this._graphData.backgroundParams) {
+            this._graphData.backgroundParams = {};
+        }
+        return this._graphData.backgroundParams;
+    }
+
+    /**
+     * Remove all background image meshes from the scene and dispose their resources.
+     */
+    _removeBackgrounds() {
+        (this._backgroundMeshes || []).forEach(mesh => {
+            this.scene.remove(mesh);
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+        });
+        this._backgroundMeshes = [];
     }
 
     updateBackgroundOffsetX(value) {
         this._backgroundOffsetX = value;
-        if (this._backgroundMesh) {
-            this._backgroundMesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.offsetX = value;
         }
+        this._backgroundMeshes.forEach(mesh => {
+            mesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
+        });
     }
 
     updateBackgroundOffsetY(value) {
         this._backgroundOffsetY = value;
-        if (this._backgroundMesh) {
-            this._backgroundMesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.offsetY = value;
         }
+        this._backgroundMeshes.forEach(mesh => {
+            mesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
+        });
     }
 
     updateBackgroundScale(value) {
         this._backgroundScale = value;
-        this.updateBackground();
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.scale = value;
+        }
+        this._backgroundMeshes.forEach(mesh => {
+            mesh.scale.set(this._backgroundScale, this._backgroundScale, 1);
+        });
     }
 
     updateBackgroundRotate(value) {
         this._backgroundRotate = value;
-        if (this._backgroundMesh) {
-            this._backgroundMesh.rotation.z = this._backgroundRotate;
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.rotate = value;
         }
+        this._backgroundMeshes.forEach(mesh => {
+            mesh.rotation.z = this._backgroundRotate;
+        });
     }
 
     updateBackground() {
         if (!this.scene) return;
 
-        const visibleComponents = (this._graphData.components || []).filter(s =>
-            (s.class === $SchemaClass.Scaffold || s.class === $SchemaClass.Component) && !s.hidden);
+        const scaffold = this._graphData;
+        const params = this._getBackgroundParams();
 
-        const removeBackground = () => {
-            if (this._backgroundMesh) {
-                this.scene.remove(this._backgroundMesh);
-                this._backgroundMesh.geometry.dispose();
-                this._backgroundMesh.material.dispose();
-                this._backgroundMesh = null;
+        // Position parameters are defined once on the main scaffold and shared by all images
+        this.ngZone.run(() => {
+            if (params) {
+                if (params.offsetX !== undefined) { this._backgroundOffsetX = params.offsetX; }
+                if (params.offsetY !== undefined) { this._backgroundOffsetY = params.offsetY; }
+                if (params.scale !== undefined)   { this._backgroundScale = params.scale; }
+                if (params.rotate !== undefined)  { this._backgroundRotate = params.rotate; }
             }
-        };
 
-        if (visibleComponents.length === 1 && this._config.layout.showBackground) {
-            const component = visibleComponents[0];
-            if (component.background) {
-                let background = component.background;
+            this._removeBackgrounds();
+
+            if (!scaffold || !this._config.layout.showBackground) { return; }
+
+            // A background image is shown only when exactly one of the scaffold's components is visible
+            const visibleComponents = (scaffold.components || [])
+                .filter(c => (c.class === $SchemaClass.Scaffold || c.class === $SchemaClass.Component) && !c.hidden);
+            if (visibleComponents.length !== 1) { return; }
+
+            // Render the background image of that single visible component
+            const components = visibleComponents.filter(c => c.background);
+            if (components.length === 0) { return; }
+
+            // Z is the min anchor Z across the scaffold; X,Y come from the shared params + center
+            let minZ = Infinity;
+            (scaffold.anchors || []).forEach(a => {
+                if (a.layout && a.layout.z !== undefined && a.layout.z < minZ) {
+                    minZ = a.layout.z;
+                }
+            });
+            if (minZ === Infinity) {
+                minZ = 0;
+            }
+
+            const loader = new THREE.TextureLoader();
+            components.forEach(component => {
+                const background = component.background;
                 if (!background.path) {
                     console.error("External resource has no path to background image!");
                     return;
                 }
                 const pathContent = this._backgroundsMap[background.path];
-                if (pathContent) {
-                    const loader = new THREE.TextureLoader();
-                    loader.load(pathContent, (texture) => {
-                        removeBackground();
+                if (!pathContent) {
+                    console.warn("Failed to load background content: ", background.path);
+                    return;
+                }
+                loader.load(pathContent, (texture) => {
+                    this.ngZone.run(() => {
                         const image = texture.image;
                         if (!image.width || !image.height) {
                             console.warn("Image dimensions not available immediately", image);
                         }
-                        const geometry = new THREE.PlaneGeometry(image.width * this._backgroundScale, image.height * this._backgroundScale);
+                        // Geometry uses the natural image size; scale is applied via mesh.scale
+                        // so scale changes are cheap (no geometry rebuild / texture reload)
+                        const geometry = new THREE.PlaneGeometry(image.width, image.height);
                         const material = new THREE.MeshBasicMaterial({
                             map: texture,
                             transparent: true,
                             side: THREE.DoubleSide,
                             depthWrite: false
                         });
-                        this._backgroundMesh = new THREE.Mesh(geometry, material);
-                        this._backgroundMesh.renderOrder = -100;
-
-                        // Set Z to min of anchor Zs, and X,Y to center of mass
-                        let minZ = Infinity;
-                        (component.anchors || []).forEach(a => {
-                            if (a.layout && a.layout.z !== undefined) {
-                                if (a.layout.z < minZ) {
-                                    minZ = a.layout.z;
-                                }
-                            }
-                        });
-                        if (minZ === Infinity) {
-                            minZ = 0;
-                        }
-
-                        this._backgroundMesh.position.z = minZ;
-                        this._backgroundMesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
-                        this._backgroundMesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
+                        const mesh = new THREE.Mesh(geometry, material);
+                        mesh.renderOrder = -100;
+                        mesh.scale.set(this._backgroundScale, this._backgroundScale, 1);
+                        mesh.position.z = minZ;
+                        mesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
+                        mesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
                         if (this._backgroundRotate) {
-                            this._backgroundMesh.rotation.z = this._backgroundRotate;
+                            mesh.rotation.z = this._backgroundRotate;
                         }
-                        this.scene.add(this._backgroundMesh);
+                        this._backgroundMeshes.push(mesh);
+                        this.scene.add(mesh);
                         if (this.graph) {
                             this.graph.tickFrame();
                         }
-
                     });
-                    return;
-                } else {
-                    console.warn("Failed to load background content: ", background.path);
-                }
-            }
-        }
-        removeBackground();
+                });
+            });
+        });
     }
 
     openExternal(resource) {

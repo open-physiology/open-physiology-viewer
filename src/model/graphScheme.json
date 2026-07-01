@@ -151,6 +151,37 @@
         }
       }
     },
+    "ConfigurationSchema": {
+      "properties": {
+        "localConventions": {
+          "description": "Mapping from local identifiers to global identifiers.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/CurieMapping"
+          }
+        },
+        "scaleFactor": {
+          "description": "Number of pixels per unit of length, set in a generated model",
+          "type": "number",
+          "readOnly": true
+        },
+        "backgroundParams": {
+          "type": "object",
+          "offsetX": {
+            "type": "number"
+          },
+          "offsetY": {
+            "type": "number"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "rotate": {
+            "type": "number"
+          }
+        }
+      }
+    },
     "ScaffoldStateSchema": {
       "description": "Selected properties of the scaffold that get serialized in a snapshot model",
       "type": "object",
@@ -658,6 +689,9 @@
         },
         {
           "$ref": "#/definitions/AnnotationSchema"
+        },
+        {
+          "$ref": "#/definitions/ConfigurationSchema"
         }
       ],
       "properties": {
@@ -1063,19 +1097,15 @@
         },
         {
           "$ref": "#/definitions/AnnotationSchema"
+        },
+        {
+          "$ref": "#/definitions/ConfigurationSchema"
         }
       ],
       "properties": {
         "abbrev": {
           "description": "Short graph identifier for the use in rdfs:labels",
           "$ref": "#/definitions/IdentifierScheme"
-        },
-        "localConventions": {
-          "description": "Mapping from local identifiers to global identifiers.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CurieMapping"
-          }
         },
         "imports": {
           "description": "URLs of published ApiNATOMY models to merge with the current model",
@@ -1084,11 +1114,6 @@
             "type": "string",
             "format": "uri"
           }
-        },
-        "scaleFactor": {
-          "description": "Number of pixels per unit of length, set in a generated model",
-          "type": "number",
-          "readOnly": true
         },
         "variance": {
           "description": "Variance for which model was generated",
@@ -2888,21 +2913,7 @@
     },
     "Scaffold": {
       "description": "The ApiNATOMY scaffold model is an auxiliary structure that defines an abstract layout for a connectivity model. ",
-      "$ref": "#/definitions/Component",
-      "properties": {
-        "localConventions": {
-          "description": "Mapping from local identifiers to global identifiers.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CurieMapping"
-          }
-        },
-        "scaleFactor": {
-          "description": "Number of pixels per unit of length, set in a generated model",
-          "type": "number",
-          "readOnly": true
-        }
-      }
+      "$ref": "#/definitions/Component"
     },
     "Shape": {
       "description": "A resource that occupies space within a border",

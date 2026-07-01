@@ -165,6 +165,7 @@ const TAB_INDEX = {
                                         (selectedItemChange)="onSelectedItemChange($event)"
                                         (highlightedItemChange)="onHighlightedItemChange($event)"
                                         (scaffoldUpdated)="onScaffoldUpdated($event)"
+                                        (onBackgroundUpdated)="onBackgroundUpdated($event)"
                                         (varianceReset)="applyChanges()"
                                         (stratificationSelected)="assignStratification($event)"
                                         (stratifiedRegionDeleted)="deleteStratifiedRegion($event.stratifiedRegion, $event.callback)"
@@ -543,6 +544,15 @@ export class MainApp extends AppCommon {
         }
     }
 
+
+    onBackgroundUpdated(params) {
+        if (this._model) {
+            this._model.backgroundParams = params;
+            if (this._editor) {
+                this._editor.set(this._model);
+            }
+        }
+    }
 
     applyEditorChanges({model, selected}, editor) {
         this._selectedResources[editor] = selected;
