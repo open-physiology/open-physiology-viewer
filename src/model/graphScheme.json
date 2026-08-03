@@ -173,6 +173,9 @@
           "offsetY": {
             "type": "number"
           },
+          "offsetZ": {
+            "type": "number"
+          },
           "scale": {
             "type": "number"
           },

@@ -161,6 +161,24 @@ export class Component extends Resource {
         return (this.stratifiedRegions || []).filter(e => e.isVisible);
     }
 
+    /**
+     * Average Z coordinate of anchors
+     * @returns {number} average Z coordinate
+     */
+    get getZ() {
+        const anchors = this.anchors || [];
+        if (anchors.length === 0) { return 0; }
+        let sumZ = 0;
+        let count = 0;
+        anchors.forEach(a => {
+            if (a.layout && a.layout.z !== undefined) {
+                sumZ += a.layout.z;
+                count++;
+            }
+        });
+        return count > 0 ? sumZ / count : 0;
+    }
+
     markImported() {
         if (this.imported) {
             let relFieldNames = schemaClassModels[$SchemaClass.Component].filteredRelNames();

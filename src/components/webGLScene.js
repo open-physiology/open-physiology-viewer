@@ -96,10 +96,12 @@ const WindowResize = require('three-window-resize');
                                 *ngIf="_backgroundMeshes.length"
                                 [offsetX]="_backgroundOffsetX"
                                 [offsetY]="_backgroundOffsetY"
+                                [offsetZ]="_backgroundOffsetZ"
                                 [scale]="_backgroundScale"
                                 [rotate]="_backgroundRotate"
                                 (onUpdateOffsetX)="updateBackgroundOffsetX($event)"
                                 (onUpdateOffsetY)="updateBackgroundOffsetY($event)"
+                                (onUpdateOffsetZ)="updateBackgroundOffsetZ($event)"
                                 (onUpdateScale)="updateBackgroundScale($event)"
                                 (onUpdateRotate)="updateBackgroundRotate($event)"
                                 (onApply)="onBackgroundUpdated.emit($event)"
@@ -234,6 +236,7 @@ export class WebGLSceneComponent {
     _backgroundScale = 0.6;
     _backgroundOffsetX = -10;
     _backgroundOffsetY = 195;
+    _backgroundOffsetZ = 0;
     _backgroundRotate = 0;
     _scaffoldCenter = new THREE.Vector2(0, 0);
 
@@ -881,6 +884,22 @@ export class WebGLSceneComponent {
         });
     }
 
+    updateBackgroundOffsetZ(value) {
+        this._backgroundOffsetZ = value;
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.offsetZ = value;
+        }
+        this._backgroundMeshes.forEach(mesh => {
+            const visibleComponents = (this._graphData.components || [])
+                .filter(c => (c.class === $SchemaClass.Scaffold || c.class === $SchemaClass.Component) && !c.hidden);
+            if (visibleComponents.length === 1) {
+                const z = visibleComponents[0].getZ || 0;
+                mesh.position.z = z + (this._backgroundOffsetZ || 0);
+            }
+        });
+    }
+
     updateBackground() {
         if (!this.scene) return;
 
@@ -890,10 +909,11 @@ export class WebGLSceneComponent {
         // Position parameters are defined once on the main scaffold and shared by all images
         this.ngZone.run(() => {
             if (params) {
-                if (params.offsetX !== undefined) { this._backgroundOffsetX = params.offsetX; }
-                if (params.offsetY !== undefined) { this._backgroundOffsetY = params.offsetY; }
-                if (params.scale !== undefined)   { this._backgroundScale = params.scale; }
-                if (params.rotate !== undefined)  { this._backgroundRotate = params.rotate; }
+                if (params.offsetX  !== undefined) { this._backgroundOffsetX = params.offsetX; }
+                if (params.offsetY  !== undefined) { this._backgroundOffsetY = params.offsetY; }
+                if (params.offsetZ  !== undefined) { this._backgroundOffsetZ = params.offsetZ; }
+                if (params.scale    !== undefined) { this._backgroundScale   = params.scale; }
+                if (params.rotate   !== undefined) { this._backgroundRotate  = params.rotate; }
             }
 
             this._removeBackgrounds();
@@ -909,16 +929,7 @@ export class WebGLSceneComponent {
             const components = visibleComponents.filter(c => c.background);
             if (components.length === 0) { return; }
 
-            // Z is the min anchor Z across the scaffold; X,Y come from the shared params + center
-            let minZ = Infinity;
-            (scaffold.anchors || []).forEach(a => {
-                if (a.layout && a.layout.z !== undefined && a.layout.z < minZ) {
-                    minZ = a.layout.z;
-                }
-            });
-            if (minZ === Infinity) {
-                minZ = 0;
-            }
+            const z = visibleComponents[0].getZ || 0;
 
             const loader = new THREE.TextureLoader();
             components.forEach(component => {
@@ -950,7 +961,7 @@ export class WebGLSceneComponent {
                         const mesh = new THREE.Mesh(geometry, material);
                         mesh.renderOrder = -100;
                         mesh.scale.set(this._backgroundScale, this._backgroundScale, 1);
-                        mesh.position.z = minZ;
+                        mesh.position.z = z + (this._backgroundOffsetZ || 0);
                         mesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
                         mesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);
                         if (this._backgroundRotate) {

@@ -4,7 +4,7 @@ import {FormsModule} from "@angular/forms";
 import {MatSlider, MatSliderModule} from '@angular/material/slider';
 import {COLORS} from '../utils/colors.js'
 
-const SLIDER_NAMES = ['offsetX', 'offsetY', 'scale', 'rotate'];
+const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
 
 @Component({
     selector: 'background-toolbar',
@@ -42,6 +42,24 @@ const SLIDER_NAMES = ['offsetX', 'offsetY', 'scale', 'rotate'];
                    <div class="slider-scale">
                        <span class="slider-label">-500</span>
                        <span class="slider-value">({{offsetY}})</span>
+                       <span class="slider-label">500</span>
+                   </div>
+               </div>
+           </div>
+           <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'offsetZ'"
+                (mousedown)="setActiveSlider('offsetZ')">
+               <label>z:</label>
+               <div class="slider">
+                   <mat-slider #sliderZ style="width: 100%"
+                       [min]="-500" [max]="500" [step]="0.1"
+                       [value]="offsetZ"
+                       (input)="onSlider('offsetZ', $event.value)"
+                       (change)="onSlider('offsetZ', $event.value)"
+                   >
+                   </mat-slider>
+                   <div class="slider-scale">
+                       <span class="slider-label">-500</span>
+                       <span class="slider-value">({{offsetZ}})</span>
                        <span class="slider-label">500</span>
                    </div>
                </div>
@@ -171,16 +189,19 @@ const SLIDER_NAMES = ['offsetX', 'offsetY', 'scale', 'rotate'];
 export class BackgroundToolbar {
     @Input() offsetX = 0;
     @Input() offsetY = 0;
+    @Input() offsetZ = 0;
     @Input() scale = 1.0;
     @Input() rotate = 0;
     @Output() onUpdateOffsetX = new EventEmitter();
     @Output() onUpdateOffsetY = new EventEmitter();
+    @Output() onUpdateOffsetZ = new EventEmitter();
     @Output() onUpdateScale = new EventEmitter();
     @Output() onUpdateRotate = new EventEmitter();
     @Output() onApply = new EventEmitter();
 
     @ViewChild('sliderX') sliderX;
     @ViewChild('sliderY') sliderY;
+    @ViewChild('sliderZ') sliderZ;
     @ViewChild('sliderScale') sliderScale;
     @ViewChild('sliderRotate') sliderRotate;
 
@@ -190,6 +211,7 @@ export class BackgroundToolbar {
     _sliderConfig = {
         offsetX: {min: -500, max: 500, step: 1},
         offsetY: {min: -500, max: 500, step: 1},
+        offsetZ: {min: -500, max: 500, step: 0.1},
         scale:   {min: 0.1,  max: 2.0, step: 0.01},
         rotate:  {min: -3.14, max: 3.14, step: 0.01}
     };
@@ -241,6 +263,7 @@ export class BackgroundToolbar {
         switch (name) {
             case 'offsetX': this.onUpdateOffsetX.emit(value); break;
             case 'offsetY': this.onUpdateOffsetY.emit(value); break;
+            case 'offsetZ': this.onUpdateOffsetZ.emit(value); break;
             case 'scale':   this.onUpdateScale.emit(value); break;
             case 'rotate':  this.onUpdateRotate.emit(value); break;
         }
@@ -316,6 +339,7 @@ export class BackgroundToolbar {
         const slider = {
             offsetX: this.sliderX,
             offsetY: this.sliderY,
+            offsetZ: this.sliderZ,
             scale: this.sliderScale,
             rotate: this.sliderRotate
         }[name];
