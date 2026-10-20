@@ -5,26 +5,33 @@ import {MatSlider, MatSliderModule} from '@angular/material/slider';
 import {COLORS} from '../utils/colors.js'
 
 const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
+// flipX mirrors the image horizontally (across the y axis), flipY vertically (across the x axis)
+const FLIP_NAMES = ['flipX', 'flipY'];
+const PARAM_NAMES = [...SLIDER_NAMES, ...FLIP_NAMES];
+const OFFSET_NAMES = ['offsetX', 'offsetY', 'offsetZ'];
+// Arrow keys shift offsets by this fraction of the scene extent; with Shift (or Ctrl+Up/Down) by FINE_OFFSET_STEP
+const COARSE_OFFSET_STEP = 0.01;
+const FINE_OFFSET_STEP = 1;
 
 @Component({
     selector: 'background-toolbar',
     template: `
-       <section class="w3-bar w3-light-grey background-toolbar" title="Background image position">
+       <section class="w3-bar w3-light-grey background-toolbar" title="Background image position. Arrow keys: move the active slider (x, y, z: by 1% of the scene extent); Shift+arrows or Ctrl+Up/Down: by 1; Ctrl+Left/Right: switch slider">
            <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'offsetX'"
                 (mousedown)="setActiveSlider('offsetX')">
                <label>x:</label>
                <div class="slider">
                    <mat-slider #sliderX style="width: 100%"
-                       [min]="-500" [max]="500" [step]="1"
+                       [min]="_sliderConfig.offsetX.min" [max]="_sliderConfig.offsetX.max" [step]="1"
                        [value]="offsetX"
                        (input)="onSlider('offsetX', $event.value)"
                        (change)="onSlider('offsetX', $event.value)"
                    >
                    </mat-slider>
                    <div class="slider-scale">
-                       <span class="slider-label">-500</span>
+                       <span class="slider-label">{{_sliderConfig.offsetX.min}}</span>
                        <span class="slider-value">({{offsetX}})</span>
-                       <span class="slider-label">500</span>
+                       <span class="slider-label">{{_sliderConfig.offsetX.max}}</span>
                    </div>
                </div>
            </div>
@@ -33,16 +40,16 @@ const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
                <label>y:</label>
                <div class="slider">
                    <mat-slider #sliderY style="width: 100%"
-                       [min]="-500" [max]="500" [step]="1"
+                       [min]="_sliderConfig.offsetY.min" [max]="_sliderConfig.offsetY.max" [step]="1"
                        [value]="offsetY"
                        (input)="onSlider('offsetY', $event.value)"
                        (change)="onSlider('offsetY', $event.value)"
                    >
                    </mat-slider>
                    <div class="slider-scale">
-                       <span class="slider-label">-500</span>
+                       <span class="slider-label">{{_sliderConfig.offsetY.min}}</span>
                        <span class="slider-value">({{offsetY}})</span>
-                       <span class="slider-label">500</span>
+                       <span class="slider-label">{{_sliderConfig.offsetY.max}}</span>
                    </div>
                </div>
            </div>
@@ -51,16 +58,16 @@ const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
                <label>z:</label>
                <div class="slider">
                    <mat-slider #sliderZ style="width: 100%"
-                       [min]="-500" [max]="500" [step]="0.1"
+                       [min]="_sliderConfig.offsetZ.min" [max]="_sliderConfig.offsetZ.max" [step]="0.1"
                        [value]="offsetZ"
                        (input)="onSlider('offsetZ', $event.value)"
                        (change)="onSlider('offsetZ', $event.value)"
                    >
                    </mat-slider>
                    <div class="slider-scale">
-                       <span class="slider-label">-500</span>
+                       <span class="slider-label">{{_sliderConfig.offsetZ.min}}</span>
                        <span class="slider-value">({{offsetZ}})</span>
-                       <span class="slider-label">500</span>
+                       <span class="slider-label">{{_sliderConfig.offsetZ.max}}</span>
                    </div>
                </div>
            </div>
@@ -100,6 +107,16 @@ const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
                    </div>
                </div>
            </div>
+           <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="flipX"
+                   (click)="toggleFlip('flipX')"
+                   title="Flip horizontally (mirror across the y axis)">
+               <i class="fa fa-arrows-left-right"> </i>
+           </button>
+           <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="flipY"
+                   (click)="toggleFlip('flipY')"
+                   title="Flip vertically (mirror across the x axis)">
+               <i class="fa fa-arrows-up-down"> </i>
+           </button>
            <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
                    title="Apply changes">
                <div style="display: flex">
@@ -129,6 +146,9 @@ const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
             border: 1px solid transparent;
             height: 38px;
             flex-shrink: 0;
+        }
+        .background-toolbar .flip-active {
+            border: 1px solid ${COLORS.selectedBorder};
         }
         .background-toolbar .slider-group {
             cursor: pointer;
@@ -192,11 +212,17 @@ export class BackgroundToolbar {
     @Input() offsetZ = 0;
     @Input() scale = 1.0;
     @Input() rotate = 0;
+    @Input() flipX = false;
+    @Input() flipY = false;
+    // Half-size of the scene coordinate system: x, y and z offsets range over [-extent, extent]
+    @Input() extent = 1000;
     @Output() onUpdateOffsetX = new EventEmitter();
     @Output() onUpdateOffsetY = new EventEmitter();
     @Output() onUpdateOffsetZ = new EventEmitter();
     @Output() onUpdateScale = new EventEmitter();
     @Output() onUpdateRotate = new EventEmitter();
+    @Output() onUpdateFlipX = new EventEmitter();
+    @Output() onUpdateFlipY = new EventEmitter();
     @Output() onApply = new EventEmitter();
 
     @ViewChild('sliderX') sliderX;
@@ -209,9 +235,9 @@ export class BackgroundToolbar {
 
     // Range/step metadata mirrors the template bindings and drives keyboard increments
     _sliderConfig = {
-        offsetX: {min: -500, max: 500, step: 1},
-        offsetY: {min: -500, max: 500, step: 1},
-        offsetZ: {min: -500, max: 500, step: 0.1},
+        offsetX: {min: -1000, max: 1000, step: 1},
+        offsetY: {min: -1000, max: 1000, step: 1},
+        offsetZ: {min: -1000, max: 1000, step: 0.1},
         scale:   {min: 0.1,  max: 2.0, step: 0.01},
         rotate:  {min: -3.14, max: 3.14, step: 0.01}
     };
@@ -239,7 +265,13 @@ export class BackgroundToolbar {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        SLIDER_NAMES.forEach(name => {
+        if (changes.extent && this.extent > 0) {
+            ['offsetX', 'offsetY', 'offsetZ'].forEach(name => {
+                this._sliderConfig[name].min = -this.extent;
+                this._sliderConfig[name].max = this.extent;
+            });
+        }
+        PARAM_NAMES.forEach(name => {
             if (!changes[name]) { return; }
             if (this._pendingInternal.has(name)) {
                 // Echo of a value we just emitted - keep the baseline so the change stays "dirty"
@@ -266,6 +298,8 @@ export class BackgroundToolbar {
             case 'offsetZ': this.onUpdateOffsetZ.emit(value); break;
             case 'scale':   this.onUpdateScale.emit(value); break;
             case 'rotate':  this.onUpdateRotate.emit(value); break;
+            case 'flipX':   this.onUpdateFlipX.emit(value); break;
+            case 'flipY':   this.onUpdateFlipY.emit(value); break;
         }
     }
 
@@ -278,21 +312,39 @@ export class BackgroundToolbar {
         this._emit(name, val);
     }
 
+    toggleFlip(name) {
+        this[name] = !this[name];
+        this._pendingInternal.add(name);
+        this._emit(name, this[name]);
+    }
+
     /** Handler for direct slider interaction (drag / click on the active slider) */
     onSlider(name, value) {
         this.setActiveSlider(name);
         this._applyUserChange(name, value);
     }
 
+    /**
+     * Keyboard increment for a parameter: x, y and z offsets move by a fraction of the scene extent,
+     * or by FINE_OFFSET_STEP for fine-tuning; scale and rotation use their slider step.
+     * @param name - parameter name
+     * @param fine - whether a fine-tuning modifier is pressed
+     */
+    _keyStep(name, fine) {
+        if (!OFFSET_NAMES.includes(name)) {
+            return this._sliderConfig[name].step;
+        }
+        return fine ? FINE_OFFSET_STEP : Math.max(FINE_OFFSET_STEP, Math.round(COARSE_OFFSET_STEP * this.extent));
+    }
+
     _onKeydownCapture(event) {
         const key = event.key;
-        if (event.ctrlKey || event.metaKey) {
+        const ctrl = event.ctrlKey || event.metaKey;
+        if (ctrl && (key === 'ArrowLeft' || key === 'ArrowRight')) {
             if (key === 'ArrowLeft') {
                 this._switchSlider(-1);
             } else if (key === 'ArrowRight') {
                 this._switchSlider(1);
-            } else {
-                return;
             }
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -302,8 +354,8 @@ export class BackgroundToolbar {
         if (key === 'ArrowLeft' || key === 'ArrowDown') { delta = -1; }
         else if (key === 'ArrowRight' || key === 'ArrowUp') { delta = 1; }
         if (delta !== 0) {
-            const cfg = this._sliderConfig[this.activeSlider];
-            this._applyUserChange(this.activeSlider, this[this.activeSlider] + delta * cfg.step);
+            const step = this._keyStep(this.activeSlider, ctrl || event.shiftKey);
+            this._applyUserChange(this.activeSlider, this[this.activeSlider] + delta * step);
             event.preventDefault();
             event.stopImmediatePropagation();
         }
@@ -316,16 +368,16 @@ export class BackgroundToolbar {
     }
 
     isDirty() {
-        return SLIDER_NAMES.some(name => this[name] !== this._savedParams[name]);
+        return PARAM_NAMES.some(name => this[name] !== this._savedParams[name]);
     }
 
     applyChanges() {
-        SLIDER_NAMES.forEach(name => this._savedParams[name] = this[name]);
+        PARAM_NAMES.forEach(name => this._savedParams[name] = this[name]);
         this.onApply.emit({...this._savedParams});
     }
 
     rollbackChanges() {
-        SLIDER_NAMES.forEach(name => {
+        PARAM_NAMES.forEach(name => {
             if (this[name] !== this._savedParams[name]) {
                 this[name] = this._savedParams[name];
                 this._pendingInternal.add(name);

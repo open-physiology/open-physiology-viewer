@@ -181,6 +181,12 @@
           },
           "rotate": {
             "type": "number"
+          },
+          "flipX": {
+            "type": "boolean"
+          },
+          "flipY": {
+            "type": "boolean"
           }
         }
       }
@@ -908,6 +914,10 @@
         },
         "path": {
           "description": "Path to an external resource",
+          "type": "string"
+        },
+        "url": {
+          "description": "Remote URL to download an external resource (i.e., background image) from",
           "type": "string"
         },
         "type": {

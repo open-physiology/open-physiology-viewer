@@ -45,6 +45,32 @@ import config from '../data/config.json';
 const WindowResize = require('three-window-resize');
 
 /**
+ * Google Drive share links (drive.google.com/file/d/<id>/..., drive.google.com/open?id=<id>, uc?id=<id>)
+ * do not serve CORS headers, so WebGL cannot use them as textures. Rewrite them to the Drive API
+ * download endpoint, which does, authorized with the DRIVE_API_KEY from the environment.
+ * @param url - image url
+ * @returns {string} url that can be loaded as a cross-origin texture
+ */
+function toDriveDownloadUrl(url) {
+    let parsed;
+    try {
+        parsed = new URL(url);
+    } catch (e) {
+        return url;
+    }
+    if (parsed.hostname !== "drive.google.com") {
+        return url;
+    }
+    const fileID = (parsed.pathname.match(/\/file\/d\/([^/]+)/) || [])[1] || parsed.searchParams.get("id");
+    const apiKey = process.env.DRIVE_API_KEY;
+    if (!fileID || !apiKey) {
+        console.warn("Cannot convert Google Drive link to a downloadable url (missing file id or DRIVE_API_KEY): ", url);
+        return url;
+    }
+    return `https://www.googleapis.com/drive/v3/files/${fileID}?alt=media&key=${apiKey}`;
+}
+
+/**
  * @ignore
  */
 @Component({
@@ -99,11 +125,16 @@ const WindowResize = require('three-window-resize');
                                 [offsetZ]="_backgroundOffsetZ"
                                 [scale]="_backgroundScale"
                                 [rotate]="_backgroundRotate"
+                                [flipX]="_backgroundFlipX"
+                                [flipY]="_backgroundFlipY"
+                                [extent]="viewExtent"
                                 (onUpdateOffsetX)="updateBackgroundOffsetX($event)"
                                 (onUpdateOffsetY)="updateBackgroundOffsetY($event)"
                                 (onUpdateOffsetZ)="updateBackgroundOffsetZ($event)"
                                 (onUpdateScale)="updateBackgroundScale($event)"
                                 (onUpdateRotate)="updateBackgroundRotate($event)"
+                                (onUpdateFlipX)="updateBackgroundFlipX($event)"
+                                (onUpdateFlipY)="updateBackgroundFlipY($event)"
                                 (onApply)="onBackgroundUpdated.emit($event)"
                         >
                         </background-toolbar>
@@ -136,6 +167,8 @@ const WindowResize = require('three-window-resize');
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleGroup)="toggleGroup($event)"
                         (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
+                        [viewExtent]="viewExtent"
+                        (onUpdateViewExtent)="updateViewExtent($event)"
                         (onCladeChange)="updateVariance($event)"
                         (onCladeReset)="resetVariance()"
                         (onEditResource)="editResource.emit($event)"
@@ -154,6 +187,8 @@ const WindowResize = require('three-window-resize');
                         (onToggleLayout)="toggleLayout($event)"
                         (onToggleComponent)="toggleGroup($event)"
                         (onToggleHelperPlane)="helpers[$event].visible = !helpers[$event].visible"
+                        [viewExtent]="viewExtent"
+                        (onUpdateViewExtent)="updateViewExtent($event)"
                         (onEditResource)="editResource.emit($event)"
                 ></settingsPanelScaffold>
             </section>
@@ -226,6 +261,8 @@ export class WebGLSceneComponent {
     defaultColor = 0x000000;
     scaleFactor = 10;
     labelRelSize = 0.1 * this.scaleFactor;
+    // Half-size of the scene coordinate system: the viewbox spans [-viewExtent, viewExtent] along each axis
+    viewExtent = 100 * this.scaleFactor;
     stratifiedRegionSize = 1.0;
     lockControls = false;
     isConnectivity = true;
@@ -233,11 +270,17 @@ export class WebGLSceneComponent {
 
     _backgroundMeshes = [];
     _backgroundsMap = {};
+    // Textures downloaded from remote URLs, ordered from least to most recently used
+    _remoteBackgroundCache = new Map();
+    _remoteBackgroundCacheSize = 5;
+    _backgroundRequestId = 0;
     _backgroundScale = 0.6;
     _backgroundOffsetX = -10;
     _backgroundOffsetY = 195;
     _backgroundOffsetZ = 0;
     _backgroundRotate = 0;
+    _backgroundFlipX = false;
+    _backgroundFlipY = false;
     _scaffoldCenter = new THREE.Vector2(0, 0);
 
     queryCounter = 0;
@@ -478,10 +521,25 @@ export class WebGLSceneComponent {
         }
     }
 
+    /**
+     * Ratio of the current scene extent to the default one (100 * scaleFactor). Sizes chosen by the user
+     * (stratified regions, background images) are relative to the default extent and get multiplied by it.
+     */
+    get _extentRatio() {
+        return this.viewExtent / (100 * this.scaleFactor);
+    }
+
+    /**
+     * Stratified region size passed to the renderer: the chosen proportion scaled to the scene extent
+     */
+    get _sceneStratifiedRegionSize() {
+        return this.stratifiedRegionSize * this._extentRatio;
+    }
+
     onStratifiedRegionSizeChange(newSize) {
         this.stratifiedRegionSize = newSize;
         if (this.graph) {
-            this.graph.stratifiedRegionSize(this.stratifiedRegionSize);
+            this.graph.stratifiedRegionSize(this._sceneStratifiedRegionSize);
             this.graph.graphData(this.graphData);
         }
     }
@@ -502,7 +560,7 @@ export class WebGLSceneComponent {
         let width = this.container.clientWidth;
         let height = this.container.clientHeight;
 
-        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 10000);
+        this.camera = new THREE.PerspectiveCamera(70, width / height, 10, 10 * this.viewExtent);
         this.camera.aspect = width / height;
         this.resetCamera();
 
@@ -512,7 +570,7 @@ export class WebGLSceneComponent {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
         this.controls.minDistance = 10;
-        this.controls.maxDistance = 10000 - 100 * this.scaleFactor;
+        this.controls.maxDistance = 9 * this.viewExtent;
 
         this.controls.minZoom = 0;
         this.controls.maxZoom = 10;
@@ -683,7 +741,7 @@ export class WebGLSceneComponent {
     createHelpers() {
         let gridColor = new THREE.Color(0xcccccc);
         let axisColor = new THREE.Color(0xaaaaaa);
-        let axisLength = 100 * this.scaleFactor;
+        let axisLength = this.viewExtent;
 
             // x-y plane
         let gridHelper1 = new THREE.GridHelper(2 * axisLength, 10, axisColor, gridColor);
@@ -702,6 +760,43 @@ export class WebGLSceneComponent {
         this.helpers::values().forEach(value => value.visible = false);
 
         this._helperKeys = this.helpers::keys();
+    }
+
+    /**
+     * Change the size of the scene coordinate system to [-extent, extent]: rescales camera far plane,
+     * maximal zoom-out distance and helper grids/axes, then resets the camera to see the whole viewbox.
+     * @param extent - half-size of the viewbox
+     */
+    updateViewExtent(extent) {
+        if (!extent || extent <= 0 || extent === this.viewExtent) {
+            return;
+        }
+        this.viewExtent = extent;
+        this.camera.far = 10 * extent;
+        this.controls.maxDistance = 9 * extent;
+
+        // Rebuild helpers preserving their visibility
+        const visible = {};
+        this.helpers::keys().forEach(key => {
+            const helper = this.helpers[key];
+            visible[key] = helper.visible;
+            this.scene.remove(helper);
+            helper.geometry.dispose();
+            (Array.isArray(helper.material) ? helper.material : [helper.material]).forEach(m => m.dispose());
+        });
+        const helperKeys = this._helperKeys;
+        this.helpers = {};
+        this.createHelpers();
+        this.helpers::keys().forEach(key => this.helpers[key].visible = !!visible[key]);
+        // Keep the same keys array so that settings panels do not reset helper toggles
+        this._helperKeys = helperKeys;
+
+        this._backgroundMeshes.forEach(mesh => this._applyBackgroundScale(mesh));
+        if (this.graph) {
+            this.graph.stratifiedRegionSize(this._sceneStratifiedRegionSize);
+            this.graph.graphData(this.graphData);
+        }
+        this.resetCamera();
     }
 
     createGraph() {
@@ -739,14 +834,14 @@ export class WebGLSceneComponent {
                 (d.source && d.source.fixed && d.target && d.target.fixed || !d.length) ? 0 : 1));
 
         this.graph.labelRelSize(this.labelRelSize);
-        this.graph.stratifiedRegionSize(this.stratifiedRegionSize);
+        this.graph.stratifiedRegionSize(this._sceneStratifiedRegionSize);
         this.graph.showLabels(this._config.showLabels);
         this.graph.labels(this._config.labels);
         this.scene.add(this.graph);
     }
 
     moveCamera(direction) {
-        const delta = 10;
+        const delta = this.viewExtent / 100;
         switch (direction) {
             case 'left':
                 this.camera.position.x = this.camera.position.x - delta;
@@ -768,7 +863,7 @@ export class WebGLSceneComponent {
     }
 
     resetCamera(positionPoint, lookupPoint, targetPoint) {
-        let position = [0, -100, 120 * this.scaleFactor];
+        let position = [0, -100, 1.2 * this.viewExtent];
         let lookup = [0, 0, 1];
         ["x", "y", "z"].forEach((dim, i) => {
             if (lookupPoint && lookupPoint.hasOwnProperty(dim)) {
@@ -832,12 +927,59 @@ export class WebGLSceneComponent {
      * Remove all background image meshes from the scene and dispose their resources.
      */
     _removeBackgrounds() {
+        const cachedTextures = new Set(this._remoteBackgroundCache.values());
         (this._backgroundMeshes || []).forEach(mesh => {
             this.scene.remove(mesh);
             mesh.geometry.dispose();
+            // Remote textures stay in the cache for reuse when the user toggles components back
+            if (mesh.material.map && !cachedTextures.has(mesh.material.map)) {
+                mesh.material.map.dispose();
+            }
             mesh.material.dispose();
         });
         this._backgroundMeshes = [];
+    }
+
+    /**
+     * Load a background image texture. Images loaded from a local folder (matched by path) take
+     * precedence; otherwise the image is downloaded from the remote url of the external resource.
+     * Up to _remoteBackgroundCacheSize downloaded textures are cached, evicting the least recently used one.
+     * @param background - external resource describing the background image
+     * @param onLoad     - callback receiving the loaded texture
+     */
+    _loadBackgroundTexture(background, onLoad) {
+        const pathContent = background.path && this._backgroundsMap[background.path];
+        if (pathContent) {
+            new THREE.TextureLoader().load(pathContent, onLoad);
+            return;
+        }
+        const url = background.url;
+        if (!url) {
+            console.warn("Background image is neither loaded from a local folder nor has a remote url: ",
+                background.path || background.fullID || background.id);
+            return;
+        }
+        const cached = this._remoteBackgroundCache.get(url);
+        if (cached) {
+            // Re-insert to mark the texture as most recently used
+            this._remoteBackgroundCache.delete(url);
+            this._remoteBackgroundCache.set(url, cached);
+            onLoad(cached);
+            return;
+        }
+        const loader = new THREE.TextureLoader();
+        loader.setCrossOrigin("anonymous");
+        loader.load(toDriveDownloadUrl(url), (texture) => {
+            this._remoteBackgroundCache.set(url, texture);
+            if (this._remoteBackgroundCache.size > this._remoteBackgroundCacheSize) {
+                const [lruUrl, lruTexture] = this._remoteBackgroundCache.entries().next().value;
+                this._remoteBackgroundCache.delete(lruUrl);
+                if (!this._backgroundMeshes.some(mesh => mesh.material.map === lruTexture)) {
+                    lruTexture.dispose();
+                }
+            }
+            onLoad(texture);
+        }, undefined, (err) => console.error("Failed to download background image: ", url, err));
     }
 
     updateBackgroundOffsetX(value) {
@@ -862,6 +1004,17 @@ export class WebGLSceneComponent {
         });
     }
 
+    /**
+     * Background scale is stored relative to the default scene extent (see _extentRatio), so images
+     * grow with the scene: e.g., changing the extent from 1000 to 10000 makes them 10 times larger.
+     * @param mesh - background image mesh
+     */
+    _applyBackgroundScale(mesh) {
+        const scale = this._backgroundScale * this._extentRatio;
+        // Negative scale mirrors the image (material is double-sided, so it stays visible)
+        mesh.scale.set(this._backgroundFlipX ? -scale : scale, this._backgroundFlipY ? -scale : scale, 1);
+    }
+
     updateBackgroundScale(value) {
         this._backgroundScale = value;
         const params = this._ensureBackgroundParams();
@@ -869,8 +1022,26 @@ export class WebGLSceneComponent {
             params.scale = value;
         }
         this._backgroundMeshes.forEach(mesh => {
-            mesh.scale.set(this._backgroundScale, this._backgroundScale, 1);
+            this._applyBackgroundScale(mesh);
         });
+    }
+
+    updateBackgroundFlipX(value) {
+        this._backgroundFlipX = !!value;
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.flipX = this._backgroundFlipX;
+        }
+        this._backgroundMeshes.forEach(mesh => this._applyBackgroundScale(mesh));
+    }
+
+    updateBackgroundFlipY(value) {
+        this._backgroundFlipY = !!value;
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.flipY = this._backgroundFlipY;
+        }
+        this._backgroundMeshes.forEach(mesh => this._applyBackgroundScale(mesh));
     }
 
     updateBackgroundRotate(value) {
@@ -914,9 +1085,13 @@ export class WebGLSceneComponent {
                 if (params.offsetZ  !== undefined) { this._backgroundOffsetZ = params.offsetZ; }
                 if (params.scale    !== undefined) { this._backgroundScale   = params.scale; }
                 if (params.rotate   !== undefined) { this._backgroundRotate  = params.rotate; }
+                if (params.flipX    !== undefined) { this._backgroundFlipX   = !!params.flipX; }
+                if (params.flipY    !== undefined) { this._backgroundFlipY   = !!params.flipY; }
             }
 
             this._removeBackgrounds();
+            // Ignore textures that arrive after the background has been updated again
+            const requestId = ++this._backgroundRequestId;
 
             if (!scaffold || !this._config.layout.showBackground) { return; }
 
@@ -931,19 +1106,14 @@ export class WebGLSceneComponent {
 
             const z = visibleComponents[0].getZ || 0;
 
-            const loader = new THREE.TextureLoader();
             components.forEach(component => {
-                const background = component.background;
-                if (!background.path) {
-                    console.error("External resource has no path to background image!");
-                    return;
-                }
-                const pathContent = this._backgroundsMap[background.path];
-                if (!pathContent) {
-                    console.warn("Failed to load background content: ", background.path);
-                    return;
-                }
-                loader.load(pathContent, (texture) => {
+                this._loadBackgroundTexture(component.background, (texture) => {
+                    if (requestId !== this._backgroundRequestId) {
+                        if (![...this._remoteBackgroundCache.values()].includes(texture)) {
+                            texture.dispose();
+                        }
+                        return;
+                    }
                     this.ngZone.run(() => {
                         const image = texture.image;
                         if (!image.width || !image.height) {
@@ -960,7 +1130,7 @@ export class WebGLSceneComponent {
                         });
                         const mesh = new THREE.Mesh(geometry, material);
                         mesh.renderOrder = -100;
-                        mesh.scale.set(this._backgroundScale, this._backgroundScale, 1);
+                        this._applyBackgroundScale(mesh);
                         mesh.position.z = z + (this._backgroundOffsetZ || 0);
                         mesh.position.x = this._scaffoldCenter.x + (this._backgroundOffsetX || 0);
                         mesh.position.y = this._scaffoldCenter.y + (this._backgroundOffsetY || 0);

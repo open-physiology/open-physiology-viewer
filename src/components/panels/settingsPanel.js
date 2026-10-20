@@ -78,6 +78,70 @@ export class SettingsLabelsPanel {
     }
 }
 
+/**
+ * Controls the size of the main scene coordinate system: the scene spans the range [-extent, extent]
+ * along each axis. Changing the extent adjusts camera clipping planes, zoom limits and helper grids.
+ */
+@Component({
+    selector: 'settingsViewboxPanel',
+    changeDetection: ChangeDetectionStrategy.Default,
+    template: `
+        <div class="settings-wrap">
+            <h5>Scene extent</h5>
+            <div class="wrap">
+                <mat-form-field class="viewbox-field">
+                    <mat-label>Range ±</mat-label>
+                    <mat-select [value]="isPreset ? extent : null"
+                                matTooltip="Visible coordinate range [-extent, extent]"
+                                (selectionChange)="updateExtent($event.value)">
+                        <mat-option *ngFor="let option of presets" [value]="option">
+                            {{ -option }} .. {{ option }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="wrap">
+                <mat-form-field class="viewbox-field">
+                    <mat-label>Custom extent</mat-label>
+                    <input matInput type="number" [min]="minExtent" [max]="maxExtent" step="100"
+                           [value]="extent"
+                           (keyup.enter)="updateExtent($event.target.value)"
+                           (blur)="updateExtent($event.target.value)"/>
+                </mat-form-field>
+            </div>
+        </div>
+    `,
+    styles: [`
+        .viewbox-field {
+            width: 100%;
+        }
+    `]
+})
+export class SettingsViewboxPanel {
+    presets = [1000, 2000, 5000, 10000, 20000];
+    minExtent = 100;
+    maxExtent = 100000;
+
+    @Input() extent;
+    @Output() onUpdateExtent = new EventEmitter();
+
+    get isPreset() {
+        return this.presets.includes(this.extent);
+    }
+
+    updateExtent(value) {
+        let extent = Number(value);
+        if (!Number.isFinite(extent) || extent <= 0) {
+            return;
+        }
+        extent = Math.min(Math.max(extent, this.minExtent), this.maxExtent);
+        if (extent !== this.extent) {
+            this.extent = extent;
+            this.onUpdateExtent.emit(extent);
+        }
+    }
+}
+
 @Component({
     selector: 'settingsHighlightedPanel',
     changeDetection: ChangeDetectionStrategy.Default,
@@ -473,9 +537,9 @@ export class SettingsPanel {
         MatSlideToggleModule, MatIconModule, MatInputModule, MatButtonModule, MatExpansionModule,
         MatFormFieldModule, MatAutocompleteModule, MatSelectModule, MatTooltipModule
     ],
-    declarations: [SettingsPanel, SettingsLabelsPanel, SettingsHighlightedPanel, SettingsSelectedPanel, StopPropagation],
+    declarations: [SettingsPanel, SettingsLabelsPanel, SettingsViewboxPanel, SettingsHighlightedPanel, SettingsSelectedPanel, StopPropagation],
     entryComponents: [LogInfoDialog],
-    exports: [SettingsPanel, SettingsLabelsPanel, SettingsHighlightedPanel, SettingsSelectedPanel]
+    exports: [SettingsPanel, SettingsLabelsPanel, SettingsViewboxPanel, SettingsHighlightedPanel, SettingsSelectedPanel]
 })
 export class SettingsPanelModule {
 }

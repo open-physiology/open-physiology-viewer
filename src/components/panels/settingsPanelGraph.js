@@ -115,6 +115,11 @@ const COLORS = {
                                 </mat-slide-toggle>
                             </div>
                         </div>
+
+                        <settingsViewboxPanel
+                                [extent]="viewExtent"
+                                (onUpdateExtent)="onUpdateViewExtent.emit($event)"
+                        ></settingsViewboxPanel>
                     </div>
                 </mat-expansion-panel>
             </mat-accordion>
@@ -527,6 +532,7 @@ export class SettingsPanelGraph {
     @Input() varianceDisabled;
     @Input() clade;
     @Input() clades;
+    @Input() viewExtent;
 
     @Output() onSelectBySearch = new EventEmitter();
     @Output() onOpenExternal = new EventEmitter();
@@ -537,6 +543,7 @@ export class SettingsPanelGraph {
     @Output() onToggleMode = new EventEmitter();
     @Output() onToggleLayout = new EventEmitter();
     @Output() onToggleHelperPlane = new EventEmitter();
+    @Output() onUpdateViewExtent = new EventEmitter();
     @Output() onCladeChange = new EventEmitter();
     @Output() onCladeReset = new EventEmitter();
     @Output() onUpdateCoalescenceLayout = new EventEmitter();

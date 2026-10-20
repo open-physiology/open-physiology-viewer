@@ -95,6 +95,11 @@ const COLORS = {
                                 </mat-slide-toggle>
                             </div>
                         </div>
+
+                        <settingsViewboxPanel
+                                [extent]="viewExtent"
+                                (onUpdateExtent)="onUpdateViewExtent.emit($event)"
+                        ></settingsViewboxPanel>
                     </div>
                 </mat-expansion-panel>
             </mat-accordion>
@@ -372,6 +377,7 @@ export class SettingsPanelScaffold {
 
     @Input() searchOptions;
     @Input() highlighted;
+    @Input() viewExtent;
 
     @Output() onSelectBySearch = new EventEmitter();
     @Output() onEditResource = new EventEmitter();
@@ -379,6 +385,7 @@ export class SettingsPanelScaffold {
     @Output() onUpdateLabelContent = new EventEmitter();
     @Output() onToggleLayout = new EventEmitter();
     @Output() onToggleHelperPlane = new EventEmitter();
+    @Output() onUpdateViewExtent = new EventEmitter();
     @Output() onToggleComponent = new EventEmitter();
 
     constructor() {
