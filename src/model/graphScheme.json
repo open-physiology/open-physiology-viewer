@@ -179,6 +179,12 @@
           "scale": {
             "type": "number"
           },
+          "scaleX": {
+            "type": "number"
+          },
+          "scaleY": {
+            "type": "number"
+          },
           "rotate": {
             "type": "number"
           },

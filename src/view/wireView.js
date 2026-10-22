@@ -27,9 +27,21 @@ Wire.prototype.createViewObjects = function(state){
     if (!this.viewObjects["placeholder"]) {
         const size = 10; // small square
         const geom = new THREE.PlaneGeometry(size, size);
-        const mat = new THREE.MeshBasicMaterial({ color: this.color, side: THREE.DoubleSide });
+        // Background images are transparent, and three.js renders transparent objects after opaque ones
+        // regardless of renderOrder, so an opaque placeholder would be painted over by a coplanar background.
+        // Marking the placeholder transparent puts it into the same pass where renderOrder applies,
+        // and the polygon offset pulls it towards the camera to win z-fighting with coplanar surfaces.
+        const mat = new THREE.MeshBasicMaterial({
+            color: this.color,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 1,
+            polygonOffset: true,
+            polygonOffsetFactor: -1,
+            polygonOffsetUnits: -4
+        });
         const rect = new THREE.Mesh(geom, mat);
-        rect.renderOrder = 20; // render above wire to be visible
+        rect.renderOrder = 20; // render above wire and background images to be visible
         rect.userData = this;
         this.viewObjects["placeholder"] = rect;
     } else {
@@ -114,6 +126,9 @@ Wire.prototype.updateViewObjects = function(state) {
             }
             const pos = new THREE.Vector3(this.center.x, this.center.y, this.center.z || 0);
             copyCoords(placeholder.position, pos);
+            // Placeholders stand in for stratified regions, so they follow the same (scene extent-aware) size
+            const scale = state.stratifiedRegionSize || 1;
+            placeholder.scale.set(scale, scale, scale);
         }
     }
 

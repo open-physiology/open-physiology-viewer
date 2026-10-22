@@ -16,7 +16,7 @@ import {MatSnackBar, MatSnackBarConfig} from "@angular/material/snack-bar";
 import {HttpClient} from "@angular/common/http";
 import {layouts} from "../layouts/layouts";
 import {findResourceByID, mergeResources} from "../model/utils";
-import {clone, cloneDeep, keys, merge, pick, isArray, omit} from "lodash-bound";
+import {clone, cloneDeep, keys, merge, pick, isArray, omit, values} from "lodash-bound";
 import {$LogMsg, logger} from "../model/logger";
 import {addJSONLDTypeDef, getJSONLDContext} from "../model/utilsJSONLD";
 import {environment} from "../version/environment";
@@ -249,11 +249,17 @@ export class AppCommon {
         const stratifiedRegion = this.modelClasses.StratifiedRegion.fromJSON(
             inputStratifiedRegion, this.modelClasses, this._graphData.entitiesByID, this._graphData.namespace
         );
+        // fromJSON does not resolve references, link the region to the generated model objects
+        stratifiedRegion.supertype = stratification;
+        stratifiedRegion.axisWire = wire;
+        stratifiedRegion.reversed = reversed;
         // Create visual objects for the new stratified region
         callback(stratifiedRegion);
 
         // Save assignment for the current model
-        inputWire.stratification = stratification.id;
+        if (inputWire) {
+            inputWire.stratification = stratification.id;
+        }
 
         wire.stratification = stratification;
         wire.stratifiedRegion = stratifiedRegion;
@@ -273,7 +279,12 @@ export class AppCommon {
 
     deleteStratifiedRegion(stratifiedRegion){
         if (!stratifiedRegion) return;
-        const wire = stratifiedRegion.axisWire;
+        let wire = stratifiedRegion.axisWire;
+        if (wire && !(wire instanceof this.modelClasses.Wire)) {
+            // Unresolved reference: find the wire the region is assigned to
+            wire = (this._graphData.entitiesByID || {})::values().find(e => e instanceof this.modelClasses.Wire
+                && (e.id === wire || e.fullID === wire)) || wire;
+        }
         const inputWire = (this._model.wires||[]).find(e => e.id === (wire?.id || wire));
         if (inputWire) {
             delete inputWire.stratification;
@@ -286,6 +297,9 @@ export class AppCommon {
             const inputStratification = (this._model.stratifications || []).find(e => e.id === (stratification.id || stratification));
             if (inputStratification && inputStratification.axisWires) {
                 inputStratification.axisWires = inputStratification.axisWires.filter(id => id !== wireID);
+            }
+            if (inputStratification && inputStratification.subtypes) {
+                inputStratification.subtypes = inputStratification.subtypes.filter(id => id !== stratifiedRegion.id);
             }
             if (stratification.axisWires) {
                 stratification.axisWires = stratification.axisWires.filter(id => id !== wireID);

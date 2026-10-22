@@ -1,10 +1,11 @@
-import {Component, Output, EventEmitter, Input, NgModule, ViewChild, ElementRef, SimpleChanges} from '@angular/core';
+import {Component, Output, EventEmitter, Input, NgModule, ElementRef, SimpleChanges} from '@angular/core';
 import {CommonModule} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {MatSlider, MatSliderModule} from '@angular/material/slider';
+import {MatSliderModule} from '@angular/material/slider';
 import {COLORS} from '../utils/colors.js'
 
-const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'rotate'];
+// scaleX and scaleY stretch the image along one axis on top of the uniform scale
+const SLIDER_NAMES = ['offsetX', 'offsetY', 'offsetZ', 'scale', 'scaleX', 'scaleY', 'rotate'];
 // flipX mirrors the image horizontally (across the y axis), flipY vertically (across the x axis)
 const FLIP_NAMES = ['flipX', 'flipY'];
 const PARAM_NAMES = [...SLIDER_NAMES, ...FLIP_NAMES];
@@ -17,106 +18,29 @@ const FINE_OFFSET_STEP = 1;
     selector: 'background-toolbar',
     template: `
        <section class="w3-bar w3-light-grey background-toolbar" title="Background image position. Arrow keys: move the active slider (x, y, z: by 1% of the scene extent); Shift+arrows or Ctrl+Up/Down: by 1; Ctrl+Left/Right: switch slider">
-           <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'offsetX'"
-                (mousedown)="setActiveSlider('offsetX')">
-               <label>x:</label>
-               <div class="slider">
-                   <mat-slider #sliderX style="width: 100%"
-                       [min]="_sliderConfig.offsetX.min" [max]="_sliderConfig.offsetX.max" [step]="1"
-                       [value]="offsetX"
-                       (input)="onSlider('offsetX', $event.value)"
-                       (change)="onSlider('offsetX', $event.value)"
-                   >
-                   </mat-slider>
-                   <div class="slider-scale">
-                       <span class="slider-label">{{_sliderConfig.offsetX.min}}</span>
-                       <span class="slider-value">({{offsetX}})</span>
-                       <span class="slider-label">{{_sliderConfig.offsetX.max}}</span>
-                   </div>
+           <ng-container *ngFor="let group of _groups">
+               <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="showGroup[group.id]"
+                       (click)="toggleGroup(group.id)"
+                       [title]="(showGroup[group.id] ? 'Hide ' : 'Show ') + group.title">
+                   <i class="fa {{group.icon}}"> </i>
+               </button>
+               <div *ngIf="showGroup[group.id]" class="toolbar-group">
+                   <ng-container *ngTemplateOutlet="sliders; context: {names: group.sliders}"></ng-container>
+                   <ng-container *ngIf="group.id === 'scale'">
+                       <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="flipX"
+                               (click)="toggleFlip('flipX')"
+                               title="Flip horizontally (mirror across the y axis)">
+                           <i class="fa fa-arrows-left-right"> </i>
+                       </button>
+                       <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="flipY"
+                               (click)="toggleFlip('flipY')"
+                               title="Flip vertically (mirror across the x axis)">
+                           <i class="fa fa-arrows-up-down"> </i>
+                       </button>
+                   </ng-container>
                </div>
-           </div>
-           <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'offsetY'"
-                (mousedown)="setActiveSlider('offsetY')">
-               <label>y:</label>
-               <div class="slider">
-                   <mat-slider #sliderY style="width: 100%"
-                       [min]="_sliderConfig.offsetY.min" [max]="_sliderConfig.offsetY.max" [step]="1"
-                       [value]="offsetY"
-                       (input)="onSlider('offsetY', $event.value)"
-                       (change)="onSlider('offsetY', $event.value)"
-                   >
-                   </mat-slider>
-                   <div class="slider-scale">
-                       <span class="slider-label">{{_sliderConfig.offsetY.min}}</span>
-                       <span class="slider-value">({{offsetY}})</span>
-                       <span class="slider-label">{{_sliderConfig.offsetY.max}}</span>
-                   </div>
-               </div>
-           </div>
-           <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'offsetZ'"
-                (mousedown)="setActiveSlider('offsetZ')">
-               <label>z:</label>
-               <div class="slider">
-                   <mat-slider #sliderZ style="width: 100%"
-                       [min]="_sliderConfig.offsetZ.min" [max]="_sliderConfig.offsetZ.max" [step]="0.1"
-                       [value]="offsetZ"
-                       (input)="onSlider('offsetZ', $event.value)"
-                       (change)="onSlider('offsetZ', $event.value)"
-                   >
-                   </mat-slider>
-                   <div class="slider-scale">
-                       <span class="slider-label">{{_sliderConfig.offsetZ.min}}</span>
-                       <span class="slider-value">({{offsetZ}})</span>
-                       <span class="slider-label">{{_sliderConfig.offsetZ.max}}</span>
-                   </div>
-               </div>
-           </div>
-           <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'scale'"
-                (mousedown)="setActiveSlider('scale')">
-               <label>scale:</label>
-               <div class="slider">
-                   <mat-slider #sliderScale style="width: 100%"
-                       [min]="0.1" [max]="2.0" [step]="0.01"
-                       [value]="scale"
-                       (input)="onSlider('scale', $event.value)"
-                       (change)="onSlider('scale', $event.value)"
-                   >
-                   </mat-slider>
-                   <div class="slider-scale">
-                       <span class="slider-label">0.1</span>
-                       <span class="slider-value">({{scale}})</span>
-                       <span class="slider-label">2.0</span>
-                   </div>
-               </div>
-           </div>
-           <div class="w3-bar-item slider-group" [class.active-slider]="activeSlider === 'rotate'"
-                (mousedown)="setActiveSlider('rotate')">
-               <label>rotate:</label>
-               <div class="slider">
-                   <mat-slider #sliderRotate style="width: 100%"
-                       [min]="-3.14" [max]="3.14" [step]="0.01"
-                       [value]="rotate"
-                       (input)="onSlider('rotate', $event.value)"
-                       (change)="onSlider('rotate', $event.value)"
-                   >
-                   </mat-slider>
-                   <div class="slider-scale">
-                       <span class="slider-label">-3.14</span>
-                       <span class="slider-value">({{rotate}})</span>
-                       <span class="slider-label">3.14</span>
-                   </div>
-               </div>
-           </div>
-           <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="flipX"
-                   (click)="toggleFlip('flipX')"
-                   title="Flip horizontally (mirror across the y axis)">
-               <i class="fa fa-arrows-left-right"> </i>
-           </button>
-           <button class="w3-bar-item w3-hover-light-grey" [class.flip-active]="flipY"
-                   (click)="toggleFlip('flipY')"
-                   title="Flip vertically (mirror across the x axis)">
-               <i class="fa fa-arrows-up-down"> </i>
-           </button>
+           </ng-container>
+           <ng-container *ngTemplateOutlet="sliders; context: {names: ['rotate']}"></ng-container>
            <button class="w3-bar-item w3-hover-light-grey" (click)="applyChanges()"
                    title="Apply changes">
                <div style="display: flex">
@@ -129,6 +53,28 @@ const FINE_OFFSET_STEP = 1;
                <i class="fa fa-undo"> </i>
            </button>
        </section>
+
+       <ng-template #sliders let-names="names">
+           <div *ngFor="let name of names" class="w3-bar-item slider-group" [attr.data-slider]="name"
+                [class.active-slider]="activeSlider === name"
+                (mousedown)="setActiveSlider(name)">
+               <label>{{_sliderConfig[name].label}}:</label>
+               <div class="slider">
+                   <mat-slider style="width: 100%"
+                       [min]="_sliderConfig[name].min" [max]="_sliderConfig[name].max" [step]="_sliderConfig[name].step"
+                       [value]="getValue(name)"
+                       (input)="onSlider(name, $event.value)"
+                       (change)="onSlider(name, $event.value)"
+                   >
+                   </mat-slider>
+                   <div class="slider-scale">
+                       <span class="slider-label">{{_sliderConfig[name].min}}</span>
+                       <span class="slider-value">({{getValue(name)}})</span>
+                       <span class="slider-label">{{_sliderConfig[name].max}}</span>
+                   </div>
+               </div>
+           </div>
+       </ng-template>
     `,
     styles: [`
         .background-toolbar{
@@ -147,11 +93,20 @@ const FINE_OFFSET_STEP = 1;
             height: 38px;
             flex-shrink: 0;
         }
+        .background-toolbar .toolbar-group {
+            display: flex;
+            align-items: center;
+            border-right: 1px solid lightgray;
+        }
         .background-toolbar .flip-active {
             border: 1px solid ${COLORS.selectedBorder};
         }
         .background-toolbar .slider-group {
             cursor: pointer;
+            /* Size to the label and slider so that the selection border encloses the whole slider */
+            height: auto;
+            padding: 2px 6px !important;
+            box-sizing: border-box;
         }
         .background-toolbar .slider-group.active-slider {
             cursor: default;
@@ -171,15 +126,19 @@ const FINE_OFFSET_STEP = 1;
             display: block;
             line-height: 1;
             margin-right: 4px;
+            white-space: nowrap;
         }
+        /* mat-slider is 48px high with the track in the middle and at least 128px wide:
+           drop the width limit and trim the empty space above and below the track */
         .background-toolbar mat-slider {
-            height: 32px;
+            min-width: 0;
+            margin: -12px 0;
         }
         .slider-scale {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            margin-top: -8px;
+            line-height: 1;
         }
         .slider-label {
             font-size: 0.65em;
@@ -192,17 +151,16 @@ const FINE_OFFSET_STEP = 1;
             text-align: center;
         }
         .slider-group {
-            width: 180px;
-            margin-right: 5px;
+            margin-right: 2px;
             display: flex;
             flex-direction: row;
+            align-items: center;
         }
         .slider {
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: -16px;
+            width: 120px;
+            flex-shrink: 0;
         }
 	`]
 })
@@ -211,6 +169,8 @@ export class BackgroundToolbar {
     @Input() offsetY = 0;
     @Input() offsetZ = 0;
     @Input() scale = 1.0;
+    @Input() scaleX = 1.0;
+    @Input() scaleY = 1.0;
     @Input() rotate = 0;
     @Input() flipX = false;
     @Input() flipY = false;
@@ -220,27 +180,32 @@ export class BackgroundToolbar {
     @Output() onUpdateOffsetY = new EventEmitter();
     @Output() onUpdateOffsetZ = new EventEmitter();
     @Output() onUpdateScale = new EventEmitter();
+    @Output() onUpdateScaleX = new EventEmitter();
+    @Output() onUpdateScaleY = new EventEmitter();
     @Output() onUpdateRotate = new EventEmitter();
     @Output() onUpdateFlipX = new EventEmitter();
     @Output() onUpdateFlipY = new EventEmitter();
     @Output() onApply = new EventEmitter();
 
-    @ViewChild('sliderX') sliderX;
-    @ViewChild('sliderY') sliderY;
-    @ViewChild('sliderZ') sliderZ;
-    @ViewChild('sliderScale') sliderScale;
-    @ViewChild('sliderRotate') sliderRotate;
-
     activeSlider = 'offsetX';
 
-    // Range/step metadata mirrors the template bindings and drives keyboard increments
+    // Slider labels, ranges and steps used by the template and keyboard increments
     _sliderConfig = {
-        offsetX: {min: -1000, max: 1000, step: 1},
-        offsetY: {min: -1000, max: 1000, step: 1},
-        offsetZ: {min: -1000, max: 1000, step: 0.1},
-        scale:   {min: 0.1,  max: 2.0, step: 0.01},
-        rotate:  {min: -3.14, max: 3.14, step: 0.01}
+        offsetX: {label: 'x',       min: -1000, max: 1000, step: 1},
+        offsetY: {label: 'y',       min: -1000, max: 1000, step: 1},
+        offsetZ: {label: 'z',       min: -1000, max: 1000, step: 0.1},
+        scale:   {label: 'scale',   min: 0.1,  max: 2.0, step: 0.01},
+        scaleX:  {label: 'scale x', min: 0.1,  max: 3.0, step: 0.01},
+        scaleY:  {label: 'scale y', min: 0.1,  max: 3.0, step: 0.01},
+        rotate:  {label: 'rotate',  min: -3.14, max: 3.14, step: 0.01}
     };
+
+    // Slider groups that can be shown or hidden to keep the toolbar compact; rotate is always visible
+    _groups = [
+        {id: 'shift', title: 'shift sliders (x, y, z)', icon: 'fa-up-down-left-right', sliders: ['offsetX', 'offsetY', 'offsetZ']},
+        {id: 'scale', title: 'scale sliders and flips', icon: 'fa-maximize', sliders: ['scale', 'scaleX', 'scaleY']}
+    ];
+    showGroup = {shift: true, scale: false};
 
     // Baseline (last applied/loaded) values used to detect unsaved changes
     _savedParams = {};
@@ -297,6 +262,8 @@ export class BackgroundToolbar {
             case 'offsetY': this.onUpdateOffsetY.emit(value); break;
             case 'offsetZ': this.onUpdateOffsetZ.emit(value); break;
             case 'scale':   this.onUpdateScale.emit(value); break;
+            case 'scaleX':  this.onUpdateScaleX.emit(value); break;
+            case 'scaleY':  this.onUpdateScaleY.emit(value); break;
             case 'rotate':  this.onUpdateRotate.emit(value); break;
             case 'flipX':   this.onUpdateFlipX.emit(value); break;
             case 'flipY':   this.onUpdateFlipY.emit(value); break;
@@ -361,10 +328,28 @@ export class BackgroundToolbar {
         }
     }
 
+    /** Names of sliders in groups currently shown in the toolbar, in display order */
+    _visibleSliders() {
+        return [...this._groups.filter(g => this.showGroup[g.id]).flatMap(g => g.sliders), 'rotate'];
+    }
+
     _switchSlider(dir) {
-        const idx = SLIDER_NAMES.indexOf(this.activeSlider);
-        const next = (idx + dir + SLIDER_NAMES.length) % SLIDER_NAMES.length;
-        this.setActiveSlider(SLIDER_NAMES[next]);
+        const visible = this._visibleSliders();
+        const idx = visible.indexOf(this.activeSlider);
+        const next = (idx + dir + visible.length) % visible.length;
+        this.setActiveSlider(visible[next]);
+    }
+
+    toggleGroup(id) {
+        this.showGroup[id] = !this.showGroup[id];
+        // Keyboard input should not go to a slider that is no longer displayed
+        if (!this._visibleSliders().includes(this.activeSlider)) {
+            this.activeSlider = 'rotate';
+        }
+    }
+
+    getValue(name) {
+        return this[name];
     }
 
     isDirty() {
@@ -388,14 +373,8 @@ export class BackgroundToolbar {
 
     setActiveSlider(name) {
         this.activeSlider = name;
-        const slider = {
-            offsetX: this.sliderX,
-            offsetY: this.sliderY,
-            offsetZ: this.sliderZ,
-            scale: this.sliderScale,
-            rotate: this.sliderRotate
-        }[name];
-        slider?._elementRef?.nativeElement?.focus();
+        const slider = this._elementRef.nativeElement.querySelector(`[data-slider="${name}"] mat-slider`);
+        slider?.focus();
     }
 }
 

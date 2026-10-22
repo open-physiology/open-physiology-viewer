@@ -124,6 +124,8 @@ function toDriveDownloadUrl(url) {
                                 [offsetY]="_backgroundOffsetY"
                                 [offsetZ]="_backgroundOffsetZ"
                                 [scale]="_backgroundScale"
+                                [scaleX]="_backgroundScaleX"
+                                [scaleY]="_backgroundScaleY"
                                 [rotate]="_backgroundRotate"
                                 [flipX]="_backgroundFlipX"
                                 [flipY]="_backgroundFlipY"
@@ -132,6 +134,8 @@ function toDriveDownloadUrl(url) {
                                 (onUpdateOffsetY)="updateBackgroundOffsetY($event)"
                                 (onUpdateOffsetZ)="updateBackgroundOffsetZ($event)"
                                 (onUpdateScale)="updateBackgroundScale($event)"
+                                (onUpdateScaleX)="updateBackgroundScaleX($event)"
+                                (onUpdateScaleY)="updateBackgroundScaleY($event)"
                                 (onUpdateRotate)="updateBackgroundRotate($event)"
                                 (onUpdateFlipX)="updateBackgroundFlipX($event)"
                                 (onUpdateFlipY)="updateBackgroundFlipY($event)"
@@ -275,6 +279,9 @@ export class WebGLSceneComponent {
     _remoteBackgroundCacheSize = 5;
     _backgroundRequestId = 0;
     _backgroundScale = 0.6;
+    // Stretch factors along x and y applied on top of the uniform background scale
+    _backgroundScaleX = 1;
+    _backgroundScaleY = 1;
     _backgroundOffsetX = -10;
     _backgroundOffsetY = 195;
     _backgroundOffsetZ = 0;
@@ -1012,7 +1019,9 @@ export class WebGLSceneComponent {
     _applyBackgroundScale(mesh) {
         const scale = this._backgroundScale * this._extentRatio;
         // Negative scale mirrors the image (material is double-sided, so it stays visible)
-        mesh.scale.set(this._backgroundFlipX ? -scale : scale, this._backgroundFlipY ? -scale : scale, 1);
+        const scaleX = scale * (this._backgroundScaleX || 1);
+        const scaleY = scale * (this._backgroundScaleY || 1);
+        mesh.scale.set(this._backgroundFlipX ? -scaleX : scaleX, this._backgroundFlipY ? -scaleY : scaleY, 1);
     }
 
     updateBackgroundScale(value) {
@@ -1024,6 +1033,24 @@ export class WebGLSceneComponent {
         this._backgroundMeshes.forEach(mesh => {
             this._applyBackgroundScale(mesh);
         });
+    }
+
+    updateBackgroundScaleX(value) {
+        this._backgroundScaleX = value;
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.scaleX = value;
+        }
+        this._backgroundMeshes.forEach(mesh => this._applyBackgroundScale(mesh));
+    }
+
+    updateBackgroundScaleY(value) {
+        this._backgroundScaleY = value;
+        const params = this._ensureBackgroundParams();
+        if (params) {
+            params.scaleY = value;
+        }
+        this._backgroundMeshes.forEach(mesh => this._applyBackgroundScale(mesh));
     }
 
     updateBackgroundFlipX(value) {
@@ -1084,6 +1111,8 @@ export class WebGLSceneComponent {
                 if (params.offsetY  !== undefined) { this._backgroundOffsetY = params.offsetY; }
                 if (params.offsetZ  !== undefined) { this._backgroundOffsetZ = params.offsetZ; }
                 if (params.scale    !== undefined) { this._backgroundScale   = params.scale; }
+                if (params.scaleX   !== undefined) { this._backgroundScaleX  = params.scaleX; }
+                if (params.scaleY   !== undefined) { this._backgroundScaleY  = params.scaleY; }
                 if (params.rotate   !== undefined) { this._backgroundRotate  = params.rotate; }
                 if (params.flipX    !== undefined) { this._backgroundFlipX   = !!params.flipX; }
                 if (params.flipY    !== undefined) { this._backgroundFlipY   = !!params.flipY; }
@@ -1575,6 +1604,32 @@ export class WebGLSceneComponent {
         }
     }
 
+    /**
+     * Find the wire (and its stratified region) a stratum rectangle belongs to
+     * @param stratumEntity - user data of a stratum rectangle, {host, stratum, viewObjects}
+     * @returns {{wire, region}}
+     */
+    locateStratifiedWire(stratumEntity) {
+        const {StratifiedRegion, Wire} = this.modelClasses;
+        // Rectangles are children of the group created for the stratified region
+        const group = stratumEntity.viewObjects?.["main"]?.parent;
+        let region = stratumEntity.host instanceof StratifiedRegion ? stratumEntity.host
+            : (group?.userData instanceof StratifiedRegion ? group.userData : undefined);
+
+        let wire = region?.axisWire instanceof Wire ? region.axisWire : undefined;
+        if (!wire) {
+            const wires = (this._graphData?.entitiesByID || {})::values().filter(e => e instanceof Wire);
+            wire = wires.find(w => w.stratifiedRegion && (
+                (region && (w.stratifiedRegion === region || w.stratifiedRegion === region.id)) ||
+                (group && (w.viewObjects?.['icon'] === group || w.stratifiedRegion.viewObjects?.["main"] === group))
+            ));
+        }
+        if (!region && wire?.stratifiedRegion instanceof StratifiedRegion) {
+            region = wire.stratifiedRegion;
+        }
+        return {wire, region};
+    }
+
     onContextMenu(evt) {
         // Right-click handler: open stratification selection for a wire/placeholder
         evt.preventDefault && evt.preventDefault();
@@ -1592,11 +1647,44 @@ export class WebGLSceneComponent {
         }
 
         if (entity.host && entity.stratum) {
-            if (confirm("Delete stratified region?")) {
-                this.stratifiedRegionDeleted.emit({stratifiedRegion: entity.host});
-                this.removeViewObjects([entity.host]);
-                this.updateGraph();
+            // Stratum rectangles are not ApiNATOMY resources: locate the wire they are drawn on
+            const {wire, region} = this.locateStratifiedWire(entity);
+            if (!wire) {
+                this.graphData?.logger?.error("Failed to locate the wire for the selected stratum");
+                return;
             }
+            const candidates = (this._graphData?.stratifications || []);
+            const current = region?.supertype;
+            const dialogRef = this.dialog.open(StratificationDialog, {
+                width: '60%', data: {
+                    stratifications: candidates,
+                    selectedID: current?.id || current,
+                    reversed: !!(region?.reversed || wire.reversed),
+                    allowRemove: true
+                }
+            });
+            dialogRef.afterClosed().subscribe(res => {
+                if (!res) { return; }
+                if (region) {
+                    // Make sure the model update can reach the wire even if the reference is not resolved
+                    region.axisWire = wire;
+                    this.removeViewObjects([region]);
+                    delete wire.viewObjects['icon'];
+                    delete wire.viewObjects['iconLabel'];
+                    this.stratifiedRegionDeleted.emit({stratifiedRegion: region});
+                }
+                if (res.remove) {
+                    this.updateGraph();
+                    return;
+                }
+                this.stratificationSelected.emit({
+                    wire: wire,
+                    stratification: res.stratification,
+                    reversed: res.reversed,
+                    callback: (st) => this.graph.addStratifiedRegion(st)
+                });
+            });
+            return;
         }
 
         // Check if the entity is a Wire (or placeholder userData points to Wire)

@@ -41,6 +41,7 @@ import {FormsModule} from "@angular/forms";
             <mat-checkbox [(ngModel)]="reversed" style="margin-top: 8px;">Reverse</mat-checkbox>
         </div>
         <div mat-dialog-actions align="end">
+            <button mat-button *ngIf="data.allowRemove" (click)="onRemoveClick()">Remove</button>
             <button mat-button (click)="onNoClick()">Cancel</button>
             <button mat-button [disabled]="!selected" (click)="onOkClick()" cdkFocusInitial>OK</button>
         </div>
@@ -190,7 +191,9 @@ export class StratificationDialog {
         });
         this.filteredStratifiedTemplates = this.stratifiedTemplates;
 
-        const lastSelectedId = localStorage.getItem('lastSelectedStratificationId');
+        this.reversed = !!this.data.reversed;
+        // Preselect the currently assigned stratification if given, otherwise the last used one
+        const lastSelectedId = this.data.selectedID || localStorage.getItem('lastSelectedStratificationId');
         if (lastSelectedId) {
             this.selected = this.stratifiedTemplates.find(st => st.id === lastSelectedId) || (this.stratifiedTemplates.length > 0 ? this.stratifiedTemplates[0] : undefined);
         } else {
@@ -221,6 +224,10 @@ export class StratificationDialog {
 
     onNoClick(){
         this.dialogRef.close();
+    }
+
+    onRemoveClick(){
+        this.dialogRef.close({remove: true});
     }
 
     onOkClick(){
