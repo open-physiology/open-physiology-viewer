@@ -15,7 +15,7 @@ import {MatSliderModule} from '@angular/material/slider';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 import FileSaver from 'file-saver';
-import {keys, values, isObject, cloneDeep, defaults, union} from 'lodash-bound';
+import {keys, values, isObject, cloneDeep, defaults, union, isNumber} from 'lodash-bound';
 import * as THREE from 'three';
 import ThreeForceGraph from '../view/threeForceGraph';
 import {forceX, forceY, forceZ} from 'd3-force-3d';
@@ -68,6 +68,27 @@ function toDriveDownloadUrl(url) {
         return url;
     }
     return `https://www.googleapis.com/drive/v3/files/${fileID}?alt=media&key=${apiKey}`;
+}
+
+/**
+ * Google Cloud Storage console links (storage.cloud.google.com/<bucket>/<object>) require a signed-in
+ * Google account and redirect to a login page. Rewrite them to the public endpoint
+ * (storage.googleapis.com/<bucket>/<object>), which serves CORS headers configured on the bucket.
+ * @param url - image url
+ * @returns {string} url that can be loaded as a cross-origin texture
+ */
+function toCloudStorageUrl(url) {
+    let parsed;
+    try {
+        parsed = new URL(url);
+    } catch (e) {
+        return url;
+    }
+    if (parsed.hostname !== "storage.cloud.google.com") {
+        return url;
+    }
+    parsed.hostname = "storage.googleapis.com";
+    return parsed.toString();
 }
 
 /**
@@ -312,6 +333,7 @@ export class WebGLSceneComponent {
             if (this._graphData.neurulator) {
                 this._graphData.neurulator();
             }
+            this._applyModelExtent();
             if (this.isScaffold) {
                 this._computeScaffoldCenter();
                 this.updateBackground();
@@ -779,6 +801,10 @@ export class WebGLSceneComponent {
             return;
         }
         this.viewExtent = extent;
+        if (!this.camera || !this.controls) {
+            // Scene is not initialized yet, ngAfterViewInit will use the new extent
+            return;
+        }
         this.camera.far = 10 * extent;
         this.controls.maxDistance = 9 * extent;
 
@@ -804,6 +830,37 @@ export class WebGLSceneComponent {
             this.graph.graphData(this.graphData);
         }
         this.resetCamera();
+    }
+
+    /**
+     * Apply the scene extent defined in the loaded model: "sceneExtent": N (or [N], or a range [-N, N]) sets
+     * the scene to [-N, N] in model coordinates, which is N * scaleFactor in the WebGL scene. The value is taken
+     * from the loaded model or, for a connectivity model, from the first of its scaffolds that defines it.
+     * Models without an explicit extent use the default [-100, 100].
+     */
+    _applyModelExtent() {
+        // The scene is centered at 0, so a range [min, max] is covered by the larger of |min| and |max|
+        const toExtent = value => {
+            const values = Array.isArray(value) ? value : [value];
+            if (values.length === 0 || !values.every(v => v::isNumber())) {
+                return undefined;
+            }
+            const extent = Math.max(...values.map(Math.abs));
+            return extent > 0 ? extent : undefined;
+        };
+        const owner = [this._graphData, ...(this._graphData?.scaffolds || [])]
+            .find(model => model && model.sceneExtent !== undefined);
+        let extent = 100;
+        if (owner) {
+            const modelExtent = toExtent(owner.sceneExtent);
+            if (modelExtent) {
+                extent = modelExtent;
+            } else {
+                console.warn("Ignoring invalid sceneExtent (expected a positive number N or a range [-N, N]): ",
+                    owner.sceneExtent, owner.fullID || owner.id);
+            }
+        }
+        this.updateViewExtent(extent * (this._graphData?.scaleFactor || this.scaleFactor));
     }
 
     createGraph() {
@@ -976,7 +1033,7 @@ export class WebGLSceneComponent {
         }
         const loader = new THREE.TextureLoader();
         loader.setCrossOrigin("anonymous");
-        loader.load(toDriveDownloadUrl(url), (texture) => {
+        loader.load(toCloudStorageUrl(toDriveDownloadUrl(url)), (texture) => {
             this._remoteBackgroundCache.set(url, texture);
             if (this._remoteBackgroundCache.size > this._remoteBackgroundCacheSize) {
                 const [lruUrl, lruTexture] = this._remoteBackgroundCache.entries().next().value;
@@ -1659,7 +1716,7 @@ export class WebGLSceneComponent {
                 width: '60%', data: {
                     stratifications: candidates,
                     selectedID: current?.id || current,
-                    reversed: !!(region?.reversed || wire.reversed),
+                    reversed: !!(region?.reversed ?? wire.reversed),
                     allowRemove: true
                 }
             });
@@ -1681,7 +1738,10 @@ export class WebGLSceneComponent {
                     wire: wire,
                     stratification: res.stratification,
                     reversed: res.reversed,
-                    callback: (st) => this.graph.addStratifiedRegion(st)
+                    callback: (st) => {
+                        this.graph.addStratifiedRegion(st);
+                        this.refreshHighlighted();
+                    }
                 });
             });
             return;
@@ -1705,6 +1765,16 @@ export class WebGLSceneComponent {
                 }
             });
         }
+    }
+
+    /**
+     * Re-evaluate the object under the mouse after view objects were replaced, so that highlighting and
+     * the tooltip refer to the new objects rather than the removed ones
+     */
+    refreshHighlighted() {
+        if (!this.graph) { return; }
+        this.scene.updateMatrixWorld(true);
+        this.highlighted = this.getMouseOverEntity();
     }
 
     onMouseMove(evt) {

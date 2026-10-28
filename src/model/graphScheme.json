@@ -165,6 +165,23 @@
           "type": "number",
           "readOnly": true
         },
+        "sceneExtent": {
+          "description": "Size of the scene in model coordinates (the same units as anchor layout x and y). A number N, e.g., \"sceneExtent\": 1000, makes the scene span -1000..1000 along each axis; a range [min, max], e.g., [-1000, 1000], is also accepted (the scene is centered at 0, so the larger of |min| and |max| is used). If omitted, the scene spans -100..100. Can be set on the top-level connectivity model or on a scaffold; the top-level value takes precedence",
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1,
+              "maxItems": 2
+            }
+          ]
+        },
         "backgroundParams": {
           "type": "object",
           "offsetX": {
